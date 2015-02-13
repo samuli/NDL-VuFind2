@@ -7,8 +7,8 @@
 // --------------------------------------------------
 
 .nav {
-  margin-bottom: 0;
-  padding-left: 0; // Override default ul/ol
+  margin-bottom: 10px;
+  margin-top: 10px;
   list-style: none;
   &:extend(.clearfix all);
 
@@ -20,6 +20,7 @@
       position: relative;
       display: block;
       padding: @nav-link-padding;
+      transition: background 0.2s ease-in-out;
       &:hover,
       &:focus {
         text-decoration: none;
@@ -36,7 +37,7 @@
         color: @nav-disabled-link-hover-color;
         text-decoration: none;
         background-color: transparent;
-        cursor: @cursor-disabled;
+        cursor: not-allowed;
       }
     }
   }
@@ -162,7 +163,7 @@
 
   > li {
     float: none;
-    > a {
+     > a {
       text-align: center;
       margin-bottom: 5px;
     }
@@ -223,11 +224,9 @@
 .tab-content {
   > .tab-pane {
     display: none;
-    visibility: hidden;
   }
   > .active {
     display: block;
-    visibility: visible;
   }
 }
 
