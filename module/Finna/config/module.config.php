@@ -98,9 +98,10 @@ $config = array(
                     'resource' => 'Finna\Db\Table\Factory::getResource',
                     'user' => 'Finna\Db\Table\Factory::getUser',
                 ],
-                'invokables' => array(
+                'invokables' => [
                     'comments' => 'Finna\Db\Table\Comments',
-                ),
+                    'search' => 'Finna\Db\Table\Search'
+                ]
             ],
             'ils_driver' => [
                 'factories' => [
