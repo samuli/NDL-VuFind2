@@ -58,26 +58,13 @@ trait FinnaRowTrait
     }
 
     /**
-     * Route method calls to master row object.
-     *
-     * @param string $method Method name
-     * @param array  $args   Method arguments
-     *
-     * @return mixed
-     */
-    public function __call($method, $args) {
-        $target = method_exists($this, $method) ? $this : $this->masterRow;
-        return call_user_func_array([$target, $method], $args);
-    }
-
-    /**
      * Save
      *
      * @return int
      */
     public function save($saveMaster = true)
     {
-        if ($saveMaster) {
+        if ($this->masterRow && $saveMaster) {
             $this->masterRow->save();
         }
         return parent::save();
@@ -93,6 +80,11 @@ trait FinnaRowTrait
      */
     public function populate(array $rowData, $rowExistsInDatabase = false)
     {
+        if (!$this->masterRow) {
+            parent::populate($rowData, $rowExistsInDatabase);
+            return $this;
+        }
+
         if (!$this->columns) {
             parent::populate($rowData, true);
             return $this;
@@ -121,7 +113,7 @@ trait FinnaRowTrait
      */
     public function __set($name, $value)
     {
-        if (!in_array($name, $this->columns)) {
+        if ($this->masterRow && !in_array($name, $this->columns)) {
             $this->masterRow->__set($name, $value);
         } else {
             parent::__set($name, $value);
@@ -138,7 +130,7 @@ trait FinnaRowTrait
      */
     public function __get($name)
     {
-        if (!in_array($name, $this->columns)) {
+        if ($this->masterRow && !in_array($name, $this->columns)) {
             return $this->masterRow->__get($name);
         }
         return parent::__get($name);

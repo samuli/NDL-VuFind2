@@ -38,11 +38,9 @@ use VuFind\Db\Row\RowGateway,
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org   Main Site
  */
-class Search extends RowGateway
+class Search extends \VuFind\Db\Row\Search
 {
     use FinnaRowTrait;
-
-    protected $table = 'finna_search';
 
     /**
      * Constructor.
@@ -53,7 +51,10 @@ class Search extends RowGateway
      */
     public function __construct($adapter)
     {
-        parent::__construct('id', $this->table, $adapter);
+        parent::__construct($adapter);
+        $this->table = 'finna_search';
+        $this->sql = new Sql($adapter, $this->table);
+
         return $this;
     }
 
@@ -69,5 +70,4 @@ class Search extends RowGateway
         $this->last_executed = $time;
         return $this->save(false);
     }
-
 }
