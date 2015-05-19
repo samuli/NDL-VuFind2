@@ -4,7 +4,7 @@ finna.feed = (function() {
     };
 
     var adjustWidth = function(holder) {
-        holder.find(".carouselSlideHeader p, .carouselText")
+        holder.find(".carousel-slide-header p, .carousel-text")
             .width(holder.find(".slick-slide").width()-20);
     };
 
@@ -23,8 +23,9 @@ finna.feed = (function() {
                     console.log("set: %o", settings);
                     holder.find(".carousel-feed").slick({
                         dots: settings['dots'],
-                        swipe: false,
+                        swipe: true,
                         infinite: true,
+                        touchThreshold: 8,
                         autoplay: settings['autoplay'],
                         autoplaySpeed: settings['autoplay'],
                         slidesToShow: settings['slidesToShow']['desktop'],
@@ -68,7 +69,7 @@ finna.feed = (function() {
                     
                     adjustWidth(holder);
                     $(window).resize(function() {
-                        setTimeout(function() { adjustWidth(holder); }, 250);
+                        setTimeout(function() { adjustWidth(holder);}, 250);
                     });
 
                     if (typeof(settings['height']) != 'undefined') {

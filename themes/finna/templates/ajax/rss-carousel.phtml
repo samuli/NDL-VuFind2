@@ -1,16 +1,17 @@
 <div class="carousel">
-  <? if ($this->title || $this->translateTitle): ?><h2 class="carouselHeader"><?= $this->translateTitle ? $this->transEsc($this->translateTitle) : $this->title; ?></h2><? endif; ?>
+  <? if ($this->title || $this->translateTitle): ?><h2 class="carousel-header"><?= $this->translateTitle ? $this->transEsc($this->translateTitle) : $this->title; ?></h2><? endif; ?>
   <div class="carousel-feed">
     <? foreach($this->items as $item): ?>
     <div>
       <? if (!isset($this->linkText) && isset($item['link'])):?><a href="<?= $item['link']; ?>"><? endif; ?>  
-      <div class="carouselSlideHeader">
+      <div class="carousel-slide-header">
         <? if (isset($item['title'])): ?><p><?= $item['title']; ?></p><? endif; ?>
       </div>
       <? if (isset($item['text']) || $this->linkText): ?>
-      <div class="carouselText">
-        <? if (isset($item['text'])): ?><p><?= $item['text']; ?></p><? endif; ?>
-        <? if (isset($item['link']) && $this->linkText): ?><a href="<?= $item['link']; ?>" class="btn btn-primary"><?=$this->transEsc($this->linkText)?></a><? endif; ?>
+      <div class="carousel-text">
+        <? if (isset($item['text'])): ?><p><?= $item['text']; ?>
+        <? if (isset($item['link']) && $this->linkText): ?><a href="<?= $item['link']; ?>" class="carousel-link"><?=$this->transEsc($this->linkText)?></a><? endif; ?>
+        </p><? endif; ?>
       </div>
       <? endif; ?>
       <? if (isset($item['image']) && isset($item['image']['url'])): ?>
