@@ -26,6 +26,7 @@
  * @link     http://vufind.org/wiki/vufind2:building_a_controller Wiki
  */
 namespace Finna\Controller;
+use Zend\Feed\Reader\Reader;
 
 /**
  * This controller handles Finna AJAX functionality
@@ -468,4 +469,204 @@ class AjaxController extends \VuFind\Controller\AjaxController
         return $this->output(true, self::STATUS_OK);
     }
 
+
+    /**
+     * TODO
+     *
+     * @return mixed
+     */
+    public function getFeedAjax()
+    {
+        if (!$id = $this->params()->fromQuery('id')) {
+            return;
+        }
+
+        $config = $this->getServiceLocator()->get('VuFind\Config')->get('rss');
+        if (!isset($config[$id])) {
+            return;
+        }
+
+        $config = $config[$id];
+        if (!$config->active) {
+            return;
+        }
+
+        if (!$url = $config->url) {
+            return;
+        }
+
+        $type = $config->type;
+
+        // TODO: local file
+        // TODO: language versions
+
+        $channel = Reader::import($url);
+
+        $content = [
+            'title' => 'getTitle',
+            'text' => 'getContent',
+            'image' => 'getEnclosure',
+            'link' => 'getLink',
+            'links' => 'getLinks',
+
+            'author' => 'getAuthor',
+            'authors' => 'getAuthors',
+            'permalink' => 'getPermalink',
+            'modified' => 'getDateModified',
+            'created' => 'getDateCreated'
+        ];
+
+        $itemsCnt = isset($config->items) ? $config->items : null;
+
+        $items = [];
+        foreach ($channel as $item) {
+            /*
+            $tmp = $item->getElement();
+            $doc = new \DOMDocument();
+            $doc->appendChild($doc->importNode($tmp, TRUE));
+
+            error_log("******* img: " . var_export($doc->saveXML(), true));
+            die();
+            */
+
+            $data = [];
+            foreach ($content as $setting => $method) {
+
+                if (!isset($config->content[$setting])
+                    || $config->content[$setting] != 0
+                ) {
+                    $tmp = $item->{$method}();
+                    if (is_object($tmp)) {
+                        $tmp = get_object_vars($tmp);
+                    }
+
+
+                    if ($setting != 'image') {
+                        $tmp = strip_tags($tmp);
+                    } else {
+                        if (!$tmp) {
+                            // TODO: tarvitaanko?
+
+                            $doc = simplexml_import_dom($item->getElement());
+                            error_log("******* doc: " . var_export((string)$doc->description, true));
+
+                            $node = simplexml_load_string((string)$doc->description);
+
+                            /*
+
+                            $tmp = $item->getElement(); //->saveXML();
+                            $doc = new \DOMDocument();
+                            $doc->appendChild($doc->importNode($tmp, TRUE));
+
+                            error_log("******* img: " . var_export($doc->saveXML(), true));
+
+                            die();
+                            */
+
+                            $anchors = $node->a; //getElementsByTagName('a');
+                            error_log("anchors: " . var_export($anchors, true));
+
+                            foreach ($anchors as $anchor) {
+                                error_log(">> a: " . var_export($anchor, true));
+                                die();
+
+                                foreach ($anchor->childNodes as $anchorChild) {
+                                    error_log("  >> child: " . var_export($anchorChild, true));
+
+                                    $imageChild = false;
+                                    if ($anchorChild->nodeName == "img") {
+                                        error_log("image found");
+                                        $imageChild = true;
+                                        break;
+                                    }
+                                }
+                                if ($imageChild) {
+                                    $href = $anchor->getAttribute('href');
+
+                                    error_log(">> href: " . var_export($href, true));
+
+                                    if ($href) {
+                                        if ((substr($href, -4) == '.jpg')
+                                            || (substr($href, -4) == '.gif')
+                                            || (substr($href, -4) == '.png')
+                                            || (substr($href, -5) == '.jpeg')
+                                            ) {
+                                            $tmp = $href;
+                                            break;
+                                        }
+                                    }
+                                }
+                            }
+                            //                            error_log("******* desc: " . var_export($item->getContent(), true));
+                        }
+
+                        /*
+                        if (stripos($tmp['type'], 'image') === false) {
+                            continue;
+                            }*/
+                    }
+                    //error_log("******* tmp: " . var_export($tmp, true));
+
+                    $data[$setting] = $tmp;
+                }
+            }
+            $items[] = $data;
+            if ($itemsCnt !== null) {
+                if (--$itemsCnt === 0) {
+                    break;
+                }
+            }
+        }
+
+        $feed = [
+            'linkText' => isset($config->linkText) ? $config->linkText : null,
+            'moreLink' => $channel->getLink(),
+            'type' => $type,
+            'items' => $items,
+        ];
+
+        if (isset($config->title)) {
+            if ($config->title == 'rss') {
+                $feed['title'] = $channel->getTitle();
+            } else {
+                $feed['translateTitle'] = $config->title;
+            }
+        }
+
+        $html = $this->getViewRenderer()->partial(
+            "ajax/rss-$type.phtml", $feed
+        );
+
+        $settings = [];
+        $settings['type'] = $type;
+        if (isset($config->height)) {
+            $settings['height'] = $config->height;
+        }
+
+        if ($type == 'carousel') {
+            $settings['autoplay']
+                = isset($config->autoplay) ? $config->autoplay : true;
+            $settings['dots']
+                = isset($config->dots) ? $config->dots == true : true;
+            $settings['vertical']
+                = isset($config->vertical) ? $config->vertical == true : false;
+            $breakPoints
+                = ['desktop' => 4, 'desktop-small' => 3,
+                   'tablet' => 3, 'mobile' => 3];
+
+            foreach ($breakPoints as $breakPoint => $default) {
+                $settings['slidesToShow'][$breakPoint]
+                    = isset($config->itemsPerPage[$breakPoint])
+                    ? (int)$config->itemsPerPage[$breakPoint] : $default;
+
+                $settings['scrolledItems'][$breakPoint]
+                    = isset($config->scrolledItems[$breakPoint])
+                    ? (int)$config->scrolledItems[$breakPoint]
+                    : $settings['slidesToShow'][$breakPoint];
+            }
+        }
+
+        $res = ['html' => $html, 'settings' => $settings];
+        return $this->output($res, self::STATUS_OK);
+    }
 }

@@ -1,0 +1,18 @@
+<h3>home-1</h3>
+
+<div class="row">
+  <div class="col-sm-6 feed-container" data-feed="carousel-vertical"></div>
+  <div class="col-sm-6 feed-container" data-feed="carousel-vertical-recordbutton-dots"></div>
+</div>
+
+
+<? if ($template = $this->content()->findTemplateForLng('search/homelefttop')): ?>
+<div class="col-sm-7 left-top">
+  <?=$this->render($template)?>
+</div>
+<? endif; ?>
+<? if ($template = $this->content()->findTemplateForLng('search/homerighttop')): ?>
+<div class="col-sm-5 right-top">
+  <?=$this->render($template)?>
+</div>
+<? endif; ?>
