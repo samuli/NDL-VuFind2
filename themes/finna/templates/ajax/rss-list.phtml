@@ -1,0 +1,24 @@
+<div class="list-feed">
+<? if ($this->title || $this->translateTitle): ?><h2 class="feed-header"><?= $this->translateTitle ? $this->transEsc($this->translateTitle) : $this->title; ?></h2><? endif; ?>
+  <ul>
+    <? foreach($this->items as $item): ?>    
+    <li>
+      <? if (!isset($this->date)): ?><span class="date">13.5.</span> <? endif; ?>
+      <? if (!isset($this->linkText) && isset($item['link'])):?>
+      <a href="<?= $item['link']; ?>"><? endif; ?>
+        <? if (isset($item['image']) && isset($item['image']['url'])): ?>
+        <img src="<?= $item['image']['url']; ?>" />
+        <? endif; ?>
+        <span class="title"><?= $item['title']; ?></span>
+        <? if (!isset($this->linkText) && isset($item['link'])):?></a><? endif; ?>
+        <? if (isset($item['text'])): ?><span class="text"><?= $item['text']; ?></span><? endif; ?>
+    </li>
+    <? endforeach; ?>
+
+    <? if ($this->moreLink): ?>
+    <li class="more-link">
+      <a href="<?= $this->moreLink; ?>"><?= $this->translate('More'); ?>&hellip;</a>
+    </li>
+    <? endif; ?>
+  </ul>
+</div>
