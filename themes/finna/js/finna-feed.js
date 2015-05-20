@@ -16,11 +16,50 @@ finna.feed = (function() {
 
         var url = path + '/AJAX/JSON?method=getFeed&id=' + id;
         $.getJSON(url, function(response) {
+            if (response.status == 'ERROR') {
+                holder.html('<div class="error">' + vufindString.error + '</div>');
+                return;
+            }
+
             if (response.status === 'OK' && response.data) {
                 holder.html(response.data.html);
                 var settings = response.data.settings;
                 if (settings.type == "carousel") {
-                    console.log("set: %o", settings);
+                    var responsive = [];
+                    responsive = [
+                        {
+                            breakpoint: 992,
+                            settings: {
+                                slidesToShow: settings['slidesToShow']['desktop-small'],
+                                slidesToScroll: settings['scrolledItems']['desktop-small'],
+                                speed: calculateScrollSpeed(settings['scrolledItems']['desktop-small']),                                
+                                infinite: true,
+                                dots: true
+                            }
+                        },
+                        {
+                            breakpoint: 650,
+                            settings: {
+                                slidesToShow: settings['slidesToShow']['tablet'],
+                                slidesToScroll: settings['scrolledItems']['tablet'],
+                                speed: calculateScrollSpeed(settings['scrolledItems']['tablet']),                                
+                                infinite: true,
+                                dots: true
+                            }
+                        },
+                        {
+                            breakpoint: 530,
+                            settings: {
+                                lazyLoad: 'progressive',
+                                slidesToShow: settings['slidesToShow']['mobile'],
+                                slidesToScroll: settings['scrolledItems']['mobile'],
+                                speed: calculateScrollSpeed(settings['scrolledItems']['mobile']),
+                                infinite: true,
+                                dots: true
+                            }
+                        }
+                    ];
+
                     holder.find(".carousel-feed").slick({
                         dots: settings['dots'],
                         swipe: true,
@@ -32,51 +71,19 @@ finna.feed = (function() {
                         slidesToScroll: settings['scrolledItems']['desktop'],
                         speed: calculateScrollSpeed(settings['scrolledItems']['desktop']),
                         vertical: settings['vertical'],
-                        responsive: [
-                            {
-                                breakpoint: 992,
-                                settings: {
-                                    slidesToShow: settings['slidesToShow']['desktop-small'],
-                                    slidesToScroll: settings['scrolledItems']['desktop-small'],
-                                    speed: calculateScrollSpeed(settings['scrolledItems']['desktop-small']),                                
-                                    infinite: true,
-                                    dots: true
-                                }
-                            },
-                            {
-                                breakpoint: 650,
-                                settings: {
-                                    slidesToShow: settings['slidesToShow']['tablet'],
-                                    slidesToScroll: settings['scrolledItems']['tablet'],
-                                    speed: calculateScrollSpeed(settings['scrolledItems']['tablet']),                                
-                                    infinite: true,
-                                    dots: true
-                                }
-                            },
-                            {
-                                breakpoint: 530,
-                                settings: {
-                                    lazyLoad: 'progressive',
-                                    slidesToShow: settings['slidesToShow']['mobile'],
-                                    slidesToScroll: settings['scrolledItems']['mobile'],
-                                    speed: calculateScrollSpeed(settings['scrolledItems']['mobile']),
-                                    infinite: true,
-                                    dots: true
-                                }
-                            }
-                        ]
+                        responsive: responsive
                     });
                     
-                    adjustWidth(holder);
-                    $(window).resize(function() {
-                        setTimeout(function() { adjustWidth(holder);}, 250);
-                    });
+                    if (settings['type'] == 'carousel' && !settings['vertical']) {
+                        adjustWidth(holder);
+                        $(window).resize(function() {
+                            setTimeout(function() { adjustWidth(holder);}, 250);
+                        });
+                    }
 
                     if (typeof(settings['height']) != 'undefined') {
                         holder.find(".slick-slide").css("max-height", settings['height'] + "px");
                     }
-                } else {
-                    
                 }
             }
         });        

@@ -469,7 +469,6 @@ class AjaxController extends \VuFind\Controller\AjaxController
         return $this->output(true, self::STATUS_OK);
     }
 
-
     /**
      * TODO
      *
@@ -494,13 +493,35 @@ class AjaxController extends \VuFind\Controller\AjaxController
         if (!$url = $config->url) {
             return;
         }
-
+        
+        $translator = $this->getServiceLocator()->get('VuFind\Translator');
+        $language   = $translator->getLocale();
+        if (isset($url[$language])) {
+            $url = $url[$language];
+        } else if (isset($url['*'])) {
+            $url = $url['*'];
+        } else {
+            return;
+        }
+        
         $type = $config->type;
 
-        // TODO: local file
-        // TODO: language versions
+        $flags = array('flags' => FILTER_FLAG_SCHEME_REQUIRED);
+        if (filter_var($url, FILTER_VALIDATE_URL, $flags) === false) {
+            // Support for local files
+            $themeInfo  = $this->getServiceLocator()->get('VuFindTheme\ThemeInfo');
+            if ($theme = $themeInfo->findContainingTheme("templates/$url")) {
+                $path = $themeInfo->getBaseDir();
+                $path .= "/$theme/templates/$url";
+                $channel = Reader::importFile($path);
+            }
+        } else {
+            $channel = Reader::import($url);
+        }
 
-        $channel = Reader::import($url);
+        if (!$channel) {
+            return $this->output('', self::STATUS_ERROR);
+        }
 
         $content = [
             'title' => 'getTitle',
@@ -516,7 +537,19 @@ class AjaxController extends \VuFind\Controller\AjaxController
             'created' => 'getDateCreated'
         ];
 
+
+        function extractImage($html) 
+        {
+            $doc = new \DOMDocument();
+            $doc->loadHTML($html);
+            $imgs = iterator_to_array($doc->getElementsByTagName('img'));
+            return !empty($imgs) ? $imgs[0]->getAttribute('src') : null;
+        }
+
+        // TODO: date format
+
         $itemsCnt = isset($config->items) ? $config->items : null;
+        error_log("itemsCnt: $itemsCnt");
 
         $items = [];
         foreach ($channel as $item) {
@@ -536,21 +569,31 @@ class AjaxController extends \VuFind\Controller\AjaxController
                     || $config->content[$setting] != 0
                 ) {
                     $tmp = $item->{$method}();
+
                     if (is_object($tmp)) {
                         $tmp = get_object_vars($tmp);
                     }
-
-
+                    
                     if ($setting != 'image') {
-                        $tmp = strip_tags($tmp);
+                        if (is_array($tmp)) {
+                            $tmp = array_map('strip_tags', $tmp);
+                        } else {
+                            $tmp = strip_tags($tmp);
+                        }
                     } else {
                         if (!$tmp) {
                             // TODO: tarvitaanko?
+                            if ($tmp = extractImage($item->getDescription())) {
+                                $tmp = ['url' => $tmp];
+                            }
+                            
+                            /*
 
                             $doc = simplexml_import_dom($item->getElement());
                             error_log("******* doc: " . var_export((string)$doc->description, true));
 
                             $node = simplexml_load_string((string)$doc->description);
+                            */
 
                             /*
 
@@ -562,42 +605,6 @@ class AjaxController extends \VuFind\Controller\AjaxController
 
                             die();
                             */
-
-                            $anchors = $node->a; //getElementsByTagName('a');
-                            error_log("anchors: " . var_export($anchors, true));
-
-                            foreach ($anchors as $anchor) {
-                                error_log(">> a: " . var_export($anchor, true));
-                                die();
-
-                                foreach ($anchor->childNodes as $anchorChild) {
-                                    error_log("  >> child: " . var_export($anchorChild, true));
-
-                                    $imageChild = false;
-                                    if ($anchorChild->nodeName == "img") {
-                                        error_log("image found");
-                                        $imageChild = true;
-                                        break;
-                                    }
-                                }
-                                if ($imageChild) {
-                                    $href = $anchor->getAttribute('href');
-
-                                    error_log(">> href: " . var_export($href, true));
-
-                                    if ($href) {
-                                        if ((substr($href, -4) == '.jpg')
-                                            || (substr($href, -4) == '.gif')
-                                            || (substr($href, -4) == '.png')
-                                            || (substr($href, -5) == '.jpeg')
-                                            ) {
-                                            $tmp = $href;
-                                            break;
-                                        }
-                                    }
-                                }
-                            }
-                            //                            error_log("******* desc: " . var_export($item->getContent(), true));
                         }
 
                         /*
@@ -605,7 +612,7 @@ class AjaxController extends \VuFind\Controller\AjaxController
                             continue;
                             }*/
                     }
-                    //error_log("******* tmp: " . var_export($tmp, true));
+                    error_log("******* $setting: " . var_export($tmp, true));
 
                     $data[$setting] = $tmp;
                 }
