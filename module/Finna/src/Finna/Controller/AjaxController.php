@@ -476,6 +476,7 @@ class AjaxController extends \VuFind\Controller\AjaxController
      */
     public function getFeedAjax()
     {
+   
         if (!$id = $this->params()->fromQuery('id')) {
             return;
         }
@@ -508,6 +509,7 @@ class AjaxController extends \VuFind\Controller\AjaxController
 
         $flags = array('flags' => FILTER_FLAG_SCHEME_REQUIRED);
         if (filter_var($url, FILTER_VALIDATE_URL, $flags) === false) {
+           
             // Support for local files
             $themeInfo  = $this->getServiceLocator()->get('VuFindTheme\ThemeInfo');
             if ($theme = $themeInfo->findContainingTheme("templates/$url")) {
@@ -516,9 +518,10 @@ class AjaxController extends \VuFind\Controller\AjaxController
                 $channel = Reader::importFile($path);
             }
         } else {
+        
             $channel = Reader::import($url);
         }
-
+ 
         if (!$channel) {
             return $this->output('', self::STATUS_ERROR);
         }
