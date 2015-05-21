@@ -86,8 +86,13 @@
         
     }
 
-    & .slick-slider.slick-vertical .carousel-slide-header p {
-        background: @carousel-verticalslide-header-background;
+    & .slick-slider.slick-vertical {
+        & .slick-slide img {
+            max-height: initial;   
+        }
+        & .carousel-slide-header p {
+            background: @carousel-verticalslide-header-background;
+        }
     }
     & .slick-slider:not(.slick-vertical) .slick-slide.slick-active:hover .carousel-text {
         opacity: 1;

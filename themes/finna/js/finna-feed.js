@@ -137,15 +137,17 @@ finna.feed = (function() {
                                 centerImages(holder);
                             }, 250);
                         });
-                    }
+                    
 
                     holder.find(".slick-slide")
                         .css("max-height", settings['height'] + "px")
                         .addClass('adjusted-height')
-                        .find(".wrapper img").css("height", settings['height'] + "px");
-
-                    holder.find(".slick-track, .slick-slide .wrapper").css("max-height", settings['height'] + "px");
-
+                        .find(".wrapper img").css("height", settings['height'] + "px")
+                        .find(".slick-track, .slick-slide .wrapper").css("max-height", settings['height'] + "px");
+                    }
+                    else {
+                        holder.find(".slick-track, .slick-slide .wrapper").css("height", settings['height'] + "px");
+                    }
                     // Text hover for touch devices
                     if (finna.layout.isTouchDevice()
                         && typeof(settings['linkText'] == 'undefined')
