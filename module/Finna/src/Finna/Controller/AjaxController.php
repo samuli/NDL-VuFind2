@@ -481,6 +481,11 @@ class AjaxController extends \VuFind\Controller\AjaxController
             return $this->output('Missing feed id', self::STATUS_ERROR);
         }
 
+        $touchDevice = $this->params()->fromQuery('touch-device') !== null
+            ? $this->params()->fromQuery('touch-device') === '1'
+            : false
+        ;
+
         $config = $this->getServiceLocator()->get('VuFind\Config')->get('rss');
         if (!isset($config[$id])) {
             return $this->output('Missing feed configuration', self::STATUS_ERROR);
@@ -597,7 +602,7 @@ class AjaxController extends \VuFind\Controller\AjaxController
                             }
                         }
                     }
-                    //error_log("******* $setting: " . var_export($tmp, true));
+                    error_log("******* $setting: " . var_export($tmp, true));
 
                     if ($tmp) {
                         $data[$setting] = $tmp;
@@ -617,6 +622,7 @@ class AjaxController extends \VuFind\Controller\AjaxController
             'moreLink' => $channel->getLink(),
             'type' => $type,
             'items' => $items,
+            'touchDevice' => $touchDevice
         ];
 
         if (isset($config->title)) {

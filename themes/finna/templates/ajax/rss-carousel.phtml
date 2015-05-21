@@ -1,18 +1,22 @@
+<?
+  $clickableElement = !$this->touchDevice && !isset($this->linkText);
+  $clickableLink = !$clickableElement;
+?>
 <div class="carousel">
   <? if ($this->title || $this->translateTitle): ?><h2 class="carousel-header"><?= $this->translateTitle ? $this->transEsc($this->translateTitle) : $this->title; ?></h2><? endif; ?>
   <div class="carousel-feed">
     <? foreach($this->items as $item): ?>
     <div>
-      <? if (!isset($this->linkText) && isset($item['link'])):?><a<?= $this->linkTarget ? ' target="' . $this->escapeHtml($this->linkTarget) . '"' : '' ?> href="<?= $item['link']; ?>"><? endif; ?>  
+      <? if ($clickableElement && isset($item['link'])):?><a<?= $this->linkTarget ? ' target="' . $this->escapeHtml($this->linkTarget) . '"' : '' ?> href="<?= $item['link']; ?>"><? endif; ?>  
       <? if (isset($item['title'])): ?>
       <div class="carousel-slide-header">
         <p><?= $item['title']; ?></p>
       </div>
       <? endif; ?>
-      <? if (isset($item['text']) || $this->linkText): ?>
+      <? if (isset($item['text']) || $clickableLink): ?>
       <div class="carousel-text">
-        <? if (isset($item['text'])): ?><p><?= $item['text']; ?>
-        <? if (isset($item['link']) && $this->linkText): ?><a <?= $this->linkTarget ? ' target="' . $this->escapeHtml($this->linkTarget) . '"' : '' ?> href="<?= $item['link']; ?>" class="carousel-link"><?=$this->transEsc($this->linkText)?></a><? endif; ?>
+        <? if (isset($item['text'])): ?><p>a<?= $item['text']; ?>
+        <? if ($clickableLink): ?><a <?= $this->linkTarget ? ' target="' . $this->escapeHtml($this->linkTarget) . '"' : '' ?> href="<?= $item['link']; ?>" class="carousel-link"><?=$this->transEsc($this->linkText ? $this->linkText : 'To the record')?></a><? endif; ?>
         </p><? endif; ?>
       </div>
       <? endif; ?>
@@ -21,7 +25,7 @@
         <img src="<?= $item['image']['url']; ?>" />
       </div>
       <? endif; ?>
-      <? if (isset($item['link'])):?></a><? endif; ?>
+      <? if ($clickableElement):?></a><? endif; ?>
     </div>
     <? endforeach; ?>
   </div>

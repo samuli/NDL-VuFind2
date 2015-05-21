@@ -32,6 +32,8 @@ finna.feed = (function() {
         holder.find(".fa-spin").hide().delay(1000).fadeIn();
 
         var url = path + '/AJAX/JSON?method=getFeed&id=' + id;
+        url += "&touch-device=" + (finna.layout.isTouchDevice() ? 1 : 0);
+
         $.getJSON(url, function(response) {
             if (response.status == 'ERROR') {
                 holder.html('<div class="error">' + vufindString.error + '</div>');
@@ -112,6 +114,17 @@ finna.feed = (function() {
                                 centerImage($(this));
                             });
                         }); 
+                    }
+
+                    if (finna.layout.isTouchDevice()
+                        && typeof(settings['linkText'] == 'undefined')
+                    ) {
+                        holder.find(".slick-slide a").click(function(event) {
+                            if (!$(this).closest(".slick-slide").hasClass("clicked")) {
+                                $(this).closest(".slick-slide").addClass("clicked");
+                                return false;
+                            }
+                        });
                     }
 
                     // Force refresh to make sure that the layout is ok
