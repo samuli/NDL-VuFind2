@@ -3,28 +3,24 @@ finna.feed = (function() {
         return 750 * Math.max(1, (scrollCnt/5));
     };
 
-var adjustImageOffsets = function(holder) {
- holder.find(".carousel-feed:not(.slick-vertical) .slick-slide .wrapper img").each (function() {
-    adjustImageOffset($(this));
- });
-};
+    var centerImages = function(holder) {
+        holder.find(".carousel-feed:not(.slick-vertical) .slick-slide .wrapper img").each (function() {
+            centerImage($(this));
+        });
+    };
 
-    var adjustImageOffset = function(img) {
-                                var offset = img.width() - img.closest(".slick-slide").width();
-                                if (offset > 0) {
-                                    img.css("margin-left", "-" + offset/2 + "px");                                
-                                }
-                                else {
-                                    img.css("margin-left", "auto");
-                                }
+    var centerImage = function(img) {
+        var offset = img.width() - img.closest(".slick-slide").width();
+        img.css("margin-left", offset > 0 ? "-" + offset/2 + "px" : "auto");
     };
     
     var adjustWidth = function(holder) {
         holder.find(".carousel-slide-header p, .carousel-text")
             .width(holder.find(".slick-slide").width()-20);
-             holder.find(".slick-slide .wrapper img").each (function() {
-                adjustImageOffset($(this));
-             });
+
+        holder.find(".slick-slide .wrapper img").each (function() {
+            centerImage($(this));
+        });
     };
 
     var loadFeed = function(holder) {        
@@ -32,6 +28,8 @@ var adjustImageOffsets = function(holder) {
         if (typeof(id) == "undefined") {
             return;
         }
+        holder.append('<i class="fa fa-spin fa-spinner"></i>');
+        holder.find(".fa-spin").hide().delay(1000).fadeIn();
 
         var url = path + '/AJAX/JSON?method=getFeed&id=' + id;
         $.getJSON(url, function(response) {
@@ -44,9 +42,11 @@ var adjustImageOffsets = function(holder) {
                 holder.html(response.data.html);
                 var settings = response.data.settings;
                 if (settings.type == "carousel") {
-                    
+                    if (settings.images) {
+                        holder.addClass("with-image");
+                    }
 
-                    holder.find(".carousel-feed").slick({
+                    var obj = holder.find(".carousel-feed").slick({
                         dots: settings['dots'],
                         swipe: true,
                         infinite: true,
@@ -93,15 +93,12 @@ var adjustImageOffsets = function(holder) {
                     
                     if (settings['type'] == 'carousel' && !settings['vertical']) {
                         adjustWidth(holder);
+                        
                         $(window).resize(function() {
                             setTimeout(function() { adjustWidth(holder);}, 250);
-                            
                             if (typeof(settings['height']) != 'undefined') {
-                                adjustImageOffsets(holder);
-                                
-                             }
-                             
-                            
+                                centerImages(holder);
+                            }
                         });
                     }
 
@@ -112,10 +109,13 @@ var adjustImageOffsets = function(holder) {
                         holder.find(".slick-slide .wrapper img").css("height", settings['height'] + "px");
                         holder.find(".carousel-feed:not(.slick-vertical) .slick-slide .wrapper img").each (function() {
                             $(this).on("load", function() {
-                                adjustImageOffset($(this));
+                                centerImage($(this));
                             });
                         }); 
                     }
+
+                    // Force refresh to make sure that the layout is ok
+                    obj.slickGoTo(0, true);
                 }
             }
         });        

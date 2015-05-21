@@ -478,52 +478,55 @@ class AjaxController extends \VuFind\Controller\AjaxController
     {
    
         if (!$id = $this->params()->fromQuery('id')) {
-            return;
+            return $this->output('Missing feed id', self::STATUS_ERROR);
         }
 
         $config = $this->getServiceLocator()->get('VuFind\Config')->get('rss');
         if (!isset($config[$id])) {
-            return;
+            return $this->output('Missing feed configuration', self::STATUS_ERROR);
         }
 
         $config = $config[$id];
         if (!$config->active) {
-            return;
+            return $this->output('Feed inactive', self::STATUS_ERROR);
         }
 
         if (!$url = $config->url) {
-            return;
+            return $this->output('Missing feed URL', self::STATUS_ERROR);
         }
         
         $translator = $this->getServiceLocator()->get('VuFind\Translator');
         $language   = $translator->getLocale();
         if (isset($url[$language])) {
-            $url = $url[$language];
+            $url = trim($url[$language]);
         } else if (isset($url['*'])) {
-            $url = $url['*'];
+            $url = trim($url['*']);
         } else {
-            return;
+            return $this->output('Missing feed URL', self::STATUS_ERROR);
         }
         
         $type = $config->type;
 
-        $flags = array('flags' => FILTER_FLAG_SCHEME_REQUIRED);
-        if (filter_var($url, FILTER_VALIDATE_URL, $flags) === false) {
-           
-            // Support for local files
+        $channel = null;
+        if (preg_match('/^http(s)?:\/\//', $url)) {
+            // Absolute URL
+            $channel = Reader::import($url);
+        } else if (substr($url, 0, 1) === '/') {
+            // Relative URL
+            $url = substr($this->getServerUrl('home'), 0, -1) . $url;
+            $channel = Reader::import($url);
+        } else {
+            // Local file
             $themeInfo  = $this->getServiceLocator()->get('VuFindTheme\ThemeInfo');
             if ($theme = $themeInfo->findContainingTheme("templates/$url")) {
                 $path = $themeInfo->getBaseDir();
                 $path .= "/$theme/templates/$url";
                 $channel = Reader::importFile($path);
             }
-        } else {
-        
-            $channel = Reader::import($url);
         }
  
         if (!$channel) {
-            return $this->output('', self::STATUS_ERROR);
+            return $this->output('Parsing failed', self::STATUS_ERROR);
         }
 
         $content = [
@@ -541,10 +544,23 @@ class AjaxController extends \VuFind\Controller\AjaxController
         ];
 
 
+        /**
+         * Extract image URL from a HTML snippet.
+         *
+         * @param string $html HTML snippet.
+         *
+         * @return mixed null|URL
+         */
         function extractImage($html) 
         {
+            if (empty($html)) {
+                return null;
+            }
             $doc = new \DOMDocument();
+            // Silence errors caused by invalid HTML
+            libxml_use_internal_errors(true);
             $doc->loadHTML($html);
+            libxml_clear_errors();
             $imgs = iterator_to_array($doc->getElementsByTagName('img'));
             return !empty($imgs) ? $imgs[0]->getAttribute('src') : null;
         }
@@ -552,27 +568,15 @@ class AjaxController extends \VuFind\Controller\AjaxController
         // TODO: date format
 
         $itemsCnt = isset($config->items) ? $config->items : null;
-        error_log("itemsCnt: $itemsCnt");
 
         $items = [];
         foreach ($channel as $item) {
-            /*
-            $tmp = $item->getElement();
-            $doc = new \DOMDocument();
-            $doc->appendChild($doc->importNode($tmp, TRUE));
-
-            error_log("******* img: " . var_export($doc->saveXML(), true));
-            die();
-            */
-
             $data = [];
             foreach ($content as $setting => $method) {
-
                 if (!isset($config->content[$setting])
                     || $config->content[$setting] != 0
                 ) {
                     $tmp = $item->{$method}();
-
                     if (is_object($tmp)) {
                         $tmp = get_object_vars($tmp);
                     }
@@ -584,40 +588,20 @@ class AjaxController extends \VuFind\Controller\AjaxController
                             $tmp = strip_tags($tmp);
                         }
                     } else {
-                        if (!$tmp) {
-                            // TODO: tarvitaanko?
-                            if ($tmp = extractImage($item->getDescription())) {
+                        if (!$tmp
+                            || stripos($tmp['type'], 'image') === false
+                        ) {
+                            // Attempt to parse image URL from content
+                            if ($tmp = extractImage($item->getContent())) {
                                 $tmp = ['url' => $tmp];
                             }
-                            
-                            /*
-
-                            $doc = simplexml_import_dom($item->getElement());
-                            error_log("******* doc: " . var_export((string)$doc->description, true));
-
-                            $node = simplexml_load_string((string)$doc->description);
-                            */
-
-                            /*
-
-                            $tmp = $item->getElement(); //->saveXML();
-                            $doc = new \DOMDocument();
-                            $doc->appendChild($doc->importNode($tmp, TRUE));
-
-                            error_log("******* img: " . var_export($doc->saveXML(), true));
-
-                            die();
-                            */
                         }
-
-                        /*
-                        if (stripos($tmp['type'], 'image') === false) {
-                            continue;
-                            }*/
                     }
-                    error_log("******* $setting: " . var_export($tmp, true));
+                    //error_log("******* $setting: " . var_export($tmp, true));
 
-                    $data[$setting] = $tmp;
+                    if ($tmp) {
+                        $data[$setting] = $tmp;
+                    }
                 }
             }
             $items[] = $data;
@@ -643,6 +627,10 @@ class AjaxController extends \VuFind\Controller\AjaxController
             }
         }
 
+        if (isset($config->linkTarget)) {
+            $feed['linkTarget'] = $config->linkTarget;
+        }
+
         $html = $this->getViewRenderer()->partial(
             "ajax/rss-$type.phtml", $feed
         );
@@ -654,8 +642,11 @@ class AjaxController extends \VuFind\Controller\AjaxController
         }
 
         if ($type == 'carousel') {
+            $settings['images']
+                = isset($config->content['images'])
+                ? $config->content['images'] : true;
             $settings['autoplay']
-                = isset($config->autoplay) ? $config->autoplay : true;
+                = isset($config->autoplay) ? $config->autoplay : false;
             $settings['dots']
                 = isset($config->dots) ? $config->dots == true : true;
             $settings['vertical']

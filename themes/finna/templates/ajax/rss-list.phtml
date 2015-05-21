@@ -5,7 +5,7 @@
     <li>
       <? if (!isset($this->date)): ?><span class="date">13.5.</span> <? endif; ?>
       <? if (!isset($this->linkText) && isset($item['link'])):?>
-      <a href="<?= $item['link']; ?>"><? endif; ?>
+      <a<?= $this->linkTarget ? ' target="' . $this->escapeHtml($this->linkTarget) . '"' : '' ?> href="<?= $item['link']; ?>"><? endif; ?>
         <? if (isset($item['image']) && isset($item['image']['url'])): ?>
         <img src="<?= $item['image']['url']; ?>" />
         <? endif; ?>
