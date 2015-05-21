@@ -2,6 +2,7 @@ finna.feed = (function() {
     var calculateScrollSpeed = function(scrollCnt) {
         return 750 * Math.max(1, (scrollCnt/5));
     };
+    var headerMaxHeight = 0;
 
     var centerImages = function(holder) {
         holder.find(".carousel-feed:not(.slick-vertical) .slick-slide .wrapper img").each (function() {
@@ -113,7 +114,15 @@ finna.feed = (function() {
                             });
                         }); 
                     }
-
+                    holder.find(".carousel-feed:not(.slick-vertical) .slick-slide .carousel-slide-header p").each (function() {
+                        if ($(this).innerHeight() > headerMaxHeight) {
+                            headerMaxHeight = $(this).innerHeight();
+                        }
+                        $(this).addClass("title-bottom");
+                    });
+                    holder.find(".carousel-feed:not(.slick-vertical) .slick-list").css("padding-bottom", headerMaxHeight + "px");
+                    holder.find(".carousel-feed:not(.slick-vertical) .slick-slide .carousel-text").addClass("text-bottom");
+                    
                     // Force refresh to make sure that the layout is ok
                     obj.slickGoTo(0, true);
                 }
