@@ -539,22 +539,19 @@ class AjaxController extends \VuFind\Controller\AjaxController
             'text' => 'getContent',
             'image' => 'getEnclosure',
             'link' => 'getLink',
-            'links' => 'getLinks',
 
             'author' => 'getAuthor',
-            'authors' => 'getAuthors',
             'permalink' => 'getPermalink',
             'modified' => 'getDateModified',
             'created' => 'getDateCreated'
         ];
-
 
         /**
          * Extract image URL from a HTML snippet.
          *
          * @param string $html HTML snippet.
          *
-         * @return mixed null|URL
+         * @return mixed null|string
          */
         function extractImage($html) 
         {
@@ -568,6 +565,28 @@ class AjaxController extends \VuFind\Controller\AjaxController
             libxml_clear_errors();
             $imgs = iterator_to_array($doc->getElementsByTagName('img'));
             return !empty($imgs) ? $imgs[0]->getAttribute('src') : null;
+        }
+
+        /**
+         * Convert relative link to absolute.
+         *
+         * @param string $baseUrl Site base URL
+         * @param string $url     URL
+         *
+         * @return mixed null|string
+         */
+        function convertToAbsoluteLink($baseUrl, $url)
+        {
+            if (empty($url)) {
+                return null;
+            }
+            if (!preg_match('/^http(s)?:\/\//', $url)) {
+                if (strpos('/', trim($url)) === 0) {
+                    $url = substr(1, $url);
+                }
+                $url = "$baseUrl/$url";
+            }
+            return $url;
         }
 
         // TODO: date format
@@ -587,10 +606,12 @@ class AjaxController extends \VuFind\Controller\AjaxController
                     }
                     
                     if ($setting != 'image') {
-                        if (is_array($tmp)) {
-                            $tmp = array_map('strip_tags', $tmp);
-                        } else {
-                            $tmp = strip_tags($tmp);
+                        $tmp = strip_tags($tmp);
+
+                        if ($setting === 'link') {
+                            $tmp = convertToAbsoluteLink(
+                                $this->getServerUrl('home'), $tmp
+                            );
                         }
                     } else {
                         if (!$tmp
@@ -670,6 +691,11 @@ class AjaxController extends \VuFind\Controller\AjaxController
                     = isset($config->scrolledItems[$breakPoint])
                     ? (int)$config->scrolledItems[$breakPoint]
                     : $settings['slidesToShow'][$breakPoint];
+            }
+
+            if (!$settings['vertical']) {
+                $settings['titlePosition']
+                    = isset($config->titlePosition) ? $config->titlePosition : null;
             }
         }
 

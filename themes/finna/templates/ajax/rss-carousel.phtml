@@ -2,6 +2,7 @@
   $clickableElement = !$this->touchDevice && !isset($this->linkText);
   $clickableLink = !$clickableElement;
 ?>
+
 <div class="carousel">
   <? if ($this->title || $this->translateTitle): ?><h2 class="carousel-header"><?= $this->translateTitle ? $this->transEsc($this->translateTitle) : $this->title; ?></h2><? endif; ?>
   <div class="carousel-feed">
@@ -13,11 +14,13 @@
         <p><?= $item['title']; ?></p>
       </div>
       <? endif; ?>
+
+
       <? if (isset($item['text']) || $clickableLink): ?>
       <div class="carousel-text">
-        <? if (isset($item['text'])): ?><p>a<?= $item['text']; ?>
+        <p><?= $item['text']; ?>
         <? if ($clickableLink): ?><a <?= $this->linkTarget ? ' target="' . $this->escapeHtml($this->linkTarget) . '"' : '' ?> href="<?= $item['link']; ?>" class="carousel-link"><?=$this->transEsc($this->linkText ? $this->linkText : 'To the record')?></a><? endif; ?>
-        </p><? endif; ?>
+        </p>
       </div>
       <? endif; ?>
       <? if (isset($item['image']) && isset($item['image']['url'])): ?>
