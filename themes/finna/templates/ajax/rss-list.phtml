@@ -11,8 +11,9 @@
         <img src="<?= $item['image']['url']; ?>" />
         <? endif; ?>
         <span class="title"><?= $item['title']; ?></span>
-        <? if (!isset($this->linkText) && isset($item['link'])):?></a><? endif; ?>
+        <? if (!isset($this->linkText) && isset($item['link'])):?>
         <? if (isset($item['text'])): ?><span class="text"><?= $item['text']; ?></span><? endif; ?>
+        </a><? endif; ?>
     </li>
     <? endforeach; ?>
 

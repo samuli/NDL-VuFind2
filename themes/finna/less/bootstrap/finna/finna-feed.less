@@ -218,10 +218,14 @@
 
 
     &.with-image {
+        & li {
+          clear: both;  
+        }
         & img {
             max-width: 40%;
             margin-bottom: 15px;
             margin-right: 10px;
+            float: left;
         }
         & .date {
             position: absolute;
@@ -229,11 +233,18 @@
             color: @body-bg;
             background: rgba(20,20,20,.2);
         }
-        & .title {
+        & .title, .text {
             vertical-align: top;
             float: right;
             width: 55%;
-        }    
+        }  
+        & .text {
+            color: @gray;
+            &:hover {
+                text-decoration: none;   
+            }
+        }
+        
     }
     
 }
