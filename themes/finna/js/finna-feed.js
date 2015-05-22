@@ -3,6 +3,8 @@ finna.feed = (function() {
         return 750 * Math.max(1, (scrollCnt/5));
     };
 
+
+    // Horizontal carousel:
     var centerImages = function(holder) {
         holder.find(".carousel-feed:not(.slick-vertical) .slick-slide .wrapper img").each (function() {
             centerImage($(this));
@@ -26,12 +28,34 @@ finna.feed = (function() {
     var adjustTitles = function(holder) {
         // Move title field below image
         var maxH = 0;
-        holder.find(".carousel-feed .slick-slide .carousel-slide-header p").each (function() {
+        holder.find(".carousel-feed .slick-slide .carousel-slide-header p").each(function() {
             maxH = Math.max(maxH, $(this).innerHeight());
             $(this).addClass("title-bottom");
         });
         holder.find(".carousel-feed .slick-list").css("padding-bottom", maxH + "px");
         holder.find(".carousel-feed .slick-slide .carousel-text").addClass("text-bottom");
+    };
+
+    // Vertical carousel:
+    var adjustTextFields = function(holder) {
+        holder.find(".carousel-feed .slick-slide").each(function() {
+            adjustTextField($(this));
+        });
+    };
+
+    var adjustTextField = function(slide) {        
+        var imgH = slide.find(".wrapper").height();
+        var titleH = slide.find(".carousel-slide-header p").height();
+        var textF = slide.find(".carousel-text");
+        var pos = titleH+10;
+        textF.css("margin-top", pos + "px");
+        var h = imgH-pos-10;
+        if (lineH = textF.css("line-height")) {
+            lineH = Math.floor(parseInt(lineH.replace('px', '')));
+            var dif = h/lineH;
+            h -= (dif-2);
+            textF.height(h);
+        }
     };
 
     var loadFeed = function(holder) {        
@@ -49,7 +73,7 @@ finna.feed = (function() {
 
         $.getJSON(url, function(response) {
             if (response.status == 'ERROR') {
-                holder.html('<div class="error">' + vufindString.error + '</div>');
+                holder.html("<!-- Feed could not be loaded: " + response.data + " -->");
                 return;
             }
 
@@ -57,14 +81,10 @@ finna.feed = (function() {
                 holder.html(response.data.html);
                 var settings = response.data.settings;
                 if (typeof(settings['height']) == 'undefined') {
-                    settings['height'] = 700;
+                    settings['height'] = 300;
                 }
 
                 if (settings.type == "carousel") {
-                    if (settings.images) {
-                        holder.addClass("with-image");
-                    }
-
                     var obj = holder.find(".carousel-feed").slick({
                         dots: settings['dots'],
                         swipe: true,
@@ -109,45 +129,61 @@ finna.feed = (function() {
                         }
                         ]
                     });
-                    
-                    if (settings['type'] == 'carousel' && !settings['vertical']) {
-                        adjustWidth(holder);
 
+                    var refreshId = null;
+                    if (settings['type'] == 'carousel') {
                         holder.find(".carousel-feed .slick-slide .wrapper img").each (function() {
                             $(this).on("load", function() {
-                                centerImage($(this));
+                                if (!settings['vertical']) {
+                                    centerImage($(this));
+                                } else {
+                                    adjustTextField($(this).closest(".slick-slide"));
+                                }
                             });
                         });
 
-                        var titleBottom =
-                            typeof(settings['titlePosition']) != 'undefined'
-                            && settings['titlePosition'] == 'bottom'
-                        ;
 
-                        if (titleBottom) {
-                            adjustTitles(holder);
+                        if (!settings['vertical']) {
+                            adjustWidth(holder);
+                            
+                            
+                            var titleBottom =
+                                typeof(settings['titlePosition']) != 'undefined'
+                                && settings['titlePosition'] == 'bottom'
+                            ;
+                            
+                            if (titleBottom) {
+                                adjustTitles(holder);
+                            }
+                            
+                            $(window).resize(function() {
+                                clearInterval(refreshId);
+                                refreshId = setTimeout(function() {                                    
+                                    adjustWidth(holder);
+                                    if (titleBottom) {
+                                        adjustTitles(holder);
+                                    }
+                                    centerImages(holder);
+                                }, 250);
+                            });
+                            
+                            holder.find(".slick-slide")
+                                .css("max-height", settings['height'] + "px")
+                                .addClass('adjusted-height')
+                                .find(".wrapper img").css("height", settings['height'] + "px")
+                                .find(".slick-track, .slick-slide .wrapper").css("max-height", settings['height'] + "px");
+                        } else {
+                            holder.find(".slick-track, .slick-slide .wrapper").css("height", settings['height'] + "px");
+                            clearInterval(refreshId);
+
+                            $(window).resize(function() {
+                                setTimeout(function() {
+                                    adjustTextFields(holder);
+                                }, 250);
+                            });
                         }
-
-                        $(window).resize(function() {
-                            setTimeout(function() {
-                                adjustWidth(holder);
-                                if (titleBottom) {
-                                    adjustTitles(holder);
-                                }
-                                centerImages(holder);
-                            }, 250);
-                        });
-                    
-
-                    holder.find(".slick-slide")
-                        .css("max-height", settings['height'] + "px")
-                        .addClass('adjusted-height')
-                        .find(".wrapper img").css("height", settings['height'] + "px")
-                        .find(".slick-track, .slick-slide .wrapper").css("max-height", settings['height'] + "px");
                     }
-                    else {
-                        holder.find(".slick-track, .slick-slide .wrapper").css("height", settings['height'] + "px");
-                    }
+
                     // Text hover for touch devices
                     if (finna.layout.isTouchDevice()
                         && typeof(settings['linkText'] == 'undefined')

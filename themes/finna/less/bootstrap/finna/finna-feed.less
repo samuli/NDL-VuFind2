@@ -18,7 +18,7 @@
                 margin-left: auto;
                 margin-right: auto;
                 width: auto;
-                max-width: initial;
+                max-width: none;
             }
         }
     }
@@ -41,38 +41,42 @@
         letter-spacing: 0.2px;
         text-shadow: 1px 1px 1px black;
         word-break: break-word;
+        word-wrap: break-word;
         &.title-bottom {
-               top: 100%;
+            top: 100%;
         }
     }
     & .carousel-text {
-    position: absolute;
-    word-break: break-word;
-    width: 265px;
-    height: auto;
-    color: @carousel-slide-text-color;
-    background: @carousel-text-background-color;
-    transition: all 0.5s ease;
-    bottom: -10px;
-    padding: 0px 10px 10px;
-    z-index: 1;
-    opacity: 0;
-    max-height: 90%;
-    &.text-bottom {
-        top: 0px;
-        overflow: hidden;
-        margin-top: 0;
-        padding-top: 10px;
-        padding-bottom: 10px;
-        max-height: 100%;
-    }
+        position: absolute;
+        word-break: break-word;
+        width: 265px;
+        height: auto;
+        color: @carousel-slide-text-color;
+        background: @carousel-text-background-color;
+        transition: opacity 0.5s ease;
+        bottom: 0;
+        padding: 0px 10px 10px;
+        z-index: 1;
+        opacity: 0;
+        max-height: 90%;
+        &.text-bottom {
+            top: 0px;
+            overflow: hidden;
+            margin-top: 0;
+            padding-top: 10px;
+            padding-bottom: 10px;
+            max-height: 100%;
+        }
         & p {
             position: relative;
             margin: 0;
+            
             padding: 10px 0px;
             text-shadow: @finna-text-shadow;
-            transition: all 0.5s ease;
+            transition: opacity 0.5s ease;
             transition-delay: 0.2s;
+            word-break: break-word;
+            word-wrap: break-word;
             & .carousel-link {
                 border-top: 1px solid @carousel-slide-text-color;
                 padding-top: 5px;
@@ -82,8 +86,7 @@
                 color: @carousel-slide-link-color;
                 font-weight: bold;
             }
-        }
-        
+        }        
     }
 
     & .slick-slider.slick-vertical {
@@ -93,10 +96,12 @@
         & .carousel-slide-header p {
             background: @carousel-verticalslide-header-background;
         }
+        & .carousel-text p {
+            margin-left: 5px;
+        }
     }
     & .slick-slider:not(.slick-vertical) .slick-slide.slick-active:hover .carousel-text {
         opacity: 1;
-        transform: translate(0px, -10px);
         transition-delay: 0s;
     }
     
@@ -158,6 +163,8 @@
         background: rgba(50,50,50,0.2);
         overflow-x: hidden;
         z-index: 1;
+        width: 45px;
+        height: 45px;
     }
     & .slick-prev {
         left: 5px;  
@@ -169,7 +176,7 @@
 
 
 /** List feed **/
-.feed-container:not(.with-image) .list-feed {
+.feed-container .list-feed:not(.with-image) {
     & li {
         & span.date {
             float: left;
@@ -201,24 +208,26 @@
     & .date {
         color: @gray-light;   
     }
-}
-.with-image {
-    & img {
-        max-width: 40%;
-        margin-bottom: 15px;
-        margin-right: 10px;
-    }
-    & .list-feed {
-       & .date {
+
+
+
+    &.with-image {
+        & img {
+            max-width: 40%;
+            margin-bottom: 15px;
+            margin-right: 10px;
+        }
+        & .date {
             position: absolute;
             padding: 5px;
             color: @body-bg;
             background: rgba(20,20,20,.2);
-       }
-       & .title {
+        }
+        & .title {
             vertical-align: top;
             float: right;
             width: 55%;
-       }
+        }    
     }
+    
 }
