@@ -1,10 +1,9 @@
-<!-- TODO -->
-<div class="list-feed with-image">
+<div class="list-feed<?= $this->images ? ' with-image' : ''; ?>">
 <? if ($this->title || $this->translateTitle): ?><h2 class="feed-header"><?= $this->translateTitle ? $this->transEsc($this->translateTitle) : $this->title; ?></h2><? endif; ?>
   <ul>
-    <? foreach($this->items as $item): ?>    
+    <? foreach($this->items as $item): ?>
     <li>
-      <? if (!isset($this->date)): ?><span class="date">13.5.</span> <? endif; ?>
+      <? if (isset($item['date'])): ?><span class="date"><?= $item['date']; ?></span> <? endif; ?>
       <? if (!isset($this->linkText) && isset($item['link'])):?>
       <a<?= $this->linkTarget ? ' target="' . $this->escapeHtml($this->linkTarget) . '"' : '' ?> href="<?= $item['link']; ?>"><? endif; ?>
         <? if (isset($item['image']) && isset($item['image']['url'])): ?>

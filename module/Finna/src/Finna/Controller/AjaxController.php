@@ -522,12 +522,12 @@ class AjaxController extends \VuFind\Controller\AjaxController
             $channel = Reader::import($url);
         } else {
             // Local file
-            $themeInfo  = $this->getServiceLocator()->get('VuFindTheme\ThemeInfo');
-            if ($theme = $themeInfo->findContainingTheme("templates/$url")) {
-                $path = $themeInfo->getBaseDir();
-                $path .= "/$theme/templates/$url";
-                $channel = Reader::importFile($path);
+            if (!is_file($url)) {
+                return $this->output(
+                    "File $url could not be found", self::STATUS_ERROR
+                );
             }
+            $channel = Reader::importFile($url);
         }
  
         if (!$channel) {
@@ -535,15 +535,11 @@ class AjaxController extends \VuFind\Controller\AjaxController
         }
 
         $content = [
-            'title' => 'getTitle',
+            'title' => 'getTitle',            
             'text' => 'getContent',
             'image' => 'getEnclosure',
-            'link' => 'getLink',
-
-            'author' => 'getAuthor',
-            'permalink' => 'getPermalink',
-            'modified' => 'getDateModified',
-            'created' => 'getDateCreated'
+            'link' => 'getLink',           
+            'date' => 'getDateCreated'
         ];
 
         /**
@@ -563,34 +559,33 @@ class AjaxController extends \VuFind\Controller\AjaxController
             libxml_use_internal_errors(true);
             $doc->loadHTML($html);
             libxml_clear_errors();
-            $imgs = iterator_to_array($doc->getElementsByTagName('img'));
-            return !empty($imgs) ? $imgs[0]->getAttribute('src') : null;
-        }
+            
+            $img = null;
 
-        /**
-         * Convert relative link to absolute.
-         *
-         * @param string $baseUrl Site base URL
-         * @param string $url     URL
-         *
-         * @return mixed null|string
-         */
-        function convertToAbsoluteLink($baseUrl, $url)
-        {
-            if (empty($url)) {
-                return null;
-            }
-            if (!preg_match('/^http(s)?:\/\//', $url)) {
-                if (strpos('/', trim($url)) === 0) {
-                    $url = substr(1, $url);
+            // Search for <a> elements with <img> children; 
+            // they are likely links to full-size images
+            if ($links = iterator_to_array($doc->getElementsByTagName('a'))) {
+                foreach ($links as $link) {
+                    foreach ($link->childNodes as $child) {
+                        if ($child->nodeName == 'img') {
+                            $img = $child;
+                            break;
+                        }
+                    }
                 }
-                $url = "$baseUrl/$url";
             }
-            return $url;
+            
+            // Not found, return first <img> element if available
+            if (!$img) {
+                $imgs = iterator_to_array($doc->getElementsByTagName('img'));
+                if (!empty($imgs)) {
+                    $img = $imgs[0];
+                }
+            }
+            return $img ? $img->getAttribute('src') : null;
         }
 
-        // TODO: date format
-
+        $dateFormat = isset($config->dateFormat) ? $config->dateFormat : 'j.n.';
         $itemsCnt = isset($config->items) ? $config->items : null;
 
         $items = [];
@@ -604,16 +599,8 @@ class AjaxController extends \VuFind\Controller\AjaxController
                     if (is_object($tmp)) {
                         $tmp = get_object_vars($tmp);
                     }
-                    
-                    if ($setting != 'image') {
-                        $tmp = strip_tags($tmp);
 
-                        if ($setting === 'link') {
-                            $tmp = convertToAbsoluteLink(
-                                $this->getServerUrl('home'), $tmp
-                            );
-                        }
-                    } else {
+                    if ($setting == 'image') {
                         if (!$tmp
                             || stripos($tmp['type'], 'image') === false
                         ) {
@@ -622,14 +609,31 @@ class AjaxController extends \VuFind\Controller\AjaxController
                                 $tmp = ['url' => $tmp];
                             }
                         }
+                    } else if ($setting == 'date') {
+                        if (isset($tmp['date'])) {
+                            $tmp= new \DateTime(($tmp['date']));
+                            $tmp = $tmp->format($dateFormat);
+                        }
+                    } else {
+                        if (is_string($tmp)) {
+                            $tmp = strip_tags($tmp);
+                        }
                     }
-                    error_log("******* $setting: " . var_export($tmp, true));
-
                     if ($tmp) {
                         $data[$setting] = $tmp;
                     }
                 }
             }
+            
+            // Make sure that we have something to display
+            $accept = $data['title'] && trim($data['title']) != ''
+                || $data['text'] && trim($data['text']) != ''
+                || $data['image']
+            ;
+            if (!$accept) {
+                continue;
+            }
+
             $items[] = $data;
             if ($itemsCnt !== null) {
                 if (--$itemsCnt === 0) {
@@ -638,12 +642,17 @@ class AjaxController extends \VuFind\Controller\AjaxController
             }
         }
 
+        $images
+            = isset($config->content['image'])
+            ? $config->content['image'] : true;
+
         $feed = [
             'linkText' => isset($config->linkText) ? $config->linkText : null,
             'moreLink' => $channel->getLink(),
             'type' => $type,
             'items' => $items,
-            'touchDevice' => $touchDevice
+            'touchDevice' => $touchDevice,
+            'images' => $images
         ];
 
         if (isset($config->title)) {
@@ -658,8 +667,9 @@ class AjaxController extends \VuFind\Controller\AjaxController
             $feed['linkTarget'] = $config->linkTarget;
         }
 
+        $template = $type == 'list' ? 'list' : 'carousel';
         $html = $this->getViewRenderer()->partial(
-            "ajax/rss-$type.phtml", $feed
+            "ajax/feed-$template.phtml", $feed
         );
 
         $settings = [];
@@ -668,16 +678,12 @@ class AjaxController extends \VuFind\Controller\AjaxController
             $settings['height'] = $config->height;
         }
 
-        if ($type == 'carousel') {
-            $settings['images']
-                = isset($config->content['images'])
-                ? $config->content['images'] : true;
+        if ($type == 'carousel' || $type == 'carousel-vertical') {
+            $settings['images'] = $images;
             $settings['autoplay']
                 = isset($config->autoplay) ? $config->autoplay : false;
             $settings['dots']
                 = isset($config->dots) ? $config->dots == true : true;
-            $settings['vertical']
-                = isset($config->vertical) ? $config->vertical == true : false;
             $breakPoints
                 = ['desktop' => 4, 'desktop-small' => 3,
                    'tablet' => 3, 'mobile' => 3];
@@ -693,7 +699,7 @@ class AjaxController extends \VuFind\Controller\AjaxController
                     : $settings['slidesToShow'][$breakPoint];
             }
 
-            if (!$settings['vertical']) {
+            if ($type == 'carousel') {
                 $settings['titlePosition']
                     = isset($config->titlePosition) ? $config->titlePosition : null;
             }
