@@ -144,11 +144,11 @@
         }
         & .slick-prev {
             left: 50%;
-            margin-left: -35px;
+            margin-left: -50px;
         }
         & .slick-next {
             right: 50%;
-            margin-right: -35px;
+            margin-right: -50px;
         }
         & .slick-dots {
             display: none !important;
@@ -165,6 +165,12 @@
         z-index: 1;
         width: 45px;
         height: 45px;
+        &:before {
+            display: block;   
+        }
+        &:hover:before, &:focus:before  {
+            margin-right: 0; 
+        }
     }
     & .slick-prev {
         left: 5px;  
