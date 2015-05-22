@@ -61,7 +61,7 @@ trait SolrFinna
     public function getAccessRestrictions()
     {
         // Not currently stored in the Solr index
-        return array();
+        return [];
     }
 
     /**
@@ -258,7 +258,7 @@ trait SolrFinna
     public function getOriginalLanguages()
     {
         return isset($this->fields['original_lng_str_mv'])
-            ? $this->fields['original_lng_str_mv'] : array();
+            ? $this->fields['original_lng_str_mv'] : [];
     }
 
     /**
@@ -337,19 +337,6 @@ trait SolrFinna
     public function getSource()
     {
         return isset($this->fields['source']) ? $this->fields['source'] : false;
-    }
-
-    /**
-     * Like getFormats() but takes into account __unprocessed_format field.
-     *
-     * @return array Formats
-     */
-    public function getUnprocessedFormats()
-    {
-        if (isset($this->fields['__unprocessed_format'])) {
-            return $this->fields['__unprocessed_format'];
-        }
-        return $this->getFormats();
     }
 
     /**

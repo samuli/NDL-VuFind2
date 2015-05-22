@@ -1,6 +1,6 @@
 <?php
 /**
- * Finna search controller trait.
+ * Interface for translatable strings.
  *
  * PHP version 5
  *
@@ -20,38 +20,29 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * @category VuFind2
- * @package  Controller
- * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
+ * @package  Translator
+ * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
+ * @link     http://vufind.org   Main Site
  */
-namespace Finna\Controller;
+namespace VuFind\I18n;
 
 /**
- * Finna search controller trait.
+ * Interface for translatable strings.
  *
  * @category VuFind2
- * @package  Controller
- * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
+ * @package  Translator
+ * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
+ * @link     http://vufind.org   Main Site
  */
-trait SearchControllerTrait
+interface TranslatableStringInterface
 {
     /**
-     * Pass saved search ids from all tabs to layout.
+     * Return string for display if raw value has no translation available (can be
+     * further translated)
      *
-     * @return void
+     * @return string
      */
-    protected function initSavedTabs()
-    {
-        if ($savedTabs = $this->getRequest()->getQuery()->get('search')) {
-            $saved = [];
-            foreach ($savedTabs as $tab) {
-                list($searchClass, $searchId) = explode(':', $tab);
-                $saved[$searchClass] = $searchId;
-            }
-            $this->layout()->savedTabs = $saved;
-        }
-    }
+    public function getDisplayString();
 }
