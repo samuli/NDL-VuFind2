@@ -198,7 +198,10 @@
     padding: @list-feed-padding;
     margin-bottom: 20px;
     li {
-        line-height: 2em;   
+        line-height: 2em;
+        & a {
+            text-decoration: none;
+        }
     }
     & .title {
         font-weight: normal;
@@ -215,7 +218,12 @@
         color: @gray-light;   
     }
 
-
+    & .text {
+        color: @gray;
+        &:hover {
+            text-decoration: none;   
+        }
+    }
 
     &.with-image {
         & li {
@@ -239,11 +247,7 @@
             width: 55%;
         }  
         & .text {
-            color: @gray;
             padding-bottom: 15px;
-            &:hover {
-                text-decoration: none;   
-            }
         }
         & .more-link {
             display: block;

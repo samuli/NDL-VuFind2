@@ -646,9 +646,11 @@ class AjaxController extends \VuFind\Controller\AjaxController
             = isset($config->content['image'])
             ? $config->content['image'] : true;
 
+        $moreLink = !isset($config->moreLink) || $config->moreLink
+            ? $channel->getLink() : null;
         $feed = [
             'linkText' => isset($config->linkText) ? $config->linkText : null,
-            'moreLink' => $channel->getLink(),
+            'moreLink' => $moreLink,
             'type' => $type,
             'items' => $items,
             'touchDevice' => $touchDevice,
@@ -686,7 +688,7 @@ class AjaxController extends \VuFind\Controller\AjaxController
                 = isset($config->dots) ? $config->dots == true : true;
             $breakPoints
                 = ['desktop' => 4, 'desktop-small' => 3,
-                   'tablet' => 3, 'mobile' => 3];
+                   'tablet' => 2, 'mobile' => 1];
 
             foreach ($breakPoints as $breakPoint => $default) {
                 $settings['slidesToShow'][$breakPoint]

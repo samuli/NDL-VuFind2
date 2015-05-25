@@ -175,7 +175,7 @@ finna.feed = (function() {
     var getCarouselSettings = function(settings) {
         return {
             dots: settings['dots'],
-            swipe: true,
+            swipe: !settings['vertical'],
             infinite: true,
             touchThreshold: 8,
             autoplay: settings['autoplay'],
