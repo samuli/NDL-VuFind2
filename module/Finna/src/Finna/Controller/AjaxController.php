@@ -740,4 +740,115 @@ class AjaxController extends \VuFind\Controller\AjaxController
         }
         return $img ? $img->getAttribute('src') : null;
     }
+
+    /**
+     * TODO
+     *
+     * @return mixed
+     */
+    public function dateRangeVisualAjax()
+    {
+        // TODO:
+        // request['collection'] > onko käytössä?
+        // 
+
+
+        /*
+        // Load the desired facet information...
+        $config = getExtraConfigArray('facets');
+        
+        if (isset($config['SpecialFacets']['dateRangeVis'])) {
+            list($this->filterField, $this->dateFacet) = explode(':', $config['SpecialFacets']['dateRangeVis'], 2);
+            }*/
+
+
+    
+        $this->writeSession();  // avoid session write timing bug
+
+        $facet = 'main_date_str'; //$this->params()->fromQuery('facetName');
+        $sort = $this->params()->fromQuery('facetSort');
+        $operator = $this->params()->fromQuery('facetOperator');
+
+        $results = $this->getResultsManager()->get('Solr');
+        $params = $results->getParams();
+        $params->addFacet($facet, null, $operator === 'OR');
+        $params->initFromRequest($this->getRequest()->getQuery());
+
+
+        $facets = $results->getFullFieldFacets([$facet], false, -1, 'count');
+        
+        $facetList = $facets[$facet]['data']['list'];
+        if (empty($facetList)) {
+            return $this->output([], self::STATUS_OK);
+        }
+
+        $res = [];
+        foreach ($facetList as $f) {
+            $res[] = [$f['displayText'], $f['count']];
+        }
+
+        $res = [$facet => $res];
+        return $this->output($res, self::STATUS_OK);
+
+
+
+
+        $facetHelper = $this->getServiceLocator()
+            ->get('VuFind\HierarchicalFacetHelper');
+        if (!empty($sort)) {
+            $facetHelper->sortFacetList($facetList, $sort == 'top');
+        }
+
+
+        return $this->output(
+            $facetHelper->buildFacetArray(
+                $facet, $facetList, $results->getUrlQuery()
+            ),
+            self::STATUS_OK
+        );
+
+
+
+
+
+        $this->searchObject = SearchObjectFactory::initSearchObject();
+ 
+
+        $facetField = isset($_REQUEST['facetField']) 
+            ? $_REQUEST['facetField'] : '';
+        $filterField = isset($_REQUEST['filterField']) 
+            ? $_REQUEST['filterField'] : '';
+
+        
+        if (is_a($this->searchObject, 'SearchObject_Solr')) {
+            $this->searchObject->init();
+            $filters = $this->searchObject->getFilters();
+            $filterFields = $this->processDateFacets($filters);
+            $facets = $this->processFacetValues();
+            foreach ($filterFields as $field => $val) {
+                $facets[$field]['min'] = $val[0];
+                $facets[$field]['max'] = $val[1];
+                $facets[$field]['removalURL']
+                    = $this->searchObject->renderLinkWithoutFilter(
+                        isset($filters[$filterField][0])
+                        ? $field .':' . $filters[$filterField][0] : null
+                    );
+                if (isset($_REQUEST['collection'])) {
+                    $collection = $_REQUEST['collection'];
+                    $facets[$field]['removalURL']
+                        = str_replace(
+                            'Search/Results',
+                            'Collection/' . $collection .
+                            '/' .$_REQUEST['collectionAction'],
+                            $facets[$field]['removalURL']
+                        );
+                }
+            }
+            $this->output($facets, JSON::STATUS_OK);
+        } else {
+            $this->output("", JSON::STATUS_ERROR);
+        }
+
+
+    }
 }
