@@ -781,13 +781,23 @@ class AjaxController extends \VuFind\Controller\AjaxController
         if (empty($facetList)) {
             return $this->output([], self::STATUS_OK);
         }
+        
+        //        echo(var_export($facets, true));
 
         $res = [];
+        $min = PHP_INT_MAX;
+        $max = -$min;
+
         foreach ($facetList as $f) {
-            $res[] = [$f['displayText'], $f['count']];
+            $count = $f['count'];
+            $val = $f['displayText'];
+            $min = min($min, (int)$val);
+            $max = max($max, (int)$val);
+            $res[] = [$val, $count];
         }
 
-        $res = [$facet => $res];
+        $res = [$facet => ['data' => $res, 'min' => $min, 'max' => $max]];
+
         return $this->output($res, self::STATUS_OK);
 
 
