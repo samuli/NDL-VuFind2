@@ -115,14 +115,23 @@ class Params extends \VuFind\Search\Solr\Params
      */
     protected function formatFilterListEntry($field, $value, $operator, $translate)
     {
+        echo("format: $field:$value, spa: " . var_export($this->spatialDateRangeFilter, true));
+
         $res = parent::formatFilterListEntry($field, $value, $operator, $translate);
         if ($this->spatialDateRangeFilter 
             && $this->spatialDateRangeFilter['field'] == $field
         ) {
-            $res['displayText'] 
-                = $this->spatialDateRangeFilter['from'] 
-                . '–' . $this->spatialDateRangeFilter['to']
-            ;
+            $type = 'overlap';
+            
+            echo("format2: $field:$value");
+
+            if ($range = $this->convertSpatialDateRange($value, $type)) {
+                $startDate = new \DateTime("@{$range['from']}");
+                $endDate = new \DateTime("@{$range['to']}");
+                $from = $startDate->format('Y');
+                $to = $endDate->format('Y');
+                $res['displayText'] = $range['from'] . '–' . $range['to'];
+            }
         }
         return $res;
     }
@@ -135,14 +144,34 @@ class Params extends \VuFind\Search\Solr\Params
      *
      * @return void
      */
-    protected function initSpatialDateRangeFilter($request) {
+    protected function initSpatialDateRangeFilter($request)
+    {
         $type = $request->get('search_sdaterange_mvtype');
         /*
         if ($spatialRangeType) {
             $this->spatialDateRangeFilterType = $spatialRangeType;
             }*/
 
-        if ($ranges = $request->get('sdaterange')) {
+        $from = $to = null;
+
+        if ($request->get('sdaterange')) {
+            $from = $request->get('search_sdaterange_mvfrom');
+            $to = $request->get('search_sdaterange_mvto');
+        } else {
+            $filters = $this->getFilters();
+            if (isset($filters['search_sdaterange_mvtype'])) {
+                
+                $filters = $filters['search_sdaterange_mvtype'];
+            }
+        }
+
+        if (!$ranges || empty($ranges)) {
+            return;        
+        }
+
+        
+        if ($ranges = $filters['search_sdaterange_mvtype']) {
+            
             //            $range = Util::parseSpatialDateRange($rangequery, $type = 'overlap')
             if (!is_array($ranges)) {
                 $ranges = [$ranges];
@@ -270,6 +299,18 @@ class Params extends \VuFind\Search\Solr\Params
         return [
            'query' => $query, 'field' => $field, 'val' => $val
         ];
+    }
+
+    protected function convertSpatialDateRange($value, $type)
+    {
+        if ($range = Utils::parseSpatialDateRange($value, $type)) {
+            $startDate = new \DateTime("@{$range['from']}");
+            $endDate = new \DateTime("@{$range['to']}");
+            $from = $startDate->format('Y');
+            $to = $endDate->format('Y');
+            return ['from' => $from, 'to' => $to];
+        }
+        return null;
     }
 
 
