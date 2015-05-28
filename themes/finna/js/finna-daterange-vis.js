@@ -51,7 +51,8 @@ finna.dateRangeVis = (function() {
                 
                 // TODO: PCI
                 // TODO: collection
-                
+                // TODO: advanced haku
+
                 // Create the string of date params
                 searchParams = 'filterField=search_sdaterange_mv&facetField=main_date_str&sdaterange[]=' + filterField + '&' + filterField + 'from=' + this.padZeros(visDateStart) + '&' + filterField + 'to=' + this.padZeros(visDateEnd); 
                     //+'&{$searchParamsWithoutFilter|escape:'javascript'}';          
@@ -244,7 +245,7 @@ finna.dateRangeVis = (function() {
             } else {
                 action += '&'; // Other parameters found, therefore add &
             }
-            var type = $('.mainYearForm input[name=search_sdaterange_mvtype]:checked').val()
+            var type = $(this).find('input[name=search_sdaterange_mvtype]:checked').val();
             var query = action + 'sdaterange[]=search_sdaterange_mv&search_sdaterange_mvtype=' + type + '&';
             
             fromElement.removeClass('invalidField');

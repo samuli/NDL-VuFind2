@@ -79,15 +79,34 @@
         <?=$this->transEsc($cluster['label'])?>
       </div>
       <div id="side-collapse-<?=$this->escapeHtmlAttr($title) ?>" class="collapse<? if(!in_array($title, $collapsedFacets)): ?> in<? endif ?>">
-        <? if ($title == 'search_sdaterange_mv'): ?>
+        <? if ($title == 'search_sdaterange_mv'): ?>  
+        <?
+          $from = $to = $type = null;
+          $searchParams = $formParams = $this->results->getUrlQuery()->getParams(false);
+          if ($spatialFilter = $this->results->getParams()->getSpatialDateRangeFilter()) {
+            $queryHelper = $this->results->getUrlQuery();
+            $formParams = $queryHelper->removeFacet($spatialFilter['field'], $spatialFilter['val']);
+          //querytitle, $filters[$title][0]);
+             $from = $spatialFilter['from'];
+             $to = $spatialFilter['to'];          
+             $type = $spatialFilter['type'];          
+          }
+          
+          $filters = $this->results->getParams()->getFilters();
+          if (isset($filters[$title])) {
+             echo("rem: " . $filters[$title][0]);
+//             $queryHelper = $this->results->getUrlQuery();
+//             $formParams = $queryHelper->removeFacet($title, $filters[$title][0]);
+          }       
+        ?>
         <?= $this->partial('Recommend/DateRangeVisAjax.phtml', [
-           'from' => 1900,
-           'to' => 2000,
-           'formAction' => $this->results->getUrlQuery()->getParams(false),
-           'searchParams' => $this->results->getUrlQuery()->getParams(false),
+           'from' => $from,
+           'to' => $to,
+           'formAction' => $formParams,
+           'searchParams' => $searchParams,
            'facetField' => 'search_sdaterange_mv',
            'filterField' => 'main_date_str',
-           'type' => 'overlap'
+           'type' => $type
         ]); ?>
         <? elseif (isset($rangeFacets[$title])): ?>
           <div class="list-group-item">

@@ -40,6 +40,13 @@ namespace Finna\Search\Solr;
 class Params extends \VuFind\Search\Solr\Params
 {
     /**
+     * TODO
+     *
+     * @var Query
+     */
+    protected $spatialDateRangeFilter;
+
+    /**
      * Return current facet configurations.
      * Add checkbox facets to list.
      *
@@ -55,5 +62,163 @@ class Params extends \VuFind\Search\Solr\Params
             }
         }
         return $facetSet;
+    }
+
+    /**
+     * Pull the search parameters
+     *
+     * @param \Zend\StdLib\Parameters $request Parameter object representing user
+     * request.
+     *
+     * @return void
+     */
+    public function initFromRequest($request)
+    {
+        parent::initFromRequest($request);
+        $this->initSpatialDateRangeFilter($request);
+    }
+
+    /**
+     *  TODO
+     *
+     * @param \Zend\StdLib\Parameters $request Parameter object representing user
+     * request.
+     *
+     * @return void
+     */
+    public function getSpatialDateRangeFilter() 
+    {
+        return $this->spatialDateRangeFilter;
+    }
+
+    /**
+     *  TODO
+     *
+     * @param \Zend\StdLib\Parameters $request Parameter object representing user
+     * request.
+     *
+     * @return void
+     */
+    protected function initSpatialDateRangeFilter($request) {
+        $type = $request->get('search_sdaterange_mvtype');
+        /*
+        if ($spatialRangeType) {
+            $this->spatialDateRangeFilterType = $spatialRangeType;
+            }*/
+
+        if ($ranges = $request->get('sdaterange')) {
+            if (!is_array($ranges)) {
+                $ranges = [$ranges];
+            }
+            foreach ($ranges as $range) {
+                $dateFrom = $request->get("{$range}from");
+                $dateTo = $request->get("{$range}to");
+
+                // Build filter only if necessary:
+                if (!empty($range)) {
+                    $dateFilter
+                        = $this->buildSpatialDateRangeFilter(
+                            $range, $dateFrom, $dateTo, $type
+                        );
+
+                    $this->addFilter($dateFilter['query']);
+                    $this->spatialDateRangeFilter = $dateFilter;
+                }
+            }
+        }
+    }
+
+    /**
+     * Support method for initDateFilters() -- build a spatial filter query based on a range
+     * of dates (expressed as days from unix epoch).
+     * See the index schema definition for more information.
+     *
+     * @param string $field field to use for filtering.
+     * @param string $from  year or date (yyyy-mm-dd) for start of range.
+     * @param string $to    year or date (yyyy-mm-dd) for end of range.
+     * @param string $type  'overlap'  = document duration overlaps query durration (default)
+     *                      'within '  = document duration within query durration
+     *
+     * @return string       filter query.
+     * @access protected
+     */
+    protected function buildSpatialDateRangeFilter($field, $from, $to, $type = 'overlap')
+    {
+        $minFrom = -4371587;
+        $maxTo = 2932896;
+
+        $type = in_array($type, array('overlap', 'within')) ? $type : 'overlap';
+        $this->spatialDateRangeFilterType = $type;
+
+        $oldTZ = date_default_timezone_get();
+        try {
+            date_default_timezone_set('UTC');
+            if ($from == '' || $from == '*') {
+                $from = $minFrom;
+            } else {
+                // Make sure year has four digits
+                if (preg_match('/^(-?)(\d+)(.*)/', $from, $matches)) {
+                    $from = $matches[1] . str_pad($matches[2], 4, '0', STR_PAD_LEFT) . $matches[3];
+                }
+                // A crude check to see if this is a complete date to accommodate different years
+                // (1990, -12 etc.)
+                if (strlen($from) < 10) {
+                    $from .= '-01-01';
+                }
+                $fromDate = new \DateTime("{$from}T00:00:00");
+                // Need format instead of getTimestamp for dates before epoch
+                $from = $fromDate->format('U') / 86400;
+            }
+            if ($to == '' || $to == '*') {
+                $to = $maxTo;
+            } else {
+                // Make sure year has four digits
+                if (preg_match('/^(-?)(\d+)(.*)/', $to, $matches)) {
+                    $to = $matches[1] . str_pad($matches[2], 4, '0', STR_PAD_LEFT) . $matches[3];
+                }
+                // A crude check to see if this is a complete date to accommodate different years
+                // (1990, -12 etc.)
+                if (strlen($to) < 10) {
+                    $to .= '-12-31';
+                }
+
+                $toDate = new \DateTime("{$to}T00:00:00");
+                // Need format instead of getTimestamp for dates before epoch
+                $to = $toDate->format('U') / 86400;    // days since epoch
+            }
+        } catch (Exception $e) {
+            date_default_timezone_set($oldTZ);
+            return '';
+        }
+        date_default_timezone_set($oldTZ);
+
+        if ($from > $to) {
+            PEAR::RaiseError(new PEAR_Error("Invalid date range specified."));
+        }
+
+        // Assume Solr syntax -- this should be overridden in child classes where
+        // other indexing methodologies are used.
+
+        $val =  null;
+        if ($type == 'overlap') {
+            // document duration overlaps query duration
+            // q=fieldX:"Intersects(-∞ start end ∞)"
+            $val = "[\"$minFrom $from\" TO \"$to $maxTo\"]";
+            $query = "{$field}:$val";
+        } else if ($type == 'within') {
+            // document duration within query duration
+            // q=fieldX:"Intersects(start -∞ ∞ end)"
+
+            // Enlarge query range to match records with exactly the same time range as the original query
+            $from -= 0.5;
+            $to += 0.5;
+            $val = "[\"$from $minFrom\" TO \"$maxTo $to\"]";
+            $query = "{$field}:$val";
+        }
+
+        return [
+           'query' => $query, 'field' => $field, 'val' => $val, 
+           'from' => $from, 'to' => $to, 'type' => $type
+        ];
     }
 }
