@@ -26,7 +26,7 @@
  * @link     http://www.vufind.org  Main Page
  */
 namespace Finna\Search\Solr;
-
+use Finna\Solr\Utils;
 
 /**
  * Solr Search Parameters
@@ -45,6 +45,17 @@ class Params extends \VuFind\Search\Solr\Params
      * @var Query
      */
     protected $spatialDateRangeFilter;
+
+
+    /**
+     * TODO
+     *
+     * @return string
+     */
+    public function getSpatialDateRangeField()
+    {
+        return 'search_sdaterange_mv';
+    }
 
     /**
      * Return current facet configurations.
@@ -78,6 +89,7 @@ class Params extends \VuFind\Search\Solr\Params
         $this->initSpatialDateRangeFilter($request);
     }
 
+
     /**
      *  TODO
      *
@@ -89,6 +101,30 @@ class Params extends \VuFind\Search\Solr\Params
     public function getSpatialDateRangeFilter() 
     {
         return $this->spatialDateRangeFilter;
+    }
+
+    /**
+     * Format a single filter for use in getFilterList().
+     *
+     * @param string $field     Field name
+     * @param string $value     Field value
+     * @param string $operator  Operator (AND/OR/NOT)
+     * @param bool   $translate Should we translate the label?
+     *
+     * @return array
+     */
+    protected function formatFilterListEntry($field, $value, $operator, $translate)
+    {
+        $res = parent::formatFilterListEntry($field, $value, $operator, $translate);
+        if ($this->spatialDateRangeFilter 
+            && $this->spatialDateRangeFilter['field'] == $field
+        ) {
+            $res['displayText'] 
+                = $this->spatialDateRangeFilter['from'] 
+                . '–' . $this->spatialDateRangeFilter['to']
+            ;
+        }
+        return $res;
     }
 
     /**
@@ -107,6 +143,7 @@ class Params extends \VuFind\Search\Solr\Params
             }*/
 
         if ($ranges = $request->get('sdaterange')) {
+            //            $range = Util::parseSpatialDateRange($rangequery, $type = 'overlap')
             if (!is_array($ranges)) {
                 $ranges = [$ranges];
             }
@@ -122,6 +159,21 @@ class Params extends \VuFind\Search\Solr\Params
                         );
 
                     $this->addFilter($dateFilter['query']);
+
+
+                    /*
+                    if ($range = SolrUtils::parseRange($current)) {
+                        $from = $range['from'] == '*' ? '' : $range['from'];
+                        $to = $range['to'] == '*' ? '' : $range['to'];
+                        $savedSearch->getParams()
+                            ->removeFilter($field . ':' . $current);
+                        break;
+                        }*/
+
+                    $dateFilter['to'] = $dateTo;
+                    $dateFilter['from'] = $dateFrom;
+                    $dateFilter['type'] = $type;
+
                     $this->spatialDateRangeFilter = $dateFilter;
                 }
             }
@@ -140,7 +192,6 @@ class Params extends \VuFind\Search\Solr\Params
      *                      'within '  = document duration within query durration
      *
      * @return string       filter query.
-     * @access protected
      */
     protected function buildSpatialDateRangeFilter($field, $from, $to, $type = 'overlap')
     {
@@ -148,7 +199,7 @@ class Params extends \VuFind\Search\Solr\Params
         $maxTo = 2932896;
 
         $type = in_array($type, array('overlap', 'within')) ? $type : 'overlap';
-        $this->spatialDateRangeFilterType = $type;
+        //        $this->spatialDateRangeFilterType = $type;
 
         $oldTZ = date_default_timezone_get();
         try {
@@ -217,8 +268,9 @@ class Params extends \VuFind\Search\Solr\Params
         }
 
         return [
-           'query' => $query, 'field' => $field, 'val' => $val, 
-           'from' => $from, 'to' => $to, 'type' => $type
+           'query' => $query, 'field' => $field, 'val' => $val
         ];
     }
+
+
 }

@@ -7,7 +7,7 @@
     </div>
     <div id="year-ranges">
       <div class="timelineRange radiobuttonFilter">
-        <input id="timeline_overlap" type="radio" name="search_sdaterange_mvtype" value="overlap"<?= $this->type == 'overlap' ? ' checked="checked"' : ''; ?>/>
+        <input id="timeline_overlap" type="radio" name="search_sdaterange_mvtype" value="overlap"<?= !$this->type || $this->type == 'overlap' ? ' checked="checked"' : ''; ?>/>
         <label for="timeline_overlap"><?= $this->translate('Timeline overlap'); ?></label>
       </div>
       <div class="timelineRange radiobuttonFilter">

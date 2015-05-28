@@ -79,25 +79,20 @@
         <?=$this->transEsc($cluster['label'])?>
       </div>
       <div id="side-collapse-<?=$this->escapeHtmlAttr($title) ?>" class="collapse<? if(!in_array($title, $collapsedFacets)): ?> in<? endif ?>">
-        <? if ($title == 'search_sdaterange_mv'): ?>  
+        <?
+          $params = $this->results->getParams();          
+          if ($title == $params->getSpatialDateRangeField()):
+        ?>  
         <?
           $from = $to = $type = null;
           $searchParams = $formParams = $this->results->getUrlQuery()->getParams(false);
-          if ($spatialFilter = $this->results->getParams()->getSpatialDateRangeFilter()) {
+          if ($spatialFilter = $params->getSpatialDateRangeFilter()) {
             $queryHelper = $this->results->getUrlQuery();
             $formParams = $queryHelper->removeFacet($spatialFilter['field'], $spatialFilter['val']);
-          //querytitle, $filters[$title][0]);
              $from = $spatialFilter['from'];
              $to = $spatialFilter['to'];          
              $type = $spatialFilter['type'];          
           }
-          
-          $filters = $this->results->getParams()->getFilters();
-          if (isset($filters[$title])) {
-             echo("rem: " . $filters[$title][0]);
-//             $queryHelper = $this->results->getUrlQuery();
-//             $formParams = $queryHelper->removeFacet($title, $filters[$title][0]);
-          }       
         ?>
         <?= $this->partial('Recommend/DateRangeVisAjax.phtml', [
            'from' => $from,
