@@ -53,13 +53,13 @@ finna.dateRangeVis = (function() {
                 // TODO: collection
                 // TODO: advanced haku
                 // TODO: params > savedsearch remove filter?
+                // TODO: component UI (värit, napit)
+                // TOTO: component preval, tsekkaa alue
 
                 // Create the string of date params
                 searchParams = 'filterField=search_sdaterange_mv&facetField=main_date_str&sdaterange[]=' + filterField + '&' + filterField + 'from=' + this.padZeros(visDateStart) + '&' + filterField + 'to=' + this.padZeros(visDateEnd); 
                     //+'&{$searchParamsWithoutFilter|escape:'javascript'}';          
             }
-        } else {
-            //searchParams = '{$searchParams|escape:'javascript'}'; 
         }
 
         this.pageReadyCb = function() {
@@ -138,20 +138,20 @@ finna.dateRangeVis = (function() {
                     
                     var options = getGraphOptions(visDateStart, visDateEnd);
                    
-
-                    console.log("options: %o", options);
-
                     // Draw the plot
                     var plot = $.plot(vis, [val], options);
 
-  
+                    var form = holder.find(".year-form");
+                    var fromElement = holder.find("#year-from");            
+                    var toElement = holder.find("#year-to");            
 
-                    
+
                     // Bind events
                     vis.unbind("plotclick").bind("plotclick", function (event, pos, item) {
                         if (!visRangeSelected) {
                             var year = Math.floor(pos.x);
-                            $('#mainYearFrom, #mainYearTo').val(year);
+                            fromElement.val(year);
+                            toElement.val(year);
                             plot.setSelection({ x1: year , x2: year});
                         }
                         visRangeSelected = false;
@@ -160,22 +160,24 @@ finna.dateRangeVis = (function() {
                     vis.unbind("plotselected").bind("plotselected", function (event, ranges) {
                         from = Math.floor(ranges.xaxis.from);
                         to = Math.floor(ranges.xaxis.to);
-                        (from != '-9999') ? $('#mainYearFrom').val(from) : $('#mainYearFrom').val();
-                        (to != '9999') ? $('#mainYearTo').val(to) : $('#mainYearTo').val();
+                        (from != '-9999') ? fromElement.val(from) : fromElement.val();
+                        (to != '9999') ? toElement.val(to) : toElement.val();
                         $('body').click();
                         visRangeSelected = true;
                     });
                     
                     
                     // Set pre-selections
-/*
-                    var preFromVal = ($('#mainYearFrom').val()) ? $('#mainYearFrom').val() : val['min'];
-                    var preToVal = ($('#mainYearTo').val()) ? $('#mainYearTo').val() : val['max'];
+                    var from = fromElement.val();
+                    var to = toElement.val();
 
-                    if ($('#mainYearFrom').val() || $('#mainYearTo').val()) {
+                    var preFromVal = from ? from : val['min'];
+                    var preToVal = to ? to : val['max'];
+
+                    if (to || from) {
                         plot.setSelection({ x1: preFromVal , x2: preToVal});
                     } 
-  */                  
+                    
                     vis.removeClass('loading');                    
                 });
             }
@@ -200,7 +202,7 @@ finna.dateRangeVis = (function() {
                 font :{
                     size: 13,
                     family: "'helvetica neue', helvetica,arial,sans-serif",
-                    color:'#fff',
+                    color:'#464646',
                     weight:'bold'
                 }                  
             },

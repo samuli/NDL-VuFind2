@@ -115,16 +115,11 @@ class Params extends \VuFind\Search\Solr\Params
      */
     protected function formatFilterListEntry($field, $value, $operator, $translate)
     {
-        echo("format: $field:$value, spa: " . var_export($this->spatialDateRangeFilter, true));
-
         $res = parent::formatFilterListEntry($field, $value, $operator, $translate);
         if ($this->spatialDateRangeFilter 
             && $this->spatialDateRangeFilter['field'] == $field
         ) {
-            $type = 'overlap';
-            
-            echo("format2: $field:$value");
-
+            $type = $this->spatialDateRangeFilter['type'];
             if ($range = $this->convertSpatialDateRange($value, $type)) {
                 $startDate = new \DateTime("@{$range['from']}");
                 $endDate = new \DateTime("@{$range['to']}");
@@ -146,49 +141,45 @@ class Params extends \VuFind\Search\Solr\Params
      */
     protected function initSpatialDateRangeFilter($request)
     {
-        $type = $request->get('search_sdaterange_mvtype');
         /*
         if ($spatialRangeType) {
             $this->spatialDateRangeFilterType = $spatialRangeType;
             }*/
 
-        $from = $to = null;
+        if (!$type = $request->get('search_sdaterange_mvtype')) {
+            return;
+        }
 
-        if ($request->get('sdaterange')) {
+        $from = $to = null;
+        
+        if ($request->get('sdaterange')) {            
+            // Filter not activated, read parameters from request
             $from = $request->get('search_sdaterange_mvfrom');
             $to = $request->get('search_sdaterange_mvto');
+            $to = $request->get('search_sdaterange_mvto');            
         } else {
+            // Read parameters from active filter
             $filters = $this->getFilters();
-            if (isset($filters['search_sdaterange_mvtype'])) {
-                
-                $filters = $filters['search_sdaterange_mvtype'];
+            if (isset($filters['search_sdaterange_mv'])) {                
+                $filter = $filters['search_sdaterange_mv'];
+                if ($range = $this->convertSpatialDateRange($filter[0], $type)) {
+                    $from = $range['from'];
+                    $to = $range['to'];
+                }
             }
         }
 
-        if (!$ranges || empty($ranges)) {
+        if ($from === null && $to === null) {
             return;        
         }
 
         
-        if ($ranges = $filters['search_sdaterange_mvtype']) {
-            
-            //            $range = Util::parseSpatialDateRange($rangequery, $type = 'overlap')
-            if (!is_array($ranges)) {
-                $ranges = [$ranges];
-            }
-            foreach ($ranges as $range) {
-                $dateFrom = $request->get("{$range}from");
-                $dateTo = $request->get("{$range}to");
+        $dateFilter
+            = $this->buildSpatialDateRangeFilter(
+                'search_sdaterange_mv', $from, $to, $type
+            );
 
-                // Build filter only if necessary:
-                if (!empty($range)) {
-                    $dateFilter
-                        = $this->buildSpatialDateRangeFilter(
-                            $range, $dateFrom, $dateTo, $type
-                        );
-
-                    $this->addFilter($dateFilter['query']);
-
+        $this->addFilter($dateFilter['query']);
 
                     /*
                     if ($range = SolrUtils::parseRange($current)) {
@@ -199,14 +190,11 @@ class Params extends \VuFind\Search\Solr\Params
                         break;
                         }*/
 
-                    $dateFilter['to'] = $dateTo;
-                    $dateFilter['from'] = $dateFrom;
-                    $dateFilter['type'] = $type;
+        $dateFilter['to'] = $to;
+        $dateFilter['from'] = $from;
+        $dateFilter['type'] = $type;
 
-                    $this->spatialDateRangeFilter = $dateFilter;
-                }
-            }
-        }
+        $this->spatialDateRangeFilter = $dateFilter;
     }
 
     /**

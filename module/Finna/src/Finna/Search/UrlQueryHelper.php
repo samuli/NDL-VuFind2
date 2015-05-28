@@ -68,7 +68,7 @@ class UrlQueryHelper extends \VuFind\Search\UrlQueryHelper
      */
     public function buildQueryString($a, $escape = true)
     {
-        return parent::buildQueryString($a, $escape);
+         return parent::buildQueryString($a, $escape);
     }
 
     /**
@@ -96,4 +96,23 @@ class UrlQueryHelper extends \VuFind\Search\UrlQueryHelper
 
         return '?' . $this->buildQueryString($params, false);
     }
+
+    /**
+     * Get an array of URL parameters.
+     *
+     * @return array
+     */
+    public function getParamArray()
+    {
+        $params = parent::getParamArray();
+        if ($filter = $this->params->getSpatialDateRangeFilter()) {
+            $params['search_sdaterange_mvtype'] = $filter['type'];
+        }
+
+        return $params;
+    }
+
+
+
+
 }

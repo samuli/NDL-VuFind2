@@ -88,10 +88,12 @@
           $searchParams = $formParams = $this->results->getUrlQuery()->getParams(false);
           if ($spatialFilter = $params->getSpatialDateRangeFilter()) {
             $queryHelper = $this->results->getUrlQuery();
-            $formParams = $queryHelper->removeFacet($spatialFilter['field'], $spatialFilter['val']);
-             $from = $spatialFilter['from'];
-             $to = $spatialFilter['to'];          
-             $type = $spatialFilter['type'];          
+            $paramArray = $queryHelper->getParamArray();
+            unset($paramArray['search_sdaterange_mvtype']);
+            $formParams = $queryHelper->removeFacet($spatialFilter['field'], $spatialFilter['val'], true, 'AND', $paramArray);
+            $from = $spatialFilter['from'];
+            $to = $spatialFilter['to'];          
+            $type = $spatialFilter['type'];          
           }
         ?>
         <?= $this->partial('Recommend/DateRangeVisAjax.phtml', [
