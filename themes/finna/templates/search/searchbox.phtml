@@ -16,6 +16,9 @@
     $advSearch = $options->getAdvancedSearchAction();
     $lastSort = $options->getLastSort();
     $lastLimit = $options->getLastLimit();
+    if ($this->params && $spatialFilter = $this->params->getSpatialDateRangeFilter()) {
+       $spatialDateRangeType = $spatialFilter['type'];
+    }
 
     // Set up Finna Main Tabs:
     $module = $this->layout()->templateDir;
@@ -69,8 +72,8 @@
           isset($this->checkboxFilters) && is_array($this->checkboxFilters) ? $this->checkboxFilters : array()
       );
     ?>
-    <? if (!empty($filterDetails) || !empty($this->savedSearches)): ?>
-      <? $defaultFilterState = $hasDefaultsApplied || $options->getRetainFilterSetting() ? ' checked="checked"' : ''; ?>
+     <? $defaultFilterState = $hasDefaultsApplied || $options->getRetainFilterSetting() ? ' checked="checked"' : ''; ?>
+     <? if (!empty($filterDetails) || !empty($this->savedSearches)): ?>
           <div class="checkbox<?=$defaultFilterState?' checked' : ''?>">
         <label>
           <input onChange="$('.applied-filter').click();$('.navbar-form .checkbox').toggleClass('checked');" type="checkbox"<?=$defaultFilterState?> id="searchFormKeepFilters"/>
@@ -105,6 +108,9 @@
       if (!empty($lastSort)) {
         echo '<input type="hidden" name="sort" value="' . $this->escapeHtmlAttr($lastSort) . '" />';
       }
+      if (!empty($spatialDateRangeType)) {
+        echo '<input class="hidden applied-filter" type="checkbox"' . $defaultFilterState . ' name="search_sdaterange_mvtype" value="' . $this->escapeHtmlAttr($spatialDateRangeType) . '" />';
+      }    
     ?>
   </form>
       <? if ($advSearch): ?>

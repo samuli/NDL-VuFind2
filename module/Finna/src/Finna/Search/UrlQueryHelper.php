@@ -72,6 +72,24 @@ class UrlQueryHelper extends \VuFind\Search\UrlQueryHelper
     }
 
     /**
+     * Generic case of parameter rebuilding.
+     *
+     * @param string $field     Field to update
+     * @param string $value     Value to use (null to skip field entirely)
+     * @param string $default   Default value (skip field if $value matches; null
+     *                          for no default).
+     * @param bool   $escape    Should we escape the string for use in the view?
+     * @param bool   $clearPage Should we clear the page number, if any?
+     *
+     * @return string
+     */
+    public function updateQueryString($field, $value, $default = null,
+        $escape = true, $clearPage = false
+    ) {
+        return parent::updateQueryString($field, $value, $default, $escape, $clearPage);
+    }
+
+    /**
      * Sets search id in the params and returns resulting query string.
      *
      * @param string $class Search class.
@@ -105,7 +123,9 @@ class UrlQueryHelper extends \VuFind\Search\UrlQueryHelper
     public function getParamArray()
     {
         $params = parent::getParamArray();
-        if ($filter = $this->params->getSpatialDateRangeFilter()) {
+        if ($filter = $this->params->getSpatialDateRangeFilter()
+            && isset($filter['type'])
+        ) {
             $params['search_sdaterange_mvtype'] = $filter['type'];
         }
 

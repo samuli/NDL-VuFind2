@@ -71,8 +71,8 @@ class Utils extends \VuFind\Solr\Utils
         if ($type == 'within') {
             // Adjust time range end points to match original search query
             // (see SearchObject/Base::buildSpatialDateRangeFilter)
-            $from += 0.5;
-            $to -= 0.5;
+            //$from += 0.5;
+            //$to -= 0.5;
         }
 
         return array('from' => $from * 86400, 'to' => $to * 86400);

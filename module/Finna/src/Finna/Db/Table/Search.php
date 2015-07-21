@@ -26,7 +26,7 @@
  * @link     http://www.vufind.org  Main Page
  */
 namespace Finna\Db\Table;
-
+use fminSO;
 /**
  * Table Definition for search
  *
@@ -87,4 +87,27 @@ class Search extends \VuFind\Db\Table\Search
 
         return $this->select($callback);
     }
+
+    public function saveSearch(\VuFind\Search\Results\PluginManager $manager,
+        $newSearch, $sessionId, $searchHistory = []
+    ) {
+        parent::saveSearch($manager, $newSearch, $sessionId, $searchHistory);
+
+
+        $callback = function ($select) use ($sessionId) {
+            $select->columns(['*']);
+            $select->where->equalTo('session_id', $sessionId);
+            $select->order('id desc');
+            $select->limit(1);
+        };
+
+        $row = $this->select($callback)->current();
+        // todo: check for existing finnaSO?
+        // $finnaSO = $row['finna_search_object'] ? $row['finna_search_object'] : [];
+        
+        $row['finna_search_object'] = serialize(new fminSO($newSearch));
+        $row->save();
+
+    }
+
 }

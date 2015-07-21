@@ -176,6 +176,41 @@
     font-family: 'Fontawesome';
     content: "\f14a"; 
 }
+
+
+//== Styling Finna radiobuttons
+.radiobutton {
+    font-size: 14px;
+    font-weight: normal;   
+
+    & :last-child {
+        padding-bottom: 5px;
+    }
+    & input {
+        border: none;
+        background: transparent;
+        margin-right: 10px;
+        margin-top: 4px;
+    }
+    & input:before {
+        content: "\f096";
+        font-family: 'FontAwesome';
+        margin-right: -1px;
+        font-size: 21px;
+        background: white;
+        margin: -4px;
+        position: absolute;
+        margin-left: -1px;
+    }
+    & input:checked:before  {
+        font-family: 'Fontawesome';
+        content: "\f14a"; 
+    }
+}
+
+
+
+
 // Default styling of Finna Jump menus
 
 .jump-menu-style {

@@ -7,6 +7,7 @@ return array(
             'feed' => 'Finna\View\Helper\Root\Factory::getFeed',
             'header' => 'Finna\View\Helper\Root\Factory::getHeader',
             'holdingsDetailsMode' => 'Finna\View\Helper\Root\Factory::getHoldingsDetailsMode',
+            'layoutclass' => 'Finna\View\Helper\Root\Factory::getLayoutClass',
             'openUrl' => 'Finna\View\Helper\Root\Factory::getOpenUrl',
             'record' => 'Finna\View\Helper\Root\Factory::getRecord',
             'recordImage' => 'Finna\View\Helper\Root\Factory::getRecordImage',

@@ -39,6 +39,10 @@ namespace Finna\Search\Primo;
  */
 class Params extends \VuFind\Search\Primo\Params
 {
+    public function deminifyFinnaSearch($minified)
+    {
+    }
+
     /**
      * Add a checkbox facet.  When the checkbox is checked, the specified filter
      * will be applied to the search.  When the checkbox is not checked, no filter
@@ -105,4 +109,28 @@ class Params extends \VuFind\Search\Primo\Params
         }
         return $res;
     }
+
+    /**
+     * TODO
+     *
+     * @return string
+     */
+    public function getSpatialDateRangeField()
+    {
+        return null;
+    }
+
+    /**
+     *  TODO
+     *
+     * @param \Zend\StdLib\Parameters $request Parameter object representing user
+     * request.
+     *
+     * @return void
+     */
+    public function getSpatialDateRangeFilter() 
+    {
+        return null;
+    }
+
 }

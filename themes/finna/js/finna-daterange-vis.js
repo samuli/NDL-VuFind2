@@ -1,7 +1,8 @@
 finna.dateRangeVis = (function() {
-    var visNavigation = '', visDateStart, visDateEnd, visMove, visRangeSelected = false;
-    
-    var pageReadyCb = null;
+    var visNavigation = '';
+    var visDateStart, visDateEnd, visMove, visRangeSelected = false;    
+    var holder, searchParams = null;
+    var openTimelineCallback = null;
 
     // Move dates: params either + or -
     var moveVis = function(start, end) {
@@ -13,17 +14,9 @@ finna.dateRangeVis = (function() {
         visDateEnd = ops[end](visDateEnd);
     };
 
-    var loadVisNow = function(
-        holder, action, filterField, facetField, 
-        searchParams, url, 
-        collection, collectionAction
-    ) {
-        holder.addClass('loading');
-
-
-
+    var timelineAction = function(action) {
         // Navigation: prev, next, out or in
-        if (typeof action == 'undefined') {
+        if (typeof action != 'undefined') {
             // Require numerical values
             if (!isNaN(visDateStart) && !isNaN(visDateEnd)) {
                 visMove = Math.ceil((visDateEnd - visDateStart) * .2);
@@ -34,9 +27,9 @@ finna.dateRangeVis = (function() {
                     moveVis('-','-');
                 } else if (action == 'next') {
                     moveVis('+','+');
-                } else if (action == 'zoomOut') {
+                } else if (action == 'zoom-out') {
                     moveVis('-','+');
-                } else if (action == 'zoomIn') {
+                } else if (action == 'zoom-in') {
                     
                     // Only allow zooming in if years differ
                     if (visDateStart != visDateEnd) {
@@ -48,35 +41,57 @@ finna.dateRangeVis = (function() {
                 if (visDateStart > visDateEnd) {
                     visDateStart = visDateEnd;
                 }
-                
-                // TODO: PCI
-                // TODO: collection
-                // TODO: advanced haku
-                // TODO: params > savedsearch remove filter?
-                // TODO: component UI (värit, napit)
-                // TOTO: component preval, tsekkaa alue
 
                 // Create the string of date params
-                searchParams = 'filterField=search_sdaterange_mv&facetField=main_date_str&sdaterange[]=' + filterField + '&' + filterField + 'from=' + this.padZeros(visDateStart) + '&' + filterField + 'to=' + this.padZeros(visDateEnd); 
-                    //+'&{$searchParamsWithoutFilter|escape:'javascript'}';          
+                var newSearchParams = searchParams + '&search_sdaterange_mvfrom=' + padZeros(visDateStart) + '&search_sdaterange_mvto=' + padZeros(visDateEnd);
+                finna.dateRangeVis.loadVis(action, newSearchParams);
             }
-        }
 
-        this.pageReadyCb = function() {
-            loadVis(
-                holder, action, filterField, facetField, 
-                searchParams, url
-            );
-            initUI(holder);
-        };
+        }
     };
 
-    var loadVis = function(
-        holder, action, filterField, facetField, 
-        searchParams, baseURL
-    ) {
+    var showVis = function() {
+        // Display timeline when facet animation is complete
+        if (openTimelineCallback) {
+            fn = openTimelineCallback;
+            openTimelineCallback = null;
+            setTimeout(fn(), 500);
+        }
+    };
+
+    var initVis = function(params, baseParams, h, start, end) {
+        holder = h;
+
+        // Save default timeline parameters
+        searchParams = baseParams;
         
-        var url = path + "/AJAX/JSON" + searchParams + "&method=dateRangeVisual";
+        if (typeof start == "undefined") {
+            start = holder.find(".year-from").val();
+            if (start != "") {
+                start = parseInt(start, 10);
+                visDateStart = start;
+            }
+        } else {
+            visDateStart = start;            
+        }
+
+        if (typeof end == "undefined") {
+            end = holder.find(".year-to").val();
+            if (end != "") {
+                end = parseInt(end, 10);
+                visDateEnd = end;
+            }
+        } else {
+            visDateEnd = end;
+        }
+
+        openTimelineCallback = function() { loadVis('prev', params); };
+    };
+
+    var loadVis = function(action, params) {
+        // Load and display timeline (called at initial open and after timeline navigation)
+        var url = path + "/AJAX/JSON" + params + "&method=dateRangeVisual";
+        holder.find(".content").addClass('loading');
 
         $.getJSON(url, function (data) {
             if (data.status == 'OK') {
@@ -84,15 +99,9 @@ finna.dateRangeVis = (function() {
                     var vis = holder.find(".date-vis");
                     
                     // Get data limits
-                    dataMin = parseInt(val['data'][0][0], 10);
-                    dataMax = parseInt(val['data'][val['data'].length - 1][0], 10);
+                    dataMin = parseInt(val.min, 10);
+                    dataMax = parseInt(val.max, 10);
                     
-                    // National home page: render default view from 1800 to present
-                    /*
-                    if (typeof visNationalHome !== 'undefined' && visNationalHome) {
-                        dataMin = 1800;
-                    }*/
-
                     // Compare with the values set by the user
                     if (val['min'] == 0) {
                         val['min'] = dataMin;
@@ -105,7 +114,7 @@ finna.dateRangeVis = (function() {
                     // Left & right limits have to be processed separately
                     // depending on movement direction: when reaching the left limit while
                     // zooming in or moving back, we use the max value for both
-                    if ((action == 'prev' || action == 'zoomIn') && val['min'] > val['max']) {
+                    if ((action == 'prev' || action == 'zoom-in') && val['min'] > val['max']) {
                         val['max'] = val['min'];
                         
                         // Otherwise, we need the min value
@@ -137,14 +146,12 @@ finna.dateRangeVis = (function() {
                     }
                     
                     var options = getGraphOptions(visDateStart, visDateEnd);
-                   
+
                     // Draw the plot
                     var plot = $.plot(vis, [val], options);
-
                     var form = holder.find(".year-form");
-                    var fromElement = holder.find("#year-from");            
-                    var toElement = holder.find("#year-to");            
-
+                    var fromElement = holder.find(".year-from");            
+                    var toElement = holder.find(".year-to");            
 
                     // Bind events
                     vis.unbind("plotclick").bind("plotclick", function (event, pos, item) {
@@ -178,7 +185,7 @@ finna.dateRangeVis = (function() {
                         plot.setSelection({ x1: preFromVal , x2: preToVal});
                     } 
                     
-                    vis.removeClass('loading');                    
+                    vis.closest(".content").removeClass('loading');                    
                 });
             }
         });
@@ -224,41 +231,93 @@ finna.dateRangeVis = (function() {
             options['selection'] = {mode: "x", color:'#00a3b5;', borderWidth:0};
         }
 
+        
         return options;
     };
 
-    var initUI = function(holder) {
-        console.log("initUI");
-        // Timeline search functionality
-        var form = holder.find(".year-form");
+    var initTimelineNavigation = function() {
+        $('#side-panel-search_sdaterange_mv .navigation div').on(
+            "click", 
+            {callback: timelineAction}, 
+            function(e) {
+                e.data.callback($(this).attr('class').split(' ')[0]);
+            }
+        );
+    };
+
+    var initUI = function() {
+        // Override default facet open/close behavior
+        var facet = $("#side-panel-search_sdaterange_mv");
+        var title = facet.find(".title");
+        title.on("click", function(e) {
+            var facet = $(this).closest(".facet");
+            var facetItem = facet.find(".list-group-item");
+            var collapsed = facetItem.hasClass("collapsed");
+
+            if (e.offsetX > title.outerWidth()-30) {
+                // :after icon clicked > open/close facet
+                if (!collapsed) {
+                    facet.toggleClass("wide", false);
+                } else if (facet.hasClass("timeline")) {
+                    facet.toggleClass("wide", true);                    
+                }
+            } else {
+                // Facet title clicked
+                facet.toggleClass("wide");
+                if (collapsed) {
+                    if (!facet.hasClass("timeline")) {
+                        facet.toggleClass("timeline", true);
+                        showVis();
+                    }
+                } else {
+                    facet.toggleClass("timeline");
+                    if (facet.hasClass("timeline")) {
+                        showVis();
+                    }
+                    return false;                
+                }
+            }
+        });
+
+        facet.find(".year-form").each(function() {
+            initForm($(this));
+        });
+    };
+    
+    var initForm = function(form) {
+        form.find("a.submit").on("click", 
+           function() { 
+               $(this).closest("form").submit();
+               return false;
+           }
+        );
+
         form.submit(function(e) {            
             e.preventDefault();
             // Get dates, build query
-            var fromElement = $(this).find("#year-from");            
+            var fromElement = $(this).find(".year-from");            
             var from = fromElement.val();
             
-            var toElement = $(this).find("#year-to");
+            var toElement = $(this).find(".year-to");
             var to = toElement.val();
-
-            console.log("from: " + from + "-" + to);
-
+            
             var action = $(this).attr('action');
             if (action.indexOf("?") < 0) {
                 action += '?'; // No other parameters, therefore add ?
             } else {
                 action += '&'; // Other parameters found, therefore add &
             }
-            var type = $(this).find('input[name=search_sdaterange_mvtype]:checked').val();
+            var type = $(this).find('input[type=radio][name=search_sdaterange_mvtype]:checked').val();
             var query = action;
             query += "sdaterange[]=search_sdaterange_mv"
             query += "&search_sdaterange_mvtype=" + type + "&";
             
-
+            
             fromElement.removeClass('invalidField');
             toElement.removeClass('invalidField');
             
             // Require numerical values
-            if (!isNaN(from) && !isNaN(to)) {
+            if (!isNaN(from) && from != "" || !isNaN(to) && to != "") {
                 if (from == '' && to == '') { // both dates empty; use removal url
                     query = action;
                 } else if (from == '') { // only start date set
@@ -276,11 +335,10 @@ finna.dateRangeVis = (function() {
                 } else { // both dates set
                     query += 'search_sdaterange_mvfrom=' + padZeros(from) + '&search_sdaterange_mvto=' + padZeros(to);
                 }
-                
                 // Perform the new search
-//                console.log(query);
                 window.location = query;
             }
+            return;
         });
     };
 
@@ -302,15 +360,14 @@ finna.dateRangeVis = (function() {
     } 
 
     var init = function() {
-        if (this.pageReadyCb) {
-            this.pageReadyCb();
-        }
+        initUI();
+        initTimelineNavigation();
     };
 
     var my = {
         init: init,
         loadVis: loadVis,
-        loadVisNow: loadVisNow
+        initVis: initVis
     };
 
     return my;

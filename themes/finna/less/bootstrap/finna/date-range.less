@@ -1,0 +1,243 @@
+.sidebar {
+    & #side-panel-search_sdaterange_mv {
+        background-color: @facet-background;
+
+        & .fa.timeline {
+            margin-left: 10px;
+        }
+        & .submit .fa {
+            margin-right: 5px;
+        }
+        
+        & .daterange-vis {
+            display: none;
+            margin: 0 10px 10px 15px;
+
+            & .form-ui {
+                float: right;
+                margin-bottom: 10px;
+                & .year-range,
+                & .range-type {
+                    float: left;
+                    margin-left: 20px;
+                }
+                & .year-separator {
+                    color: white;
+                }
+                & label {
+                    color: white;
+                    & input {
+                        color: blue;
+                    }
+                }
+                & .submit {
+                    margin-top: 0;
+                    background-color: @btn-primary-bg;
+                }
+                
+            }
+
+            & .content {
+                clear: both;
+                position: relative;
+                height: 114px;
+                width: 935px;
+                background-color: whitesmoke;
+                border-radius: 5px 5px 5px 5px;
+                & .navigation {
+                    border-radius: 5px 0 0 5px;
+                    left: 0;
+                    position: absolute;
+                    width: 40px;
+                    margin-top: 10px;
+
+                    & .zoom-out, .zoom-in {
+                        text-align: center;
+                    }
+                    & .prev {
+                        float: left;
+                    }
+                    & .fa {
+                        font-size: 1.5em;                        
+                        margin-top: 5px;
+                    }
+                }
+                & .fa-spinner {
+                    display: none;
+                    width: 20px;
+                    height: 20px;
+                    left: 444px;
+                    top: -67px;
+                    position: relative;
+                }
+                &.loading .fa-spinner {
+                    display: block;
+                }
+            }
+
+        }
+        & .daterange-form {
+            display: block;
+            background-color: whitesmoke;
+            padding: 10px;
+            overflow: auto;
+            & .submit {
+                float: right;
+                background-color: @btn-primary-bg;
+            }
+            & .range-type {
+                margin-top: 10px;
+            }
+        }
+        
+        
+        &.timeline.wide {
+            width: 963px;
+            z-index: @zindex-dropdown;
+            padding-bottom: 5px;
+            margin-left: -706px;
+            
+            & .daterange-vis {
+                display: block;                    
+            }
+            & .daterange-form {
+                display: none;
+            }
+        }
+        
+        & .btn-link {
+            color: #fff;
+            font-size: 1em;
+            font-weight: bold;
+            background: rgba(1,1,1,0.6);
+            border-radius: 10px;
+            margin-top: 9px;
+            margin-left: 10px;
+            vertical-align: top;
+            line-height: 25px;
+            padding: 2px 5px 0;
+            
+            &.open-timeline {
+                margin-top: 0;
+                line-height: inherit;
+            }
+        }
+
+        & .open-timeline {
+            
+        }
+
+        
+        & #side-collapse-search_sdaterange_mv > form {
+            overflow: auto;
+            margin: 10px;
+            display: none;
+            & .year-ranges {
+                margin-top: 10px;
+            }
+            & .submit {
+                float: right;
+            }
+        }
+
+        & .daterange-vis {
+
+        }
+
+        & input[type=text] {
+            width: 48px;
+            border-radius: 4px 4px 4px 4px;
+            padding: 5px;
+            box-shadow: 0 3px 11px -8px #808080;
+            border: 1px solid #CCCCCC;
+        }
+    }
+    &.sidebar-on-left {
+        & #side-panel-search_sdaterange_mv {
+            & .content {
+                margin-left: 0;
+            }
+        }
+    }
+}
+
+.date-vis {
+    background:#f8f8f8;
+    //border-radius:0 5px 5px 0;
+    margin:0;
+    padding:0;
+    width:880px;
+    height:110px;
+    cursor:crosshair;
+//    position:relative;
+    left:45px;
+}
+.dateVisClear a {
+    line-height: 1.3em;
+    position: absolute;
+    right: 8px;
+    text-indent:-9999px;
+    top: 8px;
+    width:24px;
+    height:24px;
+}
+.dateVisHandle { 
+    cursor:pointer;
+}
+.dateVisHandle .dateVisHelp {
+    display:none;
+    float: right;
+    font-size: 0.8em;
+    font-weight: normal;
+    line-height: 2.8em;
+    margin-left:20px;
+}
+
+.dateVisHandle .dateVisHelp .infoIndicator {
+    background: #00A3B5;
+    border-radius: 10px;
+    color: #fff;
+    cursor: pointer;
+    display: block;
+    float: left;
+    font-weight: bold;
+    height: 19px;
+    line-height: 18px;
+    margin-right: 7px;
+    margin-top: 9px;
+    text-align: center;
+    width: 19px;
+
+    behavior: url(/interface/themes/ndl/js/css3pie/PIE.php);
+}
+
+.dateVisHandle .dateVisHelp.visible {
+    display:block;
+}
+span.dateVisHandle {
+    color: #FFFFFF;
+    display: inline-block;
+    font-size: 1.23em;
+    font-weight: bold;
+    height: 35px;
+    line-height: 35px;
+    margin-left:5px;
+}
+div.dateVisHandle {
+    display: none;
+    height: 24px;
+    left: 50%;
+    position: absolute;
+    top: 26px;
+    width: 70px;
+    z-index: 10;
+}
+div.dateVisOpen {
+    background:url(../images/datevis_handle_open.png) no-repeat;
+}
+div.dateVisClose {
+    background:url(../images/datevis_handle_close.png) no-repeat;
+}
+div.dateVisHandle.visible {
+    display:block;
+}

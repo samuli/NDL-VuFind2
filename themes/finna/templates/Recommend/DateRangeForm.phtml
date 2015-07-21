@@ -1,0 +1,18 @@
+<form action="<?= $this->formAction; ?>" class="year-form">
+  <div class="form-ui">
+    <div class="year-range">
+      <input class="year-from" type="text" value="<?= $this->from; ?>">
+      <span class="year-separator">&ndash;</span>
+      <input class="year-to" type="text" value="<?= $this->to; ?>">
+    </div>
+    <div class="range-type">
+      <label class="radiobutton" for="timeline_overlap">
+        <input class="timeline_overlap" type="radio" name="search_sdaterange_mvtype" value="overlap"<?= !$this->type || $this->type == 'overlap' ? ' checked="checked"' : ''; ?>/><?= $this->translate('Timeline overlap'); ?>
+      </label>
+      <label class="radiobutton" for="timeline_within">
+        <input class="timeline_within" type="radio" name="search_sdaterange_mvtype" value="within"<?= $this->type == 'within' ? ' checked="checked"' : ''; ?>/><?= $this->translate('Timeline within'); ?>
+      </label>
+    </div>
+    <a href="#" class="submit btn btn-link"><i class="fa fa-search"></i><?= $this->translate('Update'); ?></a>
+  </div>
+</form>

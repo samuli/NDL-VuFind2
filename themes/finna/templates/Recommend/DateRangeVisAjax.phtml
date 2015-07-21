@@ -1,59 +1,42 @@
-<div class="result-dates">
-  <form action="<?= $this->formAction; ?>" class="year-form">
-    <div class="year-fields">
-      <input id="year-from" type="text" value="<?= $this->from; ?>">
-      <span class="year-separator">&ndash;</span>
-      <input id="year-to" type="text" value="<?= $this->to; ?>">
-    </div>
-    <div id="year-ranges">
-      <div class="timelineRange radiobuttonFilter">
-        <input id="timeline_overlap" type="radio" name="search_sdaterange_mvtype" value="overlap"<?= !$this->type || $this->type == 'overlap' ? ' checked="checked"' : ''; ?>/>
-        <label for="timeline_overlap"><?= $this->translate('Timeline overlap'); ?></label>
-      </div>
-      <div class="timelineRange radiobuttonFilter">
-        <input id="timeline_within" type="radio"  name="search_sdaterange_mvtype" value="within"<?= $this->type == 'within' ? ' checked="checked"' : ''; ?>/>
-        <label for="timeline_within"><?= $this->translate('Timeline within'); ?></label>
-      </div>
-    </div>
-
-    <div id="mainYearFormSubmit">
-      <input type="submit" value="<?= $this->translate('Update'); ?>">
-    </div>
-  </form>
+<div class="daterange-vis">
+  <?= $this->partial('Recommend/DateRangeForm.phtml', [
+    'from' => $from,
+    'to' => $to,
+    'formAction' => $formAction,
+    'type' => $type
+  ]); ?>
 
   <div class="content">
-    <div class="main-year-form-container"></div>
     <? $this->headScript()->appendFile('vendor/jquery.flot.canvas.min.js', 'text/javascript', ['conditional' => 'IE']); ?> 
     <? $this->headScript()->appendFile('vendor/jquery.flot.min.js'); ?>
     <? $this->headScript()->appendFile('vendor/jquery.flot.selection.min.js'); ?>
     <? $this->headScript()->appendFile('finna-daterange-vis.js'); ?>
     
-    <div class="date-vis-navigation">
-      <div class="zoomIn"></div>
-      <div class="zoomOut"></div>
-      <div class="prev"></div>
-      <div class="next"></div>
+    <div class="navigation">
+      <div class="zoom-in"><i class="fa fa-plus"></i></div>
+      <div class="zoom-out"><i class="fa fa-minus"></i></div>
+      <div class="prev"><i class="fa fa-arrow-left"></i></div>
+      <div class="next"><i class="fa fa-arrow-right"></i></div>
     </div>
     
     <div class="date-vis"></div>
-    
+    <i class="fa fa-spinner fa-spin"></i>
   </div>
 </div>
 
 <?
 $script = <<<JS
-  finna.dateRangeVis.loadVisNow(
-      $('.result-dates'),
-      'prev',
-      '{$this->filterField}',
-      '{$this->facetField}',
+$(document).ready(function() {
+  finna.dateRangeVis.initVis(
       '{$this->searchParams}',
-      '{$this->url('home')}'
+      '{$this->formAction}',
+      $('.daterange-vis')
   );
+});
 JS;
 ?>
   
-  <?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $script, 'SET'); ?>
+<?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $script, 'SET'); ?>
 
 
 
