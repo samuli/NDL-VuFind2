@@ -25,7 +25,7 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
-namespace Finna\Solr;
+namespace Finna\Primo;
 
 /**
  * Solr Utility Functions
@@ -40,57 +40,27 @@ namespace Finna\Solr;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
-class Utils extends \VuFind\Solr\Utils
+class Utils
 {
     /**
      * Parse "from" and "to" values out of a spatial date range 
      * query (or return false if the query is not a range).
      *
      * @param string  $query         Solr query to parse.
-     * @param string  $type          Query type ('overlap' or 'within')
-     * @param boolean $vufind2Syntax TODO
      *
      * @return array|bool   Array with 'from' and 'to' values extracted from range
      * or false if the provided query is not a range.
      */
-    public static function parseSpatialDateRange($query, $type, $vufind2Syntax)
+    public static function parseSpatialDateRange($query)
     {
-        $regex = false;
-        if ($vufind2Syntax) {
-            // VuFind2 daterange: search_datarange_mv: [1900 TO 2000]
-            $regex = '/\[(\d+|\*) TO ([\d-]+|\*)\]/';
-        } else {
-            // VuFind1 daterange: search_sdaterange_mv
-            if ($type == 'overlap') {
-                $regex = '/[\(\[]\"*[\d-]+\s+([\d-]+)\"*[\s\w]+\"*([\d-]+)\s+[\d-]+\"*[\)\]]/';
-            } elseif ($type == 'within') {
-                $regex = '/[\(\[]\"*([\d-]+\.?\d*)\s+[\d-]+\"*[\s\w]+\"*[\d-]+\s+([\d-]+\.?\d*)\"*[\)\]]/';
-            }
-        }
-
+        $regex = '/\[(\d+) TO ([\d-]+)\]/';
+        
         if (!$regex || !preg_match($regex, $query, $matches)) {
             return false;
         }
-
+        
         $from = $matches[1];
         $to = $matches[2];
-        
-        if (!$vufind2Syntax) {
-            $from = $from * 86400;
-            $from = new \DateTime($from);
-            $from = $from->format('Y');
-
-            $to = $to * 86400;
-            $from = new \DateTime($to);
-            $to = $to->format('Y');
-        }
-        /*
-        if ($type == 'within') {
-            // Adjust time range end points to match original search query
-            // (see SearchObject/Base::buildSpatialDateRangeFilter)
-            //$from += 0.5;
-            //$to -= 0.5;
-            }*/
         
         return ['from' => $from, 'to' => $to];
     }

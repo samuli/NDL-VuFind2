@@ -752,38 +752,47 @@ class AjaxController extends \VuFind\Controller\AjaxController
         // request['collection'] > onko käytössä?
         // 
 
+        $backend = $this->params()->fromQuery('backend');        
+        if (!$backend) {
+            $backend = 'solr';
+        }
+        $isSolr = $backend == 'solr';
 
-        /*
-        // Load the desired facet information...
-        $config = getExtraConfigArray('facets');
+        $config 
+            = $this->getServiceLocator()->get('VuFind\Config')->get($isSolr ? 'facets' : 'Primo');
+        if (!isset($config->SpecialFacets->dateRangeVis)) {
+            return $this->output([], self::STATUS_ERROR);
+        }
         
-        if (isset($config['SpecialFacets']['dateRangeVis'])) {
-            list($this->filterField, $this->dateFacet) = explode(':', $config['SpecialFacets']['dateRangeVis'], 2);
-            }*/
+        list($filterField, $facet) 
+            = explode(':', $config->SpecialFacets->dateRangeVis);
 
 
-    
         $this->writeSession();  // avoid session write timing bug
 
-        $facet = 'main_date_str'; //$this->params()->fromQuery('facetName');
-        $sort = $this->params()->fromQuery('facetSort');
-        $operator = $this->params()->fromQuery('facetOperator');
-
-        $results = $this->getResultsManager()->get('Solr');
+        $results = $this->getResultsManager()->get($isSolr ? 'Solr' : 'Primo');
         $params = $results->getParams();
-        $params->addFacet($facet, null, $operator === 'OR');
+        $params->addFacet($facet, null, false); // TODO: OR facet?
         $params->initFromRequest($this->getRequest()->getQuery());
 
+        if (!$isSolr) {
+            $results->performAndProcessSearch();
+        }
 
-        $facets = $results->getFullFieldFacets([$facet], false, -1, 'count');
-        
-        $facetList = $facets[$facet]['data']['list'];
+        if ($isSolr) {
+            $facets = $results->getFullFieldFacets(
+                [$facet => $facet], false, -1, 'count'
+            );
+            $facetList = $facets[$facet]['data']['list'];
+        } else {
+            $facets = $results->getFacetlist([$facet => $facet]);
+            $facetList = $facets[$facet]['list'];
+        }
+
         if (empty($facetList)) {
             return $this->output([], self::STATUS_OK);
         }
         
-        //        echo(var_export($facets, true));
-
         $res = [];
         $min = PHP_INT_MAX;
         $max = -$min;
@@ -791,6 +800,10 @@ class AjaxController extends \VuFind\Controller\AjaxController
         foreach ($facetList as $f) {
             $count = $f['count'];
             $val = $f['displayText'];
+            // Only retain numeric values
+            if (!preg_match("/^-?[0-9]+$/", $val)) {
+                continue;
+            }
             $min = min($min, (int)$val);
             $max = max($max, (int)$val);
             $res[] = [$val, $count];
@@ -799,66 +812,5 @@ class AjaxController extends \VuFind\Controller\AjaxController
         $res = [$facet => ['data' => $res, 'min' => $min, 'max' => $max]];
 
         return $this->output($res, self::STATUS_OK);
-
-
-
-
-        $facetHelper = $this->getServiceLocator()
-            ->get('VuFind\HierarchicalFacetHelper');
-        if (!empty($sort)) {
-            $facetHelper->sortFacetList($facetList, $sort == 'top');
-        }
-
-
-        return $this->output(
-            $facetHelper->buildFacetArray(
-                $facet, $facetList, $results->getUrlQuery()
-            ),
-            self::STATUS_OK
-        );
-
-
-
-
-
-        $this->searchObject = SearchObjectFactory::initSearchObject();
- 
-
-        $facetField = isset($_REQUEST['facetField']) 
-            ? $_REQUEST['facetField'] : '';
-        $filterField = isset($_REQUEST['filterField']) 
-            ? $_REQUEST['filterField'] : '';
-
-        
-        if (is_a($this->searchObject, 'SearchObject_Solr')) {
-            $this->searchObject->init();
-            $filters = $this->searchObject->getFilters();
-            $filterFields = $this->processDateFacets($filters);
-            $facets = $this->processFacetValues();
-            foreach ($filterFields as $field => $val) {
-                $facets[$field]['min'] = $val[0];
-                $facets[$field]['max'] = $val[1];
-                $facets[$field]['removalURL']
-                    = $this->searchObject->renderLinkWithoutFilter(
-                        isset($filters[$filterField][0])
-                        ? $field .':' . $filters[$filterField][0] : null
-                    );
-                if (isset($_REQUEST['collection'])) {
-                    $collection = $_REQUEST['collection'];
-                    $facets[$field]['removalURL']
-                        = str_replace(
-                            'Search/Results',
-                            'Collection/' . $collection .
-                            '/' .$_REQUEST['collectionAction'],
-                            $facets[$field]['removalURL']
-                        );
-                }
-            }
-            $this->output($facets, JSON::STATUS_OK);
-        } else {
-            $this->output("", JSON::STATUS_ERROR);
-        }
-
-
     }
 }

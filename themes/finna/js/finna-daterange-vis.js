@@ -1,7 +1,7 @@
 finna.dateRangeVis = (function() {
     var visNavigation = '';
     var visDateStart, visDateEnd, visMove, visRangeSelected = false;    
-    var holder, searchParams = null;
+    var holder, searchParams, facetField = null;
     var openTimelineCallback = null;
 
     // Move dates: params either + or -
@@ -14,7 +14,7 @@ finna.dateRangeVis = (function() {
         visDateEnd = ops[end](visDateEnd);
     };
 
-    var timelineAction = function(action) {
+    var timelineAction = function(backend, action) {
         // Navigation: prev, next, out or in
         if (typeof action != 'undefined') {
             // Require numerical values
@@ -43,8 +43,11 @@ finna.dateRangeVis = (function() {
                 }
 
                 // Create the string of date params
-                var newSearchParams = searchParams + '&search_sdaterange_mvfrom=' + padZeros(visDateStart) + '&search_sdaterange_mvto=' + padZeros(visDateEnd);
-                finna.dateRangeVis.loadVis(action, newSearchParams);
+
+
+                var newSearchParams = searchParams + '&filter[]=' + facetField + ':[' + padZeros(visDateStart) + ' TO ' + padZeros(visDateEnd) + ']';
+                //var newSearchParams = searchParams + '&search_sdaterange_mvfrom=' + padZeros(visDateStart) + '&search_sdaterange_mvto=' + padZeros(visDateEnd);
+                finna.dateRangeVis.loadVis(backend, action, newSearchParams);
             }
 
         }
@@ -59,11 +62,13 @@ finna.dateRangeVis = (function() {
         }
     };
 
-    var initVis = function(params, baseParams, h, start, end) {
+    var initVis = function(backend, facet, params, baseParams, h, start, end) {
+        facetField = facet;
         holder = h;
 
         // Save default timeline parameters
         searchParams = baseParams;
+
         
         if (typeof start == "undefined") {
             start = holder.find(".year-from").val();
@@ -85,18 +90,23 @@ finna.dateRangeVis = (function() {
             visDateEnd = end;
         }
 
-        openTimelineCallback = function() { loadVis('prev', params); };
+        initTimelineNavigation(backend, h);
+        h.closest(".facet").find(".year-form").each(function() {
+            initForm($(this), backend, facet);
+        });
+
+        openTimelineCallback = function() { loadVis(backend, 'prev', params); };
     };
 
-    var loadVis = function(action, params) {
+    var loadVis = function(backend, action, params) {
         // Load and display timeline (called at initial open and after timeline navigation)
-        var url = path + "/AJAX/JSON" + params + "&method=dateRangeVisual";
+        var url = path + "/AJAX/JSON" + params + "&method=dateRangeVisual&backend=" + backend;
         holder.find(".content").addClass('loading');
-
+        
         $.getJSON(url, function (data) {
+            var vis = holder.find(".date-vis");
             if (data.status == 'OK') {
                 $.each(data['data'], function(key, val) {
-                    var vis = holder.find(".date-vis");
                     
                     // Get data limits
                     dataMin = parseInt(val.min, 10);
@@ -185,9 +195,9 @@ finna.dateRangeVis = (function() {
                         plot.setSelection({ x1: preFromVal , x2: preToVal});
                     } 
                     
-                    vis.closest(".content").removeClass('loading');                    
                 });
             }
+            vis.closest(".content").removeClass('loading');
         });
     };
 
@@ -235,19 +245,19 @@ finna.dateRangeVis = (function() {
         return options;
     };
 
-    var initTimelineNavigation = function() {
-        $('#side-panel-search_sdaterange_mv .navigation div').on(
+    var initTimelineNavigation = function(backend, holder) {
+        holder.find('.navigation div').on(
             "click", 
             {callback: timelineAction}, 
             function(e) {
-                e.data.callback($(this).attr('class').split(' ')[0]);
+                e.data.callback(backend, $(this).attr('class').split(' ')[0]);
             }
         );
     };
 
     var initUI = function() {
         // Override default facet open/close behavior
-        var facet = $("#side-panel-search_sdaterange_mv");
+        var facet = $(".daterange-facet");
         var title = facet.find(".title");
         title.on("click", function(e) {
             var facet = $(this).closest(".facet");
@@ -279,20 +289,18 @@ finna.dateRangeVis = (function() {
             }
         });
 
-        facet.find(".year-form").each(function() {
-            initForm($(this));
-        });
     };
     
-    var initForm = function(form) {
+    var initForm = function(form, backend, facetField) {
         form.find("a.submit").on("click", 
-           function() { 
+           function() {
                $(this).closest("form").submit();
                return false;
            }
         );
 
-        form.submit(function(e) {            
+        var self = this;
+        form.submit(function(e) {
             e.preventDefault();
             // Get dates, build query
             var fromElement = $(this).find(".year-from");            
@@ -307,12 +315,21 @@ finna.dateRangeVis = (function() {
             } else {
                 action += '&'; // Other parameters found, therefore add &
             }
-            var type = $(this).find('input[type=radio][name=search_sdaterange_mvtype]:checked').val();
+
             var query = action;
-            query += "sdaterange[]=search_sdaterange_mv"
-            query += "&search_sdaterange_mvtype=" + type + "&";
-            
-            
+            var isSolr = backend == "solr";
+
+            query += 'filter[]=' + facetField + ':';
+
+            var type = null;
+            if (isSolr) {
+                type = $(this).find('input[type=radio][name=search_sdaterange_mvtype]:checked');
+                if (type.length) {
+//                    query += "&search_sdaterange_mvtype=" + type.val() + "&";
+                }
+            }
+                
+
             fromElement.removeClass('invalidField');
             toElement.removeClass('invalidField');
             
@@ -320,21 +337,29 @@ finna.dateRangeVis = (function() {
             if (!isNaN(from) && from != "" || !isNaN(to) && to != "") {
                 if (from == '' && to == '') { // both dates empty; use removal url
                     query = action;
-                } else if (from == '') { // only start date set
+                } else if (from == '') { // only end date set
                     if (type == 'within') {
                         fromElement.addClass('invalidField');
                         return false;
                     }
-                    query += 'search_sdaterange_mvto=' + padZeros(to);
-                } else if (to == '')  { // only end date set
+                    query += '"[* TO ' + padZeros(to) + ']"';
+                    //query += 'search_sdaterange_mvto=' + padZeros(to);
+                } else if (to == '')  { // only start date set
                     if (type == 'within') {
                         toElement.addClass('invalidField');
                         return false;
                     }
-                    query += 'search_sdaterange_mvfrom=' + padZeros(from);
+                    query += '"[' + padZeros(from) + ' TO *]"';
+                    //query += 'search_sdaterange_mvfrom=' + padZeros(from);
                 } else { // both dates set
-                    query += 'search_sdaterange_mvfrom=' + padZeros(from) + '&search_sdaterange_mvto=' + padZeros(to);
+                    query += '"['+padZeros(from)+' TO '+padZeros(to)+']"';
+                    /*
+                    query += isSolr 
+                        ? 'search_sdaterange_mvfrom=' + padZeros(from) + '&search_sdaterange_mvto=' + padZeros(to)
+                        : '"['+padZeros(from)+' TO '+padZeros(to)+']"'
+                    ;*/
                 }
+
                 // Perform the new search
                 window.location = query;
             }
@@ -361,7 +386,6 @@ finna.dateRangeVis = (function() {
 
     var init = function() {
         initUI();
-        initTimelineNavigation();
     };
 
     var my = {

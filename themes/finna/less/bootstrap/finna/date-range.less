@@ -1,5 +1,5 @@
 .sidebar {
-    & #side-panel-search_sdaterange_mv {
+    & .daterange-facet {
         background-color: @facet-background;
 
         & .fa.timeline {
@@ -157,6 +157,16 @@
             & .content {
                 margin-left: 0;
             }
+        }
+    }
+}
+.template-dir-primo {
+    & .sidebar .daterange-facet .form-ui {
+        & .year-range {
+            float: left;
+        }
+        & .submit {
+            margin-top: 0;
         }
     }
 }

@@ -16,7 +16,11 @@
     $advSearch = $options->getAdvancedSearchAction();
     $lastSort = $options->getLastSort();
     $lastLimit = $options->getLastLimit();
-    if ($this->params && $spatialFilter = $this->params->getSpatialDateRangeFilter()) {
+    $spatialDateRangeType = null;
+    if ($this->params
+        && $spatialFilter = $this->params->getSpatialDateRangeFilter()
+        && isset($spatialFilter['type'])
+    ) {
        $spatialDateRangeType = $spatialFilter['type'];
     }
 
@@ -108,7 +112,7 @@
       if (!empty($lastSort)) {
         echo '<input type="hidden" name="sort" value="' . $this->escapeHtmlAttr($lastSort) . '" />';
       }
-      if (!empty($spatialDateRangeType)) {
+      if ($spatialDateRangeType && !empty($spatialDateRangeType)) {
         echo '<input class="hidden applied-filter" type="checkbox"' . $defaultFilterState . ' name="search_sdaterange_mvtype" value="' . $this->escapeHtmlAttr($spatialDateRangeType) . '" />';
       }    
     ?>

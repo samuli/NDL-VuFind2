@@ -26,7 +26,8 @@
  * @link     http://www.vufind.org  Main Page
  */
 namespace Finna\Search\Primo;
-
+use Finna\Primo\Utils,
+    Finna\Search\FinnaParams;
 
 /**
  * Primo Central Search Parameters
@@ -39,6 +40,10 @@ namespace Finna\Search\Primo;
  */
 class Params extends \VuFind\Search\Primo\Params
 {
+    use FinnaParams;
+
+    const SPATIAL_DATERANGE_FIELD = 'creationdate';
+
     public function deminifyFinnaSearch($minified)
     {
     }
@@ -111,16 +116,6 @@ class Params extends \VuFind\Search\Primo\Params
     }
 
     /**
-     * TODO
-     *
-     * @return string
-     */
-    public function getSpatialDateRangeField()
-    {
-        return null;
-    }
-
-    /**
      *  TODO
      *
      * @param \Zend\StdLib\Parameters $request Parameter object representing user
@@ -128,9 +123,33 @@ class Params extends \VuFind\Search\Primo\Params
      *
      * @return void
      */
-    public function getSpatialDateRangeFilter() 
+    protected function initSpatialDateRangeFilter($request)
     {
+        $filters = $this->getFilters();
+        if (isset($filters[self::SPATIAL_DATERANGE_FIELD])) {                
+            $filter = $filters[self::SPATIAL_DATERANGE_FIELD][0];
+
+            $dateFilter = [];
+            $dateFilter['query'] = self::SPATIAL_DATERANGE_FIELD . ":\"$filter\"";
+            $dateFilter['field'] = self::SPATIAL_DATERANGE_FIELD;
+            $dateFilter['val'] = $filter;            
+            //echo("filter: " . var_export($filter, true));
+            if ($range = $this->convertSpatialDateRange($filter)) {
+                $dateFilter['from'] = $range['from'];
+                $dateFilter['to'] = $range['to'];
+                $this->spatialDateRangeFilter = $dateFilter;
+                $this->addFilter($dateFilter['query']);
+            }
+        }
+    }
+
+    protected function convertSpatialDateRange($value)
+    {
+        if ($range = Utils::parseSpatialDateRange($value)) {
+            return ['from' => $range['from'], 'to' => $range['to']];
+        }
         return null;
     }
+
 
 }

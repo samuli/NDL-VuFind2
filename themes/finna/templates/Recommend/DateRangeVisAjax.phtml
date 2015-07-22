@@ -3,7 +3,8 @@
     'from' => $from,
     'to' => $to,
     'formAction' => $formAction,
-    'type' => $type
+    'type' => $type,
+    'backend' => $backend
   ]); ?>
 
   <div class="content">
@@ -24,10 +25,13 @@
   </div>
 </div>
 
+
 <?
 $script = <<<JS
 $(document).ready(function() {
   finna.dateRangeVis.initVis(
+      '{$this->backend}',
+      '{$this->daterangeFacet}',
       '{$this->searchParams}',
       '{$this->formAction}',
       $('.daterange-vis')
