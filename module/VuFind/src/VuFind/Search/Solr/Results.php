@@ -244,7 +244,7 @@ class Results extends \VuFind\Search\Base\Results
             $data = isset($fieldFacets[$field]) ? $fieldFacets[$field] : [];
             // Skip empty arrays:
             if (count($data) < 1) {
-                continue;
+                // TODO: continue;
             }
             // Initialize the settings for the current field
             $list[$field] = [];

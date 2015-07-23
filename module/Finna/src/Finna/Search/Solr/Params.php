@@ -51,6 +51,54 @@ class Params extends \VuFind\Search\Solr\Params
      */
     //protected $spatialDateRangeFilter;
 
+
+    /**
+     * Take a filter string and add it into the protected
+     *   array checking for duplicates.
+     *
+     * @param string $newFilter A filter string from url : "field:value"
+     *
+     * @return void
+     */
+    /*
+    public function addFilter($newFilter)
+    {
+        // Check for duplicates -- if it's not in the array, we can add it
+        if (!$this->hasFilter($newFilter)) {
+            // Extract field and value from filter string:
+            list($field, $value) = $this->parseFilter($newFilter);
+
+            //echo("addfilter: $newFilter, field: $field, value: $value");
+
+
+            $this->filterList[$field][] = $value;
+        }
+        }*/
+
+    public function removeFilter($oldFilter)
+    {
+        $res = parent::removeFilter($oldFilter);
+        echo("remove: $oldFilter > $res");
+        return $res;
+    }
+
+    /**
+     * Parse apart the field and value from a URL filter string.
+     *
+     * @param string $filter A filter string from url : "field:value"
+     *
+     * @return array         Array with elements 0 = field, 1 = value.
+     */
+    public function parseSpatialDaterangeFilter($filter)
+    {
+        $regex 
+            = '/^{\!field f=' . self::SPATIAL_DATERANGE_FIELD . ' op=(.+)}(.+)$/';
+        if (!preg_match($regex, $filter, $matches)) {
+            return false;
+        }
+        return [self::SPATIAL_DATERANGE_FIELD, $matches[2], ['type' => $matches[1]]];
+    }
+
     /**
      * Restore settings from a minified object found in the database.
      *
@@ -84,54 +132,6 @@ class Params extends \VuFind\Search\Solr\Params
         }
         return $facetSet;
     }
-
-    /**
-     * Pull the search parameters
-     *
-     * @param \Zend\StdLib\Parameters $request Parameter object representing user
-     * request.
-     *
-     * @return void
-     */
-    /*
-    public function initFromRequest($request)
-    {
-        parent::initFromRequest($request);
-        $this->initSpatialDateRangeFilter($request);
-        }*/
-
-
-    /**
-     * Format a single filter for use in getFilterList().
-     *
-     * @param string $field     Field name
-     * @param string $value     Field value
-     * @param string $operator  Operator (AND/OR/NOT)
-     * @param bool   $translate Should we translate the label?
-     *
-     * @return array
-     */
-    /*
-    protected function formatFilterListEntry($field, $value, $operator, $translate)
-    {
-        echo("f: " . $this->spatialDateRangeFilter['field'] . ", f2: $field");
-
-        $res = parent::formatFilterListEntry($field, $value, $operator, $translate);
-        if ($this->spatialDateRangeFilter
-            && isset($this->spatialDateRangeFilter['field'])
-            && $this->spatialDateRangeFilter['field'] == $field
-        ) {
-            $type = $this->spatialDateRangeFilter['type'];
-            if ($range = $this->convertSpatialDateRange($value, $type)) {
-                $startDate = new \DateTime("@{$range['from']}");
-                $endDate = new \DateTime("@{$range['to']}");
-                $from = $startDate->format('Y');
-                $to = $endDate->format('Y');
-                $res['displayText'] = $range['from'] . '–' . $range['to'];
-            }
-        }
-        return $res;
-        }*/
 
     /**
      *  TODO

@@ -42,6 +42,11 @@ namespace Finna\Solr;
  */
 class Utils extends \VuFind\Solr\Utils
 {
+    public static function buildSpatialDateRangeQuery($from, $to, $type, $field)
+    {
+        return "{!field f=$field op=$type}[$from TO $to]";
+    }
+
     /**
      * Parse "from" and "to" values out of a spatial date range 
      * query (or return false if the query is not a range).

@@ -26,6 +26,7 @@
  * @link     http://vufind.org/wiki/vufind2:record_drivers Wiki
  */
 namespace Finna\Search;
+use Finna\Solr\Utils;
 
 /**
  * Additional functionality for Finna Solr records.
@@ -56,11 +57,12 @@ trait FinnaParams
      *
      * @return void
      */
+    /*
     public function initFromRequest($request)
     {
         parent::initFromRequest($request);
         $this->initSpatialDateRangeFilter($request);
-    }
+        }*/
 
     /**
      * Take a filter string and add it into the protected
@@ -71,16 +73,85 @@ trait FinnaParams
      * @return void
      */
     public function addFilter($newFilter)
-    {
+    {        
         list($field, $value) = $this->parseFilter($newFilter);
-        if ($field == self::SPATIAL_DATERANGE_FIELD 
-            && isset($this->filterList[$field])
-        ) {
+        echo("add: $newFilter, field: $field, val: $value");
+        if ($field && $value && strpos($field, 'search_sdatarange_mv') !== false) {
+            // VuFind1 daterange
+            parent::addFilter($newFilter);
+            return;
+        }
+
+        if (!$filter = $this->parseSpatialDaterangeFilter($newFilter)) {
+            // Not a VuFind2 daterange filter
+            parent::addFilter($newFilter);
+            return;
+        }
+
+        list($field, $value, $options) = $filter;
+        if (isset($this->filterList[$field])) {
             // Allow only one active spatial daterange filter
             return;
         }
 
-        parent::addFilter($newFilter);
+        $rangeFilter = $field . ':"' . $value . '"';
+        if (!$range = $this->convertSpatialDateRange($rangeFilter, $options['type'], true)) {
+            parent::addFilter($newFilter);       
+            return;
+        }
+
+        // VuFind2 daterange        
+        $dateFilter = [
+           'from' => $range['from'],
+           'to' => $range['to'],
+           'field' => self::SPATIAL_DATERANGE_FIELD,
+           'val' => $value,
+           'query' => $rangeFilter,
+           'type' => $options['type']
+        ];
+
+        $dateFilter['solrQuery'] 
+            = Utils::buildSpatialDateRangeQuery(
+                $dateFilter['from'], 
+                $dateFilter['to'], 
+                $dateFilter['type'],
+                $dateFilter['field']
+        );
+
+        echo("datef: " . var_export($dateFilter, true));
+
+        $this->spatialDateRangeFilter = $dateFilter;
+        //parent::addFilter($newFilter);
+        parent::addFilter($dateFilter['query']);
+
+    }
+
+    public function getFilterSettings()    
+    {
+        $filters = parent::getFilterSettings();
+        if ($this->spatialDateRangeFilter) {
+            foreach ($filters as &$filter) {
+                if (strpos($filter, self::SPATIAL_DATERANGE_FIELD) === 0) {
+                    $type = $this->spatialDateRangeFilter['type'];
+                    /*
+                    // Map daterange type to Solr daterange query operator
+                    $map = ['within' => 'Contains'];
+                    // overlap => Intersects is default
+                    $op = 'Intersects';
+                    if (isset($map[$type])) {
+                        $op = $map[$type];
+                        }*/
+                    $filter 
+                        = '{!field f=' . self::SPATIAL_DATERANGE_FIELD 
+                        . " op=$type}"
+                        . $this->spatialDateRangeFilter['val']
+                    ;
+                    break;
+                }
+            }
+        }
+        echo("filters: " . var_export($filters, true));
+        return $filters;
     }
 
     /**

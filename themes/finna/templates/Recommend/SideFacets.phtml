@@ -47,6 +47,7 @@
     <? endif; ?>
     <? foreach ($filterList as $field => $filters): ?>
       <? foreach ($filters as $i => $filter): ?>
+        <?= $i . "=" . var_export($filter, true); ?>
         <?
           $index = isset($filter['field']) ? array_search($filter['field'], $collapsedFacets) : false;
           if ($index !== false) {

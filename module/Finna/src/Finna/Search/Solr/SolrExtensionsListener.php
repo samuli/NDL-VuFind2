@@ -125,6 +125,14 @@ class SolrExtensionsListener
             $params = $event->getParam('params');
             $context = $event->getParam('context');
             $query = $event->getParam('query');
+
+
+
+            echo("params: " . get_class($params) . ", " . var_export($params, true));
+            echo("q: " . var_export($query, true));
+
+
+
             if ($params && ($context == 'search' || $context == 'similar')
                 && ($query === null || !is_callable(array($query, 'getHandler'))
                 || $query->getHandler() !== 'ParentID')
