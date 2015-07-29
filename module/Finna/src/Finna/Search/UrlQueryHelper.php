@@ -120,28 +120,17 @@ class UrlQueryHelper extends \VuFind\Search\UrlQueryHelper
      *
      * @return array
      */
+    
     public function getParamArray()
     {
         $params = parent::getParamArray();
-        //        $filter = $this->params->getSpatialDateRangeFilter();
         
         $filter = $this->params->getSpatialDateRangeFilter();
-        if ($filter && isset($filter['field']) && isset($params['filter'])
+        if ($filter && isset($filter['type'])
         ) {
-            foreach ($params['filter'] as &$param) {
-                list($field, $value) = explode(':', $param, 2);
-                //echo("spa: " . $filter['field'] . ", field: $field-$value");
-                if ($field == $filter['field']) {
-                    
-                    $param = $filter['solrQuery'];
-                    //die($param);
-                }
-            }
+            $field = $this->params->getSpatialDateRangeField() . '_type';
+            $params[$field] = $filter['type'];
         }
         return $params;
     }
-
-
-
-
 }

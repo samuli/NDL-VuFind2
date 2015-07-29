@@ -44,7 +44,18 @@ class Utils extends \VuFind\Solr\Utils
 {
     public static function buildSpatialDateRangeQuery($from, $to, $type, $field)
     {
-        return "{!field f=$field op=$type}[$from TO $to]";
+        $filter = "[$from TO $to]";
+
+        if ($type) {
+            $map = ['within' => 'Contains'];
+            // overlap => Intersects is default
+            $op = 'Intersects';
+            if (isset($map[$type])) {
+                $op = $map[$type];
+            }
+            $filter = "{!field f=$field op=$op}$filter";
+        }
+        return $filter;
     }
 
     /**
@@ -79,24 +90,23 @@ class Utils extends \VuFind\Solr\Utils
 
         $from = $matches[1];
         $to = $matches[2];
-        
+
         if (!$vufind2Syntax) {
+            if ($type == 'within') {
+                // Adjust time range end points to match original search query
+                $from += 0.5;
+                $to -= 0.5;
+            }
+            
             $from = $from * 86400;
-            $from = new \DateTime($from);
+            $from = new \DateTime("@{$from}");
             $from = $from->format('Y');
 
             $to = $to * 86400;
-            $from = new \DateTime($to);
+            $to = new \DateTime("@{$to}");
             $to = $to->format('Y');
         }
-        /*
-        if ($type == 'within') {
-            // Adjust time range end points to match original search query
-            // (see SearchObject/Base::buildSpatialDateRangeFilter)
-            //$from += 0.5;
-            //$to -= 0.5;
-            }*/
-        
+
         return ['from' => $from, 'to' => $to];
     }
 }

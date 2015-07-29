@@ -44,6 +44,59 @@
         }
     }
 }
+.main.template-dir-search.template-name-home {
+    & .daterange-facet.national {
+        background-color: inherit;
+        margin-top: @line-height-computed;
+        margin-bottom: (@line-height-computed);
+
+        @media (max-width: @screen-sm) {
+            display: none;
+        }
+
+        & .text {
+            & .large {
+                font-size: @font-size-h2;
+                font-weight: @headings-font-weight;
+                line-height: @headings-line-height;
+            }
+        }
+        & .daterange-vis {
+            display: block;
+            margin: 0;
+            & .content {
+                width: @container-large-desktop;
+                & .fa-spinner {
+                    left: 550px;
+                }
+                @media (min-width: @screen-sm) and (max-width: @screen-md) {
+                    width: @screen-sm - 20;
+                    & .fa-spinner {
+                        left: 350px;
+                    }
+                }
+                @media (min-width: @screen-md) and (max-width: (@screen-lg - 1)) {
+                    width: @screen-md - 24;
+                    & .fa-spinner {
+                        left: 460px;
+                    }
+                }
+            }
+            & .date-vis {
+                width: @container-large-desktop - 50;
+                @media (min-width: @screen-sm) and (max-width: @screen-md) {
+                    width: @screen-sm - 70;
+                }
+                @media (min-width: @screen-md) and (max-width: (@screen-lg - 1)) {
+                    width: @screen-md - 74;
+                }
+            }
+            & .form-ui .year-separator {
+                color: inherit;
+            }
+        }
+    }
+}
 .main.template-dir-content.template-name-content {
     p {
         margin-top: 25px;

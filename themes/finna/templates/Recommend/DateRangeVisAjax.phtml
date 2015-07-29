@@ -1,14 +1,15 @@
 <div class="daterange-vis">
   <?= $this->partial('Recommend/DateRangeForm.phtml', [
+    'submitLabel' => $submitLabel,
     'from' => $from,
     'to' => $to,
     'formAction' => $formAction,
     'type' => $type,
-    'backend' => $backend
+    'backend' => $backend,
+    'hideType' => isset($hideType) ? $hideType : false
   ]); ?>
 
   <div class="content">
-    <? $this->headScript()->appendFile('vendor/jquery.flot.canvas.min.js', 'text/javascript', ['conditional' => 'IE']); ?> 
     <? $this->headScript()->appendFile('vendor/jquery.flot.min.js'); ?>
     <? $this->headScript()->appendFile('vendor/jquery.flot.selection.min.js'); ?>
     <? $this->headScript()->appendFile('finna-daterange-vis.js'); ?>
@@ -30,14 +31,21 @@
 $script = <<<JS
 $(document).ready(function() {
   finna.dateRangeVis.initVis(
-      '{$this->backend}',
-      '{$this->daterangeFacet}',
-      '{$this->searchParams}',
-      '{$this->formAction}',
-      $('.daterange-vis')
-  );
-});
+      '{$backend}',
+      '{$daterangeFacet}',
+      '{$daterangeFacetOperator}',
+      '{$searchParams}',
+      '{$baseParams}',
+      $('.daterange-vis'),
 JS;
+
+$script .= isset($this->plotFrom) ? "{$this->plotFrom}," : 'false,';
+$script .= isset($this->plotTo) ? "{$this->plotTo}," : 'false,';
+$script .= isset($this->plotImmediately) ? "true" : "false";
+$script .= '
+  );
+});';
+
 ?>
   
 <?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $script, 'SET'); ?>

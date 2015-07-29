@@ -66,11 +66,10 @@ class Minified implements \Serializable
      */
     public function __construct($searchObject)
     {
-        if ($spatialDateRange = $searchObject->getParams()->getSpatialDateRangeFilter()
-            && isset($spatialDateRange['type'])
+        $daterange = $searchObject->getParams()->getSpatialDateRangeFilter();
+        if ($daterange && isset($daterange['type'])
         ) {
-            //echo("##### spa: " . var_export($spatialDateRange, true));
-            $this->f_dty = $spatialDateRange['type'];
+            $this->f_dty = $daterange['type'];
         }
     }
     

@@ -16,14 +16,7 @@
     $advSearch = $options->getAdvancedSearchAction();
     $lastSort = $options->getLastSort();
     $lastLimit = $options->getLastLimit();
-    $spatialDateRangeType = null;
-    if ($this->params
-        && $spatialFilter = $this->params->getSpatialDateRangeFilter()
-        && isset($spatialFilter['type'])
-    ) {
-       $spatialDateRangeType = $spatialFilter['type'];
-    }
-
+    $daterange = $this->params ? $this->params->getSpatialDateRangeFilter() : null;
     // Set up Finna Main Tabs:
     $module = $this->layout()->templateDir;
     $action = $this->layout()->templateName;
@@ -112,8 +105,8 @@
       if (!empty($lastSort)) {
         echo '<input type="hidden" name="sort" value="' . $this->escapeHtmlAttr($lastSort) . '" />';
       }
-      if ($spatialDateRangeType && !empty($spatialDateRangeType)) {
-        echo '<input class="hidden applied-filter" type="checkbox"' . $defaultFilterState . ' name="search_sdaterange_mvtype" value="' . $this->escapeHtmlAttr($spatialDateRangeType) . '" />';
+      if ($daterange && isset($daterange['field']) && isset($daterange['type'])) {
+        echo '<input class="hidden applied-filter" type="checkbox"' . $defaultFilterState . ' name="' . $daterange['field'] . '_type" value="' . $this->escapeHtmlAttr($daterange['type']) . '" />';
       }    
     ?>
   </form>

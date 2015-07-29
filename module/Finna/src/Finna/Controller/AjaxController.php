@@ -758,8 +758,9 @@ class AjaxController extends \VuFind\Controller\AjaxController
         }
         $isSolr = $backend == 'solr';
 
+        $configFile = $isSolr ? 'facets' : 'Primo';
         $config 
-            = $this->getServiceLocator()->get('VuFind\Config')->get($isSolr ? 'facets' : 'Primo');
+            = $this->getServiceLocator()->get('VuFind\Config')->get($configFile);
         if (!isset($config->SpecialFacets->dateRangeVis)) {
             return $this->output([], self::STATUS_ERROR);
         }
@@ -767,27 +768,8 @@ class AjaxController extends \VuFind\Controller\AjaxController
         list($filterField, $facet) 
             = explode(':', $config->SpecialFacets->dateRangeVis);
 
-
         $this->writeSession();  // avoid session write timing bug
-
-        $results = $this->getResultsManager()->get($isSolr ? 'Solr' : 'Primo');
-        $params = $results->getParams();
-        $params->addFacet($facet, null, false); // TODO: OR facet?
-        $params->initFromRequest($this->getRequest()->getQuery());
-
-        if (!$isSolr) {
-            $results->performAndProcessSearch();
-        }
-
-        if ($isSolr) {
-            $facets = $results->getFullFieldFacets(
-                [$facet => $facet], false, -1, 'count'
-            );
-            $facetList = $facets[$facet]['data']['list'];
-        } else {
-            $facets = $results->getFacetlist([$facet => $facet]);
-            $facetList = $facets[$facet]['list'];
-        }
+        $facetList = $this->getFacetList($isSolr, $facet, false);
 
         if (empty($facetList)) {
             return $this->output([], self::STATUS_OK);
@@ -809,8 +791,69 @@ class AjaxController extends \VuFind\Controller\AjaxController
             $res[] = [$val, $count];
         }
 
-        $res = [$facet => ['data' => $res, 'min' => $min, 'max' => $max]];
+        $query = $this->getRequest()->getQuery();
+        if (!$isSolr && isset($query['filter'])) {            
+            $found = false;
+            $newFilters = [];
+            foreach ($query['filter'] as $filter) {
+                list($field, $value) = explode(':', $filter, 2);                
+                if ($field == $facet) {
+                    $found = true;
+                } else {
+                    $newFilters[] = $filter;
+                }                
+            }
 
+            if ($found) {
+                // Perform a new search without the active timerange filter 
+                // to resolve data limits (start/end year) 
+                $query->set('filter', $newFilters);
+                $facetList = $this->getFacetList(false, $facet, $query);
+
+                $min = PHP_INT_MAX;
+                $max = -$min;
+                
+                foreach ($facetList as $f) {
+                    $val = $f['displayText'];
+                    // Only retain numeric values
+                    if (!preg_match("/^-?[0-9]+$/", $val)) {
+                        continue;
+                    }
+                    $min = min($min, (int)$val);
+                    $max = max($max, (int)$val);
+                }
+            }
+        }
+
+        $res = [$facet => ['data' => $res, 'min' => $min, 'max' => $max]];
         return $this->output($res, self::STATUS_OK);
+    }
+    
+    protected function getFacetList($solr, $facet, $query = false)
+    {
+        $results = $this->getResultsManager()->get($solr ? 'Solr' : 'Primo');
+        $params = $results->getParams();
+        $params->addFacet($facet, null, false); // TODO: OR facet?
+        
+        if (!$query) {
+            $query = $this->getRequest()->getQuery();
+        }
+        $params->initFromRequest($query);
+
+        if (!$solr) {
+            $results->performAndProcessSearch();
+        }
+
+        if ($solr) {
+            $facets = $results->getFullFieldFacets(
+                [$facet => $facet], false, -1, 'count'
+            );
+            $facetList = $facets[$facet]['data']['list'];
+        } else {
+            $facets = $results->getFacetlist([$facet => $facet]);
+            $facetList = $facets[$facet]['list'];
+        }
+
+        return $facetList;
     }
 }

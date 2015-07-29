@@ -27,7 +27,8 @@
  * @link     http://vufind.org
  */
 namespace FinnaSearch\Backend\Primo;
-use Zend\Http\Client as HttpClient;
+use Finna\Search\Primo\Params,
+    Zend\Http\Client as HttpClient;
 
 /**
  * Primo Central connector.
@@ -65,6 +66,7 @@ class Connector extends \VuFindSearch\Backend\Primo\Connector
      */
     protected function call($qs, $method = 'GET')
     {
+        // Add highlighting
         if ($this->highlighting) {
             $fields = ['title','creator','description'];
             $qs .= '&highlight=true';
@@ -72,6 +74,23 @@ class Connector extends \VuFindSearch\Backend\Primo\Connector
                 $qs .= "&displayField=$field";
             }
         }
+        /*
+        // Fix encoding of daterange url parameter        
+        $regex 
+            = '/^(query=facet_' 
+            . Params::SPATIAL_DATERANGE_FIELD 
+            . '.*)\[([\d-]+) TO ([\d-]+)\]$/'
+        ;
+        $params = explode('&', $qs);
+        foreach ($params as &$param) {
+            if (preg_match($regex, urldecode($param), $matches)) {
+                $param 
+                    = $matches[1] . sprintf('[%d+TO+%d]', $matches[2], $matches[3]);
+            }
+        }
+        $qs = implode('&', $params);
+        */
+
         return parent::call($qs, $method);
     }
 

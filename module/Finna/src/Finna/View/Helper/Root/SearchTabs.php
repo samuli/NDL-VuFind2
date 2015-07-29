@@ -26,7 +26,9 @@
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
 namespace Finna\View\Helper\Root;
-use \Finna\Search\UrlQueryHelper,
+use \Finna\Search\Solr\Params as SolrParams,
+    \Finna\Search\Primo\Params as PrimoParams,
+    \Finna\Search\UrlQueryHelper,
     Zend\Session\Container as SessionContainer;
 
 /**
@@ -101,7 +103,18 @@ class SearchTabs extends \VuFind\View\Helper\Root\SearchTabs
         $tabs = parent::__invoke($activeSearchClass, $query, $handler, $type);
 
         foreach ($tabs as &$tab) {
-            if (isset($tab['url'])) {
+            if (isset($tab['url'])) {                
+                $parts = parse_url($tab['url']);
+                parse_str($parts['query'], $params);
+
+                // Remove daterange type from URL 
+                // (to be added later from a saved search)
+                $dropParams = [
+                   SolrParams::SPATIAL_DATERANGE_FIELD . '_type',
+                ];
+                $params = array_diff_key($params, array_flip($dropParams));
+
+                $filterQuery = false;
                 $searchClass = $tab['class'];
                 if (isset($savedSearches[$searchClass])) {
                     $searchId = $savedSearches[$tab['class']];
@@ -110,9 +123,6 @@ class SearchTabs extends \VuFind\View\Helper\Root\SearchTabs
 
                     // Make sure that tab url does not contain the
                     // search id for the same tab.
-                    $parts = parse_url($tab['url']);
-                    parse_str($parts['query'], $params);
-
                     if (isset($searchSettings['params'])) {
                         $params = array_merge($params, $searchSettings['params']);
                     }
@@ -131,19 +141,23 @@ class SearchTabs extends \VuFind\View\Helper\Root\SearchTabs
                             unset($params['search']);
                         }
                     }
-                    
-                    $url = $parts['path'] . '?' . http_build_query($params);
-                    $tab['url'] = $url;
+
                     if (isset($searchSettings['filters'])) {
-                        $tab['url'] .= '&' .
+                        $filterQuery .= '&' .
                             $helper->buildQueryString(
                                 array('filter' => $searchSettings['filters']), false
-                        );
+                            );
                     }
+                    
                 }
+                  
+                $url = $parts['path'] . '?' . http_build_query($params);
+                if ($filterQuery) {
+                    $url .= '&' . $filterQuery;
+                }
+                $tab['url'] = $url;
             }
         }
-
         return $tabs;
     }
 
@@ -216,30 +230,16 @@ class SearchTabs extends \VuFind\View\Helper\Root\SearchTabs
             if (isset($params['filter'])) {
                 $settings['filters'] = $params['filter'];
             }
-            
-            $spatialDateRangeType = null;
-            if (isset($params['search_sdaterange_mvtype'])) {
-                $spatialDateRangeType = $params['search_sdaterange_mvtype'];
-            } else {
-                $session = new SessionContainer('spatialDateRangeType');
-                if (!empty($session['type'])) {
-                    $spatialDateRangeType = $session['type'];
-                }
-            }
 
-            if ($spatialDateRangeType) {
-                $settings['params'] = ['search_sdaterange_mvtype' => $spatialDateRangeType];
+            $params = $savedSearch->getParams();
+            $daterange = $params->getSpatialDateRangeFilter();
+            if ($daterange) {
+                $field = $params->getSpatialDateRangeField() . '_type';
+                $type = $daterange['type'];
+                $settings['params'] = [$field => $type];
             }
-
 
             return $settings;
-
-
-            foreach ($params as $key => $value) {
-                if ($key == 'filter') {
-                    return $value;
-                }
-            }
         }
         return false;
     }

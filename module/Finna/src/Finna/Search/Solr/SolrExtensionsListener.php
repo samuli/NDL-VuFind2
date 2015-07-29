@@ -128,10 +128,11 @@ class SolrExtensionsListener
 
 
 
-            echo("params: " . get_class($params) . ", " . var_export($params, true));
-            echo("q: " . var_export($query, true));
+            //echo("params: " . get_class($params) . ", " . var_export($params, true));
+            //echo("q: " . var_export($query, true));
 
-
+            
+            
 
             if ($params && ($context == 'search' || $context == 'similar')
                 && ($query === null || !is_callable(array($query, 'getHandler'))

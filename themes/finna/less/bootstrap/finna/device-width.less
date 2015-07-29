@@ -1,0 +1,11 @@
+.device-xs, 
+.device-sm,
+.device-md,
+.device-lg {
+    display: none;
+}
+
+@media (max-width: @screen-lg) { .device-lg { display: block;} }
+@media (min-width: @screen-sm) and (max-width: @screen-md) { .device-md { display: block;} }
+@media (min-width: @screen-xs) and (max-width: @screen-sm) { .device-sm { display: block;} }
+@media (max-width: @screen-xs) { .device-xs { display: block;} }

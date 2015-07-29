@@ -5,16 +5,18 @@
       <span class="year-separator">&ndash;</span>
       <input class="year-to" type="text" value="<?= $this->to; ?>">
     </div>
-    <? if ($backend != 'primo'): ?>
+    <? if ($backend != 'primo' && (!isset($hideType) || !$hideType)): ?>
     <div class="range-type">
       <label class="radiobutton" for="timeline_overlap">
-        <input class="timeline_overlap" type="radio" name="search_sdaterange_mvtype" value="overlap"<?= !$this->type || $this->type == 'overlap' ? ' checked="checked"' : ''; ?>/><?= $this->translate('Timeline overlap'); ?>
+        <input class="timeline_overlap" type="radio" name="type" value="overlap"<?= !$this->type || $this->type == 'overlap' ? ' checked="checked"' : ''; ?>/><?= $this->translate('Timeline overlap'); ?>
       </label>
       <label class="radiobutton" for="timeline_within">
-        <input class="timeline_within" type="radio" name="search_sdaterange_mvtype" value="within"<?= $this->type == 'within' ? ' checked="checked"' : ''; ?>/><?= $this->translate('Timeline within'); ?>
+        <input class="timeline_within" type="radio" name="type" value="within"<?= $this->type == 'within' ? ' checked="checked"' : ''; ?>/><?= $this->translate('Timeline within'); ?>
       </label>
     </div>
     <? endif; ?>
-    <a href="#" class="submit btn btn-link"><i class="fa fa-search"></i><?= $this->translate('Update'); ?></a>
+    <button class="btn btn-primary submit" type="submit">
+      <i class="fa fa-search"></i><span><?= $this->translate($this->submitLabel); ?></span>
+    </button>
   </div>
 </form>

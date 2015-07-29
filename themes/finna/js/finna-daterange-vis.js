@@ -1,7 +1,9 @@
 finna.dateRangeVis = (function() {
+    var loading = firstLoad = true;
     var visNavigation = '';
-    var visDateStart, visDateEnd, visMove, visRangeSelected = false;    
-    var holder, searchParams, facetField = null;
+    var visData = visDateStart = visDateEnd = visMove = visRangeSelected = plotStart = plotEnd = false;    
+    var dataMin = dataMax = disableTimeline = false;
+    var holder = searchParams = facetField = facetOperator = currentDevice = null;
     var openTimelineCallback = null;
 
     // Move dates: params either + or -
@@ -15,6 +17,11 @@ finna.dateRangeVis = (function() {
     };
 
     var timelineAction = function(backend, action) {
+        if (loading) {
+            return;
+        }
+        plotStart = plotEnd = false;
+
         // Navigation: prev, next, out or in
         if (typeof action != 'undefined') {
             // Require numerical values
@@ -45,11 +52,10 @@ finna.dateRangeVis = (function() {
                 // Create the string of date params
 
 
-                var newSearchParams = searchParams + '&filter[]=' + facetField + ':[' + padZeros(visDateStart) + ' TO ' + padZeros(visDateEnd) + ']';
-                //var newSearchParams = searchParams + '&search_sdaterange_mvfrom=' + padZeros(visDateStart) + '&search_sdaterange_mvto=' + padZeros(visDateEnd);
+                var newSearchParams = searchParams + '&filter[]=' + facetOperator + facetField + ':[' + padZeros(visDateStart) + ' TO ' + padZeros(visDateEnd) + ']';
+                visData = null;
                 finna.dateRangeVis.loadVis(backend, action, newSearchParams);
             }
-
         }
     };
 
@@ -58,68 +64,98 @@ finna.dateRangeVis = (function() {
         if (openTimelineCallback) {
             fn = openTimelineCallback;
             openTimelineCallback = null;
-            setTimeout(fn(), 500);
+            setTimeout(fn, 500);
+        } else if (!disableTimeline) {
+            plotData();
         }
     };
 
-    var initVis = function(backend, facet, params, baseParams, h, start, end) {
+    var initVis = function(backend, facet, operator, 
+                           params, baseParams, h, start, end, plotImmediately) {        
         facetField = facet;
+        facetOperator = operator;
         holder = h;
 
         // Save default timeline parameters
         searchParams = baseParams;
-
         
-        if (typeof start == "undefined") {
-            start = holder.find(".year-from").val();
-            if (start != "") {
-                start = parseInt(start, 10);
-                visDateStart = start;
+        var field = holder.find(".year-from");
+        if (field.length) {
+            startVal = field.val();
+            if (startVal != "") {
+                visDateStart = parseInt(startVal, 10);
             }
-        } else {
-            visDateStart = start;            
         }
 
-        if (typeof end == "undefined") {
-            end = holder.find(".year-to").val();
-            if (end != "") {
-                end = parseInt(end, 10);
-                visDateEnd = end;
+        if (typeof start != undefined && start !== false) {
+            plotStart = start;
+        }
+
+        if (visDateStart === false) {
+            visDateStart = start;
+        }
+
+        field = holder.find(".year-to");
+        if (field.length) {
+            endVal = field.val();
+            if (endVal != "") {
+                visDateEnd = parseInt(endVal, 10);
             }
-        } else {
+        }
+
+        if (typeof end != undefined && end !== false) {
+            plotEnd = end;
+        }
+
+        if (visDateEnd === false) {
             visDateEnd = end;
         }
 
+
         initTimelineNavigation(backend, h);
-        h.closest(".facet").find(".year-form").each(function() {
+        h.closest(".daterange-facet").find(".year-form").each(function() {
             initForm($(this), backend, facet);
         });
 
         openTimelineCallback = function() { loadVis(backend, 'prev', params); };
+        if (typeof plotImmediately != "undefined" && !plotImmediately) {
+            // Callback for loading visualization when timeline is opened
+            openTimelineCallback = function() { loadVis(backend, 'prev', params); };
+
+            if (backend == 'primo') {
+                // Load visialization data immediately to get data limits (start/end years). 
+                // We'll need this to build (fake) open-interval queries, which Primo does not support.
+                setTimeout(openTimelineCallback, 10);
+            }
+        } else {
+            openTimelineCallback();
+        }
     };
 
     var loadVis = function(backend, action, params) {
+        if (backend == 'primo' && visData) {
+            // Primo visualization data is loaded before timeline is opened.            
+            plotData();
+            return;
+        }
+        
         // Load and display timeline (called at initial open and after timeline navigation)
         var url = path + "/AJAX/JSON" + params + "&method=dateRangeVisual&backend=" + backend;
         holder.find(".content").addClass('loading');
         
+        loading = true;
         $.getJSON(url, function (data) {
+            loading = false;
             var vis = holder.find(".date-vis");
+            vis.closest(".content").removeClass('loading');
             if (data.status == 'OK') {
                 $.each(data['data'], function(key, val) {
-                    
                     // Get data limits
                     dataMin = parseInt(val.min, 10);
                     dataMax = parseInt(val.max, 10);
-                    
-                    // Compare with the values set by the user
-                    if (val['min'] == 0) {
-                        val['min'] = dataMin;
-                    }
 
-                    if (val['max'] == 0) {
-                        val['max'] = dataMax;
-                    }
+                    val['min'] = dataMin;
+                    val['max'] = dataMax;
                     
                     // Left & right limits have to be processed separately
                     // depending on movement direction: when reaching the left limit while
@@ -132,18 +168,17 @@ finna.dateRangeVis = (function() {
                         val['min'] = val['max']; 
                     }
 
-                    if (typeof visDateStart === 'undefined') {
-                        visDateStart = parseInt(val['min'], 10);
+                    
+                    if (visDateStart === false || (firstLoad && dataMin > visDateStart)) {                        
+                        visDateStart = dataMin;
                     }
                     
-                    var maxYear = new Date().getFullYear();
-                    
-                    if (typeof visDateEnd === 'undefined') {
-                        visDateEnd = parseInt(val['max'], 10);
-                        
-                        if (visDateEnd > maxYear) {
-                            visDateEnd = maxYear;
-                        }
+                    if (visDateEnd === false || (firstLoad && dataMax < visDateEnd)) {
+                        visDateEnd = dataMax;
+                    }
+
+                    if (firstLoad) {
+                        visDateEnd = Math.min(visDateEnd, new Date().getFullYear());
                     }
                     
                     // Check for values outside the selected range and remove them
@@ -155,53 +190,83 @@ finna.dateRangeVis = (function() {
                         }
                     }
                     
-                    var options = getGraphOptions(visDateStart, visDateEnd);
-
-                    // Draw the plot
-                    var plot = $.plot(vis, [val], options);
-                    var form = holder.find(".year-form");
-                    var fromElement = holder.find(".year-from");            
-                    var toElement = holder.find(".year-to");            
-
-                    // Bind events
-                    vis.unbind("plotclick").bind("plotclick", function (event, pos, item) {
-                        if (!visRangeSelected) {
-                            var year = Math.floor(pos.x);
-                            fromElement.val(year);
-                            toElement.val(year);
-                            plot.setSelection({ x1: year , x2: year});
-                        }
-                        visRangeSelected = false;
-                    });
-
-                    vis.unbind("plotselected").bind("plotselected", function (event, ranges) {
-                        from = Math.floor(ranges.xaxis.from);
-                        to = Math.floor(ranges.xaxis.to);
-                        (from != '-9999') ? fromElement.val(from) : fromElement.val();
-                        (to != '9999') ? toElement.val(to) : toElement.val();
-                        $('body').click();
-                        visRangeSelected = true;
-                    });
-                    
-                    
-                    // Set pre-selections
-                    var from = fromElement.val();
-                    var to = toElement.val();
-
-                    var preFromVal = from ? from : val['min'];
-                    var preToVal = to ? to : val['max'];
-
-                    if (to || from) {
-                        plot.setSelection({ x1: preFromVal , x2: preToVal});
-                    } 
-                    
+                    visData = val;
+                    plotData();
                 });
+                firstLoad = false;
             }
-            vis.closest(".content").removeClass('loading');
         });
     };
 
-    var getGraphOptions = function(visDateStart, visDateEnd) {
+    var plotData = function() {
+        var plotVisible = holder.is(":visible");
+        if (!plotVisible) {
+            return;
+        }
+
+        var start = visDateStart;
+        if (plotStart != false && plotStart > visDateStart) {
+            start = plotStart;
+        }
+
+        var end = visDateEnd;
+        if (plotEnd != false && plotEnd < visDateEnd) {
+            end = plotEnd;
+        }
+        console.log("plot: " + start + "-" + end + ", plotStart: " + plotStart + "-" + plotEnd + ", visDateStart: " + visDateStart + "-" + visDateEnd);
+
+        var options = getGraphOptions(start, end);
+        var vis = holder.find(".date-vis");
+
+        // Draw the plot
+        var plot = $.plot(vis, [visData], options);
+        var form = holder.find(".year-form");
+        var fromElement = holder.find(".year-from");            
+        var toElement = holder.find(".year-to");            
+        var plotInited = false;
+
+        // Bind events
+        vis.unbind("plotclick").bind("plotclick", function (event, pos, item) {
+            if (!visRangeSelected) {
+                var year = Math.floor(pos.x);
+                plot.setSelection({ x1: year , x2: year+1});
+                fromElement.val(year);
+                toElement.val(year);
+            }
+            visRangeSelected = false;
+        });
+
+        vis.unbind("plotselected").bind("plotselected", function (event, ranges) {
+            visRangeSelected = true;
+
+            if (!plotInited) {
+                return;
+            }
+            from = Math.floor(ranges.xaxis.from);
+            to = Math.floor(ranges.xaxis.to);
+            if (from != '-9999') {
+                fromElement.val(from);
+            }
+            if (to != '-9999') {
+                toElement.val(to);
+            }
+
+            $('body').click();
+        });
+        
+        // Set pre-selections
+        var from = fromElement.val();
+        var to = toElement.val();
+
+        if (from || to) {
+            from = from ? from : visData['min'];
+            to = to ? to : visData['max'];
+            plot.setSelection({ x1: from , x2: to});
+        }
+        plotInited = true;
+    };
+
+    var getGraphOptions = function(start, end) {
         var options =  {
             series: {
                 bars: { 
@@ -213,8 +278,8 @@ finna.dateRangeVis = (function() {
             colors: ["#00a3b5"],
             legend: { noColumns: 2 },
             xaxis: { 
-                min: visDateStart,
-                max: visDateEnd,
+                min: start,
+                max: end,
                 tickDecimals: 0,                         
                 font :{
                     size: 13,
@@ -255,42 +320,61 @@ finna.dateRangeVis = (function() {
         );
     };
 
-    var initUI = function() {
-        // Override default facet open/close behavior
+    var initFacetBar = function() {
         var facet = $(".daterange-facet");
         var title = facet.find(".title");
         title.on("click", function(e) {
-            var facet = $(this).closest(".facet");
-            var facetItem = facet.find(".list-group-item");
-            var collapsed = facetItem.hasClass("collapsed");
-
-            if (e.offsetX > title.outerWidth()-30) {
-                // :after icon clicked > open/close facet
-                if (!collapsed) {
-                    facet.toggleClass("wide", false);
-                } else if (facet.hasClass("timeline")) {
-                    facet.toggleClass("wide", true);                    
-                }
-            } else {
-                // Facet title clicked
-                facet.toggleClass("wide");
-                if (collapsed) {
-                    if (!facet.hasClass("timeline")) {
-                        facet.toggleClass("timeline", true);
-                        showVis();
+            if (!disableTimeline) {
+                // Override default facet open/close behavior when 
+                // timeline is enabled
+                var facet = $(this).closest(".facet");
+                var facetItem = facet.find(".list-group-item");
+                var collapsed = facetItem.hasClass("collapsed");
+                
+                if (e.offsetX > title.outerWidth()-30) {
+                    // :after icon clicked > open/close facet
+                    if (!collapsed) {
+                        facet.toggleClass("wide", false);
+                    } else if (facet.hasClass("timeline")) {
+                        facet.toggleClass("wide", true);                    
                     }
                 } else {
-                    facet.toggleClass("timeline");
-                    if (facet.hasClass("timeline")) {
-                        showVis();
+                    // Facet title clicked
+                    facet.toggleClass("wide");
+                    if (collapsed) {
+                        if (!facet.hasClass("timeline")) {
+                            facet.toggleClass("timeline", true);
+                            showVis();
+                        }
+                    } else {
+                        facet.toggleClass("timeline");
+                        if (facet.hasClass("timeline")) {
+                            showVis();
+                        }
+                        return false;                
                     }
-                    return false;                
                 }
             }
         });
-
     };
     
+    var initResizeListener = function() {
+        disableTimeline = finna.layout.getDevice() == "xs";
+        $(window).on("device-change.screen.finna", function(e, data) {
+            var device = data.device;
+            var prevDevice = data.prevDevice;
+            disableTimeline = device == "xs";
+            if (disableTimeline) {
+                // disable timeline
+                var facet = $(".daterange-facet");
+                facet.toggleClass("wide", false);
+                facet.toggleClass("timeline", false);
+            } else {
+                plotData();
+            }
+        });
+    };
+
     var initForm = function(form, backend, facetField) {
         form.find("a.submit").on("click", 
            function() {
@@ -299,9 +383,9 @@ finna.dateRangeVis = (function() {
            }
         );
 
-        var self = this;
         form.submit(function(e) {
             e.preventDefault();
+
             // Get dates, build query
             var fromElement = $(this).find(".year-from");            
             var from = fromElement.val();
@@ -319,45 +403,49 @@ finna.dateRangeVis = (function() {
             var query = action;
             var isSolr = backend == "solr";
 
-            query += 'filter[]=' + facetField + ':';
 
             var type = null;
             if (isSolr) {
-                type = $(this).find('input[type=radio][name=search_sdaterange_mvtype]:checked');
+                type = $(this).find('input[type=radio][name=type]:checked');
                 if (type.length) {
-//                    query += "&search_sdaterange_mvtype=" + type.val() + "&";
+                    type = type.val();
+                    query += facetField + "_type=" + type + "&";
                 }
             }
                 
+            fromElement.removeClass('error');
+            toElement.removeClass('error');
 
-            fromElement.removeClass('invalidField');
-            toElement.removeClass('invalidField');
+            query += 'filter[]=' + facetOperator + facetField + ':';
             
             // Require numerical values
-            if (!isNaN(from) && from != "" || !isNaN(to) && to != "") {
+            if (!isNaN(from) && !isNaN(to)) {
                 if (from == '' && to == '') { // both dates empty; use removal url
                     query = action;
                 } else if (from == '') { // only end date set
                     if (type == 'within') {
-                        fromElement.addClass('invalidField');
+                        fromElement.addClass('error');
                         return false;
                     }
-                    query += '"[* TO ' + padZeros(to) + ']"';
-                    //query += 'search_sdaterange_mvto=' + padZeros(to);
+
+                    query += '"[';
+                    query += isSolr ? '*' : dataMin !== false ? dataMin : 0;
+                    query += '+TO+' + padZeros(to) + ']"';
                 } else if (to == '')  { // only start date set
                     if (type == 'within') {
-                        toElement.addClass('invalidField');
+                        toElement.addClass('error');
                         return false;
                     }
-                    query += '"[' + padZeros(from) + ' TO *]"';
-                    //query += 'search_sdaterange_mvfrom=' + padZeros(from);
+
+                    query += '"[' + padZeros(from) + ' TO ';                    
+                    query += isSolr ? '*' : dataMax !== false ? dataMax : 9999;
+                    query += ']"';
+                } else if (from > to) {
+                    fromElement.addClass("error");
+                    toElement.addClass('error');
+                    return false;                    
                 } else { // both dates set
                     query += '"['+padZeros(from)+' TO '+padZeros(to)+']"';
-                    /*
-                    query += isSolr 
-                        ? 'search_sdaterange_mvfrom=' + padZeros(from) + '&search_sdaterange_mvto=' + padZeros(to)
-                        : '"['+padZeros(from)+' TO '+padZeros(to)+']"'
-                    ;*/
                 }
 
                 // Perform the new search
@@ -366,7 +454,7 @@ finna.dateRangeVis = (function() {
             return;
         });
     };
-
+    
     var padZeros = function(number, length) {
         if (typeof length == 'undefined') {
             length = 4;
@@ -385,7 +473,8 @@ finna.dateRangeVis = (function() {
     } 
 
     var init = function() {
-        initUI();
+        initFacetBar();
+        initResizeListener();
     };
 
     var my = {
