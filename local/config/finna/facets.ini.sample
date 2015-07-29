@@ -16,7 +16,7 @@ language           = Language
 original_lng_str_mv = original_work_language
 subtitle_lng_str_mv = subtitle_language
 main_date_str      = "Year"
-search_sdaterange_mv = "Main Year"
+search_daterange_mv = "Main Year"
 genre_facet        = Genre
 era_facet          = Era
 geographic_facet   = Region
@@ -38,7 +38,7 @@ category_str_mv    = Category
 ; Any fields listed below will be treated as date ranges rather than plain facets:
 dateRange[] = publishDate
 dateVis[] = main_date_str
-dateRangeVis = search_sdaterange_mv:main_date_str
+dateRangeVis = search_daterange_mv:main_date_str
 ;numericRange[] = example_field_str
 ; Any fields listed below will be treated as free-form ranges rather than plain
 ; facets:
