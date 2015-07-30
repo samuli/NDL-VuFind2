@@ -149,7 +149,6 @@ class Params extends \VuFind\Search\Primo\Params
         if (isset($filters[self::SPATIAL_DATERANGE_FIELD])) {
             $dateFilter = [];
             $filter = $filters[self::SPATIAL_DATERANGE_FIELD][0];
-            //list($operator, $value) = $this->parseOperatorAndFieldName($filter);
 
             $dateFilter['query'] = self::SPATIAL_DATERANGE_FIELD . ":\"$filter\"";
             $dateFilter['field'] = self::SPATIAL_DATERANGE_FIELD;
