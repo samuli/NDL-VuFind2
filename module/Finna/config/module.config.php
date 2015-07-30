@@ -165,6 +165,7 @@ $config = array(
                 'abstract_factories' => ['Finna\Search\Params\PluginFactory'],
             ],
             'search_results' => array(
+                'abstract_factories' => ['Finna\Search\Results\PluginFactory'],
                 'factories' => array(
                     'solr' => 'Finna\Search\Results\Factory::getSolr',
                     'primo' => 'Finna\Search\Results\Factory::getPrimo'

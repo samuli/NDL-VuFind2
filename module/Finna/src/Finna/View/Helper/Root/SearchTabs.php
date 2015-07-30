@@ -26,7 +26,10 @@
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
 namespace Finna\View\Helper\Root;
-use \Finna\Search\UrlQueryHelper;
+use \Finna\Search\Solr\Params as SolrParams,
+    \Finna\Search\Primo\Params as PrimoParams,
+    \Finna\Search\UrlQueryHelper,
+    Zend\Session\Container as SessionContainer;
 
 /**
  * "Search tabs" view helper
@@ -101,16 +104,31 @@ class SearchTabs extends \VuFind\View\Helper\Root\SearchTabs
 
         foreach ($tabs as &$tab) {
             if (isset($tab['url'])) {
+                $parts = parse_url($tab['url']);
+                $params = [];
+                if (isset($parts['query'])) {
+                    parse_str($parts['query'], $params);
+                }
+
+                // Remove daterange type from URL
+                // (to be added later from a saved search)
+                $dropParams = [
+                   SolrParams::SPATIAL_DATERANGE_FIELD . '_type',
+                ];
+                $params = array_diff_key($params, array_flip($dropParams));
+
+                $filterQuery = false;
                 $searchClass = $tab['class'];
                 if (isset($savedSearches[$searchClass])) {
                     $searchId = $savedSearches[$tab['class']];
-                    $filters = $this->getSearchFilters($searchId);
+                    $searchSettings = $this->getSearchSettings($searchId);
                     $targetClass = $tab['class'];
 
                     // Make sure that tab url does not contain the
                     // search id for the same tab.
-                    $parts = parse_url($tab['url']);
-                    parse_str($parts['query'], $params);
+                    if (isset($searchSettings['params'])) {
+                        $params = array_merge($params, $searchSettings['params']);
+                    }
 
                     if (isset($params['search'])) {
                         $filtered = [];
@@ -127,18 +145,20 @@ class SearchTabs extends \VuFind\View\Helper\Root\SearchTabs
                         }
                     }
 
-                    $url = $parts['path'] . '?' . http_build_query($params);
-                    $tab['url'] = $url;
-                    if ($filters) {
-                        $tab['url'] .= '&' .
+                    if (isset($searchSettings['filters'])) {
+                        $filterQuery .= '&' .
                             $helper->buildQueryString(
-                                array('filter' => $filters), false
+                                array('filter' => $searchSettings['filters']), false
                             );
                     }
                 }
+                $url = $parts['path'] . '?' . http_build_query($params);
+                if ($filterQuery) {
+                    $url .= '&' . $filterQuery;
+                }
+                $tab['url'] = $url;
             }
         }
-
         return $tabs;
     }
 
@@ -169,14 +189,20 @@ class SearchTabs extends \VuFind\View\Helper\Root\SearchTabs
         $urlQuery = clone($urlQuery);
 
         // Remove current filters
-        $urlQuery->removeAllFilters();
+        if (method_exists($urlQuery, 'removeAllFilters')) {
+            $urlQuery->removeAllFilters();
+        }
 
         $filters = $this->getView()->results->getParams()->getFilters();
         if (!empty($filters)) {
             // Filters active, include current search id in the url
             $searchClass = $this->activeSearchClass;
-            $searchId = $this->getView()->results->getSearchId();
-            $query = $urlQuery->setSearchId($searchClass, $searchId);
+            if (method_exists($this->getView()->results, 'getSearchId')) {
+                $searchId = $this->getView()->results->getSearchId();
+            }
+            if (method_exists($urlQuery, 'setSearchId')) {
+                $query = $urlQuery->setSearchId($searchClass, $searchId);
+            }
         } else {
             $query = $urlQuery->getParams(false);
         }
@@ -194,7 +220,7 @@ class SearchTabs extends \VuFind\View\Helper\Root\SearchTabs
      *
      * @return mixed array of filters or false if the given search has no filters.
      */
-    protected function getSearchFilters($id)
+    protected function getSearchSettings($id)
     {
         if (!$search = $this->table->get('Search')->getRowById($id, false)) {
             return false;
@@ -206,11 +232,21 @@ class SearchTabs extends \VuFind\View\Helper\Root\SearchTabs
             $savedSearch = $minSO->deminify($this->results);
 
             $params = $savedSearch->getUrlQuery()->getParamArray();
-            foreach ($params as $key => $value) {
-                if ($key == 'filter') {
-                    return $value;
-                }
+
+            $settings = [];
+            if (isset($params['filter'])) {
+                $settings['filters'] = $params['filter'];
             }
+
+            $params = $savedSearch->getParams();
+            $daterange = $params->getSpatialDateRangeFilter();
+            if ($daterange) {
+                $field = $params->getSpatialDateRangeField() . '_type';
+                $type = $daterange['type'];
+                $settings['params'] = [$field => $type];
+            }
+
+            return $settings;
         }
         return false;
     }

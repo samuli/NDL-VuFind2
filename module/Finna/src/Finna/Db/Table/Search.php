@@ -26,7 +26,7 @@
  * @link     http://www.vufind.org  Main Page
  */
 namespace Finna\Db\Table;
-
+use fminSO;
 /**
  * Table Definition for search
  *
@@ -102,5 +102,33 @@ class Search extends \VuFind\Db\Table\Search
             $select->order('id');
         };
         return $this->select($callback);
+    }
+
+    /**
+     * Add a search into the search table (history)
+     *
+     * @param \VuFind\Search\Results\PluginManager $manager       Search manager
+     * @param \VuFind\Search\Base\Results          $newSearch     Search to save
+     * @param string                               $sessionId     Current session ID
+     * @param array                                $searchHistory Existing saved
+     * searches (for deduplication purposes)
+     *
+     * @return void
+     */
+    public function saveSearch(\VuFind\Search\Results\PluginManager $manager,
+        $newSearch, $sessionId, $searchHistory = []
+    ) {
+        parent::saveSearch($manager, $newSearch, $sessionId, $searchHistory);
+
+        // Augment row updated by parent with serialized Finna search object
+        $callback = function ($select) use ($sessionId) {
+            $select->columns(['*']);
+            $select->where->equalTo('session_id', $sessionId);
+            $select->order('id desc');
+            $select->limit(1);
+        };
+        $row = $this->select($callback)->current();
+        $row['finna_search_object'] = serialize(new fminSO($newSearch));
+        $row->save();
     }
 }

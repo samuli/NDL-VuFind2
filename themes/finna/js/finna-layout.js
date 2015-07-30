@@ -1,5 +1,36 @@
 finna.layout = (function() {
 
+    var getDevice = function() {
+        var devices = ["xs", "sm", "md", "lg"];
+        var size = false;
+        $(devices).each(
+            function(i, device) {
+                size = device;
+                return !$(".device-" + device).is(":visible");
+            }
+        );
+        return size;
+    };
+
+    var initResizeListener = function() {
+        var currentDevice = false;
+        $(window).on("resize", function(e) {
+            if (size = getDevice()) {
+                if (currentDevice == size) {
+                    return;
+                }
+                var data = {
+                    device: size,
+                    prevDevice: currentDevice,
+                    w: $(window).width(),
+                    h: $(window).height()
+                };
+                $(window).trigger("device-change.screen.finna", data);
+                currentDevice = size;
+            }
+        });
+    };
+
     var isTouchDevice = function() {
         return !!('ontouchstart' in window)
             || !!('onmsgesturechange' in window); // IE10
@@ -251,6 +282,8 @@ finna.layout = (function() {
 
     var my = {
         isTouchDevice: isTouchDevice,
+        getDevice: getDevice,
+
         initTruncate: initTruncate,
         init: function() {
             $('select.jumpMenu').unbind('change').change(function() { $(this).closest('form').submit(); });
@@ -267,6 +300,7 @@ finna.layout = (function() {
             initRecordSwipe();
             initMultiSelect();
             initCheckboxClicks();
+            initResizeListener();
         },
     };
 

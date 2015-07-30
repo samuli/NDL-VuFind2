@@ -13,6 +13,7 @@
 -- Additional columns for search
 --
 ALTER TABLE search ADD COLUMN `finna_schedule` int(1) NOT NULL DEFAULT '0';
+ALTER TABLE search ADD COLUMN `finna_search_object` blob;
 ALTER TABLE search ADD COLUMN `finna_last_executed` datetime NOT NULL DEFAULT '0000-00-00 00:00:00';
 ALTER TABLE search ADD COLUMN `finna_schedule_base_url` varchar(255) NOT NULL DEFAULT '';
 ALTER TABLE search ADD INDEX `finna_schedule` (`finna_schedule`);

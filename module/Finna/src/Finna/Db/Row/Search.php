@@ -86,4 +86,26 @@ class Search extends \VuFind\Db\Row\Search
         ];
         return $hmac->generate(array_keys($data), $data);
     }
+
+    /**
+     * Get the search object from the row
+     *
+     * @return \VuFind\Search\Minified
+     */
+    public function getSearchObject()
+    {
+        $parentSO = parent::getSearchObject();
+
+        // Resource check for PostgreSQL compatibility:
+        $raw = is_resource($this->finna_search_object)
+            ? stream_get_contents($this->finna_search_object)
+            : $this->finna_search_object;
+        if ($raw) {
+            $so = unserialize($raw);
+            $so->setParentSO($parentSO);
+            return $so;
+        } else {
+            return $parentSO;
+        }
+    }
 }

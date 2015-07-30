@@ -1,0 +1,173 @@
+.main.template-dir-search.template-name-home,
+.sidebar {
+    & .daterange-facet {
+        background-color: @facet-background;
+
+        & .list-group-item:not(.title).daterange {
+            padding-top: 10px;
+        }
+
+        &.timeline.wide .list-group-item.daterange {
+            background: inherit;
+            padding: inherit;
+            border-bottom: inherit;
+        }
+
+        & .fa.timeline {
+            margin-left: 10px;
+        }
+        & .submit .fa {
+            margin-right: 5px;
+        }
+        & .daterange-vis {
+            display: none;
+            margin: 0 10px 10px 15px;
+
+            & .form-ui {
+                float: right;
+                margin-bottom: 10px;
+                & .year-range,
+                & .range-type {
+                    float: left;
+                    margin-left: 20px;
+                }
+                & .year-separator {
+                    color: white;
+                }
+                & label {
+                    color: white;
+                    & input {
+                        color: blue;
+                    }
+                }
+                & .submit {
+                    margin-top: 0;
+                    margin-left: 15px;
+                    background-color: @btn-primary-bg;
+                }
+            }
+            & .content {
+                clear: both;
+                position: relative;
+                height: 114px;
+                width: 935px;
+                @media (max-width: @screen-md) {
+                    width: 692px;
+                }
+
+                & .date-vis {
+                    width: 880px;
+                    @media (max-width: @screen-md) {
+                        width: 641px;
+                    }
+                    height: 110px;
+                    cursor: crosshair;
+                    left: 45px;
+                }
+
+                background-color: whitesmoke;
+                border-radius: 5px 5px 5px 5px;
+                & .navigation {
+                    border-radius: 5px 0 0 5px;
+                    left: 0;
+                    position: absolute;
+                    width: 40px;
+                    margin-top: 10px;
+
+                    & .zoom-out, .zoom-in {
+                        text-align: center;
+                    }
+                    & .prev {
+                        float: left;
+                    }
+                    & .fa {
+                        cursor: pointer;
+                        font-size: 1.5em;
+                        margin-top: 5px;
+                    }
+                }
+                & .fa-spinner {
+                    display: none;
+                    width: 20px;
+                    height: 20px;
+                    left: 470px;
+                    @media (max-width: @screen-md) {
+                        left: 350px;
+                    }
+
+                    top: -67px;
+                    position: relative;
+                }
+                &.loading .fa-spinner {
+                    display: block;
+                }
+            }
+
+        }
+        & .daterange-form {
+            display: block;
+            overflow: auto;
+            & .submit {
+                float: right;
+                background-color: @btn-primary-bg;
+            }
+            & .range-type {
+                margin-top: 10px;
+            }
+        }
+        &.timeline.wide {
+            width: 963px;
+            @media (max-width: @screen-md) {
+                width: 723px;
+            }
+
+            z-index: @zindex-dropdown;
+            padding-bottom: 5px;
+            margin-left: -706px;
+
+            @media (min-width: @screen-sm) and (max-width: @screen-md) {
+                margin-left: -571px;
+            }
+            @media (min-width: (@screen-md + 1b)) and (max-width: (@screen-lg - 1)) {
+                margin-left: -755px;
+            }
+
+            & .daterange-vis {
+                display: block;
+            }
+            & .daterange-form {
+                display: none;
+            }
+        }
+        & .btn-primary {
+            font-size: 1em;
+            font-weight: bold;
+            padding: 4px 8px;
+        }
+        & input[type=text] {
+            width: 48px;
+            border-radius: 4px 4px 4px 4px;
+            padding: 5px;
+            box-shadow: 0 3px 11px -8px #808080;
+            border: 1px solid #CCCCCC;
+            &.error {
+                border: solid 2px red;
+            }
+        }
+    }
+    &.sidebar-on-left {
+        & .daterange-facet.timeline.wide {
+            margin-left: 0;
+        }
+    }
+}
+.template-dir-primo {
+    & .sidebar .daterange-facet .form-ui {
+        & .year-range {
+            float: left;
+        }
+        & .submit {
+            margin-top: 0;
+        }
+    }
+}

@@ -60,6 +60,11 @@ class Module
     public function getAutoloaderConfig()
     {
         return array(
+            'Zend\Loader\ClassMapAutoloader' => [
+                'classes' => [
+                    'fminSO' => __DIR__ . '/src/Finna/Search/fminSO.php'
+                ]
+            ],
             'Zend\Loader\StandardAutoloader' => array(
                 'namespaces' => array(
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
