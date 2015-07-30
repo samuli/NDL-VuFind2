@@ -886,7 +886,9 @@ class AjaxController extends \VuFind\Controller\AjaxController
                 // Perform a new search without the active timerange filter
                 // to resolve data limits (start/end year)
                 $query->set('filter', $newFilters);
-                $facetList = $this->getFacetList(false, $filterField, $facet, $query);
+                $facetList = $this->getFacetList(
+                    false, $filterField, $facet, $query
+                );
                 $min = PHP_INT_MAX;
                 $max = -$min;
                 foreach ($facetList as $f) {

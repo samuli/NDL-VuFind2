@@ -42,6 +42,16 @@ namespace Finna\Solr;
  */
 class Utils extends \VuFind\Solr\Utils
 {
+    /**
+     * Build date range filter query.
+     *
+     * @param int    $from  Start year
+     * @param int    $to    End year
+     * @param string $type  Query type ('overlap' or 'within')
+     * @param string $field Index field
+     *
+     * @return string Query
+     */
     public static function buildSpatialDateRangeQuery($from, $to, $type, $field)
     {
         $filter = "[$from TO $to]";
