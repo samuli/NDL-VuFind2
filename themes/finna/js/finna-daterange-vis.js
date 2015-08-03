@@ -122,23 +122,12 @@ finna.dateRangeVis = (function() {
         if (typeof plotImmediately != "undefined" && !plotImmediately) {
             // Callback for loading visualization when timeline is opened
             openTimelineCallback = function() { loadVis(backend, 'prev', params); };
-
-            if (backend == 'primo') {
-                // Load visialization data immediately to get data limits (start/end years).
-                // We'll need this to build (fake) open-interval queries, which Primo does not support.
-                setTimeout(openTimelineCallback, 10);
-            }
         } else {
             openTimelineCallback();
         }
     };
 
     var loadVis = function(backend, action, params) {
-        if (backend == 'primo' && visData) {
-            // Primo visualization data is loaded before timeline is opened.
-            plotData();
-            return;
-        }
         // Load and display timeline (called at initial open and after timeline navigation)
         var url = path + "/AJAX/JSON" + params + "&method=dateRangeVisual&backend=" + backend;
         holder.find(".content").addClass('loading');
@@ -413,19 +402,20 @@ finna.dateRangeVis = (function() {
                         fromElement.addClass('error');
                         return false;
                     }
-
+                    to = parseInt(to, 10);
                     query += '"[';
-                    query += isSolr ? '*' : dataMin !== false ? dataMin : 0;
+                    query += isSolr ? '*' : (to >= 1900 ? 1900 : to-100);
                     query += '+TO+' + padZeros(to) + ']"';
                 } else if (to == '')  { // only start date set
                     if (type == 'within') {
                         toElement.addClass('error');
                         return false;
                     }
+                    from = parseInt(from, 10);
                     query += '"[' + padZeros(from) + ' TO ';
-                    query += isSolr ? '*' : dataMax !== false ? dataMax : 9999;
+                    query += isSolr ? '*' : (from <= 2100 ? 2100 : from+100);
                     query += ']"';
-                } else if (from > to) {
+                } else if (parseInt(from, 10) > parseInt(to, 10)) {
                     fromElement.addClass("error");
                     toElement.addClass('error');
                     return false;

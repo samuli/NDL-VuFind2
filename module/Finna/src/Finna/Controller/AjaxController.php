@@ -868,41 +868,6 @@ class AjaxController extends \VuFind\Controller\AjaxController
             $max = max($max, (int)$val);
             $res[] = [$val, $count];
         }
-
-        $query = $this->getRequest()->getQuery();
-        if (!$isSolr && isset($query['filter'])) {
-            $found = false;
-            $newFilters = [];
-            foreach ($query['filter'] as $filter) {
-                list($field, $value) = explode(':', $filter, 2);
-                if ($field == $facet) {
-                    $found = true;
-                } else {
-                    $newFilters[] = $filter;
-                }
-            }
-
-            if ($found) {
-                // Perform a new search without the active timerange filter
-                // to resolve data limits (start/end year)
-                $query->set('filter', $newFilters);
-                $facetList = $this->getFacetList(
-                    false, $filterField, $facet, $query
-                );
-                $min = PHP_INT_MAX;
-                $max = -$min;
-                foreach ($facetList as $f) {
-                    $val = $f['displayText'];
-                    // Only retain numeric values
-                    if (!preg_match("/^-?[0-9]+$/", $val)) {
-                        continue;
-                    }
-                    $min = min($min, (int)$val);
-                    $max = max($max, (int)$val);
-                }
-            }
-        }
-
         $res = [$facet => ['data' => $res, 'min' => $min, 'max' => $max]];
         return $this->output($res, self::STATUS_OK);
     }
