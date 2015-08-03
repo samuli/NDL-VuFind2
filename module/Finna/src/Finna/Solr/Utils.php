@@ -84,7 +84,7 @@ class Utils extends \VuFind\Solr\Utils
         $regex = false;
         if ($vufind2Syntax) {
             // VuFind2 daterange: search_datarange_mv: [1900 TO 2000]
-            $regex = '/\[(\d+|\*) TO ([\d-]+|\*)\]/';
+            $regex = '/\[*([\d-]+|\*) TO *([\d-]+|\*)\]/';
         } else {
             // VuFind1 daterange: search_sdaterange_mv
             if ($type == 'overlap') {

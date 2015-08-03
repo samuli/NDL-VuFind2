@@ -53,7 +53,7 @@ class Utils
      */
     public static function parseSpatialDateRange($query)
     {
-        $regex = '/\[(\d+) TO ([\d-]+)\]/';
+        $regex = '/\[*([\d-]+) TO *([\d-]+)\]/';
         if (!$regex || !preg_match($regex, $query, $matches)) {
             return false;
         }
