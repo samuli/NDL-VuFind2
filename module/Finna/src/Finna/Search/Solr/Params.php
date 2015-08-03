@@ -189,7 +189,6 @@ class Params extends \VuFind\Search\Solr\Params
         if ($reqFilters = $request->get('filter')) {
             foreach ($reqFilters as $f) {
                 list($field, $value) = $this->parseFilter($f);
-                //list($op, $field) = $this->parseOperatorAndFieldName($field);
                 $timerange_VF1 = $field == self::SPATIAL_DATERANGE_FIELD_VF1;
                 $timerange = $field == self::SPATIAL_DATERANGE_FIELD;
 
@@ -197,7 +196,6 @@ class Params extends \VuFind\Search\Solr\Params
                     if ($range = Utils::parseSpatialDateRange(
                         $f, $type, $timerange
                     )) {
-                        //$query = $f;
                         $from = $range['from'];
                         $to = $range['to'];
                         $found = true;
