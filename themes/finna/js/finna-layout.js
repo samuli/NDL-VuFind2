@@ -17,7 +17,7 @@ finna.layout = (function() {
         $(window).on("resize", function(e) {
             if (size = getDevice()) {
                 if (currentDevice == size) {
-                    return;
+                   // return;
                 }
                 var data = {
                     device: size,

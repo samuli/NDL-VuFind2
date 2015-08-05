@@ -267,7 +267,7 @@ finna.dateRangeVis = (function() {
                     size: 13,
                     family: "'helvetica neue', helvetica,arial,sans-serif",
                     color:'#464646',
-                    weight:'bold'
+                    weight:'regular'
                 }
             },
             yaxis: { min: 0, ticks: [] },
@@ -338,19 +338,11 @@ finna.dateRangeVis = (function() {
     };
 
     var initResizeListener = function() {
-        disableTimeline = finna.layout.getDevice() == "xs";
+        disableTimeline = false;
         $(window).on("device-change.screen.finna", function(e, data) {
-            var device = data.device;
-            var prevDevice = data.prevDevice;
-            disableTimeline = device == "xs";
-            if (disableTimeline) {
-                // disable timeline
-                var facet = $(".daterange-facet");
-                facet.toggleClass("wide", false);
-                facet.toggleClass("timeline", false);
-            } else {
-                plotData();
-            }
+
+          plotData();
+          
         });
     };
 

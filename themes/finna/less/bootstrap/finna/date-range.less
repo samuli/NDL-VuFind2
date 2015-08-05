@@ -1,7 +1,7 @@
 .main.template-dir-search.template-name-home,
 .sidebar {
     & .daterange-facet {
-        background-color: @facet-background;
+        background-color: whitesmoke;
 
         & .list-group-item:not(.title).daterange {
             padding-top: 10px;
@@ -21,18 +21,19 @@
         }
         & .daterange-vis {
             display: none;
-            margin: 0 10px 10px 15px;
-
+            margin: 10px 10px 10px 12px;
+            & .range-type {
+                margin: 5px 0px;
+                clear: both;
+            }
             & .form-ui {
-                float: right;
-                margin-bottom: 10px;
-                & .year-range,
-                & .range-type {
+                
+                & .year-range {
                     float: left;
-                    margin-left: 20px;
+                    margin-bottom: 10px;
                 }
                 & .year-separator {
-                    color: white;
+                    color: @gray;
                 }
                 & label {
                     color: white;
@@ -50,62 +51,65 @@
                 clear: both;
                 position: relative;
                 height: 114px;
-                width: 935px;
-                @media (max-width: @screen-md) {
-                    width: 692px;
-                }
 
                 & .date-vis {
-                    width: 880px;
-                    @media (max-width: @screen-md) {
-                        width: 641px;
-                    }
+                    width: 100%;
                     height: 110px;
                     cursor: crosshair;
-                    left: 45px;
+                    background: @body-bg;
                 }
-
-                background-color: whitesmoke;
                 border-radius: 5px 5px 5px 5px;
-                & .navigation {
-                    border-radius: 5px 0 0 5px;
-                    left: 0;
-                    position: absolute;
-                    width: 40px;
-                    margin-top: 10px;
-                    margin-left: 5px;
-                    color: @link-color;
-                    & .zoom-out, .zoom-in {
-                        text-align: center;
-                        font-size: 1.1em;
-                    }
-                    & .prev {
-                        float: left;
-                    }
-                    & .prev, .next {
-                        margin-top: 5px;   
-                    }
-                    & .fa {
-                        cursor: pointer;
-                        font-size: 1.5em;
-                        margin-top: 5px;
-                    }
-                }
                 & .fa-spinner {
                     display: none;
                     width: 20px;
                     height: 20px;
-                    left: 470px;
-                    @media (max-width: @screen-md) {
-                        left: 350px;
-                    }
-
-                    top: -67px;
+                    left: 45%;
+                    top: -60px;
                     position: relative;
                 }
                 &.loading .fa-spinner {
                     display: block;
                 }
+            }
+            & .navigation {
+                    margin-top: -4px;
+                    padding-top: 7px;
+                    color: @link-color;
+                    width: 100%;
+                    display: inline-block;
+                    background: @body-bg;
+                    @media (min-width: @screen-lg-min) {
+                        padding-left: 29%;    
+                    }
+                    @media (min-width: @screen-md-min) and (max-width: @screen-md-max) {
+                        padding-left: 21%;    
+                    }
+                    @media (min-width: @screen-sm-min) and (max-width: @screen-sm-max) {
+                        padding-left: 1%;    
+                    }
+                    
+                    & .zoom-out, .zoom-in, .prev, .next {
+                        font-size: 1.1em;
+                        float: left;
+                        display: inline-block;
+                    }
+                    & .zoom-out {
+                        margin-right: 5px; 
+                    }
+                    & .zoom-in {
+                        margin-left: 5px;
+                        margin-right: 3px;
+                    }
+                    & .expand-modal {
+                        float: right;
+                        margin-right: 9px;
+                        font-size: .8em;
+                        margin-top: 4px;
+                    }
+                    & .fa {
+                        cursor: pointer;
+                        font-size: 1.5em;
+                    }
             }
 
         }
@@ -118,25 +122,12 @@
             }
             & .range-type {
                 margin-top: 10px;
+                clear: both;
             }
         }
         &.timeline.wide {
-            width: 963px;
-            @media (max-width: @screen-md) {
-                width: 723px;
-            }
-
             z-index: @zindex-dropdown;
             padding-bottom: 5px;
-            margin-left: -706px;
-
-            @media (min-width: @screen-sm) and (max-width: @screen-md) {
-                margin-left: -571px;
-            }
-            @media (min-width: (@screen-md + 1b)) and (max-width: (@screen-lg - 1)) {
-                margin-left: -755px;
-            }
-
             & .daterange-vis {
                 display: block;
             }
