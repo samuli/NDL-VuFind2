@@ -1,33 +1,26 @@
 .main.template-dir-search.template-name-home,
 .sidebar {
     & .daterange-facet {
-        background-color: whitesmoke;
-
         & .list-group-item:not(.title).daterange {
-            padding-top: 10px;
+            background-color: whitesmoke;
+            //padding-top: 1px;
+            padding: 10px 10px 10px 10px;
         }
 
-        &.timeline.wide .list-group-item.daterange {
-            background: inherit;
-            padding: inherit;
-            border-bottom: inherit;
-        }
-
-        & .fa.timeline {
-            margin-left: 10px;
-        }
         & .submit .fa {
             margin-right: 5px;
         }
         & .daterange-vis {
-            display: none;
-            margin: 10px 10px 10px 12px;
             & .range-type {
                 margin: 5px 0px;
                 clear: both;
+                & label[for=radio_overlap] {
+                    @media (max-width: @screen-xs-max) {
+                        margin-right: 10px;
+                    }
+                }
             }
             & .form-ui {
-                
                 & .year-range {
                     float: left;
                     margin-bottom: 10px;
@@ -79,22 +72,21 @@
                     display: inline-block;
                     background: @body-bg;
                     @media (min-width: @screen-lg-min) {
-                        padding-left: 29%;    
+                        padding-left: 29%;
                     }
                     @media (min-width: @screen-md-min) and (max-width: @screen-md-max) {
-                        padding-left: 21%;    
+                        padding-left: 21%;
                     }
                     @media (min-width: @screen-sm-min) and (max-width: @screen-sm-max) {
-                        padding-left: 1%;    
+                        padding-left: 1%;
                     }
-                    
                     & .zoom-out, .zoom-in, .prev, .next {
                         font-size: 1.1em;
                         float: left;
                         display: inline-block;
                     }
                     & .zoom-out {
-                        margin-right: 5px; 
+                        margin-right: 5px;
                     }
                     & .zoom-in {
                         margin-left: 5px;
@@ -114,26 +106,6 @@
 
         }
         & .daterange-form {
-            display: block;
-            overflow: auto;
-            & .submit {
-                float: right;
-                background-color: @btn-primary-bg;
-            }
-            & .range-type {
-                margin-top: 10px;
-                clear: both;
-            }
-        }
-        &.timeline.wide {
-            z-index: @zindex-dropdown;
-            padding-bottom: 5px;
-            & .daterange-vis {
-                display: block;
-            }
-            & .daterange-form {
-                display: none;
-            }
         }
         & .btn-primary {
             font-size: 1em;
@@ -149,11 +121,6 @@
             &.error {
                 border: solid 2px red;
             }
-        }
-    }
-    &.sidebar-on-left {
-        & .daterange-facet.timeline.wide {
-            margin-left: 0;
         }
     }
 }

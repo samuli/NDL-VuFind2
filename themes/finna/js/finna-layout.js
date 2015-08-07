@@ -1,33 +1,15 @@
 finna.layout = (function() {
-
-    var getDevice = function() {
-        var devices = ["xs", "sm", "md", "lg"];
-        var size = false;
-        $(devices).each(
-            function(i, device) {
-                size = device;
-                return !$(".device-" + device).is(":visible");
-            }
-        );
-        return size;
-    };
-
     var initResizeListener = function() {
-        var currentDevice = false;
+        var intervalId = false;
         $(window).on("resize", function(e) {
-            if (size = getDevice()) {
-                if (currentDevice == size) {
-                   // return;
-                }
+            clearTimeout(intervalId);
+            intervalId = setTimeout(function() {
                 var data = {
-                    device: size,
-                    prevDevice: currentDevice,
                     w: $(window).width(),
                     h: $(window).height()
                 };
-                $(window).trigger("device-change.screen.finna", data);
-                currentDevice = size;
-            }
+                $(window).trigger("resize.screen.finna", data);
+            }, 100);
         });
     };
 
@@ -317,7 +299,6 @@ finna.layout = (function() {
 
     var my = {
         isTouchDevice: isTouchDevice,
-        getDevice: getDevice,
 
         initTruncate: initTruncate,
         init: function() {

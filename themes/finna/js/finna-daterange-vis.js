@@ -2,7 +2,7 @@ finna.dateRangeVis = (function() {
     var loading = firstLoad = true;
     var visNavigation = '';
     var visData = visDateStart = visDateEnd = visMove = visRangeSelected = plotStart = plotEnd = false;
-    var dataMin = dataMax = disableTimeline = false;
+    var dataMin = dataMax = false;
     var holder = searchParams = facetField = currentDevice = null;
     var openTimelineCallback = null;
 
@@ -65,7 +65,7 @@ finna.dateRangeVis = (function() {
             fn = openTimelineCallback;
             openTimelineCallback = null;
             setTimeout(fn, 500);
-        } else if (!disableTimeline) {
+        } else {
             plotData();
         }
     };
@@ -117,10 +117,8 @@ finna.dateRangeVis = (function() {
         });
 
         openTimelineCallback = function() { loadVis(backend, 'prev', params); };
-        if (typeof plotImmediately != "undefined" && !plotImmediately) {
-            // Callback for loading visualization when timeline is opened
-            openTimelineCallback = function() { loadVis(backend, 'prev', params); };
-        } else {
+        if ((typeof plotImmediately != "undefined" && plotImmediately)
+           || !$(".daterange-facet .list-group-item").hasClass("collapsed")) {
             openTimelineCallback();
         }
     };
@@ -180,11 +178,6 @@ finna.dateRangeVis = (function() {
     };
 
     var plotData = function() {
-        var plotVisible = holder.is(":visible");
-        if (!plotVisible) {
-            return;
-        }
-
         var start = visDateStart;
         if (plotStart != false && plotStart > visDateStart) {
             start = plotStart;
@@ -300,47 +293,19 @@ finna.dateRangeVis = (function() {
 
     var initFacetBar = function() {
         var facet = $(".daterange-facet");
-        var title = facet.find(".title");
-        title.on("click", function(e) {
-            if (!disableTimeline) {
-                // Override default facet open/close behavior when
-                // timeline is enabled
-                var facet = $(this).closest(".facet");
-                var facetItem = facet.find(".list-group-item");
-                var collapsed = facetItem.hasClass("collapsed");
-                if (e.offsetX > title.outerWidth()-30) {
-                    // :after icon clicked > open/close facet
-                    if (!collapsed) {
-                        facet.toggleClass("wide", false);
-                    } else if (facet.hasClass("timeline")) {
-                        facet.toggleClass("wide", true);
-                    }
-                } else {
-                    // Facet title clicked
-                    facet.toggleClass("wide");
-                    if (collapsed) {
-                        if (!facet.hasClass("timeline")) {
-                            facet.toggleClass("timeline", true);
-                            showVis();
-                        }
-                    } else {
-                        facet.toggleClass("timeline");
-                        if (facet.hasClass("timeline")) {
-                            showVis();
-                        }
-                        return false;
-                    }
-                }
-            }
-        });
+        var facetItem = facet.find(".list-group-item");
+        if (facetItem.hasClass("collapsed")) {
+            var title = facet.find(".title");
+            title.on("click", function(e) {
+                showVis();
+                $(this).unbind("click");
+            });
+        }
     };
 
     var initResizeListener = function() {
-        disableTimeline = false;
-        $(window).on("device-change.screen.finna", function(e, data) {
-
-          plotData();
-          
+        $(window).on("resize.screen.finna", function(e, data) {
+            plotData();
         });
     };
 
@@ -438,8 +403,8 @@ finna.dateRangeVis = (function() {
     }
 
     var init = function() {
-        initFacetBar();
         initResizeListener();
+        initFacetBar();
     };
 
     var my = {

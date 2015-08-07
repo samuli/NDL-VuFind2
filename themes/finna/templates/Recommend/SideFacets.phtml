@@ -187,17 +187,6 @@ EOT
 
         <? elseif ($daterangeFacet): ?>
             <div class="list-group-item daterange">
-              <div class="daterange-form">
-                <?= $this->partial('Recommend/DateRangeForm.phtml', [
-                'submitLabel' => 'Update',
-                'from' => $fromVal,
-                'to' => $toVal,
-                'formAction' => $formParams,
-                'type' => $type,
-                'backend' => $module,
-                'daterangeFacet' => $daterangeFacetField
-                ]); ?>
-              </div>
               <?= $this->partial('Recommend/DateRangeVisAjax.phtml', [
               'submitLabel' => 'Update',
               'from' => $fromVal,
