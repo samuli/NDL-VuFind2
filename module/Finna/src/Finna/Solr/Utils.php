@@ -74,7 +74,7 @@ class Utils extends \VuFind\Solr\Utils
      *
      * @param string  $query         Solr query to parse.
      * @param string  $type          Query type ('overlap' or 'within')
-     * @param boolean $vufind2Syntax TODO
+     * @param boolean $vufind2Syntax Parse according to VuFind2 filter syntax?
      *
      * @return array|bool   Array with 'from' and 'to' values extracted from range
      * or false if the provided query is not a range.
