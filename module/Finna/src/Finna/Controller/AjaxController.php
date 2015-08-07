@@ -893,16 +893,13 @@ class AjaxController extends \VuFind\Controller\AjaxController
         $params->addFacet($field);
         $params->initFromRequest($query);
 
-        if (!$solr) {
-            $results->performAndProcessSearch();
-        }
-
         if ($solr) {
             $facets = $results->getFullFieldFacets(
                 [$facet], false, -1, 'count'
             );
             $facetList = $facets[$facet]['data']['list'];
         } else {
+            $results->performAndProcessSearch();
             $facets = $results->getFacetlist([$facet => $facet]);
             $facetList = $facets[$facet]['list'];
         }
