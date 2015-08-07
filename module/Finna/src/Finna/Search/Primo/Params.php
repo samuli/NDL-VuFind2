@@ -26,8 +26,6 @@
  * @link     http://www.vufind.org  Main Page
  */
 namespace Finna\Search\Primo;
-use Finna\Primo\Utils,
-    Finna\Search\FinnaParams;
 
 /**
  * Primo Central Search Parameters

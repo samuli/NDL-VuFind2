@@ -255,6 +255,23 @@ finna.layout = (function() {
             buttonClass: "form-control",
         });
     };
+  
+    var initMobileNarrowSearch = function() {
+        var filterAmount = $('.checkboxFilter input[checked]').length+$('.list-group.filters .list-group-item.active').length;
+        if (filterAmount > 0) {
+          $('.mobile-navigation .sidebar-navigation .active-filters').removeClass('hidden');
+          $('.mobile-navigation .sidebar-navigation .active-filters').append(' '+filterAmount);
+        }
+        $('.mobile-navigation .sidebar-navigation, .sidebar h4').click(function() {
+            $('.sidebar').toggleClass('open');
+            $('.mobile-navigation .sidebar-navigation i').toggleClass('fa-arrow-up');
+            $('body').toggleClass('prevent-scroll'); 
+        });
+        $('.mobile-navigation .sidebar-navigation .active-filters').click(function() {
+            $('.sidebar').scrollTop(0);
+        });  
+    };
+    
     var initCheckboxClicks = function() {
       $('.checkboxFilter:not(.mylist-select-all) .checkbox input').click(function() {
         $(this).closest('.checkbox').toggleClass('checked');
@@ -271,30 +288,30 @@ finna.layout = (function() {
           $('.mylist-functions .jump-menu-style').addClass('disabled');
         }
       });
-      $('.checkboxFilter.mylist-select-all .checkbox .checkbox-select-all').click(function() {
-        if ($('.checkboxFilter.mylist-select-all .checkbox').hasClass('checked')) {
-          var isEverythingChecked = true;
-          $('.myresearch-row .checkboxFilter .checkbox').each(function() {
-            if (!$(this).hasClass('checked')) {
-              isEverythingChecked = false;
+
+        var myListSelectAll = $(".checkboxFilter.mylist-select-all");
+        var myListJumpMenu = $(".mylist-functions .jump-menu-style");
+        var myListFunctions = $(".mylist-functions button, .mylist-functions select");
+        myListSelectAll.find(".checkbox .checkbox-select-all").click(function() {            
+            var checkboxes = $(".myresearch-row .checkboxFilter .checkbox, .checkboxFilter.mylist-select-all .checkbox");
+            if ($(this).closest(".checkbox").hasClass("checked")) {
+                var isEverythingChecked = !$(".myresearch-row .checkboxFilter .checkbox").not(".checked").length;
+                checkboxes.toggleClass("checked", !isEverythingChecked);
+                myListJumpMenu.toggleClass("disabled", isEverythingChecked);
+                myListFunctions.attr("disabled", isEverythingChecked);
+            } else {
+                checkboxes.toggleClass("checked", true);
+                myListJumpMenu.toggleClass("disabled", false);                
+                myListFunctions.attr("disabled", false);
             }
-          });
-          if (isEverythingChecked == true) {
-            $('.myresearch-row .checkboxFilter .checkbox, .checkboxFilter.mylist-select-all .checkbox').removeClass('checked');
-            $('.mylist-functions button, .mylist-functions select').attr("disabled", true);
-            $('.mylist-functions .jump-menu-style').addClass('disabled');
-          }
-          else {
-            $('.myresearch-row .checkboxFilter .checkbox, .checkboxFilter.mylist-select-all .checkbox').addClass('checked');
-            $('.mylist-functions button, .mylist-functions select').removeAttr("disabled");
-            $('.mylist-functions .jump-menu-style').removeClass('disabled');
-          }
-        }
-        else {
-            $('.myresearch-row .checkboxFilter .checkbox, .checkboxFilter.mylist-select-all .checkbox').addClass('checked');
-            $('.mylist-functions button, .mylist-functions select').removeAttr("disabled");
-            $('.mylist-functions .jump-menu-style').removeClass('disabled');
-        }
+        });
+    };
+
+    var initScrollLinks = function() {
+      $('.library-link').click(function() {
+        $('html, body').animate({
+          scrollTop: $('.recordProvidedBy').offset().top
+        }, 500);
       });
     };
 
@@ -317,8 +334,10 @@ finna.layout = (function() {
             initContentNavigation();
             initRecordSwipe();
             initMultiSelect();
+            initMobileNarrowSearch();
             initCheckboxClicks();
             initResizeListener();
+            initScrollLinks();
         },
     };
 

@@ -59,18 +59,18 @@ class Module
      */
     public function getAutoloaderConfig()
     {
-        return array(
+        return [
             'Zend\Loader\ClassMapAutoloader' => [
                 'classes' => [
                     'fminSO' => __DIR__ . '/src/Finna/Search/fminSO.php'
                 ]
             ],
-            'Zend\Loader\StandardAutoloader' => array(
-                'namespaces' => array(
+            'Zend\Loader\StandardAutoloader' => [
+                'namespaces' => [
                     __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
-                ),
-            ),
-        );
+                ],
+            ],
+        ];
     }
 
     /**

@@ -26,10 +26,6 @@
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
 namespace Finna\View\Helper\Root;
-use \Finna\Search\Solr\Params as SolrParams,
-    \Finna\Search\Primo\Params as PrimoParams,
-    \Finna\Search\UrlQueryHelper,
-    Zend\Session\Container as SessionContainer;
 
 /**
  * "Search tabs" view helper
@@ -148,7 +144,7 @@ class SearchTabs extends \VuFind\View\Helper\Root\SearchTabs
                     if (isset($searchSettings['filters'])) {
                         $filterQuery .= '&' .
                             $helper->buildQueryString(
-                                array('filter' => $searchSettings['filters']), false
+                                ['filter' => $searchSettings['filters']], false
                             );
                     }
                 }
