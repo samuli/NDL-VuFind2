@@ -49,8 +49,6 @@ finna.dateRangeVis = (function() {
                 }
 
                 // Create the string of date params
-
-
                 var newSearchParams
                     = searchParams + '&filter[]=' + facetField
                     + ':[' + padZeros(visDateStart) + ' TO ' + padZeros(visDateEnd) + ']'
