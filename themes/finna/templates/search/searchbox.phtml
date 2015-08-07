@@ -65,7 +65,7 @@
           isset($this->checkboxFilters) && is_array($this->checkboxFilters) ? $this->checkboxFilters : array()
       );
     ?>
-     <? $defaultFilterState = $hasDefaultsApplied || $options->getRetainFilterSetting() ? ' checked="checked"' : ''; ?>
+     <? $defaultFilterState = $this->hasDefaultsApplied || $options->getRetainFilterSetting() ? ' checked="checked"' : ''; ?>
      <? if (!empty($filterDetails) || !empty($this->savedSearches)): ?>
           <div class="checkbox<?=$defaultFilterState?' checked' : ''?>">
         <label>
