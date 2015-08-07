@@ -121,13 +121,10 @@ class Search extends \VuFind\Db\Table\Search
         parent::saveSearch($manager, $newSearch, $sessionId, $searchHistory);
 
         // Augment row updated by parent with serialized Finna search object
-        $callback = function ($select) use ($sessionId) {
-            $select->columns(['*']);
-            $select->where->equalTo('session_id', $sessionId);
-            $select->order('id desc');
-            $select->limit(1);
-        };
-        $row = $this->select($callback)->current();
+        $row = $this->select(['id' => $newSearch->getSearchId()])->current();
+        if (empty($row)) {
+            return false;
+        }
         $row['finna_search_object'] = serialize(new fminSO($newSearch));
         $row->save();
     }
