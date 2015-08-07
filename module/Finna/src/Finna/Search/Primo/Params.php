@@ -26,6 +26,7 @@
  * @link     http://www.vufind.org  Main Page
  */
 namespace Finna\Search\Primo;
+use Finna\Primo\Utils;
 
 /**
  * Primo Central Search Parameters
@@ -38,7 +39,7 @@ namespace Finna\Search\Primo;
  */
 class Params extends \VuFind\Search\Primo\Params
 {
-    use FinnaParams;
+    use \Finna\Search\FinnaParams;
 
     const SPATIAL_DATERANGE_FIELD = 'creationdate';
 

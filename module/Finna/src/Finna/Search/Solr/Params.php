@@ -27,6 +27,7 @@
  * @link     http://www.vufind.org  Main Page
  */
 namespace Finna\Search\Solr;
+use Finna\Solr\Utils;
 
 /*
  * Solr Search Parameters
@@ -40,7 +41,7 @@ namespace Finna\Search\Solr;
  */
 class Params extends \VuFind\Search\Solr\Params
 {
-    use FinnaParams;
+    use \Finna\Search\FinnaParams;
 
     // Date range index field
     const SPATIAL_DATERANGE_FIELD = 'search_daterange_mv';

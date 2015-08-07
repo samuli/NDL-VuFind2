@@ -26,6 +26,8 @@
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
 namespace Finna\View\Helper\Root;
+use \Finna\Search\Solr\Params as SolrParams,
+    \Finna\Search\Primo\Params as PrimoParams;
 
 /**
  * "Search tabs" view helper
