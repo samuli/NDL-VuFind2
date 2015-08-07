@@ -55,7 +55,7 @@ class Factory extends \VuFind\View\Helper\Root\Factory
             ? false : $config->Site->sidebarOnLeft;
         $offcanvas = !isset($config->Site->offcanvas)
             ? false : $config->Site->offcanvas;
-        return new LayoutClass($left, $offcanvas);
+        return new \Finna\View\Helper\Bootstrap3\LayoutClass($left, $offcanvas);
     }
 
     /**
