@@ -55,15 +55,28 @@ class Results extends \VuFind\Search\Solr\Results
         // Append date range facet to the list so that it gets
         // included even when facet counts are zero.
         if (!isset($list[Params::SPATIAL_DATERANGE_FIELD])
-            && isset($filter[Params::SPATIAL_DATERANGE_FIELD])
+            && (is_null($filter) || isset($filter[Params::SPATIAL_DATERANGE_FIELD]))
         ) {
+            // Resolve facet index in list
+            $ind = 0;
+            $filter = $filter ?: $this->getParams()->getFacetConfig();
+            foreach (array_keys($filter) as $field) {
+                if ($field == Params::SPATIAL_DATERANGE_FIELD) {
+                    break;
+                }
+                $ind++;
+            }
+
             $data = [];
             $filter = $filter[Params::SPATIAL_DATERANGE_FIELD];
             $data['label'] = $filter;
             $data['list'] = $filter;
-            $list[Params::SPATIAL_DATERANGE_FIELD] = $data;
-        }
 
+            $list
+                = array_slice($list, 0, $ind)
+                + [Params::SPATIAL_DATERANGE_FIELD => $data]
+                + array_slice($list, $ind);
+        }
         return $list;
     }
 }
