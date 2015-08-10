@@ -1,4 +1,5 @@
 finna.dateRangeVis = (function() {
+    var plotExtra = 2; // Widen plotted interval by +- years
     var loading = firstLoad = true;
     var visNavigation = '';
     var visData = visDateStart = visDateEnd = visMove = visRangeSelected = plotStart = plotEnd = false;
@@ -51,7 +52,7 @@ finna.dateRangeVis = (function() {
                 // Create the string of date params
                 var newSearchParams
                     = searchParams + '&filter[]=' + facetField
-                    + ':[' + padZeros(visDateStart) + ' TO ' + padZeros(visDateEnd) + ']'
+                    + ':"[' + padZeros(visDateStart) + '+TO+' + padZeros(visDateEnd) + ']"'
                 ;
                 visData = null;
                 finna.dateRangeVis.loadVis(backend, action, newSearchParams);
@@ -88,6 +89,7 @@ finna.dateRangeVis = (function() {
 
         if (typeof start != undefined && start !== false) {
             plotStart = start;
+            plotExtra = 0;
         }
 
         if (visDateStart === false) {
@@ -108,6 +110,7 @@ finna.dateRangeVis = (function() {
 
         if (visDateEnd === false) {
             visDateEnd = end;
+            plotExtra = 0;
         }
 
 
@@ -126,6 +129,25 @@ finna.dateRangeVis = (function() {
     var loadVis = function(backend, action, params) {
         // Load and display timeline (called at initial open and after timeline navigation)
         var url = path + "/AJAX/JSON" + params + "&method=dateRangeVisual&backend=" + backend;
+
+        // Widen selected date range by configured amount of years
+        var regex = new RegExp('filter\\[\\]=' + facetField + '.*\\[(\\d+|\\*)\\+TO\\+(\\d+|\\*)\\]"');
+        url = unescape(url).replace(regex,
+            function(match, $1, $2, offset, original) {
+                var from = $1;
+                if (from != '*') {
+                    from = parseInt($1,10)-plotExtra;
+                }
+                var to = $2;
+                if (to != '*') {
+                    to = parseInt($2,10)+plotExtra;
+                }
+
+                var val = facetField + ':"[' + from + "+TO+" + to + ']"';
+                return escape('filter\[\]') + '=' + escape(val);
+            }
+        );
+
         holder.find(".content").addClass('loading');
         loading = true;
 
@@ -188,7 +210,7 @@ finna.dateRangeVis = (function() {
             end = plotEnd;
         }
 
-        var options = getGraphOptions(start, end);
+        var options = getGraphOptions(start-plotExtra, end+plotExtra+1);
         var vis = holder.find(".date-vis");
 
         // Draw the plot
@@ -234,7 +256,7 @@ finna.dateRangeVis = (function() {
         if (from || to) {
             from = from ? from : visData['min'];
             to = to ? to : visData['max'];
-            plot.setSelection({ x1: from , x2: to});
+            plot.setSelection({ x1: from , x2: parseInt(to,10)+1});
         }
         plotInited = true;
     };
