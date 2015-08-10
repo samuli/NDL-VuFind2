@@ -60,6 +60,11 @@ class Results extends \VuFind\Search\Solr\Results
             // Resolve facet index in list
             $ind = 0;
             $filter = $filter ?: $this->getParams()->getFacetConfig();
+
+            if (!isset($filter[Params::SPATIAL_DATERANGE_FIELD])) {
+                return $list;
+            }
+
             foreach (array_keys($filter) as $field) {
                 if ($field == Params::SPATIAL_DATERANGE_FIELD) {
                     break;
