@@ -316,13 +316,17 @@ finna.dateRangeVis = (function() {
     var initFacetBar = function() {
         var facet = $(".daterange-facet");
         var facetItem = facet.find(".list-group-item");
-        if (facetItem.hasClass("collapsed")) {
+       // if (facetItem.hasClass("collapsed")) {
             var title = facet.find(".title");
             title.on("click", function(e) {
-                showVis();
-                $(this).unbind("click");
+                if (facetItem.hasClass("collapsed")) {
+                  showVis();
+                  // $(this).unbind("click");
+                  }
+                
+                $('.list-group-item.daterange').removeClass('expand');
             });
-        }
+       // }
     };
 
     var initResizeListener = function() {

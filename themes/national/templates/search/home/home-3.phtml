@@ -9,10 +9,15 @@
    $txt = isset($txt[$lng]) ? $txt[$lng] : $txt['fi'];
 ?>
   <div class="daterange-facet national">
-    <div class="text">
-      <p><?= $txt ?></p>
+    <div class="row">
+      <div class="col-md-9">
+        <div class="text">
+          <p><?= $txt ?></p>
+        </div>
+      </div>
     </div>
     <div>
+  </div>
       <?= $this->partial(
       'Recommend/DateRangeVisAjax.phtml',
       [
