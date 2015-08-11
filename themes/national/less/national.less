@@ -53,10 +53,6 @@
         margin-top: @line-height-computed;
         margin-bottom: (@line-height-computed);
 
-        @media (max-width: @screen-sm) {
-            display: none;
-        }
-
         & .text {
             & .large {
                 font-size: @font-size-h2;
@@ -72,6 +68,10 @@
                 & .fa-spinner {
                     left: 550px;
                 }
+                & .date-vis {
+                    border-radius: 5px;
+                    box-shadow: 0 5px 20px -26px;   
+                }
                 @media (min-width: @screen-sm) and (max-width: @screen-md) {
                     width: @screen-sm - 35;
                     & .fa-spinner {
@@ -85,13 +85,19 @@
                     }
                 }
             }
-            & .date-vis {
-                width: @container-large-desktop - 65;
-                @media (min-width: @screen-sm) and (max-width: @screen-md) {
-                    width: @screen-sm - 85;
+            & .navigation {
+                float: none;
+                width: 30px;
+                padding-left: 0;
+                position: absolute;
+                margin-top: -110px;
+                padding-top: 0;
+                & .prev,.next,.zoom-out,.zoom-in {
+                    margin: 0;
+                    padding-left: 5px;
                 }
-                @media (min-width: @screen-md) and (max-width: (@screen-lg - 1)) {
-                    width: @screen-md - 90;
+                & .expand-modal {
+                    display: none;   
                 }
             }
             & .form-ui .year-separator {

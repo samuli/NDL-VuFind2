@@ -1,5 +1,28 @@
 .main.template-dir-search.template-name-home,
 .sidebar {
+    & .daterange.expand {
+        @media (min-width: @screen-sm-min) {
+            background: @gray-light;
+            box-shadow: -20px 20px 20px -28px;
+            margin-top: -4px;
+            padding: 10px;
+            position: absolute;
+            z-index: 2;
+            @media (min-width: @screen-lg-min) {
+                width: 1140px;
+                margin-left: -883px;
+            }
+            @media (min-width: @screen-md-min) and (max-width: @screen-md-max) {
+                 width: 940px;
+                 margin-left: -733px;
+            }
+            @media (min-width: @screen-sm-min) and (max-width: @screen-sm-max) {
+                width: 750px;
+                margin-left: -598px;
+            }
+            transition: box .3s linear;
+        }
+    }
     & .daterange-facet {
         background-color: whitesmoke;
 
@@ -8,7 +31,6 @@
         }
 
         &.timeline.wide .list-group-item.daterange {
-            background: inherit;
             padding: inherit;
             border-bottom: inherit;
         }
@@ -22,6 +44,14 @@
         & .daterange-vis {
             display: none;
             margin: 10px 10px 10px 12px;
+            & button {
+                margin-left: 10px;
+                margin-top: 1px;
+                margin-bottom: 10px;
+                @media (min-width: @screen-sm-min) and (max-width: @screen-sm-max) {
+                    margin-left: 0;   
+                }
+            }
             & .range-type {
                 margin: 5px 0px;
                 clear: both;
@@ -78,15 +108,8 @@
                     width: 100%;
                     display: inline-block;
                     background: @body-bg;
-                    @media (min-width: @screen-lg-min) {
-                        padding-left: 29%;    
-                    }
-                    @media (min-width: @screen-md-min) and (max-width: @screen-md-max) {
-                        padding-left: 21%;    
-                    }
-                    @media (min-width: @screen-sm-min) and (max-width: @screen-sm-max) {
-                        padding-left: 1%;    
-                    }
+                    padding-left: 1%;  
+
                     
                     & .zoom-out, .zoom-in, .prev, .next {
                         font-size: 1.1em;
@@ -105,6 +128,9 @@
                         margin-right: 9px;
                         font-size: .8em;
                         margin-top: 4px;
+                        @media (max-width: @screen-xs-max) {
+                           display: none;
+                        }
                     }
                     & .fa {
                         cursor: pointer;
