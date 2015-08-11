@@ -218,23 +218,20 @@
         margin-top: 4px;
     }
     & input:before {
-        content: "";
-        font-family: 'FontAwesome';
-        margin-right: -1px;
-        font-size: 21px;       
-        margin: -3px;
+        content: "\e61b";
+        font-family: 'icomoon';
+        font-size: 18px;       
+        margin: -3px 0px 0px -3px;
         position: absolute;
-        padding: 7.5px;
         background: @body-bg;
         border-radius: 50%;
-        border: 2px solid @brand-primary;
+        color: @gray-light;
+        transition: color .1s linear;
     }
     & input:checked:before  {
         font-family: 'icomoon';
-        content: "\e7d";
-        padding: 4px;
-        font-size: 7px;
-        color: @gray;
+        content: "\e61a";
+        color: @link-color;
     }
 }
 
