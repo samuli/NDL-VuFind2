@@ -1,6 +1,7 @@
 finna.dateRangeVis = (function() {
     var plotExtra = 2; // Widen plotted interval by +- years
     var loading = firstLoad = true;
+    var plotted = plotDelayId = false;
     var visNavigation = '';
     var visData = visDateStart = visDateEnd = visMove = visRangeSelected = plotStart = plotEnd = false;
     var dataMin = dataMax = false;
@@ -199,7 +200,13 @@ finna.dateRangeVis = (function() {
         });
     };
 
-    var plotData = function() {
+    var plotData = function(delay) {
+        if (typeof delay != "undefined") {
+            clearInterval(plotDelayId);
+            plotDelayId = setTimeout(plotData, delay);
+            return;
+        }
+
         var start = visDateStart;
         if (plotStart != false && plotStart > visDateStart) {
             start = plotStart;
@@ -259,6 +266,7 @@ finna.dateRangeVis = (function() {
             plot.setSelection({ x1: from , x2: parseInt(to,10)+1});
         }
         plotInited = true;
+        plotted = true;
     };
 
     var getGraphOptions = function(start, end) {
@@ -304,11 +312,18 @@ finna.dateRangeVis = (function() {
     };
 
     var initTimelineNavigation = function(backend, holder) {
-        holder.find('.navigation div').on(
+        holder.find('.navigation div:not(.expand-modal)').on(
             "click",
             {callback: timelineAction},
             function(e) {
                 e.data.callback(backend, $(this).attr('class').split(' ')[0]);
+            }
+        );
+        holder.find('.navigation div.expand-modal').on(
+            "click",
+            function(e) {
+                $(this).closest('.list-group-item.daterange').toggleClass('expand');
+                plotData();
             }
         );
     };
@@ -316,17 +331,19 @@ finna.dateRangeVis = (function() {
     var initFacetBar = function() {
         var facet = $(".daterange-facet");
         var facetItem = facet.find(".list-group-item");
-       // if (facetItem.hasClass("collapsed")) {
-            var title = facet.find(".title");
+        var title = facet.find(".title");
+        title.on("click", function(e) {
+            facet.find('.list-group-item.daterange').removeClass('expand');
+            plotData(200);
+        });
+
+        if (facetItem.hasClass("collapsed")) {
             title.on("click", function(e) {
-                if (facetItem.hasClass("collapsed")) {
-                  showVis();
-                  // $(this).unbind("click");
-                  }
-                
-                $('.list-group-item.daterange').removeClass('expand');
+                if (!plotted) {
+                    showVis();
+                }
             });
-       // }
+        }
     };
 
     var initResizeListener = function() {
