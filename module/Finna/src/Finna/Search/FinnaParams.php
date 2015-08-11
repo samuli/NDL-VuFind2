@@ -126,12 +126,63 @@ trait FinnaParams
     }
 
     /**
-     *  Return current date range filter.
+     * Return current date range filter.
      *
-     * @return array
+     * @param boolean $fromFilterList False if date range filter is already
+     * inited from the request object (see initSpatialDateRangeFilter).
+     * True if date range filter should be resolved from the list of active filters.
+     *
+     * @return mixed false|array Filter
      */
-    public function getSpatialDateRangeFilter()
+    public function getSpatialDateRangeFilter($fromFilterList = false)
     {
-        return $this->spatialDateRangeFilter;
+        if ($fromFilterList) {
+            $daterangeField = $this->getSpatialDateRangeField();
+            $filterList = $this->getFilterList();
+            foreach ($filterList as $facet => $filters) {
+                foreach ($filters as $filter) {
+                    if ($filter['field'] ==  $daterangeField) {
+                        if ($current = $this->getSpatialDateRangeFilter()) {
+                            $filter['type'] = $current['type'];
+                        }
+                        return $filter;
+                    }
+                }
+            }
+            return false;
+        } else {
+            return $this->spatialDateRangeFilter;
+        }
+    }
+
+    /**
+     * Return an array structure containing information about all current filters.
+     *
+     * @param bool $excludeCheckboxFilters Should we exclude checkbox filters from
+     * the list (to be used as a complement to getCheckboxFacets()).
+     *
+     * @return array                       Field, values and translation status
+     */
+    public function removeDatarangeFilter($filters)
+    {
+        $daterangeField = $this->getSpatialDateRangeField();
+        $filterList = $this->getFilterList();
+        foreach ($filterList as $field => &$filters) {
+            $filters
+                = array_filter(
+                    $filters,
+                    function ($f) use ($daterangeField) {
+                        return $f['field'] != $daterangeField;
+                    }
+                );
+        }
+        $filterList
+            = array_filter(
+                $filterList,
+                function ($filters) {
+                    return count($filters) > 0;
+                }
+            );
+        return $filterList;
     }
 }

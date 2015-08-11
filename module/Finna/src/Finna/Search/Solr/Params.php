@@ -123,44 +123,6 @@ class Params extends \VuFind\Search\Solr\Params
     }
 
     /**
-     * Add filters to the object based on values found in the request object.
-     *
-     * @param \Zend\StdLib\Parameters $request Parameter object representing user
-     * request.
-     *
-     * @return void
-     */
-    protected function initFilters($request)
-    {
-        parent::initFilters($request);
-        $this->initSpatialDateRangeFilter($request);
-        $this->initNewItemsFilter($request);
-    }
-
-    /**
-     * Initialize new items filter (first_indexed)
-     *
-     * @param \Zend\StdLib\Parameters $request Parameter object representing user
-     * request.
-     *
-     * @return void
-     */
-    protected function initNewItemsFilter($request)
-    {
-        // first_indexed filter automatically included, no query param required
-        // (compatible with Finna 1 implementation)
-        $from = $request->get('first_indexedfrom');
-        $from = call_user_func([$this, 'formatDateForFullDateRange'], $from);
-
-        if ($from != '*') {
-            $rangeFacet = call_user_func(
-                [$this, 'buildFullDateRangeFilter'], 'first_indexed', $from, '*'
-            );
-            $this->addFilter($rangeFacet);
-        }
-    }
-
-    /**
      * Initialize date range filter (search_daterange_mv)
      *
      * @param \Zend\StdLib\Parameters $request Parameter object representing user
@@ -168,7 +130,7 @@ class Params extends \VuFind\Search\Solr\Params
      *
      * @return void
      */
-    protected function initSpatialDateRangeFilter($request)
+    public function initSpatialDateRangeFilter($request)
     {
         $type = $request->get('search_daterange_mv_type');
         if (!$type) {
@@ -229,5 +191,43 @@ class Params extends \VuFind\Search\Solr\Params
         $this->spatialDateRangeFilter = $dateFilter;
 
         parent::addFilter($dateFilter['query']);
+    }
+
+    /**
+     * Add filters to the object based on values found in the request object.
+     *
+     * @param \Zend\StdLib\Parameters $request Parameter object representing user
+     * request.
+     *
+     * @return void
+     */
+    protected function initFilters($request)
+    {
+        parent::initFilters($request);
+        $this->initSpatialDateRangeFilter($request);
+        $this->initNewItemsFilter($request);
+    }
+
+    /**
+     * Initialize new items filter (first_indexed)
+     *
+     * @param \Zend\StdLib\Parameters $request Parameter object representing user
+     * request.
+     *
+     * @return void
+     */
+    protected function initNewItemsFilter($request)
+    {
+        // first_indexed filter automatically included, no query param required
+        // (compatible with Finna 1 implementation)
+        $from = $request->get('first_indexedfrom');
+        $from = call_user_func([$this, 'formatDateForFullDateRange'], $from);
+
+        if ($from != '*') {
+            $rangeFacet = call_user_func(
+                [$this, 'buildFullDateRangeFilter'], 'first_indexed', $from, '*'
+            );
+            $this->addFilter($rangeFacet);
+        }
     }
 }

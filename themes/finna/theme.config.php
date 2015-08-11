@@ -42,6 +42,7 @@ return array(
     'js' => array(
         'finna.js',
         'image-popup.js',
+        'finna-adv-search.js',
         'finna-daterange-vis.js',
         'finna-feed.js',
         'finna-layout.js',

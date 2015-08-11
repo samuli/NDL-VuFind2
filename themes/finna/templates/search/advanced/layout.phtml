@@ -28,6 +28,9 @@
     }
     $hasDefaultsApplied = $this->saved->getParams()->hasDefaultsApplied();
     $searchFilters = $this->saved->getParams()->getFilterList();
+    // Remove active date range filter so that it does not get included
+    // as a hidden input in the search form and twice in the next search
+    $searchFilters = $this->saved->getParams()->removeDatarangeFilter($searchFilters);
   } else {
     $hasDefaultsApplied = $searchDetails = $searchFilters = $groups = false;
   }
@@ -36,6 +39,8 @@
   $this->headScript()->appendFile(
     isset($this->advancedSearchJsOverride) ? $this->advancedSearchJsOverride : 'advanced_search.js'
   );
+  $this->headScript()->appendFile('finna-daterange-vis.js');
+
   // Step 2: Build the page
   $this->headScript()->appendScript(
     $this->partial(
