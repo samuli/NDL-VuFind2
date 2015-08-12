@@ -90,7 +90,6 @@ finna.dateRangeVis = (function() {
 
         if (typeof start != undefined && start !== false) {
             plotStart = start;
-            plotExtra = 0;
         }
 
         if (visDateStart === false) {
@@ -111,7 +110,6 @@ finna.dateRangeVis = (function() {
 
         if (visDateEnd === false) {
             visDateEnd = end;
-            plotExtra = 0;
         }
 
 
