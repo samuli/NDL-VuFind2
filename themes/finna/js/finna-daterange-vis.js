@@ -221,7 +221,7 @@ finna.dateRangeVis = (function() {
         var vis = holder.find(".date-vis");
 
         // Draw the plot
-        var plot = $.plot(vis, [visData], options);
+        var graph = $.plot(vis, [visData], options);
         var form = holder.find(".year-form");
         var fromElement = holder.find(".year-from");
         var toElement = holder.find(".year-to");
@@ -231,7 +231,7 @@ finna.dateRangeVis = (function() {
         vis.unbind("plotclick").bind("plotclick", function (event, pos, item) {
             if (!visRangeSelected) {
                 var year = Math.floor(pos.x);
-                plot.setSelection({ x1: year , x2: year+1});
+                graph.setSelection({ x1: year , x2: year+1});
                 fromElement.val(year);
                 toElement.val(year);
             }
@@ -263,7 +263,7 @@ finna.dateRangeVis = (function() {
         if (from || to) {
             from = from ? from : visData['min'];
             to = to ? to : visData['max'];
-            plot.setSelection({ x1: from , x2: parseInt(to,10)+1});
+            graph.setSelection({ x1: from , x2: parseInt(to,10)+1});
         }
         plotInited = true;
         plotted = true;
@@ -301,13 +301,7 @@ finna.dateRangeVis = (function() {
             }
         };
 
-        // Disable selection of time range (by dragging) when on Android
-        // (otherwise the timeline component doesn't always get redrawn
-        // correctly after a selection has been made.)
-        var isAndroid = navigator.userAgent.match(/(android)/i);
-        if (!isAndroid) {
-            options['selection'] = {mode: "x", color:'#00a3b5;', borderWidth:0};
-        }
+        options['selection'] = {mode: "x", color:'#00a3b5;', borderWidth:0};
         return options;
     };
 
