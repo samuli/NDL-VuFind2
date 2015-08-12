@@ -201,6 +201,10 @@ finna.dateRangeVis = (function() {
     };
 
     var plotData = function(delay) {
+        if (!visData) {
+            return;
+        }
+
         if (typeof delay != "undefined") {
             clearInterval(plotDelayId);
             plotDelayId = setTimeout(plotData, delay);
