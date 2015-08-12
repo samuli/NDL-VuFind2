@@ -47,6 +47,7 @@ class SearchTabs extends \VuFind\View\Helper\Root\SearchTabs
      */
     protected $table;
 
+
     /**
      * Session manager
      *
@@ -65,10 +66,10 @@ class SearchTabs extends \VuFind\View\Helper\Root\SearchTabs
      * Constructor
      *
      * @param SessionManager $session Session manager
-     * @param PluginManager  $table   Database manager
-     * @param PluginManager  $results Search results plugin manager
-     * @param array          $config  Tab configuration
-     * @param Url            $url     URL helper
+     * @param PluginManager $table   Database manager
+     * @param PluginManager $results Search results plugin manager
+     * @param array         $config  Tab configuration
+     * @param Url           $url     URL helper
      */
     public function __construct(
         \Zend\Session\SessionManager $session,
@@ -99,6 +100,7 @@ class SearchTabs extends \VuFind\View\Helper\Root\SearchTabs
         $helper = $this->getView()->results->getUrlQuery();
 
         $tabs = parent::__invoke($activeSearchClass, $query, $handler, $type);
+        $searchTable = $this->table->get('Search');
 
         foreach ($tabs as &$tab) {
             if (isset($tab['url'])) {
@@ -195,11 +197,11 @@ class SearchTabs extends \VuFind\View\Helper\Root\SearchTabs
         if (!empty($filters)) {
             // Filters active, include current search id in the url
             $searchClass = $this->activeSearchClass;
-            if (method_exists($this->getView()->results, 'getSearchId')) {
-                $searchId = $this->getView()->results->getSearchId();
-            }
-            if (method_exists($urlQuery, 'setSearchId')) {
-                $query = $urlQuery->setSearchId($searchClass, $searchId);
+            if (method_exists($this->getView()->results, 'getSearchHash')) {
+                $searchId = $this->getView()->results->getSearchHash();
+                if (method_exists($urlQuery, 'setSearchId')) {
+                    $query = $urlQuery->setSearchId($searchClass, $searchId);
+                }
             }
         } else {
             $query = $urlQuery->getParams(false);
@@ -214,13 +216,16 @@ class SearchTabs extends \VuFind\View\Helper\Root\SearchTabs
     /**
      * Return filters for a saved search.
      *
-     * @param int $id Search id
+     * @param int $id Search hash
      *
      * @return mixed array of filters or false if the given search has no filters.
      */
     protected function getSearchSettings($id)
     {
-        if (!$search = $this->table->get('Search')->getRowById($id, false)) {
+        $search
+            = $this->table->get('Search')
+                ->select(['finna_search_id' => $id])->current();
+        if (empty($search)) {
             return false;
         }
 

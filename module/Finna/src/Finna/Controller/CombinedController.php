@@ -1,6 +1,6 @@
 <?php
 /**
- * Primo Central Controller
+ * Combined Search Controller
  *
  * PHP version 5
  *
@@ -23,56 +23,50 @@
  * @package  Controller
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
+ * @link     http://vufind.org   Main Site
  */
 namespace Finna\Controller;
 
 /**
- * Primo Central Controller
+ * Redirects the user to the appropriate default VuFind action.
  *
  * @category VuFind2
  * @package  Controller
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
+ * @link     http://vufind.org   Main Site
  */
-class PrimoController extends \VuFind\Controller\PrimoController
+class CombinedController extends \VuFind\Controller\CombinedController
 {
     use SearchControllerTrait;
 
     /**
-     * Search class family to use.
-     *
-     * @var string
-     */
-    protected $searchClassId = 'Primo';
-
-    /**
-     * Home action
+     * Results action
      *
      * @return mixed
      */
-    public function homeAction()
+    public function resultsAction()
     {
-        $this->layout()->searchClassId = $this->searchClassId;
-        return parent::homeAction();
-    }
-
-    /**
-     * Search action -- call standard results action
-     *
-     * @return mixed
-     */
-    public function searchAction()
-    {
-        if ($this->getRequest()->getQuery()->get('combined')) {
-            $this->saveToHistory = false;
-        }
-        $this->initCombinedViewFilters();
         $view = parent::resultsAction();
-        $this->initSavedTabs();
-
+        if ($saved = $this->getCombinedSearches()) {
+            $view->params->setCombinedSearchIds($saved);
+        }
         return $view;
     }
-}
 
+    /**
+     * Convenience method to make invocation of forward() helper less verbose.
+     *
+     * @param string $controller Controller to invoke
+     * @param string $action     Action to invoke
+     * @param array  $params     Extra parameters for the RouteMatch object (no
+     * need to provide action here, since $action takes care of that)
+     *
+     * @return mixed
+     */
+    public function forwardTo($controller, $action, $params = [])
+    {
+        $this->getRequest()->getQuery()->set('combined', 1);
+        return parent::forwardTo($controller, $action, $params);
+    }
+}

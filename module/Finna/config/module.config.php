@@ -89,6 +89,7 @@ $config = [
         ],
         'invokables' => [
             'ajax' => 'Finna\Controller\AjaxController',
+            'combined' => 'Finna\Controller\CombinedController',
             'contentpage' => 'Finna\Controller\ContentController',
             'cover' => 'Finna\Controller\CoverController',
             'feedback' => 'Finna\Controller\FeedbackController',
@@ -106,6 +107,7 @@ $config = [
             'VuFind\ILSConnection' => 'Finna\Service\Factory::getILSConnection',
             'VuFind\DbTablePluginManager' => 'Finna\Service\Factory::getDbTablePluginManager',
             'VuFind\AuthManager' => 'Finna\Auth\Factory::getManager',
+            'VuFind\SearchResultsPluginManager' => 'Finna\Service\Factory::getSearchResultsPluginManager',
         ]
     ],
     // This section contains all VuFind-specific settings (i.e. configurations

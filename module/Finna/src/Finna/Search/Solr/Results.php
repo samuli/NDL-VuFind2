@@ -33,13 +33,14 @@ use \Finna\Search\Solr\Params;
  *
  * @category VuFind2
  * @package  Search_Solr
- * @author   Demian Katz <demian.katz@villanova.edu>
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://www.vufind.org  Main Page
  */
 class Results extends \VuFind\Search\Solr\Results
 {
+    use \Finna\Search\Results\SearchResultsTrait;
+
     /**
      * Returns the stored list of facets for the last search
      *
