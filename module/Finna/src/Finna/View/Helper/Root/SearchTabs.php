@@ -26,7 +26,7 @@
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
 namespace Finna\View\Helper\Root;
-use \Finna\Search\Solr\Params as SolrParams,
+use Finna\Search\Solr\Params as SolrParams,
     \Finna\Search\Primo\Params as PrimoParams;
 
 /**
@@ -46,7 +46,6 @@ class SearchTabs extends \VuFind\View\Helper\Root\SearchTabs
      * @var PluginManager
      */
     protected $table;
-
 
     /**
      * Session manager

@@ -26,7 +26,7 @@
  * @link     http://www.vufind.org  Main Page
  */
 namespace Finna\Search\Solr;
-use \Finna\Search\Solr\Params;
+use Finna\Search\Solr\Params;
 
 /**
  * Solr Search Parameters

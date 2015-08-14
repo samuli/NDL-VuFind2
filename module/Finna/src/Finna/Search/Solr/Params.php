@@ -103,7 +103,6 @@ class Params extends \VuFind\Search\Solr\Params
         $this->spatialDateRangeFilter = $dateFilter;
     }
 
-
     /**
      * Return current facet configurations.
      * Add checkbox facets to list.
