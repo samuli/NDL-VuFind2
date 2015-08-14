@@ -135,7 +135,7 @@ class SearchController extends \VuFind\Controller\SearchController
 
         $schedule = [];
         foreach ($savedsearches as $current) {
-            $minSO = $current->getSearchObject();
+            $minSO = $current->getSearchObject(true);
             // Only Solr searches allowed
             if ($minSO->cl !== 'Solr') {
                 continue;
