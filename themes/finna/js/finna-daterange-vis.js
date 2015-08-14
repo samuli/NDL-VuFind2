@@ -1,10 +1,9 @@
 finna.dateRangeVis = (function() {
     var plotExtra = 2; // Widen plotted interval by +- years
-    var loading = firstLoad = true;
+    var loading = true;
     var plotted = plotDelayId = false;
     var visNavigation = '';
-    var visData = visDateStart = visDateEnd = visMove = visRangeSelected = plotStart = plotEnd = false;
-    var dataMin = dataMax = false;
+    var visData = visDateStart = visDateEnd = visMove = visRangeSelected = false;
     var holder = searchParams = facetField = currentDevice = null;
     var openTimelineCallback = null;
 
@@ -22,7 +21,6 @@ finna.dateRangeVis = (function() {
         if (loading) {
             return;
         }
-        plotStart = plotEnd = false;
 
         // Navigation: prev, next, out or in
         if (typeof action != 'undefined') {
@@ -88,11 +86,7 @@ finna.dateRangeVis = (function() {
             }
         }
 
-        if (typeof start != undefined && start !== false) {
-            plotStart = start;
-        }
-
-        if (visDateStart === false) {
+        if (visDateStart === false && typeof start != undefined && start !== false) {
             visDateStart = start;
         }
 
@@ -103,15 +97,6 @@ finna.dateRangeVis = (function() {
                 visDateEnd = parseInt(endVal, 10);
             }
         }
-
-        if (typeof end != undefined && end !== false) {
-            plotEnd = end;
-        }
-
-        if (visDateEnd === false) {
-            visDateEnd = end;
-        }
-
 
         initTimelineNavigation(backend, h);
         h.closest(".daterange-facet").find(".year-form").each(function() {
@@ -157,8 +142,8 @@ finna.dateRangeVis = (function() {
             if (data.status == 'OK') {
                 $.each(data['data'], function(key, val) {
                     // Get data limits
-                    dataMin = parseInt(val.min, 10);
-                    dataMax = parseInt(val.max, 10);
+                    var dataMin = parseInt(val.min, 10);
+                    var dataMax = parseInt(val.max, 10);
 
                     val['min'] = dataMin;
                     val['max'] = dataMax;
@@ -172,16 +157,17 @@ finna.dateRangeVis = (function() {
                     } else if (action == 'next' && val['min'] > val['max']) {
                         val['min'] = val['max'];
                     }
-                    if (visDateStart === false || (firstLoad && dataMin > visDateStart)) {
+
+                    if (visDateStart === false) {
                         visDateStart = dataMin;
                     }
-                    if (visDateEnd === false || (firstLoad && dataMax < visDateEnd)) {
+
+                    if (visDateEnd === false) {
                         visDateEnd = dataMax;
                     }
 
-                    if (firstLoad) {
-                        visDateEnd = Math.min(visDateEnd, new Date().getFullYear());
-                    }
+                    visDateEnd = Math.min(visDateEnd, new Date().getFullYear());
+
                     // Check for values outside the selected range and remove them
                     for (i=0; i<val['data'].length; i++) {
                         if (val['data'][i][0] < visDateStart - 5 || val['data'][i][0] > visDateEnd + 5) {
@@ -193,7 +179,6 @@ finna.dateRangeVis = (function() {
                     visData = val;
                     plotData();
                 });
-                firstLoad = false;
             }
         });
     };
@@ -209,15 +194,8 @@ finna.dateRangeVis = (function() {
             return;
         }
 
-        var start = visDateStart;
-        if (plotStart != false && plotStart > visDateStart) {
-            start = plotStart;
-        }
-
+        var start = Math.max(visDateStart, visData['min']);
         var end = visDateEnd;
-        if (plotEnd != false && plotEnd < visDateEnd) {
-            end = plotEnd;
-        }
 
         var options = getGraphOptions(start-plotExtra, end+plotExtra+1);
         var vis = holder.find(".date-vis");
