@@ -58,7 +58,7 @@
 <?
    $params = $this->results->getParams();
    $daterangeFacetField = $params->getSpatialDateRangeField();
-   $lookfor = $params->getQuery()->getString();
+   $plotFrom = null;
 ?>
 <?
     $queryHandler = 'AllFields';
@@ -138,6 +138,12 @@
               if (isset($spatialFilter['type'])) {
                 $type =$spatialFilter['type'];
               }
+              if ($params->getSearchType() != 'advanced') {
+                $lookfor = $params->getQuery()->getString();  
+                if ($lookfor == '' && $fromVal === null && $toVal === null) {
+                  $plotFrom = 0;
+                }
+              }
             }
           }
          ?>
@@ -200,7 +206,7 @@ EOT
               'type' => $type,
               'backend' => $module,
               'daterangeFacet' => $daterangeFacetField,
-              'plotFrom' => ($lookfor !== null && $lookfor != '' || $fromVal !== null || $toVal !== null) ? null : 0
+              'plotFrom' => $plotFrom              
               ]);
               ?>
             </div>
