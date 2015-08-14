@@ -47,6 +47,19 @@ trait FinnaParams
     protected $spatialDateRangeFilter = null;
 
     /**
+     * Add filters to the object based on values found in the request object.
+     *
+     * @param \Zend\StdLib\Parameters $request Parameter object representing user
+     * request.
+     *
+     * @return void
+     */
+    public function initDateFilters($request)
+    {
+        return parent::initDateFilters($request);
+    }
+
+    /**
      * Return the current filters as an array of strings ['field:filter']
      *
      * @return array $filterQuery

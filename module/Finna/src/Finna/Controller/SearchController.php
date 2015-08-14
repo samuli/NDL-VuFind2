@@ -74,11 +74,15 @@ class SearchController extends \VuFind\Controller\SearchController
         if ($view->saved
             && $filter = $view->saved->getParams()->getSpatialDateRangeFilter()
         ) {
-            $range['values'] = [$filter['from'], $filter['to']];
-            $range['rangeType'] = $filter['type'];
+            if (isset($filter['from']) && isset($filter['to'])) {
+                $range['values'] = [$filter['from'], $filter['to']];
+                $range['rangeType'] = $filter['type'];
+            } else {
+                $range['values'] = [null, null];
+            }
         }
 
-        $view->ranges = [$range];
+        $view->daterange = [$range];
         return $view;
     }
 
