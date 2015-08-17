@@ -44,6 +44,7 @@ return array(
         'image-popup.js',
         'finna-feed.js',
         'finna-layout.js',
+        'finna-openurl.js',
         'finna-persona.js',
         'finna-common.js',
         'finna-user-profile.js',
