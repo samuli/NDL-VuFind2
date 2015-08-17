@@ -17,7 +17,7 @@
         . '&lookfor=' . urlencode($lookfor)
         . $searchIds
         . '";'
-        . "\$('#combined_" . $this->escapeHtml($searchClassId) . "').load(url, '', function(responseText) { if (responseText.length == 0) $('#combined_" . $this->escapeHtml($searchClassId) . "').hide(); });";
+        . "\$('#combined_" . $this->escapeHtml($searchClassId) . "').load(url, '', function(responseText) { if (responseText.length == 0) { $('#combined_" . $this->escapeHtml($searchClassId) . "').hide(); } else { finna.combinedResults.init();}});";
 ?>
 <div class="row">
   <div class="col-xs-12 combined-titles">

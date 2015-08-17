@@ -40,6 +40,7 @@ return array(
     ),
     'js' => array(
         'finna.js',
+        'finna-combined-results.js',
         'image-popup.js',
         'finna-feed.js',
         'finna-layout.js',
