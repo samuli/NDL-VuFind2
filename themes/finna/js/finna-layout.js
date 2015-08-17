@@ -328,20 +328,9 @@ finna.layout = (function() {
       });
     }
 
-    var initSaveRecordLinks = function(holder) {
-        if (typeof(holder) == "undefined") {
-            holder = $("body");
-        }
-        holder.find('.save-record').one("click", function() {
-            var parts = this.href.split('/');
-            return finna.layout.lightbox.get(parts[parts.length-3],'Save',{id:$(this).attr('id')});
-        });
-    };
-
     var my = {
         isTouchDevice: isTouchDevice,
         initTruncate: initTruncate,
-        initSaveRecordLinks: initSaveRecordLinks,
         lightbox: Lightbox,
         init: function() {
             $('select.jumpMenu').unbind('change').change(function() { $(this).closest('form').submit(); });

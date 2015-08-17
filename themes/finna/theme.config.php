@@ -46,6 +46,7 @@ return array(
         'finna-layout.js',
         'finna-openurl.js',
         'finna-persona.js',
+        'finna-record.js',
         'finna-common.js',
         'finna-user-profile.js',
         'vendor/jquery.dataTables.js',

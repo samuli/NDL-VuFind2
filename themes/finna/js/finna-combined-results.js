@@ -5,7 +5,8 @@ finna.combinedResults = (function() {
             finna.layout.initTruncate();
             finna.openUrl.initLinks(holder);
             finna.openUrl.triggerAutoLoad();
-            finna.layout.initSaveRecordLinks(holder);
+            finna.record.initSaveRecordLinks(holder);
+            finna.record.checkSaveStatuses(holder);
         },
     };
 

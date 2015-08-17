@@ -20,4 +20,7 @@ var finna = (function() {
 
 $(document).ready(function() {
     finna.init();
+
+    // Override global checkSaveStatus
+    checkSaveStatuses = finna.record.checkSaveStatuses;
 });
