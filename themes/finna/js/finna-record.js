@@ -181,6 +181,7 @@ finna.record = (function() {
                     }
                 }
             });
+            initSaveRecordLinks(holder);
         }
     };
 
