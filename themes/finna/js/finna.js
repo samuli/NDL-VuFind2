@@ -5,6 +5,7 @@ var finna = (function() {
             // List of modules to be inited
             var modules = [
                 'advSearch', 
+                'bx',
                 'combinedResults', 
                 'common', 
                 'dateRangeVis', 
@@ -25,7 +26,7 @@ var finna = (function() {
             });
         },
     };
-    
+
     return my;
 })();
 
