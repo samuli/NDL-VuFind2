@@ -19,6 +19,7 @@ return array(
             'primo' => 'Finna\View\Helper\Root\Factory::getPrimo',
             'record' => 'Finna\View\Helper\Root\Factory::getRecord',
             'recordImage' => 'Finna\View\Helper\Root\Factory::getRecordImage',
+            'searchbox' => 'Finna\View\Helper\Root\Factory::getSearchBox',
             'searchTabs' => 'Finna\View\Helper\Root\Factory::getSearchTabs',
         ),
         'invokables' => array(
@@ -49,7 +50,6 @@ return array(
         'finna-layout.js',
         'finna-openurl.js',
         'finna-persona.js',
-        'finna-record.js',
         'finna-common.js',
         'finna-user-profile.js',
         'vendor/jquery.dataTables.js',

@@ -3,6 +3,7 @@
     $results = $view->results;
     $params = $results->getParams();
     $lookfor = $params->getDisplayQuery();
+    $handler = $params->getSearchHandler();
 
     $searchIds = null;
     if ($ids = $params->getCombinedSearchIds()) {
@@ -16,6 +17,7 @@
     $loadJs = "var holder = $('#combined_" . $this->escapeHtml($searchClassId) . "');"
         . 'var url = path + "/Combined/Result?id=' . urlencode($searchClassId)
         . '&lookfor=' . urlencode($lookfor)
+        . '&type=' . urlencode($handler)
         . $searchIds
         . '";'
         . "\$('#combined_" . $this->escapeHtml($searchClassId) . "').load(url, '', function(responseText) { if (responseText.length == 0) { $('#combined_" . $this->escapeHtml($searchClassId) . "').hide(); } else { finna.combinedResults.init(holder);}});";

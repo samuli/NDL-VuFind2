@@ -266,4 +266,20 @@ class Factory extends \VuFind\View\Helper\Root\Factory
             $sm->getServiceLocator()->get('VuFindTheme\ThemeInfo')
         );
     }
+
+    /**
+     * Construct the SearchBox helper.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return SearchBox
+     */
+    public static function getSearchBox(ServiceManager $sm)
+    {
+        $config = $sm->getServiceLocator()->get('VuFind\Config');
+        return new SearchBox(
+            $sm->getServiceLocator()->get('VuFind\SearchOptionsPluginManager'),
+            $config->get('searchbox')->toArray()
+        );
+    }
 }
