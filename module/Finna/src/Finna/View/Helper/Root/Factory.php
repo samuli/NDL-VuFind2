@@ -292,8 +292,8 @@ class Factory extends \VuFind\View\Helper\Root\Factory
      */
     public static function getAuthorizationNote(ServiceManager $sm)
     {
-        $auth =
-            $sm->getServiceLocator()->get('ZfcRbac\Service\AuthorizationService');
-        return new AuthorizationNotification($auth);
+        $authService
+            = $sm->getServiceLocator()->get('ZfcRbac\Service\AuthorizationService');
+        return new AuthorizationNotification($authService);
     }
 }

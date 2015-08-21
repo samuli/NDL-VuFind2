@@ -1,4 +1,6 @@
 finna.layout = (function() {
+    var refreshPage = false;
+
     var initResizeListener = function() {
         var intervalId = false;
         $(window).on("resize", function(e) {
@@ -416,8 +418,21 @@ finna.layout = (function() {
         }
     };
 
+    var initAuthorizationNotification = function() {
+        $(".authorization-notification .modal-link").one("click", function() {
+            refreshPage = true;
+            return Lightbox.get('MyResearch','UserLogin');
+        });
+    };
+
+    var isPageRefreshNeeded = function() {
+        return refreshPage;
+    };
+
     var my = {
+        isPageRefreshNeeded: isPageRefreshNeeded,
         isTouchDevice: isTouchDevice,
+        initAuthorizationNotification: initAuthorizationNotification,
         initTruncate: initTruncate,
         lightbox: Lightbox,
         checkSaveStatuses: checkSaveStatuses,
