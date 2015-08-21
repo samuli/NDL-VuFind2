@@ -94,6 +94,7 @@
       'searchClassId' => $searchClassId
     );
   ?>
+  <?= $this->authorizationNote($searchClassId) ?>
   <?=$this->render('search/list-' . $viewType . '.phtml', $viewParams)?>
   
   <div class="clearfix">

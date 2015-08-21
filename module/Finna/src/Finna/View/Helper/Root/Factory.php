@@ -282,4 +282,18 @@ class Factory extends \VuFind\View\Helper\Root\Factory
             $config->get('searchbox')->toArray()
         );
     }
+
+    /**
+     * Construct the authorization notification helper.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return AuthorizationNotification
+     */
+    public static function getAuthorizationNote(ServiceManager $sm)
+    {
+        $auth =
+            $sm->getServiceLocator()->get('ZfcRbac\Service\AuthorizationService');
+        return new AuthorizationNotification($auth);
+    }
 }

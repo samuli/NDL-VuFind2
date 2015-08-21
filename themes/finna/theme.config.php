@@ -3,6 +3,7 @@ return array(
     'extends' => 'bootstrap3',
     'helpers' => array(
         'factories' => array(
+            'authorizationNote' => 'Finna\View\Helper\Root\Factory::getAuthorizationNote',
             'content' => 'Finna\View\Helper\Root\Factory::getContent',
             'feed' => 'Finna\View\Helper\Root\Factory::getFeed',
             'header' => 'Finna\View\Helper\Root\Factory::getHeader',
