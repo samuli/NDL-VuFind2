@@ -53,9 +53,9 @@ class SearchBox extends \VuFind\View\Helper\Root\SearchBox
             $handlers = [];
             foreach ($this->config['CombinedHandlers'] as $type => $label) {
                 $handlers[] = [
-                   'value' => "$backend|$type", 
-                   'label' => $label, 
-                   'indent' => false, 
+                   'value' => "$backend|$type",
+                   'label' => $label,
+                   'indent' => false,
                    'selected' => ($activeHandler == $type)
                 ];
             }
@@ -74,7 +74,7 @@ class SearchBox extends \VuFind\View\Helper\Root\SearchBox
     protected function getCombinedHandlerConfig($activeSearchClass)
     {
         if (!isset($this->cachedConfigs[$activeSearchClass])) {
-            $this->cachedConfigs[$activeSearchClass] 
+            $this->cachedConfigs[$activeSearchClass]
                 = $this->getCombinedHandlers($activeSearchClass, null);
         }
 
