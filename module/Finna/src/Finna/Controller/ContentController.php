@@ -65,9 +65,8 @@ class ContentController extends \VuFind\Controller\AbstractBase
         }
 
         $view = $this->createViewModel(['page' => $page]);
-
-        if (method_exists($this, $action)) {            
-            $view = call_user_method($action, $this, $view);
+        if (method_exists($this, $action)) {
+            $view = call_user_func([$this, $action], $view);
         }
         return $view;
     }
@@ -93,7 +92,9 @@ class ContentController extends \VuFind\Controller\AbstractBase
     /**
      * Inject list of login drivers to About Finna page.
      *
-     * @return array
+     * @param Zend\View\Model\ViewModel $view View
+     *
+     * @return Zend\View\Model\ViewModel
      */
     public function about_finnaAction($view)
     {

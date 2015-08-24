@@ -147,7 +147,7 @@
         <p>&nbsp;</p>
         <h2>Finna on muutakin kuin hakupalvelu</h2>
         <p>Finnan avulla voit paitsi löytää, myös käyttää aineistoja. Tällä hetkellä seuraavat <strong>kirjastot</strong> tarjoavat Finnassa varaus-, lainan uusimis- ja muita toiminnallisuuksia:</p>
-        <? if (count($loginTargets)): ?>
+        <? if (isset($loginTargets) && count($loginTargets)): ?>
         <ul class="about-login-targets">
         <? foreach ($loginTargets as $target): ?>
           <li><?=$this->transEsc("source_$target", null, $target)?></li>
