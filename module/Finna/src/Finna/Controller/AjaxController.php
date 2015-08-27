@@ -987,6 +987,51 @@ class AjaxController extends \VuFind\Controller\AjaxController
     }
 
     /**
+     * Get hierarchical facet data for jsTree
+     *
+     * Parameters:
+     * facetName  The facet to retrieve
+     * facetSort  By default all facets are sorted by count. Two values are available
+     * for alternative sorting:
+     *   top = sort the top level alphabetically, rest by count
+     *   all = sort all levels alphabetically
+     *
+     * @return \Zend\Http\Response
+     */
+    protected function getFacetDataAjax()
+    {
+        // Check if the request was made from Database or Journal browse features
+        $referer = $this->getRequest()->getServer()->get('HTTP_REFERER');
+        $match = null;
+        if (preg_match('/^http[s]?:.*\/Browse\/(Database|Journal)[\/.*]?/', $referer, $match)) {
+            $type = $match[1];
+            $config
+                = $this->getServiceLocator()->get('VuFind\Config')->get('browse');
+
+            if (!isset($config[$type])) {
+                return $this->output(
+                    "Missing configuration for browse action: $type",
+                    self::STATUS_ERROR
+                );
+            }
+
+            $config = $config[$type];
+            $query = $this->getRequest()->getQuery();
+            if (!$query->get('limit')) {
+                $query->set('limit', $config['resultLimit'] ?: 100);
+            }
+            if (!$query->get('sort')) {
+                $query->set('sort', $config['sort'] ?: 'title');
+            }
+            if (!$query->get('type')) {
+                $query->set('type', $config['type'] ?: 'Title');
+            }
+            $query->set('hiddenFilters', $config['filter']->toArray());
+        }
+        return parent::getFacetDataAjax();
+    }
+
+    /**
      * Convert XML to array for bX recommendations
      *
      * @param \simpleXMLElement $xml XML to convert

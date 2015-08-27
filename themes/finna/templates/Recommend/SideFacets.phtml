@@ -66,17 +66,19 @@
         $queryHandler = $results->getParams()->getQuery()->getHandler();
     }
     ?>
-<? if (!empty($filterList) || $queryHandler != 'AllFields'): ?>
+<? if (!empty($filterList) || (!$browse && $queryHandler != 'AllFields')): ?>
   <div class="list-group filters">
-    
-    <? // Finna query handler (type) remove link ?>
-    <? if ($queryHandler != 'AllFields'): ?>
+
+    <? if (!$browse): ?>
+      <? // Finna query handler (type) remove link ?>
+      <? if ($queryHandler != 'AllFields'): ?>
         <? $removeLink = $this->currentPath().$results->getUrlQuery()->setHandler('AllFields'); ?>
         <a class="list-group-item active" href="<?=$removeLink?>">
           <span class="pull-right"><i class="fa fa-times"></i></span>
           <?=$this->transEsc('search_in_field'); ?>:
           <?=$this->transEsc($queryHandler); ?>
         </a>
+      <? endif; ?>
     <? endif; ?>
     <? foreach ($filterList as $field => $filters): ?>
       <? foreach ($filters as $i => $filter): ?>
