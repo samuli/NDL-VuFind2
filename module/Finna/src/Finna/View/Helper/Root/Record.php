@@ -48,12 +48,18 @@ class Record extends \VuFind\View\Helper\Root\Record
      *
      * @param string $type         Link type
      * @param string $lookfor      String to search for at link
-     * @param string $searchAction Route name to use as search action
      *
      * @return string
      */
-    public function getLink($type, $lookfor, $searchAction = 'search-results')
+    public function getLink($type, $lookfor)
     {
+        $searchAction = isset($this->getView()->browse) && $this->getView()->browse
+            ? 'browse-' . $this->getView()->browse
+            : 'search-results'
+        ;
+        //        return ($searchAction);
+
+        //die("browse: " . var_export($this->getView()->browse, true));
         return $this->renderTemplate(
             'link-' . $type . '.phtml',
             ['lookfor' => $lookfor, 'searchAction' => $searchAction]

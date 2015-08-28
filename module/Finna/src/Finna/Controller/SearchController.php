@@ -186,7 +186,7 @@ class SearchController extends \VuFind\Controller\SearchController
 
         $config = $config[$type];
         $query = $this->getRequest()->getQuery();
-        $query->set('view', 'narrow');
+        $query->set('view', 'condensed');
         if (!$query->get('limit')) {
             $query->set('limit', $config['resultLimit'] ?: 100);
         }
@@ -196,6 +196,8 @@ class SearchController extends \VuFind\Controller\SearchController
         if (!$query->get('type')) {
             $query->set('type', $config['type'] ?: 'Title');
         }
+        $queryType = $query->get('type');
+
         $query->set('hiddenFilters', $config['filter']->toArray() ?: []);
         $query->set(
             'recommendOverride',
@@ -203,7 +205,7 @@ class SearchController extends \VuFind\Controller\SearchController
         );
 
         $view = $this->forwardTo('Search', 'Results');
-
+                
         $view->overrideTitle = "browse_extended_$type";
         $type = strtolower($type);
         $view->browse = $type;
@@ -212,6 +214,8 @@ class SearchController extends \VuFind\Controller\SearchController
         $view->results->getParams()->getOptions()->setBrowseAction("browse-$type");
         $this->getSearchMemory()->forgetSearch();
         $this->rememberSearch($view->results);
+
+        $view->results->getParams()->getQuery()->setHandler($queryType);
 
         return $view;
     }

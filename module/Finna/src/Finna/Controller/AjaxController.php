@@ -987,6 +987,23 @@ class AjaxController extends \VuFind\Controller\AjaxController
     }
 
     /**
+     * Get Autocomplete suggestions.
+     *
+     * @return \Zend\Http\Response
+     */
+    protected function getACSuggestionsAjax()
+    {
+        $query = $this->getRequest()->getQuery();
+        $searcher = $query->get('searcher');
+        $match = null;
+        if (preg_match('/^Browse_(Database|Journal)/', $searcher, $match)) {
+            $query->set('type', 'Browse_' . $match[1]);
+            $query->set('searcher', 'Solr');
+        }
+        return parent::getACSuggestionsAjax();
+    }
+
+    /**
      * Get hierarchical facet data for jsTree
      *
      * Parameters:
@@ -1000,7 +1017,6 @@ class AjaxController extends \VuFind\Controller\AjaxController
      */
     protected function getFacetDataAjax()
     {
-        // Check if the request was made from Database or Journal browse features
         $referer = $this->getRequest()->getServer()->get('HTTP_REFERER');
         $match = null;
         if (preg_match('/^http[s]?:.*\/Browse\/(Database|Journal)[\/.*]?/', $referer, $match)) {

@@ -4,6 +4,7 @@
     if (!isset($this->searchClassId)) {
         $this->searchClassId = 'Solr';
     }
+    $acSearcher = $browse ? 'Browse_' . ucfirst($browse) : $this->searchClassId;
 
     // Load search actions and settings (if any):
     $options = $this->searchOptions($this->searchClassId);
@@ -42,24 +43,19 @@
 ?>
 <? if ($this->searchType != 'advanced'): ?>
   <form role="search" class="navbar-form navbar-left col-xs-12 col-sm-10 col-md-8 col-lg-7" method="get" action="<?=$this->url($basicSearch)?>" name="searchForm" id="searchForm" autocomplete="off">
-    <label for="searchForm_lookfor" class="sr-only" hidden><?=$this->transEsc("Find")?></label><input class="form-control search-query<? if($this->searchbox()->autocompleteEnabled($this->searchClassId)):?> autocomplete searcher:<?=$this->escapeHtmlAttr($this->searchClassId) ?><? endif ?>" placeholder="<?=$this->transEsc("Find")?>..." id="searchForm_lookfor" type="text" name="lookfor" value="<?=$this->escapeHtmlAttr($this->lookfor)?>"/>
+    <label for="searchForm_lookfor" class="sr-only" hidden><?=$this->transEsc("Find")?></label><input class="form-control search-query<? if($this->searchbox()->autocompleteEnabled($this->searchClassId)):?> autocomplete searcher:<?=$this->escapeHtmlAttr($acSearcher) ?><? endif ?>" placeholder="<?=$this->transEsc("Find")?>..." id="searchForm_lookfor" type="text" name="lookfor" value="<?=$this->escapeHtmlAttr($this->lookfor)?>"/>
     <span class="clear-button hidden"></span>
-    <? if (!$browse): ?>
-      <? if ($handlerCount > 1): ?>
-      <span class="jump-menu-style prefilter-select fa-arrow-down">
-        <label for="searchForm_type" hidden class="sr-only"><?=$this->transEsc("Narrow Search")?></label>
-        <select class="form-control" id="searchForm_type" name="type" data-native-menu="false">
-          <? foreach ($handlers as $handler): ?>
-            <option value="<?=$this->escapeHtmlAttr($handler['value'])?>"<?=$handler['selected'] ? ' selected="selected"' : ''?>><?=$handler['indent'] ? '-- ' : ''?><?=$this->transEsc($handler['label'])?></option>
-          <? endforeach; ?>
-        </select>
-      </span>
-      <? elseif ($handlerCount == 1): ?>
-        <input type="hidden" name="type" value="<?=$this->escapeHtmlAttr($handlers[0]['value'])?>" />
-      <? endif; ?>
-    <? else: ?>
-        <? $autocompleteType = 'Browse_' . ucfirst($browse); ?>
-        <input id="searchForm_type" type="hidden" name="type" disabled="disabled" value="<?=$this->escapeHtmlAttr($autocompleteType)?>" />
+    <? if ($handlerCount > 1): ?>
+    <span class="jump-menu-style prefilter-select fa-arrow-down">
+      <label for="searchForm_type" hidden class="sr-only"><?=$this->transEsc("Narrow Search")?></label>
+      <select class="form-control" id="searchForm_type" name="type" data-native-menu="false">
+        <? foreach ($handlers as $handler): ?>
+          <option value="<?=$this->escapeHtmlAttr($handler['value'])?>"<?=$handler['selected'] ? ' selected="selected"' : ''?>><?=$handler['indent'] ? '-- ' : ''?><?=$this->transEsc($handler['label'])?></option>
+        <? endforeach; ?>
+      </select>
+    </span>
+    <? elseif ($handlerCount == 1): ?>
+      <input type="hidden" name="type" value="<?=$this->escapeHtmlAttr($handlers[0]['value'])?>" />
     <? endif; ?>
     <button type="submit" class="btn btn-primary"><i class="fa fa-search"></i> <span class="sr-only"><?=$this->transEsc("Find")?></span></button>
 

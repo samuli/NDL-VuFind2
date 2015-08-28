@@ -79,7 +79,7 @@
           <?=$this->render('search/controls/limit.phtml')?>
         </div>
         <? endif; ?>
-        <div class="col-sm-5 col-md-4<?= !$browse ? ' col-sm-pull-7 col-md-pull-8' : '' ?>">
+        <div<?= !$browse ? ' class="col-sm-5 col-md-4 col-sm-pull-7 col-md-pull-8"' : '' ?>>
             <?=$this->paginationControl($this->results->getPaginator(), 'Sliding', 'search/pagination_simple.phtml', array('results' => $this->results, 'label' => $browse ? "browse_extended_" . ucfirst($browse) : 'Showing'))?>
         </div>
       <? endif; ?>
