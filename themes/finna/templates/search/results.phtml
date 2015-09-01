@@ -85,7 +85,7 @@
         </div>
       <? endif; ?>
     </div>
-<div class="row results result-view-<?=$this->params->getView()?>">
+<div class="row results result-view-<?=$this->escapeHtmlAttr($this->params->getView())?>">
   <div class="<?=$this->layoutClass('mainbody')?>">
 
     <? /* End Listing Options */ ?>
