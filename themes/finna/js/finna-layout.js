@@ -395,7 +395,14 @@ finna.layout = (function() {
         }
         holder.find('.save-record').click(function() {
             var parts = this.href.split('/');
-            return finna.layout.lightbox.get(parts[parts.length-3],'Save',{id:$(this).attr('id')});
+            var id = $(this).attr('id');
+            if (!id) {
+                id = $(this).data('id');
+            }
+            if (!id) {
+                return;
+            }
+            return finna.layout.lightbox.get(parts[parts.length-3],'Save',{id:id});
         });
     };
 
