@@ -999,7 +999,7 @@ class AjaxController extends \VuFind\Controller\AjaxController
 
         $configLoader = $this->getServiceLocator()->get('VuFind\Config');
         $options = new \Finna\Search\Metalib\Options($configLoader);
-        $params = new \Finna\Search\Metalib\Params($options);
+        $params = new \Finna\Search\Metalib\Params($options, $configLoader);
         $params->initFromRequest($this->getRequest()->getQuery());
 
         $view = $this->forwardTo('Metalib', 'Search');

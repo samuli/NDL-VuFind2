@@ -260,6 +260,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
      */
     protected function performSearch($institution, $terms, $args)
     {
+        //        die("perform: " . var_dump($terms));
         $qs = $this->buildQuery($terms);
         
         if (!$qs) {
@@ -316,10 +317,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
         try {
             $databases = $this->getDatabases($options);
 
-            //echo("options: ". var_dump($options));
-
-            //echo("databases: ". var_dump($databases));
-
+            /*
             $this->session->MetaLibFindResponse = [ 
                'requestId' => $findRequestId,               
                'databases' => $databases['databases'],
@@ -328,8 +326,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
                //'disallowed' => $disallowed,
                'successes' => $databases['successes']
             ];
-
-            //die("databases: " . var_dump($databases));
+            */
             
             $records = $this->searchDatabases($databases['databases'], $sessionId, $queryId, $limit, $start);
             $results = [
@@ -340,7 +337,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
                 'failedDatabases' => $databases['failed']
             ];
 
-            $this->session->MetaLibFindResponse = $results;
+            //$this->session->MetaLibFindResponse = $results;
         } catch (Exception $e) {
             throw new \Exception('Primo API does not accept a null query');
         }
@@ -388,7 +385,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
                                  );
             $successes[] = $databaseInfo;
         }
-
+        /*
         $this->session->MetaLibFindResponse = [ 
             'databases' => $databases,
             'totalRecords' => $totalRecords,
@@ -396,7 +393,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
             //'disallowed' => $disallowed,
             'successes' => $successes
         ];
-        
+        */
         return compact('databases', 'successes', 'failed', 'totalRecords');
     }
 
@@ -586,13 +583,16 @@ class Connector implements \Zend\Log\LoggerAwareInterface
                         $lookfor = VuFindSolrUtils::capitalizeBooleans($lookfor);
                         }*/
 
-                    // Prepend the index name, unless it's the special "AllFields"
-                    // index:
-                    if ($index != 'AllFields') {
-                        $query .= "{$index}=($lookfor)";
-                    } else {
-                        $query .= "WRD=($lookfor)";
-                    }
+                    $map = [
+                        'Title' => 'WTI', 
+                        'Author' => 'WAU', 
+                        'Subject' => 'WSU', 
+                        'isbn' => 'ISBN', 
+                        'issn' => 'ISSN'
+                    ];
+
+                    $index = $map[$index] ?: 'WRD';
+                    $query .= "{$index}=($lookfor)";
                 }
             }
         }
@@ -1044,7 +1044,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
             }
             $sessionId = (string)$result->login_response->session_id;
             $this->session->MetaLibSessionID = $sessionId;
-            unset($this->session->MetaLibFindResponse);
+            //unset($this->session->MetaLibFindResponse);
         }
         return $sessionId;
     }
@@ -1107,7 +1107,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
      * @access protected
      */
     protected function getCachedResults($queryId)
-    {
+    {        
         $cacheFile = $this->getCacheFile($queryId);
         if (file_exists($cacheFile)) {
             // Default caching time is 60 minutes (note that cache is required
