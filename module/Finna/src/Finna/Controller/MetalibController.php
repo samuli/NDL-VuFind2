@@ -1,6 +1,6 @@
 <?php
 /**
- * Factory for controllers.
+ * Primo Central Controller
  *
  * PHP version 5
  *
@@ -26,61 +26,62 @@
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
 namespace Finna\Controller;
-use Zend\ServiceManager\ServiceManager;
 
 /**
- * Factory for controllers.
+ * Primo Central Controller
  *
  * @category VuFind2
  * @package  Controller
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
- *
- * @codeCoverageIgnore
  */
-class Factory
+class MetalibController extends \VuFind\Controller\AbstractSearch
 {
+    use SearchControllerTrait;
+
     /**
-     * Construct the BrowseController.
-     *
-     * @param ServiceManager $sm Service manager.
-     *
-     * @return BrowseController
+     * Constructor
      */
-    public static function getBrowseController(ServiceManager $sm)
+    public function __construct()
     {
-        return new BrowseController(
-            $sm->getServiceLocator()->get('VuFind\Config')->get('config')
-        );
+        $this->searchClassId = 'Metalib';
+        parent::__construct();
     }
 
     /**
-     * Construct the RecordController.
+     * Home action
      *
-     * @param ServiceManager $sm Service manager.
-     *
-     * @return RecordController
+     * @return mixed
      */
-    public static function getRecordController(ServiceManager $sm)
+    public function homeAction()
     {
-        return new RecordController(
-            $sm->getServiceLocator()->get('VuFind\Config')->get('config')
-        );
+        return $this->createViewModel();
     }
 
     /**
-     * Construct the RecordController.
+     * Search action -- call standard results action
      *
-     * @param ServiceManager $sm Service manager.
-     *
-     * @return RecordController
+     * @return mixed
      */
-    public static function getMetalibrecordController(ServiceManager $sm)
-    {
-        return new MetalibrecordController(
-            $sm->getServiceLocator()->get('VuFind\Config')->get('config')
-        );
-    }
+    public function searchAction()
+    {     
+        if ($this->getRequest()->getQuery()->get('ajax')) {
+            $view = parent::resultsAction();
+        } else {
+            $configLoader = $this->getServiceLocator()->get('VuFind\Config');
+            $options = new \Finna\Search\Metalib\Options($configLoader);
+            $params = new \Finna\Search\Metalib\Params($options, $configLoader);
+            $params->initFromRequest($this->getRequest()->getQuery());
+            $results = new \Finna\Search\Metalib\Results($params);
 
+            $view = $this->createViewModel();
+            $view->qs = $this->getRequest()->getUriString();
+            $view->params = $params;
+            $view->results = $results;
+            $view->disablePiwik = true;
+        }
+        
+        return $view;
+    }
 }

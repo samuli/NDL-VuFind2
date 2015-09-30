@@ -17,6 +17,7 @@ return array(
             'organisationsList'
                 => 'Finna\View\Helper\Root\Factory::getOrganisationsList',
             'personaAuth' => 'Finna\View\Helper\Root\Factory::getPersonaAuth',
+            'piwik' => 'Finna\View\Helper\Root\Factory::getPiwik',
             'primo' => 'Finna\View\Helper\Root\Factory::getPrimo',
             'record' => 'Finna\View\Helper\Root\Factory::getRecord',
             'recordImage' => 'Finna\View\Helper\Root\Factory::getRecordImage',

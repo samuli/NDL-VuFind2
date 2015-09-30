@@ -989,6 +989,43 @@ class AjaxController extends \VuFind\Controller\AjaxController
     }
 
     /**
+     * TODO
+     *
+     * @return \Zend\Http\Response
+     */
+    public function metaLibAjax()
+    {
+        $this->getRequest()->getQuery()->set('ajax', 1);
+
+        $configLoader = $this->getServiceLocator()->get('VuFind\Config');
+        $options = new \Finna\Search\Metalib\Options($configLoader);
+        $params = new \Finna\Search\Metalib\Params($options);
+        $params->initFromRequest($this->getRequest()->getQuery());
+
+        $view = $this->forwardTo('Metalib', 'Search');
+        $viewParams = ['results' => $view->results, 'metalib' => true, 'params' => $params];
+        
+        $html = [];
+        
+        $html['content'] = $this->getViewRenderer()->render(
+            'search/list-list.phtml',
+            $viewParams
+        );
+        
+        $html['paginationBottom'] = $this->getViewRenderer()->render(
+            'metalib/pagination-bottom.phtml',
+            $viewParams
+        );
+        
+        $html['paginationTop'] = $this->getViewRenderer()->render(
+            'metalib/pagination-top.phtml',
+            $viewParams
+        );
+        
+        return $this->output($html, self::STATUS_OK);
+    }
+
+    /**
      * Get Autocomplete suggestions.
      *
      * @return \Zend\Http\Response

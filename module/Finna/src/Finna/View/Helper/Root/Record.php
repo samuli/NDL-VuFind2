@@ -51,7 +51,7 @@ class Record extends \VuFind\View\Helper\Root\Record
      *
      * @return string
      */
-    public function getLink($type, $lookfor)
+    public function getLink($type, $lookfor, $searchHandler = false)
     {
         $searchAction = isset($this->getView()->browse) && $this->getView()->browse
             ? 'browse-' . $this->getView()->browse
@@ -59,7 +59,9 @@ class Record extends \VuFind\View\Helper\Root\Record
         ;
         return $this->renderTemplate(
             'link-' . $type . '.phtml',
-            ['lookfor' => $lookfor, 'searchAction' => $searchAction]
+            ['lookfor' => $lookfor, 
+             'searchAction' => $searchAction, 
+             'searchHandler' => $searchHandler]
         );
     }
 

@@ -27,6 +27,7 @@
     $action = $this->layout()->templateName;
     if (!$browse) {
       if (($module === 'search' && $action === 'results' && $this->searchType != 'advanced')
+         || ($module === 'metalib' && $action === 'search' && $this->searchType != 'advanced')          
          || ($module === 'primo' && $action === 'search' && $this->searchType != 'advanced')
          || ($module == 'combined' && $action == 'results')
       ) {

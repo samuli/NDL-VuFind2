@@ -80,6 +80,21 @@ class Factory extends \VuFind\Search\Results\Factory
     }
 
     /**
+     * Factory for MetaLib results object.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return MetaLib
+     */
+    public static function getMetaLib(ServiceManager $sm)
+    {
+        
+        $factory = new PluginFactory();
+        $metalib = $factory->createServiceWithName($sm, 'metalib', 'Metalib');
+        return Factory::initUrlQueryHelper($metalib, $sm);
+    }
+
+    /**
      * Factory for Combined results object.
      *
      * @param ServiceManager $sm Service manager.

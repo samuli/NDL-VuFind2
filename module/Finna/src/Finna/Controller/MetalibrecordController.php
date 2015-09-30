@@ -1,6 +1,6 @@
 <?php
 /**
- * Finna Cache Manager
+ * Primo Central Record Controller
  *
  * PHP version 5
  *
@@ -20,37 +20,37 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * @category VuFind2
- * @package  Cache
+ * @package  Controller
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://www.vufind.org  Main Page
+ * @link     http://vufind.org   Main Site
  */
-namespace Finna\Cache;
-use Zend\Config\Config;
+namespace Finna\Controller;
 
 /**
- * Finna Cache Manager
+ * Primo Central Record Controller
  *
  * @category VuFind2
- * @package  Cache
+ * @package  Controller
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://www.vufind.org  Main Page
+ * @link     http://vufind.org   Main Site
  */
-class Manager extends \VuFind\Cache\Manager
+class MetalibrecordController extends \VuFind\Controller\AbstractRecord //RecordController
 {
+    use RecordControllerTrait;
+
+
     /**
-     * Constructor.
-     *
-     * @param Config $config       Main VuFind configuration
-     * @param Config $searchConfig Search configuration
+     * Constructor
      */
-    public function __construct(Config $config, Config $searchConfig)
+    public function __construct()
     {
-        $cacheBase = $this->getCacheDir();
-        foreach (['feed', 'description', 'metalib'] as $cache) {
-            $this->createFileCache($cache, $cacheBase . $cache . 's');
-        }
-        return parent::__construct($config, $searchConfig);
+        // Override some defaults:
+        $this->searchClassId = 'Metalib';
+
+        // Call standard record controller initialization:
+        parent::__construct();
     }
+
 }

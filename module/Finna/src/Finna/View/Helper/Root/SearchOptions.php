@@ -1,11 +1,10 @@
 <?php
 /**
- * Helper class for displaying a notification for unauthorized users
- * on Primo result pages.
+ * "Retrieve search options" view helper
  *
  * PHP version 5
  *
- * Copyright (C) The National Library of Finland 2015.
+ * Copyright (C) Villanova University 2010.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -22,55 +21,50 @@
  *
  * @category VuFind2
  * @package  View_Helpers
- * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
+ * @author   Demian Katz <demian.katz@villanova.edu>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
 namespace Finna\View\Helper\Root;
-use ZfcRbac\Service\AuthorizationService;
+use VuFind\Search\Options\PluginManager;
 
 /**
- * Helper class for displaying a notification for unauthorized users
- * on Primo result pages.
+ * "Retrieve search options" view helper
  *
  * @category VuFind2
  * @package  View_Helpers
- * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
+ * @author   Demian Katz <demian.katz@villanova.edu>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
-class AuthorizationNotification extends \Zend\View\Helper\AbstractHelper
+class SearchOptions extends \VuFind\View\Helper\Root\SearchOptions
 {
     /**
-     * Authorization service
+     * Search manager
      *
-     * @var Zend\Service\AuthorizationService
+     * @var PluginManager
      */
-    protected $authService;
+    protected $manager;
 
     /**
      * Constructor
      *
-     * @param Zend\Service\AuthorizationService $authService Authorization service
+     * @param PluginManager $manager Search manager
      */
-    public function __construct(AuthorizationService $authService)
+    public function __construct(PluginManager $manager)
     {
-        $this->authService = $authService;
+        $this->manager = $manager;
     }
 
     /**
-     * If needed, returns rendered notification.
+     * Wrapper to the options plugin manager
      *
-     * @param string $searchClass Search class
+     * @param string $type The search type of the object to retrieve
      *
-     * @return null|string notification
+     * @return \VuFind\Search\Base\Options
      */
-    public function __invoke($searchClass)
+    public function __invoke($type = 'Solr')
     {
-        if (in_array($searchClass, ['Metalib', 'Primo'])) {
-            if (!$this->authService->isGranted('finna.authorized')) {
-                return $this->getView()->render('Helpers/authorizationNote.phtml');
-            }
-        }
+        return $this->manager->get($type);
     }
 }

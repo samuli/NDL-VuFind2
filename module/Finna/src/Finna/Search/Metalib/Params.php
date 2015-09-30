@@ -1,6 +1,6 @@
 <?php
 /**
- * Finna Cache Manager
+ * MetaLib Search Parameters
  *
  * PHP version 5
  *
@@ -20,37 +20,55 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * @category VuFind2
- * @package  Cache
+ * @package  Search_MetaLib
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://www.vufind.org  Main Page
  */
-namespace Finna\Cache;
-use Zend\Config\Config;
+namespace Finna\Search\Metalib;
+use VuFindSearch\ParamBag;
 
 /**
- * Finna Cache Manager
+ * MetaLib Search Parameters
  *
  * @category VuFind2
- * @package  Cache
+ * @package  Search_MetaLib
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://www.vufind.org  Main Page
  */
-class Manager extends \VuFind\Cache\Manager
+class Params extends \VuFind\Search\Base\Params
 {
+    use \Finna\Search\FinnaParams;
+
     /**
-     * Constructor.
+     * Restore settings from a minified object found in the database.
      *
-     * @param Config $config       Main VuFind configuration
-     * @param Config $searchConfig Search configuration
+     * @param \VuFind\Search\Minified $minified Minified Search Object
+     *
+     * @return void
      */
-    public function __construct(Config $config, Config $searchConfig)
+    public function deminifyFinnaSearch($minified)
     {
-        $cacheBase = $this->getCacheDir();
-        foreach (['feed', 'description', 'metalib'] as $cache) {
-            $this->createFileCache($cache, $cacheBase . $cache . 's');
-        }
-        return parent::__construct($config, $searchConfig);
     }
+
+    /**
+     * Create search backend parameters for advanced features.
+     *
+     * @return ParamBag
+     */
+    public function getBackendParameters()
+    {
+        $backendParams = new ParamBag();
+
+        // The "relevance" sort option is a VuFind reserved word; we need to make
+        // this null in order to achieve the desired effect with Primo:
+        $sort = $this->getSort();
+        $finalSort = ($sort == 'relevance') ? null : $sort;
+        $backendParams->set('sort', $finalSort);
+        $backendParams->set('filterList', $this->filterList);
+
+        return $backendParams;
+    }
+
 }
