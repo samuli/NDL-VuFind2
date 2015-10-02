@@ -121,6 +121,8 @@ class Connector implements \Zend\Log\LoggerAwareInterface
      */
     protected $authService;
 
+    protected $sets;
+
     /**
      * Debug status
      *
@@ -138,8 +140,9 @@ class Connector implements \Zend\Log\LoggerAwareInterface
      * @param HttpClient $client HTTP client
      * @param int        $port   API connection port
      */
-    public function __construct($url, $user, $pass, $client, $cacheManager, AuthorizationService $authService, $port = 1701)
+    public function __construct($institution, $url, $user, $pass, $client, $cacheManager, AuthorizationService $authService, $sets, $port = 1701)
     {
+        $this->inst = $institution;
         $this->host = $url;
         $this->client = $client;
         $this->user = $user;
@@ -149,6 +152,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
         $this->session = new SessionContainer('Metalib');
         $this->cache = $cacheManager;
         $this->auth = $authService;
+        $this->sets = $sets;
     }
 
     /**
@@ -178,7 +182,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
      */
     public function query($institution, $terms, $params = null)
     {
-        //echo("terms: " . var_dump($terms) . ", params: " . var_dump($params));
+        //die("query terms: " . var_export($terms,true) . ", params: " . var_export($params,true));
 
         try {
             $sessionId = $this->getSession();
@@ -201,27 +205,38 @@ class Connector implements \Zend\Log\LoggerAwareInterface
             "returnErr" => true,
         ];
         */
-        
-        if (isset($params)) {
-            $args = array_merge($args, $params);
-        }
 
-        // echo("args: " . var_dump($args));
-
-        // run search, deal with exceptions
-        try {
-            $result = $this->performSearch($institution, $terms, $args);
-        } catch (\Exception $e) {
-            if ($args["returnErr"]) {
+        if (isset($params['irdInfo'])) {
+            try {
+                $result = $this->getIRDInfo($params['irdInfo']);
+                $result['documents'] = [];
+            } catch (\Exception $e) {
                 $this->debug($e->getMessage());
                 return [
-                    'recordCount' => 0,
-                    'documents' => [],
-                    'facets' => [],
-                    'error' => $e->getMessage()
-                ];
-            } else {
-                throw $e;
+                        'error' => $e->getMessage()
+                ];                
+            }
+        } else {
+        
+            if (isset($params)) {
+                $args = array_merge($args, $params);
+            }
+
+            // run search, deal with exceptions
+            try {
+                $result = $this->performSearch($institution, $terms, $args);
+            } catch (\Exception $e) {
+                if ($args["returnErr"]) {
+                    $this->debug($e->getMessage());
+                    return [
+                            'recordCount' => 0,
+                            'documents' => [],
+                            'facets' => [],
+                            'error' => $e->getMessage()
+                            ];
+                } else {
+                    throw $e;
+                }
             }
         }
 
@@ -260,7 +275,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
      */
     protected function performSearch($institution, $terms, $args)
     {
-        //        die("perform: " . var_dump($terms));
+        //die("perform: " . var_dump($args));
         $qs = $this->buildQuery($terms);
         
         if (!$qs) {
@@ -268,11 +283,28 @@ class Connector implements \Zend\Log\LoggerAwareInterface
         }
         // aapeli FIN15098
         // FIN17393 arto
-        $authorized = $this->auth->isGranted('finna.authorized');
+        $authorized = 1; //$this->auth->isGranted('finna.authorized');
 
-        $irdList = explode(',', 'FIN00734');
+        // ebsco FIN04150
+        // aalto FIN15994
+        // aalto FIN43250
+        // FIN33055 proquest
+
+        $irdList = $args['searchSet'];
+
+        if (strncmp($irdList, '_ird:', 5) != 0) {
+            if (array_key_exists($irdList, $this->sets)) {
+                $irdList = $this->sets[$irdList]['ird_list'];
+            } else {
+                $irdList = current($this->sets)['ird_list'];
+            }
+        } else {
+            $irdList = substr($irdList, 5);
+        }
+        $irdList = explode(',', $irdList);
+
+
         $irdData = $this->getIRDInfos($irdList, $authorized);
-
         
         if (empty($irdData['allowed'])) {
             return array(
@@ -290,14 +322,11 @@ class Connector implements \Zend\Log\LoggerAwareInterface
         $options['find_request_command'] = $qs;
 
 
+        $sessionId = $this->getSession();
 
         // TODO: add configurable authentication mechanisms to identify authorized
         // users and switch this to use it
         $options['requester_ip'] = $_SERVER['REMOTE_ADDR'];
-
-
-        $sessionId = $this->getSession();
-
         $options['session_id'] = $this->getSession();
         $options['wait_flag'] = 'Y';
 
@@ -591,7 +620,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
                         'issn' => 'ISSN'
                     ];
 
-                    $index = $map[$index] ?: 'WRD';
+                    $index = isset($map[$index]) ? $map[$index] : 'WRD';
                     $query .= "{$index}=($lookfor)";
                 }
             }
@@ -628,8 +657,6 @@ class Connector implements \Zend\Log\LoggerAwareInterface
         $op = $xml->addChild($operation);
         $this->paramsToXml($op, $params);
 
-        //echo(var_dump("request: " . $xml->asXML()));
-
         $this->client->resetParameters();
         $this->client->setUri($this->host);
         $this->client->setParameterPost(['xml' => $xml->asXML()]);
@@ -639,8 +666,6 @@ class Connector implements \Zend\Log\LoggerAwareInterface
         if (!$result->isSuccess()) {
             throw new \Exception($result->getBody());
         }
-
-        //echo("response: " . var_dump($result->getBody()));
 
         $xml = simplexml_load_string($result->getBody());
         $errors = $xml->xpath('//local_error | //global_error');
@@ -852,7 +877,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
             'ispartof' => "{$hostTitle[0]}, {$field773g}",
             'language' => $languages,
             'topic' => $subjects,
-            'snippet' => $this->snippets ? $snippet : null,
+            'description' => $this->snippets ? $snippet : null,
             'notes' => $notes,
             'container_volume' => isset($volume) ? $volume : '',
             'container_issue' => isset($issue) ? $issue : '',
@@ -941,11 +966,13 @@ class Connector implements \Zend\Log\LoggerAwareInterface
 
     protected function getIRDInfos($irds, $authorized)
     {       
+        
         $allowed = $disallowed = $failed = $info = [];
         //$irdInfoArray = [];
         foreach ($irds as $ird) {
             try {
                 $irdInfo = $this->getIRDInfo($ird);
+
                 if (strcasecmp($irdInfo['access'], 'guest') != 0 && !$authorized) {
                     $disallowed[] = $irdInfo;
                 } else {
@@ -968,7 +995,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
      * @return array Array with e.g. 'name' and 'access'
      * @access public
      */
-    protected function getIRDInfo($ird)
+    public function getIRDInfo($ird)
     {
         $queryId = "metalib_ird.$ird";
         $cached = $this->getCachedResults($queryId);
@@ -985,14 +1012,19 @@ class Connector implements \Zend\Log\LoggerAwareInterface
         );
 
 
-        //die("ird? " . var_dump($ird));
-
         $result = $this->call('source_locate_request', $params);
 
         $info = array();
         $info['name'] = (string)$result->source_locate_response->source_full_info->source_info->source_short_name;
         $record = $result->source_locate_response->source_full_info->record;
         $record->registerXPathNamespace('m', 'http://www.loc.gov/MARC21/slim');
+
+        
+        $institute = $this->getSingleValue($record, 'AF1a');
+        if ($institute !== $this->getInstitutionCode()) {
+            //return [];
+        }
+
         $info['access'] = $this->getSingleValue($record, 'AF3a');
         $info['proxy'] = $this->getSingleValue($record, 'PXYa');
         $info['searchable'] = $this->getSingleValue($record, 'TARa') && $this->getSingleValue($record, 'TARf') == 'Y';
@@ -1011,6 +1043,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
     protected function getSession()
     {
         $sessionId = '';
+
         if (isset($this->session['MetaLibSessionID'])) {
             // Check for valid session
             $params = array(
@@ -1034,7 +1067,6 @@ class Connector implements \Zend\Log\LoggerAwareInterface
             );
             try {
                 $result = $this->call('login_request', $params, false);
-                //echo("res: " . var_dump($result));
                 if ($result->login_response->auth != 'Y') {
                     $this->debug('X-Server login failed: ' . var_dump($params));
                     throw new \Exception('X-Server login failed');
@@ -1044,7 +1076,6 @@ class Connector implements \Zend\Log\LoggerAwareInterface
             }
             $sessionId = (string)$result->login_response->session_id;
             $this->session->MetaLibSessionID = $sessionId;
-            //unset($this->session->MetaLibFindResponse);
         }
         return $sessionId;
     }
@@ -1063,26 +1094,11 @@ class Connector implements \Zend\Log\LoggerAwareInterface
     {
         list($queryId, $index) = explode('_', $id);
         $result = $this->getCachedResults($queryId);
-
-        /*
-        if ($result === false) {
-            // Check from database, this could be in a favorite list
-            $resource = new Resource();
-            $resource->record_id = $id;
-            $resource->source = 'MetaLib';
-            if ($resource->find(true) && $resource->data !== null) {
-                $data = unserialize($resource->data);
-                if ($data !== null) {
-                    return $data;
-                }
-            }
-            PEAR::raiseError(new PEAR_Error('Record not found'));
-            }*/
+        
         if ($index < 1 || $index > count($result['documents'])) {
             throw new \Exception('Invalid record id');
         }
         $result['documents'] = array_slice($result['documents'], $index - 1, 1);
-
 
         return $result['documents'][0];
     }

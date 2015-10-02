@@ -129,11 +129,13 @@ class SearchTabs extends \VuFind\View\Helper\Root\SearchTabs
 
                 $filterQuery = false;
                 $searchClass = $tab['class'];
+
                 if (isset($savedSearches[$searchClass])) {
                     $helper = $this->getView()->results->getUrlQuery();
                     $searchId = $savedSearches[$tab['class']];
                     $searchSettings = $this->getSearchSettings($searchId);
                     $targetClass = $tab['class'];
+
 
                     // Make sure that tab url does not contain the
                     // search id for the same tab.
@@ -207,7 +209,8 @@ class SearchTabs extends \VuFind\View\Helper\Root\SearchTabs
             $urlQuery->removeAllFilters();
         }
 
-        $filters = $this->getView()->results->getParams()->getFilters();
+        $params = $this->getView()->results->getParams();
+        $filters = $params->getFilters();
         if (!empty($filters)) {
             // Filters active, include current search id in the url
             $searchClass = $this->activeSearchClass;
@@ -267,6 +270,12 @@ class SearchTabs extends \VuFind\View\Helper\Root\SearchTabs
                     }
                 }
             }
+            
+            $params = $savedSearch->getParams();
+            if ($set = $params->getMetalibSearchSet()) {
+                $settings['params'] = ['set' => $set];
+            }
+
             return $settings;
         }
         return false;

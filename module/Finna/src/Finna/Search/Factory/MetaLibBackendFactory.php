@@ -113,6 +113,7 @@ class MetaLibBackendFactory implements FactoryInterface
      */
     protected function createConnector()
     {
+        $institution = $this->config->General->institution ?: null;
         $host = $this->config->General->url ?: null;
         $user = $this->config->General->x_user ?: null;
         $pass = $this->config->General->x_password ?: null;
@@ -121,11 +122,15 @@ class MetaLibBackendFactory implements FactoryInterface
         $cacheManager = $this->serviceLocator->get('VuFind\CacheManager');
         $auth = $this->serviceLocator->get('ZfcRbac\Service\AuthorizationService');
 
+
+        $configReader = $this->serviceLocator->get('VuFind\Config');
+        $sets = $configReader->get('MetaLibSets')->toArray();
+        
         $timeout = isset($this->config->General->timeout)
             ? $this->config->General->timeout : 30;
         $client->setOptions(['timeout' => $timeout]);
 
-        $connector = new Connector($host, $user, $pass, $client, $cacheManager, $auth, $port);
+        $connector = new Connector($institution, $host, $user, $pass, $client, $cacheManager, $auth, $sets, $port);
         $connector->setLogger($this->logger);
         return $connector;
     }

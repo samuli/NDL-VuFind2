@@ -26,6 +26,8 @@
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
 namespace Finna\Controller;
+use VuFindSearch\ParamBag as ParamBag,
+    Zend\Session\Container as SessionContainer;
 
 /**
  * Primo Central Controller
@@ -65,7 +67,7 @@ class MetalibController extends \VuFind\Controller\AbstractSearch
      * @return mixed
      */
     public function searchAction()
-    {     
+    {  
         if ($this->getRequest()->getQuery()->get('ajax')) {
             $view = parent::resultsAction();
         } else {
@@ -73,15 +75,58 @@ class MetalibController extends \VuFind\Controller\AbstractSearch
             $options = new \Finna\Search\Metalib\Options($configLoader);
             $params = new \Finna\Search\Metalib\Params($options, $configLoader);
             $params->initFromRequest($this->getRequest()->getQuery());
+            $params->setIrds($this->getCurrentMetalibIrds());
+
             $results = new \Finna\Search\Metalib\Results($params);
+            $results 
+                = \Finna\Search\Results\Factory::initUrlQueryHelper(
+                    $results, $this->getServiceLocator()
+                );
 
             $view = $this->createViewModel();
             $view->qs = $this->getRequest()->getUriString();
             $view->params = $params;
             $view->results = $results;
             $view->disablePiwik = true;
+
+            $allowedSets = $this->getMetalibSets();
+            $sets = [];
+            foreach ($allowedSets as $key => $set) {
+                $sets[$key] = $set['name'];
+            }
+            $view->sets = $sets;
+            list($isIrd, $set) = $this->getCurrentMetalibSet();
+
+            $view->currentSet = $set;
+
+            $session = new SessionContainer('Metalib');
+            if ($isIrd) {
+                //unset($session->recentSets);
+                //die();
+
+                $metalib = $this->getServiceLocator()->get('VuFind\Search');
+
+                $backendParams = new ParamBag();
+                $backendParams->add('irdInfo', explode(',', substr($set, 5)));
+                $result = $metalib->search('Metalib', $params->getQuery(), false, false, $backendParams);
+                $name = $result->getIRDInfo();
+                if (!$name) {
+                    $name = $set;
+                }
+                //die("res: " . var_export($result, true));
+
+                if (!isset($session->recentSets)) {
+                    $session->recentSets = [];
+                }
+                $session->recentSets[$set] = $isIrd ? $name : $sets[$set];
+            }
+
+            $view->recentSets 
+                = isset($session->recentSets) ? $session->recentSets : [];
         }
-        
+
+        $this->initSavedTabs();
+
         return $view;
     }
 }

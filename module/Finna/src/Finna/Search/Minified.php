@@ -48,6 +48,13 @@ class Minified implements \Serializable
     public $f_dty;
 
     /**
+     * MetaLib search set
+     *
+     * @var string
+     */
+    public $f_mset;
+
+    /**
      * Parent search object
      *
      * @var \VuFind\Search\Minified
@@ -64,10 +71,14 @@ class Minified implements \Serializable
      */
     public function __construct($searchObject)
     {
-        $daterange = $searchObject->getParams()->getSpatialDateRangeFilter();
+        $params = $searchObject->getParams();
+        $daterange = $params->getSpatialDateRangeFilter();
         if ($daterange && isset($daterange['type'])
         ) {
             $this->f_dty = $daterange['type'];
+        }
+        if ($set = $params->getMetalibSearchSet()) {
+            $this->f_mset = $set;
         }
     }
 
@@ -94,6 +105,9 @@ class Minified implements \Serializable
         if ($this->f_dty) {
             $data['f_dty'] = $this->f_dty;
         }
+        if ($this->f_mset) {
+            $data['f_mset'] = $this->f_mset;
+        }
         return serialize($data);
     }
 
@@ -110,6 +124,9 @@ class Minified implements \Serializable
         if (isset($data['f_dty'])) {
             $this->f_dty = $data['f_dty'];
         }
+        if (isset($data['f_mset'])) {
+            $this->f_mset = $data['f_mset'];
+        }
         return $this;
     }
 
@@ -122,6 +139,7 @@ class Minified implements \Serializable
      */
     public function deminify(\VuFind\Search\Results\PluginManager $manager)
     {
+        //die("minified::demini");
         $results = $this->parentSO->deminify($manager);
         $results->getParams()->deminifyFinnaSearch($this);
         return $results;

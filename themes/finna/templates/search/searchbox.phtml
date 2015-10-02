@@ -22,6 +22,11 @@
        ? $this->params->getSpatialDateRangeFilter()
        : null
     ;
+    $metalibSet
+       = $this->params && method_exists($this->params, 'getMetalibSearchSet')
+       ? $this->params->getMetalibSearchSet()
+       : null
+    ;
     // Set up Finna Main Tabs:
     $module = $this->layout()->templateDir;
     $action = $this->layout()->templateName;
@@ -123,6 +128,10 @@
       if ($daterange && isset($daterange['field']) && isset($daterange['type'])) {
         echo '<input class="hidden applied-filter" type="checkbox"' . $defaultFilterState . ' name="' . $daterange['field'] . '_type" value="' . $this->escapeHtmlAttr($daterange['type']) . '" />';
       }
+      if ($metalibSet) {
+        echo '<input class="hidden applied-filter" type="checkbox"' . $defaultFilterState . ' name="set" value="' . $this->escapeHtmlAttr($metalibSet) . '" />';
+      }
+    
     ?>
   </form>
   <? if ($advSearch): ?>

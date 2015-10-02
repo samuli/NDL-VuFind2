@@ -41,6 +41,8 @@ use Zend\Cache\StorageFactory,
  */
 class AjaxController extends \VuFind\Controller\AjaxController
 {
+    use SearchControllerTrait;
+
     /**
      * Check Requests are Valid
      *
@@ -229,6 +231,8 @@ class AjaxController extends \VuFind\Controller\AjaxController
         list($source, $recId) = explode('.', $id, 2);
         if ($source == 'pci') {
             $source = 'Primo';
+        } else if ($source == 'metalib') {
+            $source = 'Metalib';
         } else {
             $source = 'Solr';
         }
@@ -1001,28 +1005,30 @@ class AjaxController extends \VuFind\Controller\AjaxController
         $options = new \Finna\Search\Metalib\Options($configLoader);
         $params = new \Finna\Search\Metalib\Params($options, $configLoader);
         $params->initFromRequest($this->getRequest()->getQuery());
+        $params->setIrds($this->getCurrentMetalibIrds());
 
         $view = $this->forwardTo('Metalib', 'Search');
         $viewParams = ['results' => $view->results, 'metalib' => true, 'params' => $params];
         
-        $html = [];
+        $result = [];
+        $result['searchHash'] = $view->results->getSearchHash();
         
-        $html['content'] = $this->getViewRenderer()->render(
+        $result['content'] = $this->getViewRenderer()->render(
             'search/list-list.phtml',
             $viewParams
         );
         
-        $html['paginationBottom'] = $this->getViewRenderer()->render(
+        $result['paginationBottom'] = $this->getViewRenderer()->render(
             'metalib/pagination-bottom.phtml',
             $viewParams
         );
         
-        $html['paginationTop'] = $this->getViewRenderer()->render(
+        $result['paginationTop'] = $this->getViewRenderer()->render(
             'metalib/pagination-top.phtml',
             $viewParams
         );
-        
-        return $this->output($html, self::STATUS_OK);
+
+        return $this->output($result, self::STATUS_OK);
     }
 
     /**

@@ -208,7 +208,6 @@ $config = [
         'recorddriver_tabs' => [
             'Finna\RecordDriver\Metalib' => [
                 'tabs' => [
-                    'Reviews' => 'Reviews',
                     'Details' => 'StaffViewArray'
                 ],
                 'defaultTab' => null,

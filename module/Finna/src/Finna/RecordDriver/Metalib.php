@@ -41,16 +41,40 @@ namespace Finna\RecordDriver;
  */
 class Metalib extends \VuFind\RecordDriver\SolrMarc
 {
-    use SolrFinna;
 
     protected $sourceIdentifier = 'Metalib';
 
-
-    public function getFields()
+    /**
+     * Get the short (pre-subtitle) title of the record.
+     *
+     * @return string
+     */
+    public function getShortTitle()
     {
-        return $this->fields;
+        return $this->getTitle();
     }
 
+    /**
+     * Return an array of associative URL arrays with one or more of the following
+     * keys:
+     *
+     * <li>
+     *   <ul>desc: URL description text to display (optional)</ul>
+     *   <ul>url: fully-formed URL (required if 'route' is absent)</ul>
+     * </li>
+     *
+     * @return array
+     */
+    public function getURLs()
+    {
+        $urls = parent::getURLS();
+        foreach ($urls as &$url) {
+            $urlParts = parse_url($url['url']);
+            $url['urlShort'] 
+                = isset($urlParts['host']) ? $urlParts['host'] : $url['url'];
+        }
+        return $urls;
+    }
     /**
      * Get the item's source.
      *
@@ -61,36 +85,83 @@ class Metalib extends \VuFind\RecordDriver\SolrMarc
         return $this->fields['source'] ?: null;
     }
 
-    public function getHierarchyParentId()
+    public function getRecordImage($size = 'small', $index = 0)
+    {           
+        $params = parent::getThumbnail($size);
+        if ($params && !is_array($params)) {
+            $params = ['url' => $params];
+        }
+        return $params;
+    }
+
+    /**
+     * Return record format.
+     *
+     * @return string.
+     */
+    public function getRecordType()
+    {
+        return null;
+    }
+
+    /**
+     * Return image rights.
+     *
+     * @return mixed array with keys:
+     *   'copyright'  Copyright (e.g. 'CC BY 4.0') (optional)
+     *   'description Human readable description (array)
+     *   'link'       Link to copyright info
+     *   or false if the record contains no images
+     */
+    public function getImageRights()
     {
         return false;
     }
 
-    public function getContainerReference()
+    /**
+     * Get default OpenURL parameters.
+     *
+     * @return array
+     */
+    protected function getDefaultOpenUrlParams()
     {
-        $parts = explode(',', $this->getIsPartOf(), 2);
-        return isset($parts[1]) ? trim($parts[1]) : '';
+        $params = parent::getDefaultOpenUrlParams();
+        if (isset($this->fields['isbn'])) {
+            $isbn = $this->fields['isbn'];
+            if (is_array($isbn) && !empty($isbn)) {
+                $isbn = $isbn[0];
+            }
+            $params['rft.isbn'] = $isbn;
+        }
+        if (isset($this->fields['issn'])) {
+            $issn = $this->fields['issn'];
+            if (is_array($issn) && !empty($issn)) {
+                $issn = $issn[0];
+            }
+            $params['rft.issn'] = $issn;
+        }
+        if (isset($this->fields['container_volume'])) {
+            $params['rft.volume'] = $this->fields['container_volume'];
+        }
+        if (isset($this->fields['container_issue'])) {
+            $params['rft.issue'] = $this->fields['container_issue'];
+        }
+        $params['foo'] = $this->fields['issn'];
+        return $params;
     }
 
     /**
-     * Get the item's "is part of".
+     * Indicate whether export is disabled for a particular format.
      *
-     * @return string
+     * @param string $format Export format
+     *
+     * @return bool
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function getIsPartOf()
+    public function exportDisabled($format)
     {
-        return isset($this->fields['ispartof'])
-            ? $this->fields['ispartof'] : '';
-    }
-
-    
-    public function getDeduplicatedAuthors()
-    {
-        return [];
-    }
-
-    public function getOnlineURLs($raw = false)
-    {
-        return [];
+        // Support export for EndNote and RefWorks
+        return !in_array($format, ['EndNote', 'RefWorks']);
     }
 }

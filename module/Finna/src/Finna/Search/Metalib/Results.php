@@ -26,6 +26,7 @@
  * @link     http://www.vufind.org  Main Page
  */
 namespace Finna\Search\Metalib;
+use Finna\Search\UrlQueryHelper;
 
 /**
  * MetaLib Search Parameters
@@ -40,6 +41,8 @@ class Results extends \VuFind\Search\Base\Results
 {
     use \Finna\Search\Results\SearchResultsTrait;
 
+    protected $irdList;
+
     /**
      * Support method for performAndProcessSearch -- perform a search based on the
      * parameters passed to the object.
@@ -52,6 +55,7 @@ class Results extends \VuFind\Search\Base\Results
         $limit  = $this->getParams()->getLimit();
         $offset = $this->getStartRecord() - 1;
         $params = $this->getParams()->getBackendParameters();
+
         $collection = $this->getSearchService()->search(
             'Metalib', $query, $offset, $limit, $params
         );

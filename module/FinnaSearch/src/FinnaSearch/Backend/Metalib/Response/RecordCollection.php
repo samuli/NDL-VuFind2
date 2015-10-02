@@ -96,4 +96,10 @@ class RecordCollection extends AbstractRecordCollection
             ? $this->response['query']['pageSize'] : 0;
         return $page * $size;
     }
+
+    public function getIRDInfo()
+    {
+        return isset($this->response['name']) ? $this->response['name'] : null;
+    }
+
 }

@@ -42,6 +42,61 @@ class Params extends \VuFind\Search\Base\Params
     use \Finna\Search\FinnaParams;
 
     /**
+     * TODO
+     *
+     * @var 
+     */
+    protected $irds;
+
+
+
+    /**
+     * Pull the search parameters
+     *
+     * @param \Zend\StdLib\Parameters $request Parameter object representing user
+     * request.
+     *
+     * @return void
+     */
+    public function initFromRequest($request)
+    {
+        parent::initFromRequest($request);
+        $this->metalibSearchSet = $request->get('set');        
+    }
+
+    /**
+     * TODO
+     *
+     * @return string|null
+     */
+    public function setIrds($irds)
+    {
+        $this->irds = $irds;
+    }
+
+    /**
+     * TODO
+     *
+     * @return string|null
+     */
+
+    public function getIrds()
+    {
+        return $this->irds;
+    }
+
+    /**
+     * TODO
+     *
+     * @return string|null
+     */
+
+    public function getMetalibSearchSet()
+    {
+        return $this->metalibSearchSet;
+    }
+
+    /**
      * Restore settings from a minified object found in the database.
      *
      * @param \VuFind\Search\Minified $minified Minified Search Object
@@ -50,6 +105,9 @@ class Params extends \VuFind\Search\Base\Params
      */
     public function deminifyFinnaSearch($minified)
     {
+        if (isset($minified->f_mset)) {
+            $this->metalibSearchSet = $minified->f_mset;
+        }
     }
 
     /**
@@ -67,7 +125,7 @@ class Params extends \VuFind\Search\Base\Params
         $finalSort = ($sort == 'relevance') ? null : $sort;
         $backendParams->set('sort', $finalSort);
         $backendParams->set('filterList', $this->filterList);
-
+        $backendParams->set('searchSet', $this->metalibSearchSet);
         return $backendParams;
     }
 

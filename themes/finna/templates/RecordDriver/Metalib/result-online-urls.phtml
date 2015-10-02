@@ -1,0 +1,34 @@
+<?
+$openUrl = $this->openUrl($this->driver, 'results');
+$openUrlActive = $openUrl->isActive();
+// Account for replace_other_urls setting
+$urls = $this->record($this->driver)->getLinkDetails($openUrlActive);
+
+$fulltextLinkAvailable = false;
+foreach ($urls as $url) {
+  if (!$url['citation']) {
+    $fulltextLinkAvailable = true;
+    break;
+  }
+}
+?>
+<div class="metalib-available-online">
+  <? if ($openUrlActive || !empty($urls)): ?>
+    <div class="heading"><strong><?=$this->transEsc('Electronic')?></strong></div>
+      <? foreach ($urls as $current): ?>
+        <? $format = $this->driver->getFormats(); $format = end($format); ?>
+        <a href="<?=$this->escapeHtmlAttr($this->proxyUrl($current['url']))?>" class="fulltext" target="_blank"><i class="fa fa-external-link"></i> <?=$this->truncateUrl($current['url'])?></a>
+      <? endforeach; ?>
+  <? endif; ?>
+
+  <? if ($openUrlActive): ?>
+    <?=$openUrl->renderTemplate()?>
+  <? endif; ?>
+
+  <? if (!$openUrlActive && empty($urls) && $this->driver->supportsAjaxStatus()): ?>
+    <span class="status ajax-availability hidden">
+      <span class="label label-default"><?=$this->transEsc('Loading')?>...</span>
+    </span>
+  <? endif; ?>
+</div>
+

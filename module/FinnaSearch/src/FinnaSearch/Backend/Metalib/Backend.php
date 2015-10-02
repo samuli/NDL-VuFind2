@@ -105,7 +105,7 @@ class Backend extends AbstractBackend
         $query = $this->paramBagToQuery($baseParams);
         try {
             $response = $this->connector->query(
-                $this->connector->getInstitutionCode(), $query['query'],
+                $this->connector->getInstitutionCode(), $query['query'],           
                 $query
             );
         } catch (\Exception $e) {
@@ -135,6 +135,8 @@ class Backend extends AbstractBackend
             $response   = $this->connector
                 ->getRecord($id, $this->connector->getInstitutionCode());
         } catch (\Exception $e) {
+            // TODO: check from database, this could be in a favorite list
+
             throw new BackendException(
                 $e->getMessage(),
                 $e->getCode(),

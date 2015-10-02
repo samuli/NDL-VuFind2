@@ -61,7 +61,7 @@
           <div></div>
         </div>
     </div>
-<div class="row results result-view-<? //$this->escapeHtmlAttr($this->params->getView())?>">
+<div class="row results result-view-<?= $this->escapeHtmlAttr($this->params->getView())?>">
   <div class="<?=$this->layoutClass('mainbody')?>">
 
     <? /* End Listing Options */ ?>
@@ -79,6 +79,21 @@
     </div>
   </div>
   <? /* End Main Listing */ ?>
+
+  <? /* Narrow Search Options */ ?>
+  <div class="<?=$this->layoutClass('sidebar')?>">
+    <?= $this->context($this)->renderInContext(
+        'metalib/sidebar.phtml', []
+     );
+    ?>
+    <? if ($template = $this->content()->findTemplateForLng("layout/Additions/search-post-facets")): ?>
+      <div class="row">
+        <div class="col-xs-12">
+          <?=$this->render($template)?>
+        </div>
+      </div>
+    <? endif; ?>
+  </div>
 
 </div>
 </div>
@@ -108,11 +123,11 @@
 </div>
 
 <?
-$script = <<<JS
+$script = '
 $(document).ready(function() {
-  finna.metalib.init(
-JS;
-$script .= "'" . $this->qs . "'";
-$script .= ');});'
+  finna.metalib.init("'
+. $this->escapeJs($currentSet) . '",'
+. "'" . $this->qs . "'"
+. ');});';
 ?>
 <?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $script, 'SET'); ?>
