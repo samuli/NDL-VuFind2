@@ -1,6 +1,6 @@
 <?php
 /**
- * Helper to check if a translation is empty
+ * Related Record Module Factory Class
  *
  * PHP version 5
  *
@@ -20,40 +20,36 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * @category VuFind2
- * @package  View_Helpers
+ * @package  Related_Records
  * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
+ * @link     http://vufind.org/wiki/vufind2:hierarchy_components Wiki
  */
-namespace Finna\View\Helper\Root;
+namespace Finna\Related;
+use Zend\ServiceManager\ServiceManager;
 
 /**
- * Helper to check if a translation is empty
+ * Related Record Module Factory Class
  *
  * @category VuFind2
- * @package  View_Helpers
+ * @package  Related_Records
  * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
+ * @link     http://vufind.org/wiki/vufind2:hierarchy_components Wiki
+ *
+ * @codeCoverageIgnore
  */
-class TranslationEmpty extends \Zend\View\Helper\AbstractHelper
-    implements \VuFind\I18n\Translator\TranslatorAwareInterface
+class Factory
 {
-    use \VuFind\I18n\Translator\TranslatorAwareTrait;
-
     /**
-     * Check if a translation is empty
+     * Factory for SimilarDeferred module.
      *
-     * @param string|object $str String to translate
+     * @param ServiceManager $sm Service manager.
      *
-     * @return bool
+     * @return Similar
      */
-    public function __invoke($str)
+    public static function getSimilarDeferred(ServiceManager $sm)
     {
-        $result = $this->translate($str, [], '');
-        // Existing empty translations will result in &#x200C, otherwise the default
-        // '' is returned
-        return $result === ''
-            || $result === html_entity_decode('&#x200C;', ENT_NOQUOTES, 'UTF-8');
+        return new SimilarDeferred();
     }
 }

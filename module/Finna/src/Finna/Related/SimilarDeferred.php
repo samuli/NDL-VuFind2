@@ -1,6 +1,6 @@
 <?php
 /**
- * Helper to check if a translation is empty
+ * Related Records: Solr-based similarity with AJAX loading
  *
  * PHP version 5
  *
@@ -20,40 +20,51 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * @category VuFind2
- * @package  View_Helpers
+ * @package  Related_Records
  * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
+ * @link     http://vufind.org/wiki/vufind2:building_a_related_record_module Wiki
  */
-namespace Finna\View\Helper\Root;
+namespace Finna\Related;
 
 /**
- * Helper to check if a translation is empty
+ * Related Records: Solr-based similarity with AJAX loading
  *
  * @category VuFind2
- * @package  View_Helpers
+ * @package  Related_Records
  * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
+ * @link     http://vufind.org/wiki/vufind2:building_a_related_record_module Wiki
  */
-class TranslationEmpty extends \Zend\View\Helper\AbstractHelper
-    implements \VuFind\I18n\Translator\TranslatorAwareInterface
+class SimilarDeferred implements \VuFind\Related\RelatedInterface
 {
-    use \VuFind\I18n\Translator\TranslatorAwareTrait;
+    /**
+     * Record ID
+     *
+     * @var string
+     */
+    protected $recordId;
 
     /**
-     * Check if a translation is empty
+     * Establishes base settings for making recommendations.
      *
-     * @param string|object $str String to translate
+     * @param string                            $settings Settings from config.ini
+     * @param \VuFind\RecordDriver\AbstractBase $driver   Record driver object
      *
-     * @return bool
+     * @return void
      */
-    public function __invoke($str)
+    public function init($settings, $driver)
     {
-        $result = $this->translate($str, [], '');
-        // Existing empty translations will result in &#x200C, otherwise the default
-        // '' is returned
-        return $result === ''
-            || $result === html_entity_decode('&#x200C;', ENT_NOQUOTES, 'UTF-8');
+        $this->recordId = $driver->getUniqueID();
+    }
+
+    /**
+     * Get the current record ID
+     *
+     * @return string
+     */
+    public function getRecordId()
+    {
+        return $this->recordId;
     }
 }
