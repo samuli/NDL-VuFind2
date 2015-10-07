@@ -26,7 +26,9 @@
  * @link     http://vufind.org/wiki/vufind2:building_a_controller Wiki
  */
 namespace Finna\Controller;
-use Zend\Cache\StorageFactory,
+use VuFindSearch\ParamBag as ParamBag,
+    VuFindSearch\Query\Query as Query,
+    Zend\Cache\StorageFactory,
     Zend\Feed\Reader\Reader,
     Zend\Http\Request as HttpRequest;
 
@@ -184,7 +186,8 @@ class AjaxController extends \VuFind\Controller\AjaxController
         }
 
         list($source, $id) = explode('.', $params['id'], 2);
-        $source = $source === 'pci' ? 'Primo' : 'VuFind';
+        $map = ['metalib' => 'Metalib', 'pci' => 'Primo'];
+        $source = isset($map[$source]) ? $map[$source] : 'VuFind';
 
         $listId = $params['listId'];
         $notes = $params['notes'];
@@ -1082,36 +1085,101 @@ class AjaxController extends \VuFind\Controller\AjaxController
      */
     public function metaLibAjax()
     {
+        // TODO: check if metalib is enabled
+
         $this->getRequest()->getQuery()->set('ajax', 1);
 
         $configLoader = $this->getServiceLocator()->get('VuFind\Config');
         $options = new \Finna\Search\Metalib\Options($configLoader);
         $params = new \Finna\Search\Metalib\Params($options, $configLoader);
         $params->initFromRequest($this->getRequest()->getQuery());
-        $params->setIrds($this->getCurrentMetalibIrds());
 
-        $view = $this->forwardTo('Metalib', 'Search');
-        $viewParams = ['results' => $view->results, 'metalib' => true, 'params' => $params];
-        
         $result = [];
-        $result['searchHash'] = $view->results->getSearchHash();
+        if ($irds = $this->getCurrentMetalibIrds()) {
+            $params->setIrds($irds);
+            $view = $this->forwardTo('Metalib', 'Search');
         
-        $result['content'] = $this->getViewRenderer()->render(
-            'search/list-list.phtml',
-            $viewParams
-        );
-        
-        $result['paginationBottom'] = $this->getViewRenderer()->render(
-            'metalib/pagination-bottom.phtml',
-            $viewParams
-        );
-        
-        $result['paginationTop'] = $this->getViewRenderer()->render(
-            'metalib/pagination-top.phtml',
-            $viewParams
-        );
-
+            $recordsFound = $view->results->getResultTotal() > 0;
+            $lookfor 
+                = $view->results->getUrlQuery()->isQuerySuppressed() 
+                ? '' : $view->params->getDisplayQuery();
+            
+            $viewParams = [
+                           'results' => $view->results, 
+                           'metalib' => true, 
+                           'params' => $params, 
+                           'lookfor' => $lookfor
+                           ];
+            
+            $result['searchHash'] = $view->results->getSearchHash();            
+            $result['content'] = $this->getViewRenderer()->render(
+                $recordsFound ? 'search/list-list.phtml' : 'metalib/nohits.phtml',
+                $viewParams
+            );            
+            $result['paginationBottom'] = $this->getViewRenderer()->render(
+                'metalib/pagination-bottom.phtml', $viewParams
+            );
+            $result['paginationTop'] = $this->getViewRenderer()->render(
+                'metalib/pagination-top.phtml', $viewParams
+            );
+            $result['searchTools'] = $this->getViewRenderer()->render(
+                'metalib/search-tools.phtml', $viewParams
+            );
+            if ($failed = $view->results->getFailedDatabases()) {
+                $result['failed'] = $this->getViewRenderer()->render(
+                    'metalib/statuses.phtml', $failed
+                );
+            }
+            $viewParams 
+                = array_merge(
+                    $viewParams, 
+                    [
+                     'lookfor' => $lookfor,
+                     'overrideSearchHeading' => null,
+                     'startRecord' => $view->results->getStartRecord(),
+                     'endRecord' => $view->results->getEndRecord(),
+                     'recordsFound' => $recordsFound,
+                     'searchType' => $view->params->getsearchType()
+                     ]
+                );
+            $result['header'] = $this->getViewRenderer()->render(
+                'search/header.phtml', $viewParams
+            );
+        } else {
+            $result['content'] = $result['paginationBottom'] = '';
+        }
         return $this->output($result, self::STATUS_OK);
+    }
+
+    public function metalibLinksAjax()
+    {
+        // TODO: check if metalib is enabled
+
+        $auth = $this->serviceLocator->get('ZfcRbac\Service\AuthorizationService');
+        $authorized = 1; //$auth->isGranted('finna.authorized');
+        $query = new Query();
+        $metalib = $this->getServiceLocator()->get('VuFind\Search');
+
+        $results = [];
+        $ids = $this->getRequest()->getQuery()->get('id');
+        foreach ($ids as $id) {
+            //list($source, $ird) = explode('.', $id);
+
+            $backendParams = new ParamBag();
+            $backendParams->add('irdInfo', [$id]);
+            $result = $metalib->search('Metalib', $query, false, false, $backendParams);
+            $info = $result->getIRDInfo();
+
+            $status = null;
+            if ($info && ($authorized || strcasecmp($info['access'], 'guest') == 0)) {
+                $status = $info['searchable'] ? 'allowed' : 'nonsearchable';
+            } else {
+                $status = 'denied';
+            }
+            $results = ['id' => $id, 'status' => $status];
+        }
+
+        return $this->output($results, self::STATUS_OK);
     }
 
     /**

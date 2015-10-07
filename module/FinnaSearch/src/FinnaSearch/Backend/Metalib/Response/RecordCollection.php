@@ -99,7 +99,34 @@ class RecordCollection extends AbstractRecordCollection
 
     public function getIRDInfo()
     {
-        return isset($this->response['name']) ? $this->response['name'] : null;
+        $result = [];
+        if (isset($this->response['name'])) {
+            $result['name'] = $this->response['name'];
+        }
+        
+        if (isset($this->response['searchable'])) {
+            $result['searchable'] = $this->response['searchable'];
+        }
+
+        if (isset($this->response['access'])) {
+            $result['access'] = $this->response['access'];
+        }
+        
+        return $result; 
+    }
+    
+    public function getFailedDatabases()
+    {
+        $failed = [];
+        $failed['failed'] 
+            = isset($this->response['failedDatabases']) && !empty($this->response['failedDatabases'])
+            ? $this->response['failedDatabases'] : [];
+
+        $failed['disallowed'] 
+            = isset($this->response['disallowedDatabases']) && !empty($this->response['disallowedDatabases'])
+            ? $this->response['disallowedDatabases'] : [];
+
+        return $failed;
     }
 
 }

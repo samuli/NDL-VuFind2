@@ -91,14 +91,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
      *
      * @var boolean
      */
-    protected $caseSensitiveBooleans;
-
-    /**
-     * TODO
-     *
-     * @var boolean
-     */
-    protected $snippets;
+    protected $luceneHelper;
 
     /**
      * Session container
@@ -138,17 +131,15 @@ class Connector implements \Zend\Log\LoggerAwareInterface
      * @param string     $apiId  Primo API ID
      * @param string     $inst   Institution code
      * @param HttpClient $client HTTP client
-     * @param int        $port   API connection port
      */
-    public function __construct($institution, $url, $user, $pass, $client, $cacheManager, AuthorizationService $authService, $sets, $port = 1701)
+    public function __construct($institution, $url, $user, $pass, $client, $luceneHelper, $cacheManager, AuthorizationService $authService, $sets)
     {
         $this->inst = $institution;
         $this->host = $url;
         $this->client = $client;
+        $this->luceneHelper = $luceneHelper;
         $this->user = $user;
-        $this->pass = $pass;
-        $this->caseSensitiveBooleans = false;
-        $this->snippets = true;
+        $this->pass = $pass;        
         $this->session = new SessionContainer('Metalib');
         $this->cache = $cacheManager;
         $this->auth = $authService;
@@ -182,8 +173,6 @@ class Connector implements \Zend\Log\LoggerAwareInterface
      */
     public function query($institution, $terms, $params = null)
     {
-        //die("query terms: " . var_export($terms,true) . ", params: " . var_export($params,true));
-
         try {
             $sessionId = $this->getSession();
         } catch (\Exception $e) {
@@ -275,21 +264,13 @@ class Connector implements \Zend\Log\LoggerAwareInterface
      */
     protected function performSearch($institution, $terms, $args)
     {
-        //die("perform: " . var_dump($args));
         $qs = $this->buildQuery($terms);
         
         if (!$qs) {
             throw new \Exception('Search terms are required');
         }
-        // aapeli FIN15098
-        // FIN17393 arto
+
         $authorized = 1; //$this->auth->isGranted('finna.authorized');
-
-        // ebsco FIN04150
-        // aalto FIN15994
-        // aalto FIN43250
-        // FIN33055 proquest
-
         $irdList = $args['searchSet'];
 
         if (strncmp($irdList, '_ird:', 5) != 0) {
@@ -337,38 +318,27 @@ class Connector implements \Zend\Log\LoggerAwareInterface
 
         // Use a metalib. prefix everywhere so that it's easy to see the record source
         $queryId = 'metalib.' . md5($irdList . '_' . $qs . '_' . $start . '_' . $limit);
-
+        
         $findResults = $this->getCachedResults($queryId);
         if ($findResults !== false && empty($findResults['failedDatabases']) && empty($findResults['disallowedDatabases'])) {
             return $findResults;
         }
         
         try {
-            $databases = $this->getDatabases($options);
+            $databases = $this->getDatabases($options, $irdData);
 
-            /*
-            $this->session->MetaLibFindResponse = [ 
-               'requestId' => $findRequestId,               
-               'databases' => $databases['databases'],
-               'totalRecords' => $databases['totalRecords'],
-               'failed' => $databases['failed'],
-               //'disallowed' => $disallowed,
-               'successes' => $databases['successes']
-            ];
-            */
-            
             $records = $this->searchDatabases($databases['databases'], $sessionId, $queryId, $limit, $start);
             $results = [
                 'query' => ['pageNumber' => $start, 'pageSize' => $limit],
                 'totalRecords' => $databases['totalRecords'],
                 'documents' => $records,
                 'successDatabases' => $databases['successes'],
-                'failedDatabases' => $databases['failed']
+                'failedDatabases' => $databases['failed'],
+                'disallowedDatabases' => $irdData['disallowed']
             ];
-
-            //$this->session->MetaLibFindResponse = $results;
         } catch (Exception $e) {
-            throw new \Exception('Primo API does not accept a null query');
+            throw new \Exception($e->getMessage());
+
         }
         $this->putCachedResults($queryId, $results);
         return $results;
@@ -382,7 +352,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
      * @return string       The query
      * @access protected
      */
-    protected function getDatabases($options)
+    protected function getDatabases($options, $irdInfoArray)
     {
         $findResults = $this->call('find_request', $options);
 
@@ -414,15 +384,6 @@ class Connector implements \Zend\Log\LoggerAwareInterface
                                  );
             $successes[] = $databaseInfo;
         }
-        /*
-        $this->session->MetaLibFindResponse = [ 
-            'databases' => $databases,
-            'totalRecords' => $totalRecords,
-            'failed' => $failed,
-            //'disallowed' => $disallowed,
-            'successes' => $successes
-        ];
-        */
         return compact('databases', 'successes', 'failed', 'totalRecords');
     }
 
@@ -551,15 +512,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
                 $i++;
             }
         }
-        /*
-        $results = array(
-            'documents' => $documents,
-            //'failedDatabases' => $failed,
-            //'disallowedDatabases' => $disallowed,
-            //'successDatabases' => $successes
-        );
-        */
-        return $documents; //results;
+        return $documents;
     }
 
     /**
@@ -607,10 +560,9 @@ class Connector implements \Zend\Log\LoggerAwareInterface
 
                     // Force boolean operators to uppercase if we are in a
                     // case-insensitive mode:
-                    /*
-                    if (!$this->caseSensitiveBooleans) {
-                        $lookfor = VuFindSolrUtils::capitalizeBooleans($lookfor);
-                        }*/
+                    if ($this->luceneHelper) {
+                        $lookfor = $this->luceneHelper->capitalizeBooleans($lookfor);
+                    }
 
                     $map = [
                         'Title' => 'WTI', 
@@ -677,10 +629,6 @@ class Connector implements \Zend\Log\LoggerAwareInterface
         }
 
         $result = $xml;
-        /*
-        if ($process) {
-            $result = $this->process($result);
-            }*/
         return $result;
     }
 
@@ -726,8 +674,6 @@ class Connector implements \Zend\Log\LoggerAwareInterface
      */
     protected function process($record, $openURL = false)
     {
-        //echo(var_export($record,true));
-
         $record->registerXPathNamespace('m', 'http://www.loc.gov/MARC21/slim');
 
         // TODO: can we get anything reliable from MetaLib results for format?
@@ -801,10 +747,6 @@ class Connector implements \Zend\Log\LoggerAwareInterface
                         }
                     }
                 }
-                /*
-                if (!empty($openurlParams)) {
-                    $openurlParams['rfr_id'] = $openURL['rfr_id'];
-                    }*/
             }
         }
 
@@ -849,11 +791,6 @@ class Connector implements \Zend\Log\LoggerAwareInterface
             }
         }
         $hostTitle = explode('. ', $this->getSingleValue($record, '773t'), 2);
-
-        /*
-        if ($hostTitle && $field773g) {
-            $hostTitle .= " $field773g";
-            }*/
 
         $year = str_replace('^^^^', '', $year);
         return [
@@ -965,22 +902,20 @@ class Connector implements \Zend\Log\LoggerAwareInterface
     }
 
     protected function getIRDInfos($irds, $authorized)
-    {       
-        
+    {              
         $allowed = $disallowed = $failed = $info = [];
-        //$irdInfoArray = [];
         foreach ($irds as $ird) {
             try {
                 $irdInfo = $this->getIRDInfo($ird);
 
                 if (strcasecmp($irdInfo['access'], 'guest') != 0 && !$authorized) {
-                    $disallowed[] = $irdInfo;
+                    $disallowed[] = $irdInfo['name'];
                 } else {
                     $allowed[] = $ird;
                     $info[$irdInfo['name']] = $irdInfo;
                 }                
             } catch (Excpetion $e) {
-                $failed[] = $ird;
+                $failed[] = $irdInfo['name'];
             }
         }
         return compact('allowed', 'disallowed', 'failed', 'info');

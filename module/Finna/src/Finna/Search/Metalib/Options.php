@@ -83,4 +83,9 @@ class Options extends \VuFind\Search\Base\Options
         return 'metalib-search';
     }
 
+    public function getAdvancedSearchAction()
+    {
+        return 'metalib-advanced';
+    }
+
 }

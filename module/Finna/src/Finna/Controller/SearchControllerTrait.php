@@ -148,6 +148,9 @@ trait SearchControllerTrait
         list($isIrd, $set) = $this->getCurrentMetalibSet();
         if (!$isIrd) {
             $allowedSets = $this->getMetalibSets();
+            if (!isset($allowedSets[$set]['ird_list'])) {
+                return false;
+            }
             $set = $allowedSets[$set]['ird_list'];
         }
         return explode(',', $set);

@@ -1,6 +1,6 @@
 <?php
 /**
- * Primo Central Record Controller
+ * Primo Central Index view helper
  *
  * PHP version 5
  *
@@ -20,49 +20,41 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  *
  * @category VuFind2
- * @package  Controller
- * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
+ * @package  View_Helpers
+ * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org   Main Site
+ * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
-namespace Finna\Controller;
+namespace Finna\View\Helper\Root;
 
 /**
- * Primo Central Record Controller
+ * Primo Central Index view helper
  *
  * @category VuFind2
- * @package  Controller
- * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
+ * @package  View_Helpers
+ * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org   Main Site
+ * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
-class MetalibrecordController extends \VuFind\Controller\AbstractRecord //RecordController
+class Metalib extends \Zend\View\Helper\AbstractHelper
 {
-    use RecordControllerTrait;
-
-
     /**
      * Constructor
+     *
+     * @param \VuFind\Config\PluginManager $config Primo configuration
      */
-    public function __construct()
+    public function __construct($config)
     {
-        // Override some defaults:
-        $this->searchClassId = 'Metalib';
-
-        // Call standard record controller initialization:
-        parent::__construct();
+        $this->config = $config;
     }
 
     /**
-     * Is the result scroller active?
+     * Check if PCI is available
      *
      * @return bool
      */
-    protected function resultScrollerActive()
+    public function isAvailable()
     {
-        $config = $this->getServiceLocator()->get('VuFind\Config')->get('Primo');
-        return (isset($config->Record->next_prev_navigation)
-            && $config->Record->next_prev_navigation);
+        return !empty($this->config['General']['institution']);
     }
-
 }

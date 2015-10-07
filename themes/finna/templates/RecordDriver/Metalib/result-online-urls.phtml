@@ -3,14 +3,6 @@ $openUrl = $this->openUrl($this->driver, 'results');
 $openUrlActive = $openUrl->isActive();
 // Account for replace_other_urls setting
 $urls = $this->record($this->driver)->getLinkDetails($openUrlActive);
-
-$fulltextLinkAvailable = false;
-foreach ($urls as $url) {
-  if (!$url['citation']) {
-    $fulltextLinkAvailable = true;
-    break;
-  }
-}
 ?>
 <div class="metalib-available-online">
   <? if ($openUrlActive || !empty($urls)): ?>

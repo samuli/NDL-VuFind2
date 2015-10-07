@@ -26,7 +26,12 @@
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
 namespace Finna\Controller;
-use VuFindSearch\ParamBag as ParamBag,
+use Finna\Search\Metalib\Options as Options,
+    Finna\Search\Metalib\Params as Params,
+    Finna\Search\Metalib\Results as Results,
+    Finna\Search\Results\Factory as Factory,
+    VuFindSearch\ParamBag as ParamBag,
+    VuFindSearch\Query\Query as Query,
     Zend\Session\Container as SessionContainer;
 
 /**
@@ -58,7 +63,12 @@ class MetalibController extends \VuFind\Controller\AbstractSearch
      */
     public function homeAction()
     {
-        return $this->createViewModel();
+        $view = $this->createViewModel();
+        $this->layout()->searchClassId = $this->searchClassId;
+        $query = new Query();
+        $view = $this->initSets($view, $query);
+        $this->layout()->metalibSet = $this->getRequest()->getQuery()->get('set');
+        return $view;
     }
 
     /**
@@ -68,65 +78,87 @@ class MetalibController extends \VuFind\Controller\AbstractSearch
      */
     public function searchAction()
     {  
-        if ($this->getRequest()->getQuery()->get('ajax')) {
+        $query = $this->getRequest()->getQuery();
+        if ($query->get('ajax') || $query->get('view') == 'rss') {
             $view = parent::resultsAction();
         } else {
+            
             $configLoader = $this->getServiceLocator()->get('VuFind\Config');
-            $options = new \Finna\Search\Metalib\Options($configLoader);
-            $params = new \Finna\Search\Metalib\Params($options, $configLoader);
-            $params->initFromRequest($this->getRequest()->getQuery());
-            $params->setIrds($this->getCurrentMetalibIrds());
-
-            $results = new \Finna\Search\Metalib\Results($params);
+            $options = new Options($configLoader);
+            $params = new Params($options, $configLoader);
+            $params->initFromRequest($query);
+            if ($irds = $this->getCurrentMetalibIrds()) {
+                $params->setIrds($this->getCurrentMetalibIrds());
+            }
+            $results = new Results($params);
             $results 
-                = \Finna\Search\Results\Factory::initUrlQueryHelper(
+                = Factory::initUrlQueryHelper(
                     $results, $this->getServiceLocator()
                 );
-
-            $view = $this->createViewModel();
+            
+            $view = $this->createViewModel();            
             $view->qs = $this->getRequest()->getUriString();
             $view->params = $params;
             $view->results = $results;
+            
             $view->disablePiwik = true;
-
-            $allowedSets = $this->getMetalibSets();
-            $sets = [];
-            foreach ($allowedSets as $key => $set) {
-                $sets[$key] = $set['name'];
-            }
-            $view->sets = $sets;
-            list($isIrd, $set) = $this->getCurrentMetalibSet();
-
-            $view->currentSet = $set;
-
-            $session = new SessionContainer('Metalib');
-            if ($isIrd) {
-                //unset($session->recentSets);
-                //die();
-
-                $metalib = $this->getServiceLocator()->get('VuFind\Search');
-
-                $backendParams = new ParamBag();
-                $backendParams->add('irdInfo', explode(',', substr($set, 5)));
-                $result = $metalib->search('Metalib', $params->getQuery(), false, false, $backendParams);
-                $name = $result->getIRDInfo();
-                if (!$name) {
-                    $name = $set;
-                }
-                //die("res: " . var_export($result, true));
-
-                if (!isset($session->recentSets)) {
-                    $session->recentSets = [];
-                }
-                $session->recentSets[$set] = $isIrd ? $name : $sets[$set];
-            }
-
-            $view->recentSets 
-                = isset($session->recentSets) ? $session->recentSets : [];
+            $view = $this->initSets($view, $params->getQuery());
         }
 
         $this->initSavedTabs();
 
         return $view;
     }
+
+    protected function initSets($view, $query)
+    {
+        $allowedSets = $this->getMetalibSets();
+        $sets = [];
+        foreach ($allowedSets as $key => $set) {
+            $sets[$key] = $set['name'];
+        }
+        $view->sets = $sets;
+        list($isIrd, $set) = $this->getCurrentMetalibSet();
+        
+        $view->currentSet = $set;
+        
+        $session = new SessionContainer('Metalib');
+        if ($isIrd) {
+            //unset($session->recentSets);
+            //die();
+            
+            $metalib = $this->getServiceLocator()->get('VuFind\Search');
+            
+            $backendParams = new ParamBag();
+            $backendParams->add('irdInfo', explode(',', substr($set, 5)));
+            $result = $metalib->search('Metalib', $query, false, false, $backendParams);
+            $info = $result->getIRDInfo();
+            $name = $info ? $info['name'] : $set;
+            
+            if (!isset($session->recentSets)) {
+                $session->recentSets = [];
+            }
+            unset($session->recentSets[$set]);
+            $session->recentSets[$set] = $isIrd ? $name : $sets[$set];
+        }
+        
+        $view->recentSets 
+            = isset($session->recentSets) ? array_reverse($session->recentSets) : [];
+        
+        return $view;
+    }
+
+    /**
+     * Is the result scroller active?
+     *
+     * @return bool
+     */
+    protected function resultScrollerActive()
+    {
+        return true;
+        $config = $this->getServiceLocator()->get('VuFind\Config')->get('Metalib');
+        return (isset($config->Record->next_prev_navigation)
+            && $config->Record->next_prev_navigation);
+    }
+
 }

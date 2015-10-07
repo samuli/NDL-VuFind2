@@ -37,10 +37,7 @@
 
     // Set up Finna Main Header:
 
-    $this->layout()->finnaMainHeader = $this->context($this)->renderInContext(
-        'metalib/header.phtml', []
-     );
-
+    $this->layout()->finnaMainHeader = '&nbsp;';
 
   // Enable cart if appropriate:
 //  $this->showCartControls = $this->params->getOptions()->supportsCart() && $this->cart()->isActive();
@@ -53,25 +50,28 @@
   $this->headScript()->appendFile("finna-metalib.js");
 
 ?>
-    <?=$this->flashmessages()?>
-    <div class="hidden-print search-controls row">
-        <div class="col-sm-7 col-sm-push-5 col-md-8 col-md-push-4 text-right">          
-        </div>
-        <div class="col-sm-5 col-md-4 col-sm-pull-7 col-md-pull-8 pagination">
-          <div></div>
-        </div>
-    </div>
+<?=$this->flashmessages()?>
+
+<div class="hidden-print search-controls row">
+  <div class="col-sm-7 col-sm-push-5 col-md-8 col-md-push-4 text-right"></div>
+  <div class="col-sm-5 col-md-4 col-sm-pull-7 col-md-pull-8 pagination">
+    <div></div>
+  </div>
+</div>
 <div class="row results result-view-<?= $this->escapeHtmlAttr($this->params->getView())?>">
   <div class="<?=$this->layoutClass('mainbody')?>">
 
     <? /* End Listing Options */ ?>
-
     <div class="row">
       <form class="form-inline col-xs-12" method="post" name="bulkActionForm" action="<?=$this->url('cart-home')?>">
         <?=$this->context($this)->renderInContext('search/bulk-action-buttons.phtml', array('idPrefix' => ''))?>
         <?= $this->authorizationNote($searchClassId) ?>
         <div class="ajax-results">
-          <div class="loading"><i class="fa fa-spin fa-spinner"></i><div><?=$this->transEsc('metalib_loading')?></div></div>
+          <div class="loading">
+            <div class="txt"><?=$this->transEsc('metalib_loading')?> <span class="page"></span></div>
+            <i class="fa fa-spin fa-spinner"></i>
+            <div><?=$this->transEsc('metalib_loading_set')?> <span class="set"></span></div>
+          </div>
           <div class="holder"></div>
         </div>
         <?=$this->context($this)->renderInContext('search/bulk-action-buttons.phtml', array('idPrefix' => 'bottom_'))?>
@@ -79,49 +79,29 @@
     </div>
   </div>
   <? /* End Main Listing */ ?>
-
+  
   <? /* Narrow Search Options */ ?>
   <div class="<?=$this->layoutClass('sidebar')?>">
     <?= $this->context($this)->renderInContext(
-        'metalib/sidebar.phtml', []
-     );
+    'metalib/sidebar.phtml', []
+  );
     ?>
     <? if ($template = $this->content()->findTemplateForLng("layout/Additions/search-post-facets")): ?>
-      <div class="row">
-        <div class="col-xs-12">
-          <?=$this->render($template)?>
-        </div>
+    <div class="row">
+      <div class="col-xs-12">
+        <?=$this->render($template)?>
       </div>
+    </div>
     <? endif; ?>
   </div>
-
 </div>
 </div>
-<div class="container-fluid searchtools-background">
-  <div class="container">
-    <div class="row">
-      <div class="searchtools hidden-print col-xs-12">
-        <a href="<? //$this->results->getUrlQuery()->setViewParam('rss')?>"><i class="fa fa-bell"></i> <?=$this->transEsc('Get RSS Feed')?></a>
-
-        <a href="<?=$this->url('search-email')?>" class="mailSearch modal-link" id="mailSearch<? //$this->escapeHtmlAttr($this->results->getSearchId())?>" title="<?=$this->transEsc('Email this Search')?>"><i class="fa fa-envelope"></i> <?=$this->transEsc('Email this Search')?></a>
-
-        <? if (false): ?>
-        <? //if (is_numeric($this->results->getSearchId())): ?>
-          <? if ($this->results->isSavedSearch()): ?>
-            <a href="<?=$this->url('myresearch-savesearch')?>?delete=<?=urlencode($this->results->getSearchId())?>"><i class="fa fa-remove"></i> <?=$this->transEsc('save_search_remove')?></a>
-          <? else: ?>
-            <a href="<?=$this->url('myresearch-savesearch')?>?save=<?=urlencode($this->results->getSearchId())?>"><i class="fa fa-plus-square"></i> <?=$this->transEsc('save_search')?></a>
-          <? endif; ?>
-        <? endif; ?>
-      </div>
-  </div>
-</div>
+<div class="container-fluid searchtools-background">&nbsp;</div>
 <div class="mobile-navigation brand-primary visible-xs">
   <ul>
     <li class="sidebar-navigation"><i class="fa fa-arrow-up fa-arrow-down"></i> <?=$this->transEsc('Narrow Search')?> <span class="active-filters hidden"><?=$this->transEsc('Active filters')?>: </span></li>
   </ul>
 </div>
-
 <?
 $script = '
 $(document).ready(function() {

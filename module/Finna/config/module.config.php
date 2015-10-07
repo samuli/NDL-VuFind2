@@ -290,7 +290,7 @@ $dynamicRoutes = [
 
 $staticRoutes = [
    'Browse/Database', 'Browse/Journal',
-   'Metalib/Home', 'Metalib/Search',
+   'Metalib/Home', 'Metalib/Search', 'Metalib/Advanced',
    'PCI/Home', 'PCI/Search', 'PCI/Record'
 ];
 

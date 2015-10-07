@@ -130,7 +130,20 @@ class MetaLibBackendFactory implements FactoryInterface
             ? $this->config->General->timeout : 30;
         $client->setOptions(['timeout' => $timeout]);
 
-        $connector = new Connector($institution, $host, $user, $pass, $client, $cacheManager, $auth, $sets, $port);
+        $luceneHelper = null;
+        if (isset($this->config->General->case_sensitive_bools) && $this->config->General->case_sensitive_bools) {
+            $solr = $this->serviceLocator->get('Solr');        
+            if (is_callable([$solr, 'getQueryBuilder'])) {
+                if ($qb = $solr->getQueryBuilder()) {
+                    if (is_callable([$qb, 'getLuceneHelper'])) {
+                        $luceneHelper = $qb->getLuceneHelper();
+                    }
+                } 
+            }
+        }
+
+
+        $connector = new Connector($institution, $host, $user, $pass, $client, $luceneHelper, $cacheManager, $auth, $sets, $port);
         $connector->setLogger($this->logger);
         return $connector;
     }

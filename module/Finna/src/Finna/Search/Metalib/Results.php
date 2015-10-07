@@ -41,7 +41,9 @@ class Results extends \VuFind\Search\Base\Results
 {
     use \Finna\Search\Results\SearchResultsTrait;
 
-    protected $irdList;
+    //protected $irdList;
+
+    protected $failed;
 
     /**
      * Support method for performAndProcessSearch -- perform a search based on the
@@ -65,7 +67,7 @@ class Results extends \VuFind\Search\Base\Results
 
         // Construct record drivers for all the items in the response:
         $this->results = $collection->getRecords();
-
+        $this->failed = $collection->getFailedDatabases();
     }
     /**
      * Returns the stored list of facets for the last search
@@ -79,5 +81,12 @@ class Results extends \VuFind\Search\Base\Results
     {
         return [];
     }
+
+
+    public function getFailedDatabases()
+    {
+        return $this->failed;
+    }
+
 
 }

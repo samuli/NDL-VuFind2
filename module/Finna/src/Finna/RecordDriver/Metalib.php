@@ -164,4 +164,15 @@ class Metalib extends \VuFind\RecordDriver\SolrMarc
         // Support export for EndNote and RefWorks
         return !in_array($format, ['EndNote', 'RefWorks']);
     }
+
+    /**
+     * Returns true if the record supports real-time AJAX status lookups.
+     *
+     * @return bool
+     */
+    public function supportsAjaxStatus()
+    {
+        return false;
+    }
+
 }

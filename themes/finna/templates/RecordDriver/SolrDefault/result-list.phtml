@@ -131,6 +131,11 @@
 
     <?=$this->partial('RecordDriver/SolrDefault/holdings.phtml') ?>
     <?=$this->record($this->driver)->getOnlineUrls('results')?>
+    <? $formats = $this->driver->getFormats(); ?>      
+    <?= (!empty($formats) && strstr($formats[0]->__toString(), '0/Database') !== false)
+       ? $this->partial('RecordDriver/Metalib/search-link.phtml', ['id' => $this->driver->getUniqueID()])
+       : ''
+    ?>
     <?=$this->record($this->driver)->getPreviews()?>
 
   </div>

@@ -12,6 +12,7 @@ return array(
             'indexedTotal' => 'Finna\View\Helper\Root\Factory::getTotalIndexed',
             'layoutclass' => 'Finna\View\Helper\Root\Factory::getLayoutClass',
             'logoutMessage' => 'Finna\View\Helper\Root\Factory::getLogoutMessage',
+            'metalib' => 'Finna\View\Helper\Root\Factory::getMetalib',          
             'navibar' => 'Finna\View\Helper\Root\Factory::getNavibar',
             'openUrl' => 'Finna\View\Helper\Root\Factory::getOpenUrl',
             'organisationsList'
