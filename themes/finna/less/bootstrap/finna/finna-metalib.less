@@ -11,7 +11,15 @@
     }
 }
 .main.template-dir-metalib {
+    .mobile-navigation .active-filters {
+        display: none;
+    }
+
+    & .search-controls.search-advanced {
+        margin-top: 30px;
+    }
     & .loading {
+        margin: 20px;
         text-align: center;
         & .txt {
             font-weight: bold;
@@ -34,6 +42,17 @@
         margin-left: 2px;
         margin-top: 10px;
 
+        @media(max-width: @screen-xs-max) {
+            margin: 10px;
+        }
+
+        & label {
+            margin-left: 22px;
+            & input {
+                margin-left: -24px;
+            }
+        }
+
         &.recent {
             padding-top: 10px;
             border-top: 1px @gray-light solid;
@@ -42,5 +61,10 @@
             }
         }
     }
-    
+
+    .metalib-available-online {
+        @media(max-width: @screen-xs-max) {
+            margin-bottom: 10px;
+        }
+    }
 }

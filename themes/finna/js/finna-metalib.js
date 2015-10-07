@@ -76,9 +76,9 @@ finna.metalib = (function() {
                 }
                 if (response.data['content']) {
                     html += response.data['content'];
-                }
-                if (response.data['paginationBottom']) {
-                    html += response.data['paginationBottom'];
+                    if (response.data['paginationBottom']) {
+                        html += response.data['paginationBottom'];
+                    }
                 }
                 holder.find('.holder').html(html);
 
@@ -90,6 +90,7 @@ finna.metalib = (function() {
                 initSearchTools();
                 finna.layout.init();
                 finna.openUrl.initLinks();
+                finna.layout.initMobileNarrowSearch();
                 scrollToRecord();
 
                 console.log("fail: %o", response.data['failed']);

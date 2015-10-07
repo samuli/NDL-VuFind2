@@ -41,6 +41,8 @@ class Params extends \VuFind\Search\Base\Params
 {
     use \Finna\Search\FinnaParams;
 
+    const SPATIAL_DATERANGE_FIELD = null;
+
     /**
      * TODO
      *

@@ -53,6 +53,23 @@ class MetalibrecordController extends \VuFind\Controller\AbstractRecord //Record
         parent::__construct();
     }
 
+    protected function showTab($tab, $ajax = false)
+    {
+        $view = parent::showTab($tab, $ajax);
+
+        $memory = $this->getServiceLocator()->get('VuFind\Search\Memory');
+        if ($last = $memory->retrieve()) {
+            $parts = parse_url($last);
+            if (isset($parts['query'])) {
+                parse_str($parts['query'], $params);
+                if (isset($params['set'])) {
+                    $view->metalibSet = $params['set'];
+                }
+            }
+        }
+        return $view;
+    }
+    
     /**
      * Is the result scroller active?
      *

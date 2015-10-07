@@ -24,6 +24,7 @@
       $openUrlActive = $openUrl->isActive();
       // Account for replace_other_urls setting
       $urls = $this->record($this->driver)->getLinkDetails($openUrlActive);
+      $linkParams = isset($this->metalibSet) ? ['set' => $this->metalibSet] : [];
     ?>
 
     <? if (!empty($urls) || $openUrlActive): ?>
@@ -50,7 +51,7 @@
       <? endif; ?>
     <? $authors = $this->driver->getDeduplicatedAuthors(); ?>
       <? if (isset($authors['main']) && !empty($authors['main'])): ?>
-        <span property="author"><a href="<?=$this->record($this->driver)->getLink('author', $authors['main'])?>"><?=$this->escapeHtml($authors['main'])?></a></span>
+        <span property="author"><a href="<?=$this->record($this->driver)->getLink('author', $authors['main'], false, $linkParams)?>"><?=$this->escapeHtml($authors['main'])?></a></span>
       <? endif; ?>
       <?
         $journalTitle = $this->driver->getContainerTitle();
@@ -59,7 +60,7 @@
       <? if (!empty($journalTitle)): ?>
         <?=$this->transEsc('Published in')?>:
           <? $containerID = $this->driver->getContainerRecordID(); ?>
-          <a href="<?=($containerID ? $this->recordLink()->getUrl("VuFind|$containerID") : $this->record($this->driver)->getLink('journaltitle', $journalTitle))?>"><?=$this->escapeHtml($journalTitle)?></a>
+          <a href="<?=($containerID ? $this->recordLink()->getUrl("VuFind|$containerID") : $this->record($this->driver)->getLink('journaltitle', $journalTitle, false, $linkParams))?>"><?=$this->escapeHtml($journalTitle)?></a>
           <? $ref = $this->driver->getContainerReference(); if (!empty($ref)) { echo $this->escapeHtml($ref); } ?>
       <? elseif (!empty($summDate)): ?>
         <?=!empty($summAuthor) ? '' : ' '?>
@@ -68,13 +69,13 @@
       <? if (isset($authors['corporate']) && !empty($authors['corporate'])): ?>
       <br>
         <?=$this->transEsc('Corporate Author')?>:
-        <span property="creator"><a href="<?=$this->record($this->driver)->getLink('author', $authors['corporate'])?>"><?=$this->escapeHtml($authors['corporate'])?></a></span>
+        <span property="creator"><a href="<?=$this->record($this->driver)->getLink('author', $authors['corporate'], false, $linkParams)?>"><?=$this->escapeHtml($authors['corporate'])?></a></span>
       <? endif; ?>
 
       <? if (isset($authors['secondary']) && !empty($authors['secondary'])): ?>
       <br>
         <?=$this->transEsc('Other Authors')?>:
-          <? $i = 0; foreach ($authors['secondary'] as $field): ?><?=($i++ == 0)?'':', '?><span property="contributor"><a href="<?=$this->record($this->driver)->getLink('author', $field)?>"><?=$this->escapeHtml($field)?></a></span><? endforeach; ?>
+          <? $i = 0; foreach ($authors['secondary'] as $field): ?><?=($i++ == 0)?'':', '?><span property="contributor"><a href="<?=$this->record($this->driver)->getLink('author', $field, false, $linkParams)?>"><?=$this->escapeHtml($field)?></a></span><? endforeach; ?>
       <? endif; ?>
       </div>
 
@@ -89,7 +90,7 @@
         <th><?=$this->transEsc('New Title')?>: </th>
         <td>
           <? foreach($nextTitles as $field): ?>
-            <a href="<?=$this->record($this->driver)->getLink('title', $field)?>"><?=$this->escapeHtml($field)?></a><br/>
+            <a href="<?=$this->record($this->driver)->getLink('title', $field, false, $linkParams)?>"><?=$this->escapeHtml($field)?></a><br/>
           <? endforeach; ?>
         </td>
       </tr>
@@ -100,7 +101,7 @@
         <th><?=$this->transEsc('Previous Title')?>: </th>
         <td>
           <? foreach($prevTitles as $field): ?>
-            <a href="<?=$this->record($this->driver)->getLink('title', $field)?>"><?=$this->escapeHtml($field)?></a><br/>
+            <a href="<?=$this->record($this->driver)->getLink('title', $field, false, $linkParams)?>"><?=$this->escapeHtml($field)?></a><br/>
           <? endforeach; ?>
         </td>
       </tr>
@@ -162,14 +163,14 @@
                name.  We should account for both cases to maximize compatibility. */?>
             <? if (is_array($field)): ?>
               <? if (!empty($field['name'])): ?>
-                <a href="<?=$this->record($this->driver)->getLink('series', $field['name'])?>"><?=$this->escapeHtml($field['name'])?></a>
+                <a href="<?=$this->record($this->driver)->getLink('series', $field['name'], false, $linkParams)?>"><?=$this->escapeHtml($field['name'])?></a>
                 <? if (!empty($field['number'])): ?>
                   <?=$this->escapeHtml($field['number'])?>
                 <? endif; ?>
                 <br/>
               <? endif; ?>
             <? else: ?>
-              <a href="<?=$this->record($this->driver)->getLink('series', $field)?>"><?=$this->escapeHtml($field)?></a><br/>
+              <a href="<?=$this->record($this->driver)->getLink('series', $field, false, $linkParams)?>"><?=$this->escapeHtml($field)?></a><br/>
             <? endif; ?>
           <? endforeach; ?>
         </td>
@@ -187,7 +188,7 @@
             <? $i = 0; foreach ($field as $subfield): ?>
               <?=($i++ == 0) ? '' : ' &gt; '?>
               <? $subject = trim($subject . ' ' . $subfield); ?>
-              <a class="" title="<?=$this->escapeHtmlAttr($subject)?>" href="<?=$this->record($this->driver)->getLink('subject', $subject)?>"><?=trim($this->escapeHtml($subfield))?> </a>
+              <a class="" title="<?=$this->escapeHtmlAttr($subject)?>" href="<?=$this->record($this->driver)->getLink('subject', $subject, false, $linkParams)?>"><?=trim($this->escapeHtml($subfield))?> </a>
             <? endforeach; ?>
           </div>
           <? endforeach; ?>

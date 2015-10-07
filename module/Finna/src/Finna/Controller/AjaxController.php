@@ -1139,7 +1139,8 @@ class AjaxController extends \VuFind\Controller\AjaxController
                      'startRecord' => $view->results->getStartRecord(),
                      'endRecord' => $view->results->getEndRecord(),
                      'recordsFound' => $recordsFound,
-                     'searchType' => $view->params->getsearchType()
+                     'searchType' => $view->params->getsearchType(),
+                     'searchClassId' => 'Metalib'
                      ]
                 );
             $result['header'] = $this->getViewRenderer()->render(

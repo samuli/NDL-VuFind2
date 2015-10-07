@@ -1,6 +1,6 @@
 <?
 $queryHandler = 'AllFields';
-if ($results->getParams()->getSearchType() == 'basic') {
+if (isset($results) && $results->getParams()->getSearchType() == 'basic') {
   $queryHandler = $results->getParams()->getQuery()->getHandler();
 }
 $customQueryHandler = $queryHandler != 'AllFields';

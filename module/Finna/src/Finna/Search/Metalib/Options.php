@@ -65,6 +65,12 @@ class Options extends \VuFind\Search\Base\Options
             $this->limitOptions
                 = explode(",", $searchSettings->General->limit_options);
         }
+        // Result limit:
+        if (isset($searchSettings->General->result_limit)) {
+            $this->resultLimit = $searchSettings->General->result_limit;
+        } else {
+            $this->resultLimit = 2000;  // default
+        }
 
         // Load sort preferences:
         if (isset($searchSettings->Sorting)) {
@@ -75,6 +81,12 @@ class Options extends \VuFind\Search\Base\Options
 
         if (isset($searchSettings->General->default_sort)) {
             $this->defaultSort = $searchSettings->General->default_sort;
+        }
+
+        if (isset($searchSettings->Advanced_Searches)) {
+            foreach ($searchSettings->Advanced_Searches as $key => $value) {
+                $this->advancedHandlers[$key] = $value;
+            }
         }
     }
 

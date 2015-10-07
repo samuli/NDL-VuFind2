@@ -51,17 +51,21 @@ class Record extends \VuFind\View\Helper\Root\Record
      *
      * @return string
      */
-    public function getLink($type, $lookfor, $searchHandler = false)
+    public function getLink($type, $lookfor, $searchHandler = false, $params = [])
     {
         $searchAction = isset($this->getView()->browse) && $this->getView()->browse
             ? 'browse-' . $this->getView()->browse
             : 'search-results'
         ;
+        $params = isset($params) ? $params : [];
+        $params = array_merge(
+                              $params, 
+                              ['lookfor' => $lookfor, 
+                               'searchAction' => $searchAction, 
+                               'searchHandler' => $searchHandler]
+                              );
         return $this->renderTemplate(
-            'link-' . $type . '.phtml',
-            ['lookfor' => $lookfor, 
-             'searchAction' => $searchAction, 
-             'searchHandler' => $searchHandler]
+            'link-' . $type . '.phtml', $params
         );
     }
 

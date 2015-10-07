@@ -16,7 +16,7 @@
         'lookfor' => $lookfor,
         'searchIndex' => $this->params->getSearchHandler(),
         'searchType' => $this->params->getSearchType(),
-        'searchId' => false, //$this->results->getSearchId(),
+        'searchId' => false,
         'searchClassId' => $this->params->getsearchClassId(),
         'checkboxFilters' => $this->params->getCheckboxFacets(),
         'filterList' => $this->params->getFilters(),
@@ -52,9 +52,8 @@
 ?>
 <?=$this->flashmessages()?>
 
-<div class="hidden-print search-controls row">
-  <div class="col-sm-7 col-sm-push-5 col-md-8 col-md-push-4 text-right"></div>
-  <div class="col-sm-5 col-md-4 col-sm-pull-7 col-md-pull-8 pagination">
+<div class="hidden-print search-controls row search-<?= $this->escapeHtmlAttr($this->params->getSearchType())?>">
+  <div class="col-xs-12 pagination">
     <div></div>
   </div>
 </div>

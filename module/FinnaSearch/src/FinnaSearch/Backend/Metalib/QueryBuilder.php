@@ -94,12 +94,15 @@ class QueryBuilder
     protected function queryGroupToArray(QueryGroup $query)
     {
         $nextLevel = $query->getQueries();
+        $op = $nextLevel[0]->getOperator();
+        $negated = $nextLevel[0]->isNegated();
+        
         $parts = [];
         foreach ($nextLevel[0]->getQueries() as $q) {
             $index = $q->getHandler();
-            $op = $q->getOperator();
+            //$op = $q->getOperator();
             $lookfor = $q->getString();
-            $parts[] = compact('index', 'op', 'lookfor');
+            $parts[] = compact('index', 'op', 'negated', 'lookfor');
         }
         return $parts;
     }

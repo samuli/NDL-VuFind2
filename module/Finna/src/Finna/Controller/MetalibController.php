@@ -110,6 +110,14 @@ class MetalibController extends \VuFind\Controller\AbstractSearch
         return $view;
     }
 
+
+    public function advancedAction()
+    {
+        $view = parent::advancedAction();
+        $view = $this->initSets($view, $this->getRequest()->getQuery());
+        return $view;
+    }
+
     protected function initSets($view, $query)
     {
         $allowedSets = $this->getMetalibSets();

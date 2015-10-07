@@ -206,7 +206,6 @@ class Connector implements \Zend\Log\LoggerAwareInterface
                 ];                
             }
         } else {
-        
             if (isset($params)) {
                 $args = array_merge($args, $params);
             }
@@ -525,71 +524,73 @@ class Connector implements \Zend\Log\LoggerAwareInterface
      */
     protected function buildQuery($terms)
     {
-        $groups   = array();
-        $excludes = array();
+        $groups   = [];
+        $excludes = [];
         if (is_array($terms)) {
             $query = '';
-
-            foreach ($terms as $params) {
-                /*
+            $advanced = isset($terms[0]['op']);
+            $operator = $advanced ? $terms[0]['op'] : null;
+            $negated = isset($terms[0]['negated']) && $terms[0]['negated'];
+            $queries = [];
+            foreach ($terms as $params) {                
                 // Advanced Search
-                if (isset($params['group'])) {
-                    $thisGroup = array();
-                    // Process each search group
-                    foreach ($params['group'] as $group) {
-                        // Build this group individually as a basic search
-                        $thisGroup[] = $this->buildQuery(array($group));
-                    }
-                    // Is this an exclusion (NOT) group or a normal group?
-                    if ($params['group'][0]['bool'] == 'NOT') {
-                        $excludes[] = join(" OR ", $thisGroup);
-                    } else {
-                        $groups[] = join(
-                            " " . $params['group'][0]['bool'] . " ", $thisGroup
-                        );
-                    }
-                    }*/
-
-                // Basic Search
-                if (isset($params['lookfor']) && $params['lookfor'] != '') {
-                    // Clean and validate input -- note that index may be in a
-                    // different field depending on whether this is a basic or
-                    // advanced search.
-                    $lookfor = $params['lookfor'];
-                    $index = $params['index'] ?: 'AllFields';
-
-                    // Force boolean operators to uppercase if we are in a
-                    // case-insensitive mode:
-                    if ($this->luceneHelper) {
-                        $lookfor = $this->luceneHelper->capitalizeBooleans($lookfor);
-                    }
-
-                    $map = [
-                        'Title' => 'WTI', 
-                        'Author' => 'WAU', 
-                        'Subject' => 'WSU', 
-                        'isbn' => 'ISBN', 
-                        'issn' => 'ISSN'
-                    ];
-
-                    $index = isset($map[$index]) ? $map[$index] : 'WRD';
-                    $query .= "{$index}=($lookfor)";
+                if ($advanced) {
+                    // Build this group individually as a basic search
+                    $queries[] = $this->buildBasicQuery($params);             
+                } else if (isset($params['lookfor']) && $params['lookfor'] != '') {
+                    return $this->buildBasicQuery($params);
+                }
+            }
+            if ($advanced) {
+                $query = join(
+                    " " . $operator . " ", $queries
+                );
+                
+                if ($negated) {
+                    $query = " NOT ($query)";
                 }
             }
         }
-
-        // Put our advanced search together
-        if (count($groups) > 0) {
-            $query = "(" . join(") " . $search[0]['join'] . " (", $groups) . ")";
-        }
-        // and concatenate exclusion after that
-        if (count($excludes) > 0) {
-            $query .= " NOT ((" . join(") OR (", $excludes) . "))";
-        }
-
         // Ensure we have a valid query to this point
         return isset($query) ? $query : '';
     }
+
+    protected function buildBasicQuery($params)
+    {
+        $query = '';
+        if (isset($params['lookfor']) && $params['lookfor'] != '') {
+            // Basic Search
+            // Clean and validate input -- note that index may be in a
+            // different field depending on whether this is a basic or
+            // advanced search.
+            $lookfor = $params['lookfor'];
+            $index = $params['index'] ?: 'AllFields';
+            
+            // Force boolean operators to uppercase if we are in a
+            // case-insensitive mode:
+            if ($this->luceneHelper) {
+                $lookfor = $this->luceneHelper->capitalizeBooleans($lookfor);
+            }
+            
+            $map = [
+                    'AllFields' => 'WRD',
+                    'Title' => 'WTI', 
+                    'Author' => 'WAU', 
+                    'Subject' => 'WSU', 
+                    'isbn' => 'ISBN', 
+                    'issn' => 'ISSN'
+                    ];
+            
+            if (isset($map[$index])) {
+                $index = $map[$index];
+            } else if (!in_array($index, array_values($map))) {
+                $index = 'WRD';
+            }
+            $query .= "{$index}=($lookfor)";     
+        }
+        // Ensure we have a valid query to this point
+        return isset($query) ? $query : '';
+    }        
 
     /**
      * Small wrapper for sendRequest, process to simplify error handling.
@@ -619,16 +620,19 @@ class Connector implements \Zend\Log\LoggerAwareInterface
             throw new \Exception($result->getBody());
         }
 
-        $xml = simplexml_load_string($result->getBody());
-        $errors = $xml->xpath('//local_error | //global_error');
-        if (!empty($errors)) {
-            if ($errors[0]->error_code == 6026) {
-                throw new \Exception('Search timed out');
+        //        die("result: " . var_export($result->getBody(), true));
+
+        if ($xml = simplexml_load_string($result->getBody())) {
+            $errors = $xml->xpath('//local_error | //global_error');
+            if (!empty($errors)) {
+                if ($errors[0]->error_code == 6026) {
+                    throw new \Exception('Search timed out');
+                }
+                throw new \Exception($errors[0]->asXML());
             }
-            throw new \Exception($errors[0]->asXML());
+            $result = $xml;
         }
 
-        $result = $xml;
         return $result;
     }
 
