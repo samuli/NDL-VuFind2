@@ -200,6 +200,9 @@ $config = [
                 ],
             ],
             'recordtab' => [
+                'factories' => [
+                    'map' => 'Finna\RecordTab\Factory::getMap',
+                ],
                 'invokables' => [
                     'componentparts' => 'Finna\RecordTab\ComponentParts',
                 ],
