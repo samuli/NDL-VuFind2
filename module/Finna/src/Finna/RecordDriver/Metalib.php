@@ -174,5 +174,10 @@ class Metalib extends \VuFind\RecordDriver\SolrMarc
     {
         return false;
     }
+    
+    public function proxyLinks()
+    {
+        return $this->fields['proxy'];
+    }
 
 }

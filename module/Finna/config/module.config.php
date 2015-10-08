@@ -136,6 +136,7 @@ $config = [
                 ],
                 'invokables' => [
                     'comments' => 'Finna\Db\Table\Comments',
+                    'metalibSearch' => 'Finna\Db\Table\MetalibSearch',
                     'search' => 'Finna\Db\Table\Search'
                 ],
             ],

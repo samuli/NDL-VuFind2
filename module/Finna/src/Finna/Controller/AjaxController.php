@@ -1157,15 +1157,13 @@ class AjaxController extends \VuFind\Controller\AjaxController
         // TODO: check if metalib is enabled
 
         $auth = $this->serviceLocator->get('ZfcRbac\Service\AuthorizationService');
-        $authorized = 1; //$auth->isGranted('finna.authorized');
+        $authorized = $auth->isGranted('finna.authorized');
         $query = new Query();
         $metalib = $this->getServiceLocator()->get('VuFind\Search');
 
         $results = [];
         $ids = $this->getRequest()->getQuery()->get('id');
         foreach ($ids as $id) {
-            //list($source, $ird) = explode('.', $id);
-
             $backendParams = new ParamBag();
             $backendParams->add('irdInfo', [$id]);
             $result = $metalib->search('Metalib', $query, false, false, $backendParams);

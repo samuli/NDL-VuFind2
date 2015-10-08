@@ -1,11 +1,10 @@
 <?php
-
 /**
- * Simple factory for record collection.
+ * Factory for record collection.
  *
  * PHP version 5
  *
- * Copyright (C) Villanova University 2010.
+ * Copyright (C) The National Library of Finland 2015.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -22,7 +21,7 @@
  *
  * @category VuFind2
  * @package  Search
- * @author   David Maus <maus@hab.de>
+ * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org
  */
@@ -33,11 +32,11 @@ use VuFindSearch\Exception\InvalidArgumentException;
 use VuFindSearch\Backend\Solr\Response\Json\Record;
 
 /**
- * Simple factory for record collection.
+ * Factory for record collection.
  *
  * @category VuFind2
  * @package  Search
- * @author   David Maus <maus@hab.de>
+ * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org
  */
@@ -90,7 +89,6 @@ class RecordCollectionFactory implements RecordCollectionFactoryInterface
      */
     public function factory($response)
     {
-
         if (!is_array($response)) {
             throw new InvalidArgumentException(
                 sprintf(
@@ -107,5 +105,4 @@ class RecordCollectionFactory implements RecordCollectionFactoryInterface
         }
         return $collection;
     }
-
 }

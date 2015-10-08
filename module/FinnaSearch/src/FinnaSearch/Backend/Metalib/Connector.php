@@ -1,11 +1,10 @@
 <?php
-
 /**
- * Primo Central connector.
+ * MetaLib connector.
  *
  * PHP version 5
  *
- * Copyright (C) Villanova University 2010.
+ * Copyright (C) The National Library of Finland 2015.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -22,10 +21,8 @@
  *
  * @category VuFind2
  * @package  Search
- * @author   Spencer Lamm <slamm1@swarthmore.edu>
- * @author   Anna Headley <aheadle1@swarthmore.edu>
- * @author   Chelsea Lobdell <clobdel1@swarthmore.edu>
- * @author   Demian Katz <demian.katz@villanova.edu>
+ * @author   Ere Maijala <ere.maijala@helsinki.fi>
+ * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org
  */
@@ -36,14 +33,12 @@ use ZfcRbac\Service\AuthorizationService,
     Zend\Session\Container as SessionContainer;
     
 /**
- * Primo Central connector.
+ * MetaLib connector.
  *
  * @category VuFind2
  * @package  Search
- * @author   Spencer Lamm <slamm1@swarthmore.edu>
- * @author   Anna Headley <aheadle1@swarthmore.edu>
- * @author   Chelsea Lobdell <clobdel1@swarthmore.edu>
- * @author   Demian Katz <demian.katz@villanova.edu>
+ * @author   Ere Maijala <ere.maijala@helsinki.fi>
+ * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org
  */
@@ -59,14 +54,14 @@ class Connector implements \Zend\Log\LoggerAwareInterface
     public $client;
 
     /**
-     * TODO
+     * MetaLib user
      *
      * @var string
      */
     public $user;
 
     /**
-     * TODO
+     * MetaLib password
      *
      * @var string
      */
@@ -87,9 +82,9 @@ class Connector implements \Zend\Log\LoggerAwareInterface
     protected $host;
 
     /**
-     * TODO
+     * Lucene query syntax helper
      *
-     * @var boolean
+     * @var \VuFindSearch\Backend\Solr\LuceneSyntaxHelper
      */
     protected $luceneHelper;
 
@@ -101,11 +96,11 @@ class Connector implements \Zend\Log\LoggerAwareInterface
     protected $session;
 
     /**
-     * TODO
+     * Table for cached search results
      *
-     * @var \VuFind\Session\Container
+     * @var \Finna\Db\Table\MetalibSearch
      */
-    protected $cacheManager;
+    protected $table;
 
     /**
      * Authorization service
@@ -114,87 +109,71 @@ class Connector implements \Zend\Log\LoggerAwareInterface
      */
     protected $authService;
 
-    protected $sets;
-
     /**
-     * Debug status
+     * Configured MetaLib search sets
      *
-     * @var bool
+     * @var array
      */
-    public $debug = false;
+    protected $sets;
 
     /**
      * Constructor
      *
-     * Sets up the Primo API Client
+     * Sets up the MetaLib Client
      *
-     * @param string     $apiId  Primo API ID
-     * @param string     $inst   Institution code
-     * @param HttpClient $client HTTP client
+     * @param string                                        $institution  MetaLib institution code
+     * @param string                                        $url          MetaLib API url institution code
+     * @param string                                        $user         MetaLib API user
+     * @param string                                        $pass         MetaLib API password
+     * @param \VuFind\Http\Client                           $client       HTTP client
+     * @param \VuFindSearch\Backend\Solr\LuceneSyntaxHelper $luceneHelper Lucene syntax helper 
+// @codingStandardsIgnoreStart
+     * @param ZfcRbac\Service\AuthorizationService          $auth         Authorization service
+// @codingStandardsIgnoreEnd
+     * @param \Finna\Db\Table\MetalibSearch                 $table        Table for cached search results
+     * @param array                                         $sets         MetaLib search sets
      */
-    public function __construct($institution, $url, $user, $pass, $client, $luceneHelper, $cacheManager, AuthorizationService $authService, $sets)
-    {
+    public function __construct(
+        $institution, $url, $user, $pass, 
+        HttpClient $client, 
+        \VuFindSearch\Backend\Solr\LuceneSyntaxHelper $luceneHelper, 
+        \Finna\Db\Table\MetalibSearch $table, 
+        AuthorizationService $auth, 
+        $sets
+    ) {
         $this->inst = $institution;
         $this->host = $url;
         $this->client = $client;
         $this->luceneHelper = $luceneHelper;
         $this->user = $user;
-        $this->pass = $pass;        
-        $this->session = new SessionContainer('Metalib');
-        $this->cache = $cacheManager;
-        $this->auth = $authService;
+        $this->pass = $pass;
+        $this->table = $table;
+        $this->auth = $auth;
         $this->sets = $sets;
+        $this->session = new SessionContainer('Metalib');
     }
 
     /**
-     * Execute a search.  adds all the querystring parameters into
-     * $this->client and returns the parsed response
+     * Execute a search.
      *
      * @param string $institution Institution
-     * @param array  $terms       Associative array:
-     *     index       string: primo index to search (default "any")
-     *     lookfor     string: actual search terms
-     * @param array  $params      Associative array of optional arguments:
-     *     phrase      bool:   true if it's a quoted phrase (default false)
-     *     onCampus    bool:   (default true)
-     *     didyoumean  bool:   (default false)
-     *     filterList  array:  (field, value) pairs to filter results (def null)
-     *     pageNumber  string: index of first record (default 1)
-     *     limit       string: number of records to return (default 20)
-     *     sort        string: value to be used by for sorting (default null)
-     *     returnErr   bool:   false to fail on error; true to return empty
-     *                         empty result set with an error field (def true)
-     *     Anything in $params not listed here will be ignored.
+     * @param array  $terms       Search terms
+     * @param array  $params      Optional search arguments
      *
      * @throws \Exception
-     * @return array             An array of query results
-     *
-     * @link http://www.exlibrisgroup.org/display/PrimoOI/Brief+Search
+     * @return array              An array of query results
      */
     public function query($institution, $terms, $params = null)
     {
         try {
             $sessionId = $this->getSession();
         } catch (\Exception $e) {
-            throw $e;
+            return [
+               'error' => $e->getMessage()
+            ];
         }
 
         $args = [];
-        /*
-        // defaults for params
-        $args = [
-            "phrase" => false,
-            "onCampus" => true,
-            "didYouMean" => false,
-            "filterList" => null,
-            "pcAvailability" => false,
-            "pageNumber" => 1,
-            "limit" => 20,
-            "sort" => null,
-            "returnErr" => true,
-        ];
-        */
-
         if (isset($params['irdInfo'])) {
             try {
                 $result = $this->getIRDInfo($params['irdInfo']);
@@ -202,15 +181,13 @@ class Connector implements \Zend\Log\LoggerAwareInterface
             } catch (\Exception $e) {
                 $this->debug($e->getMessage());
                 return [
-                        'error' => $e->getMessage()
+                    'error' => $e->getMessage()
                 ];                
             }
         } else {
             if (isset($params)) {
                 $args = array_merge($args, $params);
             }
-
-            // run search, deal with exceptions
             try {
                 $result = $this->performSearch($institution, $terms, $args);
             } catch (\Exception $e) {
@@ -227,39 +204,18 @@ class Connector implements \Zend\Log\LoggerAwareInterface
                 }
             }
         }
-
         return $result;
-        
     }
 
     /**
      * Support method for query() -- perform inner search logic
      *
-     * @param string $institution Institution
-     * @param array  $terms       Associative array:
-     *     index       string: primo index to search (default "any")
-     *     lookfor     string: actual search terms
-     * @param array  $args        Associative array of optional arguments:
-     *     phrase      bool:   true if it's a quoted phrase (default false)
-     *     onCampus    bool:   (default true)
-     *     didyoumean  bool:   (default false)
-     *     filterList  array:  (field, value) pairs to filter results (def null)
-     *     pageNumber  string: index of first record (default 1)
-     *     limit       string: number of records to return (default 20)
-     *     sort        string: value to be used by for sorting (default null)
-     *     returnErr   bool:   false to fail on error; true to return empty
-     *                         empty result set with an error field (def true)
-     *     Anything in $args   not listed here will be ignored.
-     *
-     * Note: some input parameters accepted by Primo are not implemented here:
-     *  - dym (did you mean)
-     *  - highlight
-     *  - more (get more)
-     *  - lang (specify input language so engine can do lang. recognition)
-     *  - displayField (has to do with highlighting somehow)
+     * @param string $institution Institution code
+     * @param array  $terms       Search terms
+     * @param array  $args        Search arguments
      *
      * @throws \Exception
-     * @return array             An array of query results
+     * @return array Results
      */
     protected function performSearch($institution, $terms, $args)
     {
@@ -269,7 +225,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
             throw new \Exception('Search terms are required');
         }
 
-        $authorized = 1; //$this->auth->isGranted('finna.authorized');
+        $authorized = $this->auth->isGranted('finna.authorized');
         $irdList = $args['searchSet'];
 
         if (strncmp($irdList, '_ird:', 5) != 0) {
@@ -282,17 +238,15 @@ class Connector implements \Zend\Log\LoggerAwareInterface
             $irdList = substr($irdList, 5);
         }
         $irdList = explode(',', $irdList);
+        $irdData = $this->getIRDInfos($irdList, $authorized);        
 
-
-        $irdData = $this->getIRDInfos($irdList, $authorized);
-        
         if (empty($irdData['allowed'])) {
-            return array(
+            return [
                 'recordCount' => 0,
                 'failedDatabases' => $irdData['failed'],
                 'disallowedDatabases' => $irdData['disallowed'],
                 'successDatabases' => []
-            );
+            ];
         }
 
         $irdList = implode(',', $irdData['allowed']);
@@ -301,11 +255,8 @@ class Connector implements \Zend\Log\LoggerAwareInterface
         $options['find_base/find_base_001'] = $irdData['allowed'];
         $options['find_request_command'] = $qs;
 
-
         $sessionId = $this->getSession();
 
-        // TODO: add configurable authentication mechanisms to identify authorized
-        // users and switch this to use it
         $options['requester_ip'] = $_SERVER['REMOTE_ADDR'];
         $options['session_id'] = $this->getSession();
         $options['wait_flag'] = 'Y';
@@ -315,18 +266,22 @@ class Connector implements \Zend\Log\LoggerAwareInterface
         $limit = 20;
         $start = $args['pageNumber'] ?: 1;
 
-        // Use a metalib. prefix everywhere so that it's easy to see the record source
-        $queryId = 'metalib.' . md5($irdList . '_' . $qs . '_' . $start . '_' . $limit);
-        
+        $queryId 
+            = 'metalib.' . md5($irdList . '_' . $qs . '_' . $start . '_' . $limit);
+
         $findResults = $this->getCachedResults($queryId);
-        if ($findResults !== false && empty($findResults['failedDatabases']) && empty($findResults['disallowedDatabases'])) {
+        if ($findResults !== false 
+            && empty($findResults['failedDatabases']) 
+            && empty($findResults['disallowedDatabases'])
+        ) {
             return $findResults;
         }
-        
         try {
             $databases = $this->getDatabases($options, $irdData);
-
-            $records = $this->searchDatabases($databases['databases'], $sessionId, $queryId, $limit, $start);
+            $records 
+                = $this->searchDatabases(
+                    $databases['databases'], $sessionId, $queryId, $limit, $start
+                );
             $results = [
                 'query' => ['pageNumber' => $start, 'pageSize' => $limit],
                 'totalRecords' => $databases['totalRecords'],
@@ -337,32 +292,32 @@ class Connector implements \Zend\Log\LoggerAwareInterface
             ];
         } catch (Exception $e) {
             throw new \Exception($e->getMessage());
-
         }
         $this->putCachedResults($queryId, $results);
         return $results;
     }
 
     /**
-     * TODO
+     * Support method for performSearch() -- fetch databases
      *
-     * @param array $search An array of search parameters
+     * @param array $options      Search options
+     * @param array $irdInfoArray IRD info
      *
-     * @return string       The query
-     * @access protected
+     * @return array Results
      */
     protected function getDatabases($options, $irdInfoArray)
     {
         $findResults = $this->call('find_request', $options);
 
-        // Gather basic information
         $databases = [];
         $failed = [];
         $successes = [];
         $totalRecords = 0;
         foreach ($findResults->find_response->base_info as $baseInfo) {
             $databaseName = (string)$baseInfo->full_name;
-            $databaseInfo = isset($irdInfoArray[$databaseName]) ? $irdInfoArray[$databaseName] : (string)$baseInfo->full_name;
+            $databaseInfo 
+                = isset($irdInfoArray[$databaseName]) 
+                ? $irdInfoArray[$databaseName] : (string)$baseInfo->full_name;
             if ($baseInfo->find_status != 'DONE') {
                 error_log(
                     'MetaLib search in ' . $baseInfo->base_001 . ' (' . $baseInfo->full_name . ') failed: '
@@ -375,18 +330,29 @@ class Connector implements \Zend\Log\LoggerAwareInterface
                 continue;
             }
             $totalRecords += $count;
-            $databases[] = array(
-                                 'ird' => (string)$baseInfo->base_001,
-                                 'count' => $count,
-                                 'set' => (string)$baseInfo->set_number,
-                                 'records' => array()
-                                 );
+            $databases[] = [
+                'ird' => (string)$baseInfo->base_001,
+                'count' => $count,
+                'set' => (string)$baseInfo->set_number,
+                'records' => [] 
+                ];
             $successes[] = $databaseInfo;
         }
         return compact('databases', 'successes', 'failed', 'totalRecords');
     }
 
-
+    /**
+     * Support method for performSearch() -- search in databases
+     *
+     * @param array  $databases Databases
+     * @param string $sessionId Session id
+     * @param string $queryId   Query id
+     * @param int    $limit     Result limit
+     * @param int    $start     Result start index
+     *
+     * @throws \Exception
+     * @return array Results
+     */
     protected function searchDatabases($databases, $sessionId, $queryId, $limit, $start)
     {
         $documents = [];
@@ -395,7 +361,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
             // Sort the array by number of results
             usort(
                 $databases,
-                function($a, $b) {
+                function ($a, $b) {
                     return $a['count'] - $b['count'];
                 }
             );
@@ -403,7 +369,11 @@ class Connector implements \Zend\Log\LoggerAwareInterface
             // Find cut points where a database is exhausted of results
             $sum = 0;
             for ($k = 0; $k < $databaseCount; $k++) {
-                $sum += ($databases[$k]['count'] - ($k > 0 ? $databases[$k - 1]['count'] : 0)) * ($databaseCount - $k);
+                $sum 
+                    += ($databases[$k]['count'] - 
+                        ($k > 0 ? $databases[$k - 1]['count'] : 0)) 
+                        * ($databaseCount - $k)
+                    ;
                 $databases[$k]['cut'] = $sum;
             }
 
@@ -425,9 +395,14 @@ class Connector implements \Zend\Log\LoggerAwareInterface
             }
             $m = $l % ($databaseCount - $i);
             $startDB = $databaseCount - $m - 1;
-            $startRecord = floor($databases[$i]['count'] - ($l + 1) / ($databaseCount - $i) + 1) - 1;
+            $startRecord 
+                = floor(
+                    $databases[$i]['count'] - ($l + 1) 
+                    / ($databaseCount - $i) + 1
+                ) - 1;
 
-            // Loop until we have enough record indices or run out of records from any of the databases
+            // Loop until we have enough record indices 
+            // or run out of records from any of the databases
             $currentDB = $startDB;
             $currentRecord = $startRecord;
             $haveRecords = true;
@@ -457,39 +432,45 @@ class Connector implements \Zend\Log\LoggerAwareInterface
                     continue;
                 }
 
-                $params = array(
+                $params = [
                     'session_id' => $sessionId,
-                    'present_command' => array(
+                    'present_command' => [
                         'set_number' => $database['set'],
-                        'set_entry' => $database['records'][0] . '-' . end($database['records']),
+                        'set_entry' => 
+                        $database['records'][0] . '-' . end($database['records']),
                         'view' => 'full',
                         'format' => 'marc'
-                    )
-                );
+                    ]
+                ];
                 
                 $result = $this->call('present_request', $params);
 
                 // Go through the records one by one. If there is a MOR tag
                 // in the record, it means that a single record present
                 // command is needed to fetch full record.
-                $currentDocs = array();
+                $currentDocs = [];
                 $recIndex = -1;
                 foreach ($result->present_response->record as $record) {
                     ++$recIndex;
-                    $record->registerXPathNamespace('m', 'http://www.loc.gov/MARC21/slim');
+                    $record->registerXPathNamespace(
+                        'm', 'http://www.loc.gov/MARC21/slim'
+                    );
                     if ($record->xpath("./m:controlfield[@tag='MOR']")) {
-                        $params = array(
+                        $params = [
                             'session_id' => $sessionId,
-                            'present_command' => array(
+                            'present_command' => [
                                 'set_number' => $database['set'],
                                 'set_entry' => $database['records'][$recIndex],
                                 'view' => 'full',
                                 'format' => 'marc'
-                            )
-                        );
+                             ]
+                        ];
 
                         $singleResult = $this->call('present_request', $params);
-                        $currentDocs[] = $this->process($singleResult->present_response->record[0]);
+                        $currentDocs[] 
+                            = $this->process(
+                                $singleResult->present_response->record[0]
+                            );
                     } else {
                         $currentDocs[] = $this->process($record);
                     }
@@ -517,10 +498,9 @@ class Connector implements \Zend\Log\LoggerAwareInterface
     /**
      * Build Query string from search parameters
      *
-     * @param array $search An array of search parameters
+     * @param array $terms Search terms
      *
-     * @return string       The query
-     * @access protected
+     * @return string Query
      */
     protected function buildQuery($terms)
     {
@@ -545,7 +525,6 @@ class Connector implements \Zend\Log\LoggerAwareInterface
                 $query = join(
                     " " . $operator . " ", $queries
                 );
-                
                 if ($negated) {
                     $query = " NOT ($query)";
                 }
@@ -555,6 +534,13 @@ class Connector implements \Zend\Log\LoggerAwareInterface
         return isset($query) ? $query : '';
     }
 
+    /**
+     * Support method for buildQuery() -- Build a basic query
+     *
+     * @param array $params Search parameters
+     *
+     * @return string Query
+     */
     protected function buildBasicQuery($params)
     {
         $query = '';
@@ -593,17 +579,19 @@ class Connector implements \Zend\Log\LoggerAwareInterface
     }        
 
     /**
-     * Small wrapper for sendRequest, process to simplify error handling.
+     * Call MetaLib X-server
      *
-     * @param string $qs     Query string
-     * @param string $method HTTP method
+     * @param string $operation X-Server operation
+     * @param array  $params    URL Parameters
      *
-     * @return object    The parsed primo data
+     * @return mixed simpleXMLElement
      * @throws \Exception
      */
-    protected function call($operation, $params, $process = true)
+    protected function call($operation, $params)
     {
-        $this->debug("Call: {$this->host}: {$operation}: " . var_export($params, true));
+        $this->debug(
+            "Call: {$this->host}: {$operation}: " . var_export($params, true)
+        );
 
         // Declare UTF-8 encoding so that SimpleXML won't encode characters.
         $xml = simplexml_load_string('<?xml version="1.0" encoding="UTF-8"?><x_server_request/>');
@@ -619,8 +607,6 @@ class Connector implements \Zend\Log\LoggerAwareInterface
         if (!$result->isSuccess()) {
             throw new \Exception($result->getBody());
         }
-
-        //        die("result: " . var_export($result->getBody(), true));
 
         if ($xml = simplexml_load_string($result->getBody())) {
             $errors = $xml->xpath('//local_error | //global_error');
@@ -674,9 +660,8 @@ class Connector implements \Zend\Log\LoggerAwareInterface
      * @param simplexml $record The xml record from MetaLib
      *
      * @return array The processed record array
-     * @access protected
      */
-    protected function process($record, $openURL = false)
+    protected function process($record)
     {
         $record->registerXPathNamespace('m', 'http://www.loc.gov/MARC21/slim');
 
@@ -692,7 +677,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
         $year = $this->getSingleValue($record, 'YR a');
         $languages = $this->getMultipleValues($record, '041a');
 
-        $urls = array();
+        $urls = [];
         $res = $record->xpath("./m:datafield[@tag='856']");
         foreach ($res as $value) {
             $value->registerXPathNamespace('m', 'http://www.loc.gov/MARC21/slim');
@@ -715,45 +700,43 @@ class Connector implements \Zend\Log\LoggerAwareInterface
         }
 
         $openurlParams = [];
-        if ($openURL) {
-            $opu = $this->getSingleValue($record, 'OPUa');
-            if ($opu) {
-                $opuxml = simplexml_load_string($opu);
-                $opuxml->registerXPathNamespace('ctx', 'info:ofi/fmt:xml:xsd:ctx');
-                $opuxml->registerXPathNamespace('rft', ''); //info:ofi/fmt:xml:xsd');
-                foreach ($opuxml->xpath('//*') as $element) {
-                    if (in_array($element->getName(), array('journal', 'author'))) {
-                        continue;
-                    }
-                    $value = trim((string)$element);
-                    if ($value) {
-                        $openurlParams[$element->getName()] = $value;
-
-                        // OpenURL might have many nicely parsed elements we can use
-                        switch ($element->getName()) {
-                        case 'date':
-                            if (empty($year)) {
-                                $year = $value;
-                            }
-                            break;
-                        case 'volume':
-                            $volume = $value;
-                            break;
-                        case 'issue':
-                            $issue = $value;
-                            break;
-                        case 'spage':
-                            $startPage = $value;
-                            break;
-                        case 'epage':
-                            $endPage = $value;
-                            break;
+        $opu = $this->getSingleValue($record, 'OPUa');
+        if ($opu) {
+            $opuxml = simplexml_load_string($opu);
+            $opuxml->registerXPathNamespace('ctx', 'info:ofi/fmt:xml:xsd:ctx');
+            $opuxml->registerXPathNamespace('rft', ''); //info:ofi/fmt:xml:xsd');
+            foreach ($opuxml->xpath('//*') as $element) {
+                if (in_array($element->getName(), ['journal', 'author'])) {
+                    continue;
+                }
+                $value = trim((string)$element);
+                if ($value) {
+                    $openurlParams[$element->getName()] = $value;
+                    
+                    // OpenURL might have many nicely parsed elements we can use
+                    switch ($element->getName()) {
+                    case 'date':
+                        if (empty($year)) {
+                            $year = $value;
                         }
+                        break;
+                    case 'volume':
+                        $volume = $value;
+                        break;
+                    case 'issue':
+                        $issue = $value;
+                        break;
+                    case 'spage':
+                        $startPage = $value;
+                        break;
+                    case 'epage':
+                        $endPage = $value;
+                        break;
                     }
                 }
             }
         }
-
+        
         $isbn = $this->getMultipleValues($record, '020a');
         $issn = $this->getMultipleValues($record, '022a');
         $snippet = $this->getMultipleValues($record, '520a');
@@ -769,7 +752,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
         $notes = $this->getMultipleValues($record, '500a');
         $field773g = $this->getSingleValue($record, '773g');
 
-        $matches = array();
+        $matches = [];
         if (preg_match('/(\d*)\s*\((\d{4})\)\s*:\s*(\d*)/', $field773g, $matches)) {
             if (!isset($volume)) {
                 $volume = $matches[1];
@@ -812,13 +795,13 @@ class Connector implements \Zend\Log\LoggerAwareInterface
             'fullrecord' => $record->asXML(),
             'id' => '',
             'recordtype' => 'marc',
-            'format' => array($format),
+            'format' => [$format],
             'isbn' => $isbn,
             'issn' => $issn,
             'ispartof' => "{$hostTitle[0]}, {$field773g}",
             'language' => $languages,
             'topic' => $subjects,
-            'description' => $this->snippets ? $snippet : null,
+            'description' => $snippet,
             'notes' => $notes,
             'container_volume' => isset($volume) ? $volume : '',
             'container_issue' => isset($issue) ? $issue : '',
@@ -835,7 +818,6 @@ class Connector implements \Zend\Log\LoggerAwareInterface
      * @param string           $glue      Delimiter used between subfields
      *
      * @return string
-     * @access protected
      */
     protected function getSingleValue($xml, $fieldspec, $glue = '')
     {
@@ -852,15 +834,14 @@ class Connector implements \Zend\Log\LoggerAwareInterface
      * @param simpleXMLElement $xml MARC Record
      *
      * @return string
-     * @access protected
      */
     protected function getUrl($xml)
     {
-        $values = array();
+        $values = [];
         $xpath = "./m:datafield[@tag='856' and @ind2='1']";
         $res = $xml->xpath($xpath);
         foreach ($res as $datafield) {
-            $strings = array();
+            $strings = [];
             foreach ($datafield->subfield as $subfield) {
                 if (strstr('u', (string)$subfield['code'])) {
                     return (string)$subfield;
@@ -879,11 +860,10 @@ class Connector implements \Zend\Log\LoggerAwareInterface
      * @param string           $glue       Delimiter used between subfields
      *
      * @return array
-     * @access protected
      */
     protected function getMultipleValues($xml, $fieldspecs, $glue = '')
     {
-        $values = array();
+        $values = [];
         foreach (explode(':', $fieldspecs) as $fieldspec) {
             $field = substr($fieldspec, 0, 3);
             $subfields = substr($fieldspec, 3);
@@ -891,7 +871,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
 
             $res = $xml->xpath($xpath);
             foreach ($res as $datafield) {
-                $strings = array();
+                $strings = [];
                 foreach ($datafield->subfield as $subfield) {
                     if (strstr($subfields, (string)$subfield['code'])) {
                         $strings[] .= (string)$subfield;
@@ -905,6 +885,14 @@ class Connector implements \Zend\Log\LoggerAwareInterface
         return $values;
     }
 
+    /**
+     * Get information regarding the IRD
+     *
+     * @param array   $irds       IRD IDs
+     * @param boolean $authorized Is the user authorized
+     *
+     * @return array Array with 'allowed', 'disallowed', 'failed' and 'info'.
+     */
     protected function getIRDInfos($irds, $authorized)
     {              
         $allowed = $disallowed = $failed = $info = [];
@@ -925,14 +913,13 @@ class Connector implements \Zend\Log\LoggerAwareInterface
         return compact('allowed', 'disallowed', 'failed', 'info');
     }
 
-
     /**
      * Get information regarding the IRD
      *
      * @param string $ird IRD ID
      *
      * @return array Array with e.g. 'name' and 'access'
-     * @access public
+     * @throws \Exception
      */
     public function getIRDInfo($ird)
     {
@@ -944,40 +931,47 @@ class Connector implements \Zend\Log\LoggerAwareInterface
         $sessionId = $this->getSession();
 
         // Do the source locate request
-        $params = array(
+        $params = [
             'session_id' => $sessionId,
             'locate_command' => "IDN=$ird",
             'source_full_info_flag' => 'Y'
-        );
+        ];
 
-
-        $result = $this->call('source_locate_request', $params);
-
-        $info = array();
-        $info['name'] = (string)$result->source_locate_response->source_full_info->source_info->source_short_name;
-        $record = $result->source_locate_response->source_full_info->record;
-        $record->registerXPathNamespace('m', 'http://www.loc.gov/MARC21/slim');
-
-        
-        $institute = $this->getSingleValue($record, 'AF1a');
-        if ($institute !== $this->getInstitutionCode()) {
-            //return [];
+        try {
+            $result = $this->call('source_locate_request', $params);
+            
+            $info = [];
+            $info['name'] 
+                = (string)$result->source_locate_response
+                    ->source_full_info->source_info->source_short_name;
+            $record = $result->source_locate_response->source_full_info->record;
+            $record->registerXPathNamespace('m', 'http://www.loc.gov/MARC21/slim');
+            
+            $institute = $this->getSingleValue($record, 'AF1a');
+            if ($institute !== $this->getInstitutionCode()) {
+                return [];
+            }
+            
+            $info['access'] = $this->getSingleValue($record, 'AF3a');
+            $info['proxy'] = $this->getSingleValue($record, 'PXYa');
+            $info['searchable'] 
+                = $this->getSingleValue($record, 'TARa') 
+                && $this->getSingleValue($record, 'TARf') == 'Y'
+            ;
+            $info['url'] = $this->getUrl($record);
+            
+            $this->putCachedResults($queryId, $info);
+            return $info;            
+        } catch (\Exception $e) {
+            throw $e;
         }
-
-        $info['access'] = $this->getSingleValue($record, 'AF3a');
-        $info['proxy'] = $this->getSingleValue($record, 'PXYa');
-        $info['searchable'] = $this->getSingleValue($record, 'TARa') && $this->getSingleValue($record, 'TARf') == 'Y';
-        $info['url'] = $this->getUrl($record);
-
-        $this->putCachedResults($queryId, $info);
-        return $info;
     }
 
     /**
      * Return current session id (if valid) or create a new session
      *
      * @return string session id
-     * @access protected
+     * @throws \Exception
      */
     protected function getSession()
     {
@@ -985,14 +979,14 @@ class Connector implements \Zend\Log\LoggerAwareInterface
 
         if (isset($this->session['MetaLibSessionID'])) {
             // Check for valid session
-            $params = array(
+            $params = [
                 'session_id' => $this->session->MetaLibSessionID,
                 'view' => 'customize',
                 'logical_set' => 'ml_sys_info',
                 'parameter_name' => 'ML_VERSION'
-            );
+            ];
             try {
-                $result = $this->call('retrieve_metalib_info_request', $params, false);
+                $result = $this->call('retrieve_metalib_info_request', $params);
                 $sessionId = $this->session->MetaLibSessionID;
             } catch (\Exception $e) {
             }
@@ -1000,12 +994,12 @@ class Connector implements \Zend\Log\LoggerAwareInterface
 
         if (!$sessionId) {
             // Login to establish a session
-            $params = array(
+            $params = [
                 'user_name' => $this->user,
                 'user_password' => $this->pass
-            );
+            ];
             try {
-                $result = $this->call('login_request', $params, false);
+                $result = $this->call('login_request', $params);
                 if ($result->login_response->auth != 'Y') {
                     $this->debug('X-Server login failed: ' . var_dump($params));
                     throw new \Exception('X-Server login failed');
@@ -1019,17 +1013,15 @@ class Connector implements \Zend\Log\LoggerAwareInterface
         return $sessionId;
     }
 
-
     /**
      * Retrieves a document specified by the ID.
      *
-     * @param string $recordId  The document to retrieve from the Primo API
-     * @param string $inst_code Institution code (optional)
+     * @param string $id The document to retrieve from the MetaLib API
      *
      * @throws \Exception
-     * @return string    The requested resource
+     * @return string The requested resource
      */
-    public function getRecord($id, $inst_code = null)
+    public function getRecord($id)
     {
         list($queryId, $index) = explode('_', $id);
         $result = $this->getCachedResults($queryId);
@@ -1043,8 +1035,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
     }
 
     /**
-     * Get the institution code based on user IP. If user is coming from
-     * off campus return
+     * Return MetaLib institution code.
      *
      * @return string
      */
@@ -1059,21 +1050,12 @@ class Connector implements \Zend\Log\LoggerAwareInterface
      * @param string $queryId Query identifier (hash)
      *
      * @return mixed Search results array | false
-     * @access protected
      */
     protected function getCachedResults($queryId)
-    {        
-        $cacheFile = $this->getCacheFile($queryId);
-        if (file_exists($cacheFile)) {
-            // Default caching time is 60 minutes (note that cache is required
-            // for full record display)
-            $cacheTime = 99999999999999; //isset($this->config['General']['cache_timeout'])
-            //? $this->config['General']['cache_timeout'] : 60;
-            if (time() - filemtime($cacheFile) < $cacheTime * 60) {
-                return unserialize(file_get_contents($cacheFile));
-            }
+    {       
+        if ($row = $this->table->getRowBySearchHash($queryId)) {
+            return $row->getSearchObject();
         }
-
         return false;
     }
 
@@ -1084,20 +1066,9 @@ class Connector implements \Zend\Log\LoggerAwareInterface
      * @param array  $results Search results
      *
      * @return void
-     * @access protected
      */
     protected function putCachedResults($queryId, $results)
     {
-        $cacheFile = $this->getCacheFile($queryId);
-        file_put_contents($cacheFile, serialize($results));
+        $this->table->saveMetalibSearch($results, $queryId);
     }
-
-    protected function getCacheFile($queryId)
-    {
-        return 
-            $this->cache->getCache('metalib')->getOptions()->getCacheDir()
-            . "/{$queryId}.dat";
-    }
-
-
 }

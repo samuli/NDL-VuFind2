@@ -1,11 +1,10 @@
 <?php
-
 /**
- * Primo Central record collection.
+ * MetaLib record collection.
  *
  * PHP version 5
  *
- * Copyright (C) Villanova University 2010.
+ * Copyright (C) The National Library of Finland 2015.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -22,7 +21,7 @@
  *
  * @category VuFind2
  * @package  Search
- * @author   David Maus <maus@hab.de>
+ * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org
  */
@@ -35,7 +34,7 @@ use VuFindSearch\Response\AbstractRecordCollection;
  *
  * @category VuFind2
  * @package  Search
- * @author   David Maus <maus@hab.de>
+ * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org
  */
@@ -97,6 +96,11 @@ class RecordCollection extends AbstractRecordCollection
         return $page * $size;
     }
 
+    /**
+     * Return response for a IRD info request.
+     *
+     * @return int
+     */
     public function getIRDInfo()
     {
         $result = [];
@@ -114,19 +118,25 @@ class RecordCollection extends AbstractRecordCollection
         
         return $result; 
     }
-    
+
+    /**
+     * Return failed and disallowed databases for a search request.
+     *
+     * @return array
+     */    
     public function getFailedDatabases()
     {
         $failed = [];
         $failed['failed'] 
-            = isset($this->response['failedDatabases']) && !empty($this->response['failedDatabases'])
+            = isset($this->response['failedDatabases']) 
+            && !empty($this->response['failedDatabases'])
             ? $this->response['failedDatabases'] : [];
 
         $failed['disallowed'] 
-            = isset($this->response['disallowedDatabases']) && !empty($this->response['disallowedDatabases'])
+            = isset($this->response['disallowedDatabases']) 
+            && !empty($this->response['disallowedDatabases'])
             ? $this->response['disallowedDatabases'] : [];
 
         return $failed;
     }
-
 }

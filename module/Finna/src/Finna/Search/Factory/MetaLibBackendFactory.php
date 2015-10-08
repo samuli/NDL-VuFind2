@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Factory for MetaLib backends.
  *
@@ -78,7 +77,6 @@ class MetaLibBackendFactory implements FactoryInterface
      */
     public function createService(ServiceLocatorInterface $serviceLocator)
     {
-
         $this->serviceLocator = $serviceLocator;
         $configReader = $this->serviceLocator->get('VuFind\Config');
         $this->config = $configReader->get('MetaLib');
@@ -92,7 +90,7 @@ class MetaLibBackendFactory implements FactoryInterface
     }
 
     /**
-     * Create the Primo Central backend.
+     * Create the MetaLib backend.
      *
      * @param Connector $connector Connector
      *
@@ -107,7 +105,7 @@ class MetaLibBackendFactory implements FactoryInterface
     }
 
     /**
-     * Create the Primo Central connector.
+     * Create the MetaLib connector.
      *
      * @return Connector
      */
@@ -117,11 +115,11 @@ class MetaLibBackendFactory implements FactoryInterface
         $host = $this->config->General->url ?: null;
         $user = $this->config->General->x_user ?: null;
         $pass = $this->config->General->x_password ?: null;
-        $port = null;
         $client = $this->serviceLocator->get('VuFind\Http')->createClient();
-        $cacheManager = $this->serviceLocator->get('VuFind\CacheManager');
+        $table 
+            = $this->serviceLocator->get('VuFind\DbTablePluginManager')
+                ->get('metalibSearch');
         $auth = $this->serviceLocator->get('ZfcRbac\Service\AuthorizationService');
-
 
         $configReader = $this->serviceLocator->get('VuFind\Config');
         $sets = $configReader->get('MetaLibSets')->toArray();
@@ -131,7 +129,9 @@ class MetaLibBackendFactory implements FactoryInterface
         $client->setOptions(['timeout' => $timeout]);
 
         $luceneHelper = null;
-        if (isset($this->config->General->case_sensitive_bools) && $this->config->General->case_sensitive_bools) {
+        if (isset($this->config->General->case_sensitive_bools) 
+            && $this->config->General->case_sensitive_bools
+        ) {
             $solr = $this->serviceLocator->get('Solr');        
             if (is_callable([$solr, 'getQueryBuilder'])) {
                 if ($qb = $solr->getQueryBuilder()) {
@@ -142,46 +142,16 @@ class MetaLibBackendFactory implements FactoryInterface
             }
         }
 
-
-        $connector = new Connector($institution, $host, $user, $pass, $client, $luceneHelper, $cacheManager, $auth, $sets, $port);
+        $connector = new Connector(
+            $institution, $host, $user, $pass, 
+            $client, $luceneHelper, $table, $auth, $sets
+        );
         $connector->setLogger($this->logger);
         return $connector;
     }
 
     /**
-     * Determine the institution code
-     *
-     * @return string
-     */
-    protected function getInstCode()
-    {
-        return "foo";
-
-        $codes = isset($this->primoConfig->Institutions->code)
-            ? $this->primoConfig->Institutions->code : [];
-        $regex = isset($this->primoConfig->Institutions->regex)
-            ? $this->primoConfig->Institutions->regex : [];
-        if (empty($codes) || empty($regex) || count($codes) != count($regex)) {
-            throw new \Exception('Check [Institutions] settings in Primo.ini');
-        }
-
-        $request = $this->serviceLocator->get('Request');
-        $ip = $request->getServer('REMOTE_ADDR');
-
-        for ($i = 0; $i < count($codes); $i++) {
-            if (preg_match($regex[$i], $ip)) {
-                return $codes[$i];
-            }
-        }
-
-        throw new \Exception(
-            'Could not determine institution code. [Institutions] settings '
-            . 'should include a catch-all rule at the end.'
-        );
-    }
-
-    /**
-     * Create the Primo query builder.
+     * Create the MetaLib query builder.
      *
      * @return QueryBuilder
      */
@@ -201,7 +171,6 @@ class MetaLibBackendFactory implements FactoryInterface
         $manager = $this->serviceLocator->get('VuFind\RecordDriverPluginManager');
         $callback = function ($data) use ($manager) {
             $driver = $manager->get('Metalib');
-            //            die("createrec:" . var_export($data, true));
             $driver->setRawData($data);
             return $driver;
         };

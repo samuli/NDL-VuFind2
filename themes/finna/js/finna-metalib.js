@@ -92,8 +92,6 @@ finna.metalib = (function() {
                 finna.openUrl.initLinks();
                 finna.layout.initMobileNarrowSearch();
                 scrollToRecord();
-
-                console.log("fail: %o", response.data['failed']);
             } else {
                 holder.find('.holder').addClass("alert alert-danger").html(response.data);
             }
