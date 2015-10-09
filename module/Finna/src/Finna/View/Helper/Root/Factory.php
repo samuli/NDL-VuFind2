@@ -361,19 +361,6 @@ class Factory extends \VuFind\View\Helper\Root\Factory
         return $searchbox;
     }
 
-    /**
-     * Construct the SearchOptions helper.
-     *
-     * @param ServiceManager $sm Service manager.
-     *
-     * @return SearchOptions
-     */
-    public static function getSearchOptions(ServiceManager $sm)
-    {
-        return new SearchOptions(
-            $sm->getServiceLocator()->get('VuFind\SearchOptionsPluginManager')
-        );
-    }
 
     /**
      * Construct the authorization notification helper.
