@@ -361,7 +361,6 @@ class Factory extends \VuFind\View\Helper\Root\Factory
         return $searchbox;
     }
 
-
     /**
      * Construct the authorization notification helper.
      *
