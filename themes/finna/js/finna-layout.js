@@ -558,6 +558,7 @@ finna.layout = (function() {
         initLightbox: initLightbox,
         updateLoginName: updateLoginName,
         initHierarchicalFacet: initHierarchicalFacet,
+        initMobileNarrowSearch: initMobileNarrowSearch,
         init: function() {
             $('select.jumpMenu').unbind('change').change(function() { $(this).closest('form').submit(); });
             $('select.jumpMenuUrl').unbind('change').change(function(e) { window.location.href = $(e.target).val(); });
