@@ -2,7 +2,7 @@
   // Set up standard record scripts:
   $this->headScript()->appendFile("record.js");
   $this->headScript()->appendFile("check_save_statuses.js");
-  if ($this->driver->getResourceSource() == 'Primo') {
+  if (in_array($this->driver->getResourceSource(), ['Metalib', 'Primo'])) {
     $this->headScript()->appendFile("finna-bx.js");
   }
   // Activate Syndetics Plus if necessary:
@@ -122,7 +122,7 @@
     <? foreach ($this->related()->getList($this->driver) as $current): ?>
       <?=$this->related()->render($current)?>
     <? endforeach; ?>
-    <? if ($this->driver->getResourceSource() == 'Primo'): ?>
+    <? if (in_array($this->driver->getResourceSource(), ['Metalib', 'Primo'])): ?>
       <div id="bx-recommendations-holder">
       </div>
     <? endif; ?>

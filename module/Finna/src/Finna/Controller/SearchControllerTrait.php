@@ -108,4 +108,65 @@ trait SearchControllerTrait
         }
         return $ids;
     }
+
+    /**
+     * Return configured MetaLib search sets that are searchable.
+     *
+     * @return array
+     */
+    protected function getMetalibSets()
+    {
+        $auth
+            = $this->serviceLocator->get('ZfcRbac\Service\AuthorizationService');
+        $configLoader = $this->getServiceLocator()->get('VuFind\Config');
+        $access = $auth->isGranted('finna.authorized') ? 'authorized' : 'guest';
+        $sets = $configLoader->get('MetaLibSets')->toArray();
+        $allowedSets = [];
+        foreach ($sets as $key => $set) {
+            if (!isset($set['access']) || $set['access'] == $access) {
+                $allowedSets[$key] = $set;
+            }
+        }
+        return $allowedSets;
+    }
+
+    /**
+     * Return current MetaLib search set.
+     *
+     * @return array
+     */
+    protected function getCurrentMetalibSet()
+    {
+        $allowedSets = $this->getMetalibSets();
+        $currentSet = $this->getRequest()->getQuery()->get('set');
+        if ($currentSet && strncmp($currentSet, '_ird:', 5) == 0) {
+            $ird = substr($currentSet, 5);
+            if (!preg_match('/\W/', $ird)) {
+                return [true, $currentSet];
+            }
+        } else if ($currentSet) {
+            if (array_key_exists($currentSet, $allowedSets)) {
+                return [false, $currentSet];
+            }
+        }
+        return [false, current(array_keys($allowedSets))];
+    }
+
+    /**
+     * Return IRD's of the current MetaLib search set.
+     *
+     * @return array
+     */
+    protected function getCurrentMetalibIrds()
+    {
+        list($isIrd, $set) = $this->getCurrentMetalibSet();
+        if (!$isIrd) {
+            $allowedSets = $this->getMetalibSets();
+            if (!isset($allowedSets[$set]['ird_list'])) {
+                return false;
+            }
+            $set = $allowedSets[$set]['ird_list'];
+        }
+        return explode(',', $set);
+    }
 }

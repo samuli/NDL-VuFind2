@@ -68,4 +68,18 @@ class Factory
             $sm->getServiceLocator()->get('VuFind\Config')->get('config')
         );
     }
+
+    /**
+     * Construct the MetaLib RecordController.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return RecordController
+     */
+    public static function getMetalibrecordController(ServiceManager $sm)
+    {
+        return new MetalibrecordController(
+            $sm->getServiceLocator()->get('VuFind\Config')->get('config')
+        );
+    }
 }
