@@ -906,7 +906,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
                     $info[$irdInfo['name']] = $irdInfo;
                 }
             } catch (Excpetion $e) {
-                $failed[] = $irdInfo['name'];
+                $failed[] = $ird;
             }
         }
         return compact('allowed', 'disallowed', 'failed', 'info');
