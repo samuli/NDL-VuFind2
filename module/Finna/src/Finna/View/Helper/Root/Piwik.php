@@ -43,14 +43,14 @@ class Piwik extends \VuFind\View\Helper\Root\Piwik
     /**
      * MetaLib search results
      *
-     * @var \Finna\Search\Metalib\Results
+     * @var \Finna\Search\MetaLib\Results
      */
     protected $results = null;
 
     /**
      * Returns Piwik code (if active) or empty string if not.
      *
-     * @param \Finna\Search\Metalib\Results $results MetaLib search results
+     * @param \Finna\Search\MetaLib\Results $results MetaLib search results
      *
      * @return string
      */

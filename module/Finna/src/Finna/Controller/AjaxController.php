@@ -186,7 +186,7 @@ class AjaxController extends \VuFind\Controller\AjaxController
         }
 
         list($source, $id) = explode('.', $params['id'], 2);
-        $map = ['metalib' => 'Metalib', 'pci' => 'Primo'];
+        $map = ['metalib' => 'MetaLib', 'pci' => 'Primo'];
         $source = isset($map[$source]) ? $map[$source] : 'VuFind';
 
         $listId = $params['listId'];
@@ -1093,14 +1093,14 @@ class AjaxController extends \VuFind\Controller\AjaxController
         $this->getRequest()->getQuery()->set('ajax', 1);
 
         $configLoader = $this->getServiceLocator()->get('VuFind\Config');
-        $options = new \Finna\Search\Metalib\Options($configLoader);
-        $params = new \Finna\Search\Metalib\Params($options, $configLoader);
+        $options = new \Finna\Search\MetaLib\Options($configLoader);
+        $params = new \Finna\Search\MetaLib\Params($options, $configLoader);
         $params->initFromRequest($this->getRequest()->getQuery());
 
         $result = [];
-        if ($irds = $this->getCurrentMetalibIrds()) {
+        if ($irds = $this->getCurrentMetaLibIrds()) {
             $params->setIrds($irds);
-            $view = $this->forwardTo('Metalib', 'Search');
+            $view = $this->forwardTo('MetaLib', 'Search');
             $recordsFound = $view->results->getResultTotal() > 0;
             $lookfor
                 = $view->results->getUrlQuery()->isQuerySuppressed()
@@ -1140,7 +1140,7 @@ class AjaxController extends \VuFind\Controller\AjaxController
                      'endRecord' => $view->results->getEndRecord(),
                      'recordsFound' => $recordsFound,
                      'searchType' => $view->params->getsearchType(),
-                     'searchClassId' => 'Metalib'
+                     'searchClassId' => 'MetaLib'
                      ]
                 );
             $result['header'] = $this->getViewRenderer()->render(
@@ -1175,7 +1175,7 @@ class AjaxController extends \VuFind\Controller\AjaxController
             $backendParams = new ParamBag();
             $backendParams->add('irdInfo', [$id]);
             $result
-                = $metalib->search('Metalib', $query, false, false, $backendParams);
+                = $metalib->search('MetaLib', $query, false, false, $backendParams);
             $info = $result->getIRDInfo();
 
             $status = null;

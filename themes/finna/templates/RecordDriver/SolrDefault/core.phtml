@@ -39,7 +39,7 @@
     ?>
     <? if ($metalib): ?>
        <? $this->headScript()->appendFile("finna-metalib-links.js"); ?>
-       <?= $this->partial('RecordDriver/Metalib/search-link.phtml', ['id' => $this->driver->getUniqueID()]); ?>
+       <?= $this->partial('RecordDriver/MetaLib/search-link.phtml', ['id' => $this->driver->getUniqueID()]); ?>
        <?
        $script = '
        $(document).ready(function() {

@@ -25,7 +25,7 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://www.vufind.org  Main Page
  */
-namespace Finna\Search\Metalib;
+namespace Finna\Search\MetaLib;
 use VuFindSearch\ParamBag;
 
 /**
@@ -91,7 +91,7 @@ class Params extends \VuFind\Search\Base\Params
      *
      * @return string
      */
-    public function getMetalibSearchSet()
+    public function getMetaLibSearchSet()
     {
         return $this->metalibSearchSet;
     }

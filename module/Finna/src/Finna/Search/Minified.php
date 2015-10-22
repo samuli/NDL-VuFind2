@@ -77,7 +77,7 @@ class Minified implements \Serializable
         ) {
             $this->f_dty = $daterange['type'];
         }
-        if ($set = $params->getMetalibSearchSet()) {
+        if ($set = $params->getMetaLibSearchSet()) {
             $this->f_mset = $set;
         }
     }

@@ -95,8 +95,8 @@ $config = [
             'cover' => 'Finna\Controller\CoverController',
             'feedback' => 'Finna\Controller\FeedbackController',
             'librarycards' => 'Finna\Controller\LibraryCardsController',
-            'metalib' => 'Finna\Controller\MetalibController',
-            'metalibrecord' => 'Finna\Controller\MetalibrecordController',
+            'metalib' => 'Finna\Controller\MetaLibController',
+            'metalibrecord' => 'Finna\Controller\MetaLibrecordController',
             'my-research' => 'Finna\Controller\MyResearchController',
             'pci' => 'Finna\Controller\PCIController',
             'primo' => 'Finna\Controller\PrimoController',
@@ -136,7 +136,7 @@ $config = [
                 ],
                 'invokables' => [
                     'comments' => 'Finna\Db\Table\Comments',
-                    'metalibSearch' => 'Finna\Db\Table\MetalibSearch',
+                    'metalibSearch' => 'Finna\Db\Table\MetaLibSearch',
                     'search' => 'Finna\Db\Table\Search'
                 ],
             ],
@@ -160,7 +160,7 @@ $config = [
             ],
             'search_backend' => [
                 'factories' => [
-                    'Metalib' => 'Finna\Search\Factory\MetaLibBackendFactory',
+                    'MetaLib' => 'Finna\Search\Factory\MetaLibBackendFactory',
                     'Primo' => 'Finna\Search\Factory\PrimoBackendFactory',
                     'Solr' => 'Finna\Search\Factory\SolrDefaultBackendFactory',
                 ],
@@ -191,7 +191,7 @@ $config = [
             ],
             'recorddriver' => [
                 'factories' => [
-                    'metalib' => 'Finna\RecordDriver\Factory::getMetalib',
+                    'metalib' => 'Finna\RecordDriver\Factory::getMetaLib',
                     'solrdefault' => 'Finna\RecordDriver\Factory::getSolrDefault',
                     'solrmarc' => 'Finna\RecordDriver\Factory::getSolrMarc',
                     'solread' => 'Finna\RecordDriver\Factory::getSolrEad',
@@ -215,7 +215,7 @@ $config = [
             ],
         ],
         'recorddriver_tabs' => [
-            'Finna\RecordDriver\Metalib' => [
+            'Finna\RecordDriver\MetaLib' => [
                 'tabs' => [
                     'Details' => 'StaffViewArray'
                 ],
@@ -284,7 +284,7 @@ $config = [
 ];
 
 $recordRoutes = [
-   'metalibrecord' => 'MetalibRecord'
+   'metalibrecord' => 'MetaLibRecord'
 ];
 
 // Define dynamic routes -- controller => [route name => action]
@@ -294,7 +294,7 @@ $dynamicRoutes = [
 
 $staticRoutes = [
    'Browse/Database', 'Browse/Journal',
-   'Metalib/Home', 'Metalib/Search', 'Metalib/Advanced',
+   'MetaLib/Home', 'MetaLib/Search', 'MetaLib/Advanced',
    'PCI/Home', 'PCI/Search', 'PCI/Record'
 ];
 

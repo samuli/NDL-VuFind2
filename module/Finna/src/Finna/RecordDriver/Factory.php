@@ -161,10 +161,10 @@ class Factory
      *
      * @return MetaLib
      */
-    public static function getMetalib(ServiceManager $sm)
+    public static function getMetaLib(ServiceManager $sm)
     {
-        $conf = $sm->getServiceLocator()->get('VuFind\Config')->get('Metalib');
-        $driver = new Metalib(
+        $conf = $sm->getServiceLocator()->get('VuFind\Config')->get('MetaLib');
+        $driver = new MetaLib(
             $sm->getServiceLocator()->get('VuFind\Config')->get('config'),
             $conf, $conf
         );

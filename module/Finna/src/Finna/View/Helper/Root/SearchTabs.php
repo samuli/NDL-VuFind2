@@ -269,7 +269,7 @@ class SearchTabs extends \VuFind\View\Helper\Root\SearchTabs
                 }
             }
             $params = $savedSearch->getParams();
-            if ($set = $params->getMetalibSearchSet()) {
+            if ($set = $params->getMetaLibSearchSet()) {
                 $settings['params'] = ['set' => $set];
             }
 

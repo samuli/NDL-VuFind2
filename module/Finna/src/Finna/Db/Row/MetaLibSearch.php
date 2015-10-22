@@ -36,7 +36,7 @@ namespace Finna\Db\Row;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org   Main Site
  */
-class MetalibSearch extends \VuFind\Db\Row\RowGateway
+class MetaLibSearch extends \VuFind\Db\Row\RowGateway
 {
     /**
      * Constructor

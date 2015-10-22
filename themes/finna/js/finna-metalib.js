@@ -22,7 +22,7 @@ finna.metalib = (function() {
         var parts = fullPath.split('&');
         var url = parts.shift();
         if (useAJAXLoad) {
-            url = url.replace('/Metalib/Search?', '/AJAX/JSON?');
+            url = url.replace('/MetaLib/Search?', '/AJAX/JSON?');
         }
 
         page = 1;
@@ -51,7 +51,7 @@ finna.metalib = (function() {
         currentPath = url;
 
         if (!useAJAXLoad) {
-            var tmp = url.replace('/AJAX/JSON?', '/Metalib/Search?');
+            var tmp = url.replace('/AJAX/JSON?', '/MetaLib/Search?');
             top.location = tmp;
             return false;
         }
@@ -103,7 +103,7 @@ finna.metalib = (function() {
             }
             var title = '';
             // Restore ajaxified URL before saving history
-            var tmp = url.replace('/AJAX/JSON?', '/Metalib/Search?');
+            var tmp = url.replace('/AJAX/JSON?', '/MetaLib/Search?');
             tmp = tmp.replace('&method=metaLib', '');
             window.history.pushState(state, title, tmp);
         }
@@ -170,7 +170,7 @@ finna.metalib = (function() {
     var initTabNavigation = function(hash) {
         $(".nav-tabs li a").click(function() {
             var href = $(this).attr('href');
-            href += ('&search[]=Metalib:' + hash);
+            href += ('&search[]=MetaLib:' + hash);
             $(this).attr('href', href);
         });
     };

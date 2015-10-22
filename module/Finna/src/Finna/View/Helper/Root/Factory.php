@@ -120,10 +120,10 @@ class Factory extends \VuFind\View\Helper\Root\Factory
      *
      * @return Primo
      */
-    public static function getMetalib(ServiceManager $sm)
+    public static function getMetaLib(ServiceManager $sm)
     {
         $config = $sm->getServiceLocator()->get('VuFind\Config')->get('MetaLib');
-        return new Metalib($config);
+        return new MetaLib($config);
     }
 
     /**

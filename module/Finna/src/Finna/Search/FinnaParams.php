@@ -150,7 +150,7 @@ trait FinnaParams
      *
      * @return string
      */
-    public function getMetalibSearchSet()
+    public function getMetaLibSearchSet()
     {
         return $this->metalibSearchSet;
     }

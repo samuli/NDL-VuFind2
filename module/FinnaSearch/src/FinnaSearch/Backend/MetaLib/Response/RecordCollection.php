@@ -25,7 +25,7 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org
  */
-namespace FinnaSearch\Backend\Metalib\Response;
+namespace FinnaSearch\Backend\MetaLib\Response;
 
 use VuFindSearch\Response\AbstractRecordCollection;
 

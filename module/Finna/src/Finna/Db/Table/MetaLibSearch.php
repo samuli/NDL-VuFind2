@@ -28,7 +28,7 @@
 namespace Finna\Db\Table;
 
 /**
- * Table Definition for Metalib search
+ * Table Definition for MetaLib search
  *
  * @category VuFind2
  * @package  Db_Table
@@ -36,14 +36,14 @@ namespace Finna\Db\Table;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org   Main Site
  */
-class MetalibSearch extends \VuFind\Db\Table\Gateway
+class MetaLibSearch extends \VuFind\Db\Table\Gateway
 {
     /**
      * Constructor
      */
     public function __construct()
     {
-        parent::__construct('finna_metalib_search', 'Finna\Db\Row\MetalibSearch');
+        parent::__construct('finna_metalib_search', 'Finna\Db\Row\MetaLibSearch');
     }
 
     /**
@@ -54,7 +54,7 @@ class MetalibSearch extends \VuFind\Db\Table\Gateway
      *
      * @return void
      */
-    public function saveMetalibSearch($results, $searchId)
+    public function saveMetaLibSearch($results, $searchId)
     {
         if ($this->getRowBySearchHash($searchId)) {
             return;
@@ -72,7 +72,7 @@ class MetalibSearch extends \VuFind\Db\Table\Gateway
      * @param string $hash Hash
      *
      * @throws \Exception
-     * @return \Finna\Db\Row\MetalibSearch
+     * @return \Finna\Db\Row\MetaLibSearch
      */
     public function getRowBySearchHash($hash)
     {

@@ -25,7 +25,7 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://www.vufind.org  Main Page
  */
-namespace Finna\Search\Metalib;
+namespace Finna\Search\MetaLib;
 
 /**
  * MetaLib Search Parameters
@@ -61,7 +61,7 @@ class Results extends \VuFind\Search\Base\Results
         $params = $this->getParams()->getBackendParameters();
 
         $collection = $this->getSearchService()->search(
-            'Metalib', $query, $offset, $limit, $params
+            'MetaLib', $query, $offset, $limit, $params
         );
 
         $this->resultTotal = $collection->getTotal();

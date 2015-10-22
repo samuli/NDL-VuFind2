@@ -89,7 +89,7 @@ class Factory extends \VuFind\Search\Results\Factory
     public static function getMetaLib(ServiceManager $sm)
     {
         $factory = new PluginFactory();
-        $metalib = $factory->createServiceWithName($sm, 'metalib', 'Metalib');
+        $metalib = $factory->createServiceWithName($sm, 'metalib', 'MetaLib');
         return Factory::initUrlQueryHelper($metalib, $sm->getServiceLocator());
     }
 

@@ -114,7 +114,7 @@ trait SearchControllerTrait
      *
      * @return array
      */
-    protected function getMetalibSets()
+    protected function getMetaLibSets()
     {
         $auth
             = $this->serviceLocator->get('ZfcRbac\Service\AuthorizationService');
@@ -135,9 +135,9 @@ trait SearchControllerTrait
      *
      * @return array
      */
-    protected function getCurrentMetalibSet()
+    protected function getCurrentMetaLibSet()
     {
-        $allowedSets = $this->getMetalibSets();
+        $allowedSets = $this->getMetaLibSets();
         $currentSet = $this->getRequest()->getQuery()->get('set');
         if ($currentSet && strncmp($currentSet, '_ird:', 5) == 0) {
             $ird = substr($currentSet, 5);
@@ -157,11 +157,11 @@ trait SearchControllerTrait
      *
      * @return array
      */
-    protected function getCurrentMetalibIrds()
+    protected function getCurrentMetaLibIrds()
     {
-        list($isIrd, $set) = $this->getCurrentMetalibSet();
+        list($isIrd, $set) = $this->getCurrentMetaLibSet();
         if (!$isIrd) {
-            $allowedSets = $this->getMetalibSets();
+            $allowedSets = $this->getMetaLibSets();
             if (!isset($allowedSets[$set]['ird_list'])) {
                 return false;
             }

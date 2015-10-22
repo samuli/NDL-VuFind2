@@ -39,14 +39,14 @@ namespace Finna\RecordDriver;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:record_drivers Wiki
  */
-class Metalib extends \VuFind\RecordDriver\SolrMarc
+class MetaLib extends \VuFind\RecordDriver\SolrMarc
 {
     /**
      * Used for identifying search backends
      *
      * @var string
      */
-    protected $sourceIdentifier = 'Metalib';
+    protected $sourceIdentifier = 'MetaLib';
 
     /**
      * Get the short (pre-subtitle) title of the record.

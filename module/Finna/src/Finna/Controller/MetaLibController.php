@@ -26,9 +26,9 @@
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
 namespace Finna\Controller;
-use Finna\Search\Metalib\Options as Options,
-    Finna\Search\Metalib\Params as Params,
-    Finna\Search\Metalib\Results as Results,
+use Finna\Search\MetaLib\Options as Options,
+    Finna\Search\MetaLib\Params as Params,
+    Finna\Search\MetaLib\Results as Results,
     Finna\Search\Results\Factory as Factory,
     VuFindSearch\ParamBag as ParamBag,
     VuFindSearch\Query\Query as Query,
@@ -43,7 +43,7 @@ use Finna\Search\Metalib\Options as Options,
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
-class MetalibController extends \VuFind\Controller\AbstractSearch
+class MetaLibController extends \VuFind\Controller\AbstractSearch
 {
     use SearchControllerTrait;
 
@@ -52,7 +52,7 @@ class MetalibController extends \VuFind\Controller\AbstractSearch
      */
     public function __construct()
     {
-        $this->searchClassId = 'Metalib';
+        $this->searchClassId = 'MetaLib';
         parent::__construct();
     }
 
@@ -94,8 +94,8 @@ class MetalibController extends \VuFind\Controller\AbstractSearch
             $options = new Options($configLoader);
             $params = new Params($options, $configLoader);
             $params->initFromRequest($query);
-            if ($irds = $this->getCurrentMetalibIrds()) {
-                $params->setIrds($this->getCurrentMetalibIrds());
+            if ($irds = $this->getCurrentMetaLibIrds()) {
+                $params->setIrds($this->getCurrentMetaLibIrds());
             }
             $results = new Results($params);
             $results
@@ -139,21 +139,21 @@ class MetalibController extends \VuFind\Controller\AbstractSearch
      */
     protected function initSets($view, $query)
     {
-        $allowedSets = $this->getMetalibSets();
+        $allowedSets = $this->getMetaLibSets();
         $sets = [];
         foreach ($allowedSets as $key => $set) {
             $sets[$key] = $set['name'];
         }
         $view->sets = $sets;
-        list($isIrd, $set) = $this->getCurrentMetalibSet();
+        list($isIrd, $set) = $this->getCurrentMetaLibSet();
         $view->currentSet = $set;
-        $session = new SessionContainer('Metalib');
+        $session = new SessionContainer('MetaLib');
         if ($isIrd) {
             $metalib = $this->getServiceLocator()->get('VuFind\Search');
             $backendParams = new ParamBag();
             $backendParams->add('irdInfo', explode(',', substr($set, 5)));
             $result
-                = $metalib->search('Metalib', $query, false, false, $backendParams);
+                = $metalib->search('MetaLib', $query, false, false, $backendParams);
             $info = $result->getIRDInfo();
             $name = $info ? $info['name'] : $set;
             if (!isset($session->recentSets)) {
@@ -175,7 +175,7 @@ class MetalibController extends \VuFind\Controller\AbstractSearch
     protected function resultScrollerActive()
     {
         return true;
-        $config = $this->getServiceLocator()->get('VuFind\Config')->get('Metalib');
+        $config = $this->getServiceLocator()->get('VuFind\Config')->get('MetaLib');
         return (isset($config->Record->next_prev_navigation)
             && $config->Record->next_prev_navigation);
     }

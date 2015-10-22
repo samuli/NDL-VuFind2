@@ -26,8 +26,8 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org
  */
-namespace FinnaSearch\Backend\Metalib;
-use Finna\Db\Table\MetalibSearch,
+namespace FinnaSearch\Backend\MetaLib;
+use Finna\Db\Table\MetaLibSearch,
     \VuFindSearch\Backend\Solr\LuceneSyntaxHelper,
     ZfcRbac\Service\AuthorizationService,
     Zend\Http\Client as HttpClient,
@@ -100,7 +100,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
     /**
      * Table for cached search results
      *
-     * @var \Finna\Db\Table\MetalibSearch
+     * @var \Finna\Db\Table\MetaLibSearch
      */
     protected $table;
 
@@ -129,14 +129,14 @@ class Connector implements \Zend\Log\LoggerAwareInterface
      * @param string               $pass         MetaLib API password
      * @param HttpClient           $client       HTTP client
      * @param LuceneSyntaxHelper   $luceneHelper Lucene syntax helper
-     * @param MetalibSearch        $table        Table for cached search results
+     * @param MetaLibSearch        $table        Table for cached search results
      * @param AuthorizationService $auth         Authorization service
      * @param array                $sets         MetaLib search sets
      */
     public function __construct(
         $institution, $url, $user, $pass,
         HttpClient $client, LuceneSyntaxHelper $luceneHelper,
-        MetalibSearch $table, AuthorizationService $auth,
+        MetaLibSearch $table, AuthorizationService $auth,
         $sets
     ) {
         $this->inst = $institution;
@@ -148,7 +148,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
         $this->table = $table;
         $this->auth = $auth;
         $this->sets = $sets;
-        $this->session = new SessionContainer('Metalib');
+        $this->session = new SessionContainer('MetaLib');
     }
 
     /**
@@ -1064,6 +1064,6 @@ class Connector implements \Zend\Log\LoggerAwareInterface
      */
     protected function putCachedResults($queryId, $results)
     {
-        $this->table->saveMetalibSearch($results, $queryId);
+        $this->table->saveMetaLibSearch($results, $queryId);
     }
 }

@@ -76,9 +76,9 @@ class Factory
      *
      * @return RecordController
      */
-    public static function getMetalibrecordController(ServiceManager $sm)
+    public static function getMetaLibrecordController(ServiceManager $sm)
     {
-        return new MetalibrecordController(
+        return new MetaLibrecordController(
             $sm->getServiceLocator()->get('VuFind\Config')->get('config')
         );
     }

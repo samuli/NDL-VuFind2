@@ -36,7 +36,7 @@ namespace Finna\Controller;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org   Main Site
  */
-class MetalibrecordController extends \VuFind\Controller\AbstractRecord
+class MetaLibrecordController extends \VuFind\Controller\AbstractRecord
 {
     use RecordControllerTrait;
 
@@ -46,7 +46,7 @@ class MetalibrecordController extends \VuFind\Controller\AbstractRecord
     public function __construct()
     {
         // Override some defaults:
-        $this->searchClassId = 'Metalib';
+        $this->searchClassId = 'MetaLib';
 
         // Call standard record controller initialization:
         parent::__construct();

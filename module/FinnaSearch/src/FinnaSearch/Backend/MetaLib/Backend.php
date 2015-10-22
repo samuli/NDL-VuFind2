@@ -26,7 +26,7 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org
  */
-namespace FinnaSearch\Backend\Metalib;
+namespace FinnaSearch\Backend\MetaLib;
 
 use VuFindSearch\Query\AbstractQuery;
 

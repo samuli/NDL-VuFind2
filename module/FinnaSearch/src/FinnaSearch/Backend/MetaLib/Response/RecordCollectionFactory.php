@@ -25,7 +25,7 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org
  */
-namespace FinnaSearch\Backend\Metalib\Response;
+namespace FinnaSearch\Backend\MetaLib\Response;
 
 use VuFindSearch\Response\RecordCollectionFactoryInterface;
 use VuFindSearch\Exception\InvalidArgumentException;
@@ -76,7 +76,7 @@ class RecordCollectionFactory implements RecordCollectionFactoryInterface
         }
         $this->recordFactory = $recordFactory;
         $this->collectionClass = (null === $collectionClass)
-            ? 'FinnaSearch\Backend\Metalib\Response\RecordCollection'
+            ? 'FinnaSearch\Backend\MetaLib\Response\RecordCollection'
             : $collectionClass;
     }
 

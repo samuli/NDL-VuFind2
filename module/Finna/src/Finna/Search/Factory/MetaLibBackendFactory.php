@@ -27,11 +27,11 @@
  */
 namespace Finna\Search\Factory;
 
-use FinnaSearch\Backend\Metalib\Connector;
+use FinnaSearch\Backend\MetaLib\Connector;
 use VuFindSearch\Backend\BackendInterface;
-use FinnaSearch\Backend\Metalib\Response\RecordCollectionFactory;
-use FinnaSearch\Backend\Metalib\QueryBuilder;
-use FinnaSearch\Backend\Metalib\Backend;
+use FinnaSearch\Backend\MetaLib\Response\RecordCollectionFactory;
+use FinnaSearch\Backend\MetaLib\QueryBuilder;
+use FinnaSearch\Backend\MetaLib\Backend;
 
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
@@ -169,7 +169,7 @@ class MetaLibBackendFactory implements FactoryInterface
     {
         $manager = $this->serviceLocator->get('VuFind\RecordDriverPluginManager');
         $callback = function ($data) use ($manager) {
-            $driver = $manager->get('Metalib');
+            $driver = $manager->get('MetaLib');
             $driver->setRawData($data);
             return $driver;
         };
