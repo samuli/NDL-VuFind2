@@ -7782,8 +7782,7 @@ table .iconlabel {
 .image-popup-trigger:hover {
   text-decoration: none;
 }
-.image-popup-trigger img,
-.image-popup-trigger .no-cover {
+.image-popup-trigger img {
   box-shadow: 0px 0px 0px 4px #dfdfdf inset;
   position: relative;
   width: 100%;
@@ -7814,8 +7813,7 @@ table .iconlabel {
   }
 }
 @media (max-width: 767px) {
-  .image-popup-trigger img,
-  .image-popup-trigger .no-cover {
+  .image-popup-trigger img {
     box-shadow: none;
     width: auto;
   }
@@ -7832,8 +7830,7 @@ table .iconlabel {
   .grid-image .image-popup-trigger {
     display: block;
   }
-  .grid-image .image-popup-trigger img,
-  .grid-image .image-popup-trigger .no-cover {
+  .grid-image .image-popup-trigger img {
     box-shadow: 0px 0px 0px 4px #dfdfdf inset;
   }
 }
