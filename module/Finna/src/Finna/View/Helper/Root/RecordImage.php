@@ -119,6 +119,7 @@ class RecordImage extends \Zend\View\Helper\AbstractHelper
 
         $view = $this->getView();
         $view->type = $type;
+        $view->smallImage = $view->mediumImage = $view->largeImage = false;
 
         $view = $this->getView();
         $urlHelper = $this->getView()->plugin('url');
@@ -128,27 +129,23 @@ class RecordImage extends \Zend\View\Helper\AbstractHelper
         }
 
         $params = $this->record->getRecordImage('small');
-        unset($params['url']);
-        unset($params['size']);
-
         if ($numOfImages || $this->record->getDriver()->getCleanISBN()) {
+            unset($params['url']);
+            unset($params['size']);
+
             $view->smallImage = $urlHelper('cover-show') . '?' .
                 http_build_query(array_merge($params, $this->params['small']));
-            ;
+        }
 
-            $params = $this->record->getRecordImage('large');
+        $params = $this->record->getRecordImage('large');
+        if ($numOfImages || $this->record->getDriver()->getCleanISBN()) {
             unset($params['url']);
             unset($params['size']);
 
             $view->mediumImage = $urlHelper('cover-show') . '?' .
                 http_build_query(array_merge($params, $this->params['medium']));
-
             $view->largeImage = $urlHelper('cover-show') . '?' .
                 http_build_query(array_merge($params, $this->params['large']));
-        } else {
-            $view->smallImage = false;
-            $view->mediumImage = false;
-            $view->largeImage = false;
         }
 
         $images = [];

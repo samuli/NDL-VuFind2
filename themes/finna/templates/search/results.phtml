@@ -1,7 +1,7 @@
 <?
   $browse = isset($browse) ? $browse : false;
   $this->layout()->browse = $browse;
-
+  $this->headMeta()->appendName('robots', 'noindex,follow');
   // Set up page title:
   $lookfor = $this->results->getUrlQuery()->isQuerySuppressed() ? '' : $this->params->getDisplayQuery();
   if (isset($this->overrideTitle)) {
@@ -64,6 +64,8 @@
   // Load Javascript dependencies into header:
   $this->headScript()->appendFile("finna-search-tabs-recommendations.js");
   $this->headScript()->appendFile("finna-item-status.js");
+
+  $topRecommendations = $this->results->getRecommendations('top');
 ?>
     <? if (($recordTotal = $this->results->getResultTotal()) > 0): // only display these at very top if we have results ?>
       <? foreach ($this->results->getRecommendations('top') as $current): ?>
@@ -80,7 +82,7 @@
           <?=$this->render('search/controls/limit.phtml')?>
         </div>
         <? endif; ?>
-        <div<?= !$browse ? ' class="col-sm-5 col-md-4 col-sm-pull-7 col-md-pull-8"' : '' ?>>
+        <div<?= !$browse ? ' class="col-sm-5 col-md-4 col-sm-pull-7 col-md-pull-8"' : ' class="col-xs-12"' ?>>
             <?=$this->paginationControl($this->results->getPaginator(), 'Sliding', 'search/pagination_simple.phtml', array('results' => $this->results, 'label' => $browse ? "browse_extended_" . ucfirst($browse) : 'Showing'))?>
         </div>
     </div>
@@ -98,18 +100,18 @@
     <? if (isset($this->parseError)): ?>
       <p class="alert alert-danger"><?=$this->transEsc('nohit_parse_error')?></p>
     <? endif; ?>
+    <? foreach ($this->results->getRecommendations('noresults') as $current): ?>
+      <? if (!in_array($current, $topRecommendations)): ?>
+        <?=$this->recommend($current)?>
+      <? endif; ?>
+    <? endforeach; ?>
   </div>
   <? endif; ?>
   <div class="<?=$this->layoutClass('mainbody')?>">
     <? /* End Listing Options */ ?>
     <? if ($recordTotal < 1): ?>
-      <? foreach (($top = $this->results->getRecommendations('top')) as $current): ?>
+      <? foreach ($topRecommendations as $current): ?>
         <?=$this->recommend($current)?>
-      <? endforeach; ?>
-      <? foreach ($this->results->getRecommendations('noresults') as $current): ?>
-        <? if (!in_array($current, $top)): ?>
-          <?=$this->recommend($current)?>
-        <? endif; ?>
       <? endforeach; ?>
       <? if (!$browse && $this->searchTabsRecommendations()->getConfig($this->params->getSearchClassId())): ?>
         <div id="search-tabs-recommendations-holder" data-search-hash="<?=$this->escapeHtmlAttr($this->results->getSearchHash())?>"></div>
