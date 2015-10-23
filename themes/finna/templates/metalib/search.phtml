@@ -1,5 +1,6 @@
 <?
   $this->layout()->browse = false;
+  $this->headMeta()->appendName('robots', 'noindex,follow');
 
   // Set up page title:
   $lookfor = $this->params->getDisplayQuery();

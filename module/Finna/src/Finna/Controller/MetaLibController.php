@@ -94,8 +94,10 @@ class MetaLibController extends \VuFind\Controller\AbstractSearch
             $options = new Options($configLoader);
             $params = new Params($options, $configLoader);
             $params->initFromRequest($query);
-            if ($irds = $this->getCurrentMetaLibIrds()) {
-                $params->setIrds($this->getCurrentMetaLibIrds());
+            list($isIRD, $set)
+                = $this->getMetaLibSet($this->getRequest()->getQuery()->get('set'));
+            if ($irds = $this->getMetaLibIrds($set)) {
+                $params->setIrds($irds);
             }
             $results = new Results($params);
             $results
@@ -145,7 +147,9 @@ class MetaLibController extends \VuFind\Controller\AbstractSearch
             $sets[$key] = $set['name'];
         }
         $view->sets = $sets;
-        list($isIrd, $set) = $this->getCurrentMetaLibSet();
+        list($isIrd, $set) = $this->getMetaLibSet(
+            $this->getRequest()->getQuery()->get('set')
+        );
         $view->currentSet = $set;
         $session = new SessionContainer('MetaLib');
         if ($isIrd) {

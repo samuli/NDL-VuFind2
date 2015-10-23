@@ -192,11 +192,11 @@ class Connector implements \Zend\Log\LoggerAwareInterface
                 if ($args["returnErr"]) {
                     $this->debug($e->getMessage());
                     return [
-                            'recordCount' => 0,
-                            'documents' => [],
-                            'facets' => [],
-                            'error' => $e->getMessage()
-                            ];
+                        'recordCount' => 0,
+                        'documents' => [],
+                        'facets' => [],
+                        'error' => $e->getMessage()
+                    ];
                 } else {
                     throw $e;
                 }
@@ -333,7 +333,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
                 'count' => $count,
                 'set' => (string)$baseInfo->set_number,
                 'records' => []
-                ];
+            ];
             $successes[] = $databaseInfo;
         }
         return compact('databases', 'successes', 'failed', 'totalRecords');
@@ -556,13 +556,13 @@ class Connector implements \Zend\Log\LoggerAwareInterface
                 $lookfor = $this->luceneHelper->capitalizeBooleans($lookfor);
             }
             $map = [
-                    'AllFields' => 'WRD',
-                    'Title' => 'WTI',
-                    'Author' => 'WAU',
-                    'Subject' => 'WSU',
-                    'isbn' => 'ISBN',
-                    'issn' => 'ISSN'
-                    ];
+                'AllFields' => 'WRD',
+                'Title' => 'WTI',
+                'Author' => 'WAU',
+                'Subject' => 'WSU',
+                'isbn' => 'ISBN',
+                'issn' => 'ISSN'
+            ];
 
             if (isset($map[$index])) {
                 $index = $map[$index];

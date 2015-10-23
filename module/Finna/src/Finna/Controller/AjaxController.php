@@ -1098,7 +1098,9 @@ class AjaxController extends \VuFind\Controller\AjaxController
         $params->initFromRequest($this->getRequest()->getQuery());
 
         $result = [];
-        if ($irds = $this->getCurrentMetaLibIrds()) {
+        list($isIRD, $set)
+            = $this->getMetaLibSet($this->getRequest()->getQuery()->get('set'));
+        if ($irds = $this->getMetaLibIrds($set)) {
             $params->setIrds($irds);
             $view = $this->forwardTo('MetaLib', 'Search');
             $recordsFound = $view->results->getResultTotal() > 0;

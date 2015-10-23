@@ -131,22 +131,29 @@ trait SearchControllerTrait
     }
 
     /**
-     * Return current MetaLib search set.
+     * Verify that the user may search in the given MetaLib search set.
+     *
+     * Returns an array with elements:
+     *   boolean: true if the given search set is configured, i.e. not an IRD.
+     *   string:  Searchable search set. Fallbacks to the first configured
+     *            search set.
+     *
+     * @param string $set Search set.
      *
      * @return array
      */
-    protected function getCurrentMetaLibSet()
+    protected function getMetaLibSet($set = false)
     {
         $allowedSets = $this->getMetaLibSets();
-        $currentSet = $this->getRequest()->getQuery()->get('set');
-        if ($currentSet && strncmp($currentSet, '_ird:', 5) == 0) {
-            $ird = substr($currentSet, 5);
+        //$currentSet = $this->getRequest()->getQuery()->get('set');
+        if ($set && strncmp($set, '_ird:', 5) == 0) {
+            $ird = substr($set, 5);
             if (!preg_match('/\W/', $ird)) {
-                return [true, $currentSet];
+                return [true, $set];
             }
-        } else if ($currentSet) {
-            if (array_key_exists($currentSet, $allowedSets)) {
-                return [false, $currentSet];
+        } else if ($set) {
+            if (array_key_exists($set, $allowedSets)) {
+                return [false, $set];
             }
         }
         return [false, current(array_keys($allowedSets))];
@@ -157,9 +164,9 @@ trait SearchControllerTrait
      *
      * @return array
      */
-    protected function getCurrentMetaLibIrds()
+    protected function getMetaLibIrds($set)
     {
-        list($isIrd, $set) = $this->getCurrentMetaLibSet();
+        list($isIrd, $set) = $this->getMetaLibSet($set);
         if (!$isIrd) {
             $allowedSets = $this->getMetaLibSets();
             if (!isset($allowedSets[$set]['ird_list'])) {
