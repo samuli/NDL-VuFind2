@@ -89,7 +89,9 @@ trait MetaLibIrdTrait
     }
 
     /**
-     * Return IRD's of the current MetaLib search set.
+     * Return MetaLib search set IRD's.
+     *
+     * @param string $set IRD
      *
      * @return array
      */

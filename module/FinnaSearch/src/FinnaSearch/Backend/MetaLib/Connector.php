@@ -921,7 +921,6 @@ class Connector implements \Zend\Log\LoggerAwareInterface
         }
         $sessionId = $this->getSession();
 
-
         // Do the source locate request
         $params = [
             'session_id' => $sessionId,
