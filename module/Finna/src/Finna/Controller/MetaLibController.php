@@ -26,7 +26,8 @@
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
 namespace Finna\Controller;
-use Finna\Search\MetaLib\Options as Options,
+use Finna\MetaLib\MetaLibIrdTrait,
+    Finna\Search\MetaLib\Options as Options,
     Finna\Search\MetaLib\Params as Params,
     Finna\Search\MetaLib\Results as Results,
     Finna\Search\Results\Factory as Factory,
@@ -45,7 +46,8 @@ use Finna\Search\MetaLib\Options as Options,
  */
 class MetaLibController extends \VuFind\Controller\AbstractSearch
 {
-    use SearchControllerTrait;
+    use MetaLibIrdTrait,
+        SearchControllerTrait;
 
     /**
      * Constructor

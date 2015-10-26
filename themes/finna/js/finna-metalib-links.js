@@ -26,7 +26,6 @@ finna.metalibLinks = (function() {
     var my = {
         initSearchLinks: initSearchLinks,
         init: function() {
-            console.log("init ml links");
             initSearchLinks();
         }
     };

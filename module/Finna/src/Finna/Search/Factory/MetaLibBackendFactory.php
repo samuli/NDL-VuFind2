@@ -32,6 +32,7 @@ use VuFindSearch\Backend\BackendInterface;
 use FinnaSearch\Backend\MetaLib\Response\RecordCollectionFactory;
 use FinnaSearch\Backend\MetaLib\QueryBuilder;
 use FinnaSearch\Backend\MetaLib\Backend;
+use FinnaSearch\Backend\Solr\LuceneSyntaxHelper;
 
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
@@ -127,23 +128,20 @@ class MetaLibBackendFactory implements FactoryInterface
             ? $this->config->General->timeout : 60;
         $client->setOptions(['timeout' => $timeout]);
 
-        $luceneHelper = null;
-        if (isset($this->config->General->case_sensitive_bools)
-            && $this->config->General->case_sensitive_bools
-        ) {
-            $solr = $this->serviceLocator->get('Solr');
-            if (is_callable([$solr, 'getQueryBuilder'])) {
-                if ($qb = $solr->getQueryBuilder()) {
-                    if (is_callable([$qb, 'getLuceneHelper'])) {
-                        $luceneHelper = $qb->getLuceneHelper();
-                    }
-                }
-            }
-        }
+        /**
+         * Should boolean operators in the search string be treated as
+         * case-insensitive (false), or must they be ALL UPPERCASE (true)?
+         */
+        $luceneHelper
+            = isset($this->config->General->case_sensitive_bools)
+            && !$this->config->General->case_sensitive_bools
+            ? new LuceneSyntaxHelper()
+            : null
+        ;
 
         $connector = new Connector(
             $institution, $host, $user, $pass,
-            $client, $luceneHelper, $table, $auth, $sets
+            $client, $table, $auth, $sets, $luceneHelper
         );
         $connector->setLogger($this->logger);
         return $connector;

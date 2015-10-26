@@ -85,7 +85,7 @@ class Results extends \VuFind\Search\Base\Results
     }
 
     /**
-     * Returns list of failed databases.
+     * Returns list of failed and disallowed databases.
      *
      * @return array
      */

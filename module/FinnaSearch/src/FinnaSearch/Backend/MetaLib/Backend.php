@@ -78,7 +78,7 @@ class Backend extends AbstractBackend
         if (null !== $factory) {
             $this->setRecordCollectionFactory($factory);
         }
-        $this->connector    = $connector;
+        $this->connector = $connector;
     }
 
     /**
@@ -131,7 +131,7 @@ class Backend extends AbstractBackend
     public function retrieve($id, ParamBag $params = null)
     {
         try {
-            $response   = $this->connector
+            $response = $this->connector
                 ->getRecord($id, $this->connector->getInstitutionCode());
         } catch (\Exception $e) {
             // TODO: check from database, this could be in a favorite list

@@ -87,6 +87,18 @@ class Factory extends \VuFind\View\Helper\Root\Factory
     }
 
     /**
+     * Construct the RecordLink helper.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return RecordLink
+     */
+    public static function getRecordLink(ServiceManager $sm)
+    {
+        return new RecordLink($sm->getServiceLocator()->get('VuFind\RecordRouter'));
+    }
+
+    /**
      * Construct the Navibar view helper.
      *
      * @param ServiceManager $sm Service manager.

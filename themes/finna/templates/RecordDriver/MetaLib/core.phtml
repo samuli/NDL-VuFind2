@@ -220,7 +220,7 @@
           <td>
             <? foreach ($recordLinks as $recordLink): ?>
               <?=$this->transEsc($recordLink['title'])?>:
-              <a href="<?=$this->recordLink()->related($recordLink['link'])?>"><?=$this->escapeHtml($recordLink['value'])?></a><br />
+              <a href="<?=$this->recordLink()->relatedMetaLib($recordLink['link'], $linkParams)?>"><?=$this->escapeHtml($recordLink['value'])?></a><br />
             <? endforeach; ?>
             <? /* if we have record links, display relevant explanatory notes */
               $related = $this->driver->getRelationshipNotes();

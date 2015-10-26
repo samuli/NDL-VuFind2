@@ -32,6 +32,7 @@ use Finna\Db\Table\MetaLibSearch,
     ZfcRbac\Service\AuthorizationService,
     Zend\Http\Client as HttpClient,
     Zend\Http\Request,
+    Zend\Log\LoggerInterface,
     Zend\Session\Container as SessionContainer;
 
 /**
@@ -135,9 +136,10 @@ class Connector implements \Zend\Log\LoggerAwareInterface
      */
     public function __construct(
         $institution, $url, $user, $pass,
-        HttpClient $client, LuceneSyntaxHelper $luceneHelper,
+        HttpClient $client,
         MetaLibSearch $table, AuthorizationService $auth,
-        $sets
+        $sets,
+        LuceneSyntaxHelper $luceneHelper = null
     ) {
         $this->inst = $institution;
         $this->host = $url;
@@ -166,9 +168,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
         try {
             $sessionId = $this->getSession();
         } catch (\Exception $e) {
-            return [
-               'error' => $e->getMessage()
-            ];
+            return ['error' => $e->getMessage()];
         }
 
         $args = [];
@@ -178,9 +178,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
                 $result['documents'] = [];
             } catch (\Exception $e) {
                 $this->debug($e->getMessage());
-                return [
-                    'error' => $e->getMessage()
-                ];
+                return ['error' => $e->getMessage()];
             }
         } else {
             if (isset($params)) {
@@ -189,17 +187,13 @@ class Connector implements \Zend\Log\LoggerAwareInterface
             try {
                 $result = $this->performSearch($institution, $terms, $args);
             } catch (\Exception $e) {
-                if ($args["returnErr"]) {
-                    $this->debug($e->getMessage());
-                    return [
-                        'recordCount' => 0,
-                        'documents' => [],
-                        'facets' => [],
-                        'error' => $e->getMessage()
-                    ];
-                } else {
-                    throw $e;
-                }
+                $this->debug($e->getMessage());
+                return [
+                    'recordCount' => 0,
+                    'documents' => [],
+                    'facets' => [],
+                    'error' => $e->getMessage()
+                ];
             }
         }
         return $result;
@@ -246,8 +240,6 @@ class Connector implements \Zend\Log\LoggerAwareInterface
             ];
         }
 
-        $irdList = implode(',', $irdData['allowed']);
-
         $options = [];
         $options['find_base/find_base_001'] = $irdData['allowed'];
         $options['find_request_command'] = $qs;
@@ -258,15 +250,14 @@ class Connector implements \Zend\Log\LoggerAwareInterface
         $options['session_id'] = $this->getSession();
         $options['wait_flag'] = 'Y';
 
-        $findRequestId = md5($irdList . '_' . $qs);
-
         $limit = 20;
-        $start = $args['pageNumber'] ?: 1;
+        $start = empty($args['pageNumber']) ?: 1;
 
         $queryId
-            = 'metalib.' . md5($irdList . '_' . $qs . '_' . $start . '_' . $limit);
+            = md5(implode(',', $irdList) . '_' . $qs . '_' . $start . '_' . $limit);
 
         $findResults = $this->getCachedResults($queryId);
+
         if ($findResults !== false
             && empty($findResults['failedDatabases'])
             && empty($findResults['disallowedDatabases'])
@@ -287,7 +278,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
                 'failedDatabases' => $databases['failed'],
                 'disallowedDatabases' => $irdData['disallowed']
             ];
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             throw new \Exception($e->getMessage());
         }
         $this->putCachedResults($queryId, $results);
@@ -316,7 +307,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
                 = isset($irdInfoArray[$databaseName])
                 ? $irdInfoArray[$databaseName] : (string)$baseInfo->full_name;
             if ($baseInfo->find_status != 'DONE') {
-                error_log(
+                $this->logger->err(
                     'MetaLib search in ' . $baseInfo->base_001
                     . ' (' . $baseInfo->full_name . ') failed: '
                     . $baseInfo->find_error_text
@@ -435,8 +426,9 @@ class Connector implements \Zend\Log\LoggerAwareInterface
                     'session_id' => $sessionId,
                     'present_command' => [
                         'set_number' => $database['set'],
-                        'set_entry' =>
-                        $database['records'][0] . '-' . end($database['records']),
+                        'set_entry'
+                            => $database['records'][0]
+                               . '-' . end($database['records']),
                         'view' => 'full',
                         'format' => 'marc'
                     ]
@@ -521,7 +513,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
             }
             if ($advanced) {
                 $query = join(
-                    " " . $operator . " ", $queries
+                    ' ' . $operator . ' ', $queries
                 );
                 if ($negated) {
                     $query = " NOT ($query)";
@@ -542,13 +534,13 @@ class Connector implements \Zend\Log\LoggerAwareInterface
     protected function buildBasicQuery($params)
     {
         $query = '';
-        if (isset($params['lookfor']) && $params['lookfor'] != '') {
+        if (!empty($params['lookfor'])) {
             // Basic Search
             // Clean and validate input -- note that index may be in a
             // different field depending on whether this is a basic or
             // advanced search.
             $lookfor = $params['lookfor'];
-            $index = $params['index'] ?: 'AllFields';
+            $index = !empty($params['index']) ? $params['index'] : 'AllFields';
 
             // Force boolean operators to uppercase if we are in a
             // case-insensitive mode:
@@ -566,7 +558,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
 
             if (isset($map[$index])) {
                 $index = $map[$index];
-            } else if (!in_array($index, array_values($map))) {
+            } else if (!array_key_exists($index, $map)) {
                 $index = 'WRD';
             }
             $query .= "{$index}=($lookfor)";
@@ -905,8 +897,8 @@ class Connector implements \Zend\Log\LoggerAwareInterface
                     $allowed[] = $ird;
                     $info[$irdInfo['name']] = $irdInfo;
                 }
-            } catch (Excpetion $e) {
-                $failed[] = $ird;
+            } catch (\Exception $e) {
+                $disallowed[] = $ird;
             }
         }
         return compact('allowed', 'disallowed', 'failed', 'info');
@@ -922,12 +914,13 @@ class Connector implements \Zend\Log\LoggerAwareInterface
      */
     public function getIRDInfo($ird)
     {
-        $queryId = "metalib_ird.$ird";
+        $queryId = md5($ird);
         $cached = $this->getCachedResults($queryId);
         if ($cached) {
             return $cached;
         }
         $sessionId = $this->getSession();
+
 
         // Do the source locate request
         $params = [
@@ -947,7 +940,11 @@ class Connector implements \Zend\Log\LoggerAwareInterface
 
             $institute = $this->getSingleValue($record, 'AF1a');
             if ($institute !== $this->getInstitutionCode()) {
-                return [];
+                throw new \Exception(
+                    "Failed to get IRD info for $ird"
+                    . "(owner institution: $institute, own institute: "
+                    . $this->getInstitutionCode()
+                );
             }
             $info['access'] = $this->getSingleValue($record, 'AF3a');
             $info['proxy'] = $this->getSingleValue($record, 'PXYa');
@@ -973,7 +970,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
     {
         $sessionId = '';
 
-        if (isset($this->session['MetaLibSessionID'])) {
+        if (isset($this->session->MetaLibSessionID)) {
             // Check for valid session
             $params = [
                 'session_id' => $this->session->MetaLibSessionID,
@@ -997,7 +994,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
             try {
                 $result = $this->call('login_request', $params);
                 if ($result->login_response->auth != 'Y') {
-                    $this->debug('X-Server login failed: ' . var_dump($params));
+                    $this->debug('X-Server login failed: ' . var_export($params, true));
                     throw new \Exception('X-Server login failed');
                 }
             } catch (\Exception $e) {
@@ -1040,6 +1037,18 @@ class Connector implements \Zend\Log\LoggerAwareInterface
     }
 
     /**
+     * Set logger instance
+     *
+     * @param LoggerInterface $logger Logger
+     *
+     * @return void
+     */
+    public function setLogger(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
+    /**
      * Return search results from cache
      *
      * @param string $queryId Query identifier (hash)
@@ -1048,7 +1057,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
      */
     protected function getCachedResults($queryId)
     {
-        if ($row = $this->table->getRowBySearchHash($queryId)) {
+        if ($row = $this->table->getRowBySearchId($queryId)) {
             return $row->getSearchObject();
         }
         return false;

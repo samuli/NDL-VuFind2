@@ -28,6 +28,7 @@
 namespace Finna\Controller;
 use VuFindSearch\ParamBag as ParamBag,
     VuFindSearch\Query\Query as Query,
+    Finna\MetaLib\MetaLibIrdTrait,
     Zend\Cache\StorageFactory,
     Zend\Feed\Reader\Reader,
     Zend\Http\Request as HttpRequest;
@@ -43,7 +44,8 @@ use VuFindSearch\ParamBag as ParamBag,
  */
 class AjaxController extends \VuFind\Controller\AjaxController
 {
-    use SearchControllerTrait;
+    use MetaLibIrdTrait,
+        SearchControllerTrait;
 
     /**
      * Add resources to a list.
@@ -1127,11 +1129,18 @@ class AjaxController extends \VuFind\Controller\AjaxController
             $result['searchTools'] = $this->getViewRenderer()->render(
                 'metalib/search-tools.phtml', $viewParams
             );
-            if ($failed = $view->results->getFailedDatabases()) {
+
+            $errors = $view->results->getFailedDatabases();
+            $failed = isset($errors['failed']) ? $errors['failed'] : [];
+            $disallowed = isset($errors['disallowed']) ? $errors['disallowed'] : [];
+
+            if ($failed || $disallowed) {
                 $result['failed'] = $this->getViewRenderer()->render(
-                    'metalib/statuses.phtml', $failed
+                    'metalib/statuses.phtml',
+                    ['failed' => $failed, 'disallowed' => $disallowed]
                 );
             }
+
             $viewParams
                 = array_merge(
                     $viewParams,

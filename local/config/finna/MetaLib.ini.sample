@@ -1,9 +1,7 @@
 [General]
-enabled = 0
 url = http://metalib.server/X
 x_user = username
 x_password = password
-institution = INST
 timeout = 60
 case_sensitive_bools = 1
 default_sort = rank

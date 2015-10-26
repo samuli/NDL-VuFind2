@@ -69,15 +69,6 @@
 
   $topRecommendations = $this->results->getRecommendations('top');
 ?>
-
-<?
-  $script = '
-  $(document).ready(function() {
-    finna.metalibLinks.init();
-  });';
-?>
-<?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $script, 'SET');?>
-
 <? if (($recordTotal = $this->results->getResultTotal()) > 0): // only display these at very top if we have results ?>
       <? foreach ($this->results->getRecommendations('top') as $current): ?>
         <?=$this->recommend($current)?>

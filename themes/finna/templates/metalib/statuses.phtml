@@ -2,7 +2,7 @@
 <div class="alert alert-danger">
   <p><strong><?= $this->translate('MetaLib Search Failed')?></strong></p>
   <ul>
-    <? foreach ($failed as $database): ?>
+    <? foreach ($this->failed as $database): ?>
     <li><?= $database ?></li>
     <? endforeach; ?>
   </ul>
@@ -12,7 +12,7 @@
 <div class="alert alert-danger">
   <p><strong><?= $this->translate('metalib_not_authorized_results')?></strong></p>
   <ul>
-    <? foreach ($disallowed as $database): ?>
+    <? foreach ($this->disallowed as $database): ?>
     <li><?= $database ?></li>
     <? endforeach; ?>
   </ul>

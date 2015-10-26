@@ -56,7 +56,7 @@ class MetaLibSearch extends \VuFind\Db\Table\Gateway
      */
     public function saveMetaLibSearch($results, $searchId)
     {
-        if ($this->getRowBySearchHash($searchId)) {
+        if ($this->getRowBySearchId($searchId)) {
             return;
         }
         $result = $this->createRow();
@@ -74,7 +74,7 @@ class MetaLibSearch extends \VuFind\Db\Table\Gateway
      * @throws \Exception
      * @return \Finna\Db\Row\MetaLibSearch
      */
-    public function getRowBySearchHash($hash)
+    public function getRowBySearchId($hash)
     {
         return $this->select(['finna_search_id' => $hash])->current();
     }
