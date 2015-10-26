@@ -21,7 +21,7 @@
  *
  * @category VuFind2
  * @package  View_Helpers
- * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
+ * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
@@ -32,7 +32,7 @@ namespace Finna\View\Helper\Root;
  *
  * @category VuFind2
  * @package  View_Helpers
- * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
+ * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
@@ -55,7 +55,7 @@ class MetaLib extends \Zend\View\Helper\AbstractHelper
      */
     public function isAvailable()
     {
-        return isset($this->config->General->enabled)
-            && $this->config->General->enabled;
+        return !isset($this->config['General']['enabled'])
+            || $this->config['General']['enabled'];
     }
 }

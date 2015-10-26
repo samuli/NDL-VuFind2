@@ -6221,6 +6221,9 @@ button.close {
   background-clip: padding-box;
   outline: none;
 }
+.modal-content .comment-inappropriate-form label {
+  font-weight: inherit;
+}
 .modal-backdrop {
   position: fixed;
   top: 0;
@@ -7288,6 +7291,17 @@ button.close {
 #record-tabs .comment-wrapper .comment-text {
   padding-top: 5px;
 }
+#record-tabs .comment-wrapper .comment-rating {
+  display: inline-block;
+}
+#record-tabs .comment-wrapper .comment-info {
+  display: inline;
+  margin-left: 10px;
+}
+#record-tabs #usercomments-tab form.comment .rating-holder .info {
+  float: left;
+  margin-right: 5px;
+}
 #record-tabs #toc-tab,
 #record-tabs ul.toc {
   margin-left: 10px;
@@ -8215,6 +8229,12 @@ table .iconlabel {
 }
 .fa-user:before {
   content: "\e00e";
+}
+.fa-star:before {
+  content: "\e02b";
+}
+.fa-star-empty:before {
+  content: "\e60f";
 }
 .iconlabel.format-1bookebook:before,
 .iconlabel.format-1bookebooksection:before,
@@ -10672,6 +10692,13 @@ label.list-group-item {
 }
 .part-authors-padded {
   padding-left: 10px;
+}
+.record .rating-average {
+  margin-top: 10px;
+}
+.record .rating-average .stars {
+  float: left;
+  margin-right: 10px;
 }
 @media (max-width: 767px) {
   .cover-wrapper {
