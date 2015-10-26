@@ -54,7 +54,6 @@ class Record extends \VuFind\View\Helper\Root\Record
      */
     public function getLink($type, $lookfor, $params = [])
     {
-        echo("getlink: $type");
         $searchAction = isset($this->getView()->browse) && $this->getView()->browse
             ? 'browse-' . $this->getView()->browse
             : 'search-results'

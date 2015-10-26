@@ -6,7 +6,7 @@ $urls = $this->record($this->driver)->getLinkDetails($openUrlActive);
 ?>
 <div class="metalib-available-online">
   <? if ($openUrlActive || !empty($urls)): ?>
-    <div class="heading"><strong><?=$this->transEsc('Electronic')?></strong></div>
+    <div class="heading"><strong><?=$this->transEsc('Available Online')?></strong></div>
       <? foreach ($urls as $current): ?>
         <?
         $format = $this->driver->getFormats(); $format = end($format);
