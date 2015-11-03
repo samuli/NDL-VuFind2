@@ -27,7 +27,8 @@
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
 namespace Finna\Service;
-use Zend\ServiceManager\ServiceManager;
+use Zend\Console\Console,
+    Zend\ServiceManager\ServiceManager;
 
 /**
  * Factory for various top-level VuFind services.
@@ -54,6 +55,35 @@ class Factory extends \VuFind\Service\Factory
             $sm->get('VuFind\Config')->get('config'),
             $sm->get('VuFind\Config')->get('searches')
         );
+    }
+
+    /**
+     * Construct the cookie manager.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return \VuFind\Cookie\CookieManager
+     */
+    public static function getCookieManager(ServiceManager $sm)
+    {
+        if (Console::isConsole()) {
+            return false;
+        }
+
+        $config = $sm->get('VuFind\Config')->get('config');
+        $path = '/';
+        if (isset($config->Cookies->limit_by_path)
+            && $config->Cookies->limit_by_path
+        ) {
+            $path = $sm->get('Request')->getBasePath();
+        }
+        $secure = isset($config->Cookies->only_secure)
+            ? $config->Cookies->only_secure
+            : false;
+        $domain = isset($config->Cookies->domain)
+            ? $config->Cookies->domain
+            : null;
+        return new \VuFind\Cookie\CookieManager($_COOKIE, $path, $domain, $secure);
     }
 
     /**
