@@ -638,7 +638,7 @@ class Demo extends AbstractBase
         if (!isset($this->session->fines)) {
             // How many items are there? %20 - 2 = 10% chance of none,
             // 90% of 1-18 (give or take some odd maths)
-            $fines = rand() % 20 - 2;
+            $fines = 2 + rand() % 4;
 
             $fineList = [];
             for ($i = 0; $i < $fines; $i++) {
