@@ -112,7 +112,7 @@ class Paytrail implements OnlinePaymentHandlerInterface
             = "{$finesUrl}?{$statusParam}=" . self::PAYMENT_FAILURE
             . "{&$transactionIdParam}=" . urlencode($orderNumber);
         $notifyUrl
-            = "{$ajaxUrl}PaytrailNotify&{$statusParam}=" . self::PAYMENT_NOTIFY
+            = "{$ajaxUrl}paytrailNotify&{$statusParam}=" . self::PAYMENT_NOTIFY
             . "&{$transactionIdParam}=" . urlencode($orderNumber);
 
         $urlset
