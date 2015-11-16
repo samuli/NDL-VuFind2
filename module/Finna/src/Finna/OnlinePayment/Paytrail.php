@@ -65,7 +65,7 @@ class Paytrail implements OnlinePaymentHandlerInterface
     /**
      * Constructor
      *
-     * @param mixed $config Configuration as key-value pairs.
+     * @param array $config Configuration as key-value pairs.
      */
     public function __construct($config)
     {
@@ -110,7 +110,7 @@ class Paytrail implements OnlinePaymentHandlerInterface
             . "&{$transactionIdParam}=" . urlencode($orderNumber);
         $failUrl
             = "{$finesUrl}?{$statusParam}=" . self::PAYMENT_FAILURE
-            . "{&$transactionIdParam}=" . urlencode($orderNumber);
+            . "&{$transactionIdParam}=" . urlencode($orderNumber);
         $notifyUrl
             = "{$ajaxUrl}paytrailNotify&{$statusParam}=" . self::PAYMENT_NOTIFY
             . "&{$transactionIdParam}=" . urlencode($orderNumber);

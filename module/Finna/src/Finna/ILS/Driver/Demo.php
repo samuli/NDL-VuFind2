@@ -47,23 +47,6 @@ use VuFind\Exception\ILS as ILSException;
 class Demo extends \VuFind\ILS\Driver\Demo
 {
     /**
-     * Extract source from the given ID
-     *
-     * @param string $id The id to be split
-     *
-     * @return string  Source
-     */
-    protected function getSource($id)
-    {
-        $pos = strpos($id, '.');
-        if ($pos > 0) {
-            return substr($id, 0, $pos);
-        }
-
-        return '';
-    }
-
-    /**
      * Public Function which retrieves renew, hold and cancel settings from the
      * driver ini file.
      *

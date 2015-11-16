@@ -50,7 +50,6 @@ class Factory
      */
     public static function getDemo(ServiceManager $sm)
     {
-
         return new Demo(
             $sm->getServiceLocator()->get('VuFind\DateConverter'),
             $sm->getServiceLocator()->get('VuFind\Search')

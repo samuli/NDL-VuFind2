@@ -115,7 +115,11 @@ trait OnlinePaymentControllerTrait
         }
         $paymentConfig = $catalog->getConfig('onlinePayment');
         $patron = $this->catalogLogin();
-        $payableOnline = $catalog->getOnlinePayableAmount($patron);
+        try {
+            $payableOnline = $catalog->getOnlinePayableAmount($patron);
+        } catch (\Exception $e) {
+            return false;
+        }
 
         // Check if there is a payment in progress
         // or if the user has unregistered payments
@@ -236,8 +240,6 @@ trait OnlinePaymentControllerTrait
     {
         $this->setLogger($this->getServiceLocator()->get('VuFind\Logger'));
 
-        $error = false;
-        $msg = null;
         $transactionId = $params['transaction'];
 
         $tr = $this->getTable('transaction');
@@ -287,19 +289,20 @@ trait OnlinePaymentControllerTrait
             }
         }
         $res = $paymentHandler->processResponse($params);
-        if (!is_array($res)
-            || !isset($res['markFeesAsPaid'])
-            || !$res['markFeesAsPaid']
-        ) {
+        if (!is_array($res) || empty($res['markFeesAsPaid'])) {
             return ['success' => false, 'msg' => $res];
         }
 
         $tId = $res['transactionId'];
-        $finesAmount = $catalog->getOnlinePayableAmount($patron);
+        try {
+            $finesAmount = $catalog->getOnlinePayableAmount($patron);
+        } catch (\Exception $e) {
+            return ['success' => false];
+        }
         $transactionTable = $this->getTable('transaction');
 
         // Check that payable sum has not been updated
-        if ($finesAmount['amount'] != $res['amount']) {
+        if ($finesAmount['amount'] !== $res['amount']) {
             // Payable sum updated. Skip registration and inform user
             // that payment processing has been delayed.
             if (!$transactionTable->setTransactionFinesUpdated($tId)) {

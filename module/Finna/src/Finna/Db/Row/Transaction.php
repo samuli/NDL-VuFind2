@@ -51,36 +51,4 @@ class Transaction extends \VuFind\Db\Row\RowGateway
     {
         parent::__construct('id', 'finna_transaction', $adapter);
     }
-
-    /**
-     * Add fee to the current transaction.
-     *
-     * @param array  $feeData  Fee data hash array
-     * @param object $user     User (patron) object
-     * @param string $currency Currency
-     *
-     * @return boolean success
-     */
-    public function addFee($feeData, $user, $currency)
-    {
-        $fee = new Fee();
-        $fee->user_id = $user->id;
-        $fee->title = $feeData['title'];
-        $fee->type = $feeData['fine'];
-        $fee->amount = $feeData['amount'];
-        $fee->currency = $currency;
-        if (!$fee->amount) {
-            return false;
-        }
-        if (!$fee->save()) {
-            return false;
-        }
-        $transaction_fee_obj = new TransactionFees();
-        $transaction_fee_obj->transaction_id = $this->id;
-        $transaction_fee_obj->fee_id = $fee->id;
-        if (!$transaction_fee_obj->save()) {
-            return false;
-        }
-        return true;
-    }
 }

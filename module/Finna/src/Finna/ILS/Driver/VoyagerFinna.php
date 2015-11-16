@@ -150,7 +150,7 @@ trait VoyagerFinna
             $fines = parent::getMyFines($patron);
             return $this->markOnlinePayableFines($fines);
         } catch (ILSException $e) {
-            throw $e;
+            return false;
         }
     }
 
@@ -423,9 +423,7 @@ trait VoyagerFinna
             $required = ['enabled', 'registrationMethod', 'registrationParams'];
 
             foreach ($required as $req) {
-                if (!isset($this->config['OnlinePayment'][$req])
-                    || empty($this->config['OnlinePayment'][$req])
-                ) {
+                if (empty($this->config['OnlinePayment'][$req])) {
                     return false;
                 }
             }
@@ -437,7 +435,7 @@ trait VoyagerFinna
             $regParams = $this->config['OnlinePayment']['registrationParams'];
             $required = ['host', 'port', 'userId', 'password', 'locationCode'];
             foreach ($required as $req) {
-                if (!isset($regParams[$req]) || empty($regParams[$req])) {
+                if (empty($regParams[$req])) {
                     return false;
                 }
             }
