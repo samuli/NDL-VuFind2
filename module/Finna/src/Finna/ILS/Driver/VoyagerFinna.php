@@ -249,6 +249,11 @@ trait VoyagerFinna
                             = $sip->parseFeePaidResponse($feepaid_response);
                         if ($feepaid_result['fixed']['PaymentAccepted'] == 'Y') {
                             $sip->disconnect();
+
+                            // Clear patron blocks cache
+                            $cacheId = "blocks_$patronId";
+                            unset($this->session->cache[$id]);
+
                             return true;
                         } else {
                             $sip->disconnect();
