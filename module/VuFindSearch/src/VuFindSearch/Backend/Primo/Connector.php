@@ -593,13 +593,14 @@ class Connector implements \Zend\Log\LoggerAwareInterface
     /**
      * Retrieves a document specified by the ID.
      *
-     * @param string $recordId  The document to retrieve from the Primo API
-     * @param string $inst_code Institution code (optional)
+     * @param string  $recordId  The document to retrieve from the Primo API
+     * @param string  $inst_code Institution code (optional)
+     * @param boolean $onCampus  On campus?
      *
      * @throws \Exception
      * @return string    The requested resource
      */
-    public function getRecord($recordId, $inst_code = null)
+    public function getRecord($recordId, $inst_code = null, $onCampus = false)
     {
         // Query String Parameters
         if (isset($recordId)) {
@@ -607,7 +608,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
             $qs[] = 'query=rid,exact,"' . urlencode(addcslashes($recordId, '"'))
                 . '"';
             $qs[] = "institution=$inst_code";
-            $qs[] = "onCampus=true";
+            $qs[] = 'onCampus=' . ($onCampus ? 'true' : 'false');
             $qs[] = "indx=1";
             $qs[] = "bulkSize=1";
             $qs[] = "loc=adaptor,primo_central_multiple_fe";
@@ -626,11 +627,12 @@ class Connector implements \Zend\Log\LoggerAwareInterface
      *
      * @param array  $recordIds The documents to retrieve from the Primo API
      * @param string $inst_code Institution code (optional)
+     * @param boolean $onCampus On campus?
      *
      * @throws \Exception
      * @return string    The requested resource
      */
-    public function getRecords($recordIds, $inst_code = null)
+    public function getRecords($recordIds, $inst_code = null, $onCampus = false)
     {
         // Callback function for formatting IDs:
         $formatIds = function ($i) {
@@ -643,7 +645,7 @@ class Connector implements \Zend\Log\LoggerAwareInterface
             $recordIds = array_map($formatIds, $recordIds);
             $qs[] = 'query=rid,contains,' . urlencode(implode(' OR ', $recordIds));
             $qs[] = "institution=$inst_code";
-            $qs[] = "onCampus=true";
+            $qs[] = 'onCampus=' . ($onCampus ? 'true' : 'false');
             $qs[] = "indx=1";
             $qs[] = "bulkSize=" . count($recordIds);
             $qs[] = "loc=adaptor,primo_central_multiple_fe";
