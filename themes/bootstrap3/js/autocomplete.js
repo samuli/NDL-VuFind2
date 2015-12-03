@@ -23,6 +23,10 @@
         hide(element);
         return;
       } else {
+        var container = $('<div/>').addClass("container");
+        var group = null;
+        var groupContainer = null;
+
         var op = $('<div/>');
         for (var i=0, len=Math.min(options.maxResults, data.length); i<len; i++) {
           if (typeof data[i] === 'string') {
@@ -36,7 +40,14 @@
                 .addClass('item')
             );
           } else {
-            op.append(
+            if (data[i].group != group) {
+                if (groupContainer) {
+                    op.append(groupContainer);
+                }
+                group = data[i].group;
+                groupContainer = $('<div/>').addClass("group").addClass("group-" + group);
+            }
+            groupContainer.append(
               $('<a/>')
                 .attr('href', data[i].href)
                 .attr('value', data[i].val)
@@ -46,6 +57,8 @@
             );
           }
         }
+        op.append(groupContainer);
+
         element.html(op.html());
         element.find('.item').click(function() {
             if ($(this).hasClass("query")) {

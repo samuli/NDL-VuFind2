@@ -338,7 +338,8 @@ function setupAutocomplete() {
                   datums.push({
                       val: exact,
                       href: updateQueryStringParameter(document.location.href, "lookfor", exact),
-                      css: ["query query-exact"]
+                      css: ["query query-exact"],
+                      group: "operators"
                   });
               }
               var suggestionTitles = [];
@@ -350,7 +351,8 @@ function setupAutocomplete() {
                   return  {
                       val: obj.title,
                       href: updateQueryStringParameter(document.location.href, "lookfor", obj.title),
-                      css: ["query"]
+                      css: ["query"],
+                      group: "suggestions"
                   };
               });
               datums = datums.concat(suggestions.toArray());
@@ -368,7 +370,8 @@ function setupAutocomplete() {
                           facets.push({
                               val: obj.displayText + ' (' + obj.count + ')',
                               href: VuFind.getPath() + "/Search/Results?" + href,
-                              css: ["facet", "facet-" + facet, "facet-" + facet + "-" + obj.value]
+                              css: ["facet", "facet-" + facet, "facet-" + facet + "-" + obj.value],
+                              group: "facets"                              
                           });
                       });                      
                   });
