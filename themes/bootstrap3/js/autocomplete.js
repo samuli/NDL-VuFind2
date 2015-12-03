@@ -42,12 +42,15 @@
                 .attr('value', data[i].val)
                 .html(data[i].val)
                 .addClass('item')
+                .addClass(data[i].css.join(" "))
             );
           }
         }
         element.html(op.html());
         element.find('.item').click(function() {
-          populate($(this).attr('value'), input, element)
+            if ($(this).hasClass("query")) {
+                populate($(this).attr('value'), input, element);
+            }
         });
         show(element);
       }

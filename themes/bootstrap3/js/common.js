@@ -297,6 +297,17 @@ function setupBacklinks() {
     });
 }
 
+function updateQueryStringParameter(uri, key, value) {
+    var re = new RegExp("([?&])" + key + "=.*?(&|$)", "i");
+    var separator = uri.indexOf('?') !== -1 ? "&" : "?";
+    if (uri.match(re)) {
+        return uri.replace(re, '$1' + key + "=" + value + '$2');
+    }
+    else {
+        return uri + separator + key + "=" + value;
+    }
+}
+
 function setupAutocomplete() {
   // Search autocomplete
   $('.autocomplete').each(function(i, op) {
@@ -306,20 +317,58 @@ function setupAutocomplete() {
       handler: function(query, cb) {
         var searcher = extractClassParams(op);
         $.fn.autocomplete.ajax({
-          url: VuFind.getPath() + '/AJAX/JSON',
+          url: VuFind.getPath() + '/SearchAPI/Search',
           data: {
-            q:query,
+            lookfor:query,
             method:'getACSuggestions',
             searcher:searcher['searcher'],
-            type:searcher['type'] ? searcher['type'] : $(op).closest('.searchForm').find('.searchForm_type').val()
+            type:searcher['type'] ? searcher['type'] : $(op).closest('.searchForm').find('.searchForm_type').val(),
+            field: ["title"],
+            limit: 5,
+            facet: ["online_boolean", "format"],
+            filter: $(".searchFormKeepFilters").is(":checked") ? $.deparam(document.location.href).filter : []
           },
           dataType:'json',
           success: function(json) {
-            if (json.status == 'OK' && json.data.length > 0) {
+            if (json.status == 'OK' && json.resultCount > 0) {
               var datums = [];
-              for (var i=0;i<json.data.length;i++) {
-                datums.push(json.data[i]);
+              var lookfor = decodeURI($(".searchForm_lookfor").val());
+              if (lookfor.split(" ").length > 1) {
+                  var exact = '"' + lookfor + '"';
+                  datums.push({
+                      val: exact,
+                      href: updateQueryStringParameter(document.location.href, "lookfor", exact),
+                      css: ["query query-exact"]
+                  });
               }
+              suggestions = $(json.records).map(function(ind, obj) {
+                  return  {
+                      val: obj.title,
+                      href: updateQueryStringParameter(document.location.href, "lookfor", obj.title),
+                      css: ["query"]
+                  };
+              });
+              datums = datums.concat(jQuery.unique(suggestions).toArray());
+
+              var facets = [];
+              if ("facets" in json) {                  
+                  $.each(json.facets, function(facet, items) {
+                      $.each(items, function(ind, obj) {
+                          if (obj.count == 0) {
+                              return false;
+                          }
+                          href = decodeURI(obj.href);
+                          href = href.substr(1).replace(/%3A/g, ':').replace(/%2F/g, '/').replace(/&amp;/g, '&');
+
+                          facets.push({
+                              val: obj.displayText + ' (' + obj.count + ')',
+                              href: VuFind.getPath() + "/Search/Results?" + href,
+                              css: ["facet", "facet-" + facet]
+                          });
+                      });                      
+                  });
+              }
+              datums = datums.concat(facets);
               cb(datums);
             } else {
               cb([]);

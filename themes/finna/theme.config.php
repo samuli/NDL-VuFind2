@@ -65,6 +65,7 @@ return array(
         'finna-common.js',
         'finna-user-profile.js',
         'vendor/jquery.dataTables.js',
+        'vendor/jquery.deparam.min.js',
         'vendor/dataTables.bootstrap.js',
         'vendor/jquery.inview.min.js',
         'vendor/jquery.magnific-popup.min.js',
