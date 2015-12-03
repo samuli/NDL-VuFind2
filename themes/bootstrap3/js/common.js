@@ -368,7 +368,7 @@ function setupAutocomplete() {
                           facets.push({
                               val: obj.displayText + ' (' + obj.count + ')',
                               href: VuFind.getPath() + "/Search/Results?" + href,
-                              css: ["facet", "facet-" + facet]
+                              css: ["facet", "facet-" + facet, "facet-" + facet + "-" + obj.value]
                           });
                       });                      
                   });
