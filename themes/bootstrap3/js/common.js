@@ -341,14 +341,19 @@ function setupAutocomplete() {
                       css: ["query query-exact"]
                   });
               }
+              var suggestionTitles = [];
               suggestions = $(json.records).map(function(ind, obj) {
+                  if ($.inArray(obj.title, suggestionTitles) !== -1) {
+                      return null;
+                  }
+                  suggestionTitles.push(obj.title);
                   return  {
                       val: obj.title,
                       href: updateQueryStringParameter(document.location.href, "lookfor", obj.title),
                       css: ["query"]
                   };
               });
-              datums = datums.concat(jQuery.unique(suggestions).toArray());
+              datums = datums.concat(suggestions.toArray());
 
               var facets = [];
               if ("facets" in json) {                  
