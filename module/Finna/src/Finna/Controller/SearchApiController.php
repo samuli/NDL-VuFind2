@@ -267,9 +267,10 @@ class SearchApiController extends \VuFind\Controller\AbstractSearch
         }
 
         $requestedFacets = isset($request['facet']) ? $request['facet'] : [];
-
+        $facetDepth = isset($request['facetDepth']) ? $request['facetDepth'] : false;
         $facets = [];
         if ($results->getResultTotal() > 0 && $requestedFacets) {
+            $translate = $this->getViewRenderer()->plugin('translate');
             $facets = $results->getFacetList();
 
             // Get requested hierarchical facets
@@ -284,7 +285,32 @@ class SearchApiController extends \VuFind\Controller\AbstractSearch
                     $facets[$facet]['list'] = $data;
                 }
             }
-            $facets = $this->buildResultFacets($facets);
+
+            // Add missing fields to non-hierarchical facets
+            $urlHelper = $results->getUrlQuery();
+            $paramArray = $urlHelper !== false ? $urlHelper->getParamArray() : null;
+            foreach ($facets as $facetKey => &$facetItems) {
+                if (in_array($facetKey, $requestedHierarchicalFacets)) {
+                    continue;
+                }
+
+                foreach ($facetItems['list'] as &$item) {
+                    $href = $urlHelper->addFacet(
+                        $facetKey, $item['value'], $item['operator'], $paramArray
+                    );
+                    $item['href'] = $href;
+                    $exclude = $urlHelper->addFacet(
+                        $facetKey, $item['value'], 'NOT', $paramArray
+                    );
+                    $item['exclude'] = $exclude;
+
+                    if ($facetKey === 'online_boolean') {
+                        $item['displayText']
+                            = $translate->translate('Available Online');
+                    }
+                }
+            }
+            $facets = $this->buildResultFacets($facets, $facetDepth);
         }
 
         $records = [];
@@ -331,22 +357,33 @@ class SearchApiController extends \VuFind\Controller\AbstractSearch
     /**
      * Recursive function to create a facet value list for a single facet
      *
-     * @param array $list Facet items
+     * @param array $list       Facet items
+     * @param int   $facetDepth Maximum depth for hierarchical facets
      *
      * @return array
      */
-    protected function buildFacetValues($list)
+    protected function buildFacetValues($list, $facetDepth = false)
     {
         $result = [];
+        $fields = [
+            'value', 'displayText', 'count',
+            'children', 'href', 'isApplied'
+        ];
         foreach ($list as $value) {
             $resultValue = [];
+            if ($facetDepth !== false && $value['level'] > $facetDepth) {
+                continue;
+            }
             foreach ($value as $key => $item) {
-                if (!in_array($key, ['value', 'displayText', 'count', 'children'])) {
+                if (!in_array($key, $fields)) {
                     continue;
                 }
                 if ($key == 'children') {
                     if (!empty($item)) {
-                        $resultValue[$key] = $this->buildFacetValues($item);
+                        if ($facetDepth === false || $item['level'] < $facetDepth) {
+                            $resultValue[$key]
+                                = $this->buildFacetValues($item, $facetDepth);
+                        }
                     }
                 } else {
                     $resultValue[$key] = $item;
@@ -360,16 +397,18 @@ class SearchApiController extends \VuFind\Controller\AbstractSearch
     /**
      * Create the result facet list
      *
-     * @param array $facetList All the facet data
+     * @param array $facetList  All the facet data
+     * @param int   $facetDepth Maximum depth for hierarchical facets
      *
      * @return array
      */
-    protected function buildResultFacets($facetList)
+    protected function buildResultFacets($facetList, $facetDepth = false)
     {
         $result = [];
 
         foreach ($facetList as $facetName => $facetData) {
-            $result[$facetName] = $this->buildFacetValues($facetData['list']);
+            $result[$facetName]
+                = $this->buildFacetValues($facetData['list'], $facetDepth);
         }
         return $result;
     }
