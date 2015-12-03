@@ -295,6 +295,9 @@ class SearchApiController extends \VuFind\Controller\AbstractSearch
                 }
 
                 foreach ($facetItems['list'] as &$item) {
+                    if (in_array($item['value'], ['true', 'false'])) {
+                        $item['value'] = $item['value'] === 'true' ? '1' : '0';
+                    }
                     $href = $urlHelper->addFacet(
                         $facetKey, $item['value'], $item['operator'], $paramArray
                     );
