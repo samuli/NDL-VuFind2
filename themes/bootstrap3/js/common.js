@@ -312,9 +312,16 @@ function setupAutocomplete() {
   // Search autocomplete
   $('.autocomplete').each(function(i, op) {
     $(op).autocomplete({
-      maxResults: 10,
+      maxResults: 20,
       loadingString: VuFind.translate('loading')+'...',
       handler: function(query, cb) {
+
+        if (query.indexOf(" ") === -1) {
+//            query = 'title_fullStr:/' + query + '.*/1';
+        }
+
+        var preserveFilters = $(".searchFormKeepFilters").is(":checked");
+        var fields = {AllFields: "title", author: "authors"};
         var searcher = extractClassParams(op);
         $.fn.autocomplete.ajax({
           url: VuFind.getPath() + '/SearchAPI/Search',
@@ -325,8 +332,8 @@ function setupAutocomplete() {
             type:searcher['type'] ? searcher['type'] : $(op).closest('.searchForm').find('.searchForm_type').val(),
             field: ["title"],
             limit: 5,
-            facet: ["online_boolean", "format"],
-            filter: $(".searchFormKeepFilters").is(":checked") ? $.deparam(document.location.href).filter : []
+            facet: preserveFilters ? [] : ["online_boolean", "format"],
+            filter: preserveFilters ? $.deparam(document.location.href).filter : []
           },
           dataType:'json',
           success: function(json) {
@@ -334,26 +341,16 @@ function setupAutocomplete() {
               var datums = [];
               var parser = document.createElement('a');
               parser.href = document.location.href;
-
+                
               var base = VuFind.getPath() + "/Search/Results";
-              var lookfor = decodeURI($(".searchForm_lookfor").val());
-              var exact = lookfor;
-              if (lookfor.substr(0,1) !== '"' && lookfor.substr(-1) !== '"') {
-                  exact = '"' + lookfor + '"';
-              }
-              datums.push({
-                  val: exact,
-                  href: base + updateQueryStringParameter(parser.search, "lookfor", exact),
-                  css: ["query query-exact"],
-                  group: "operators"
-              });
-            
+
               var suggestionTitles = [];
               suggestions = $(json.records).map(function(ind, obj) {
                   if ($.inArray(obj.title, suggestionTitles) !== -1) {
                       return null;
                   }
                   suggestionTitles.push(obj.title);
+                  //href = updateQueryStringParameter(parser.search, "dfApplied", ob);
                   return  {
                       val: obj.title,
                       href: base + updateQueryStringParameter(parser.search, "lookfor", obj.title),
@@ -363,16 +360,32 @@ function setupAutocomplete() {
               });
               datums = datums.concat(suggestions.toArray());
 
+              var lookfor = decodeURI($(".searchForm_lookfor").val());
+
+              href = base + "?lookfor=" + lookfor;
+              href += '&filter[]=online_boolean:"1"&filter[]=~format:"0/Image/"&filter[]=~format:"0/PhysicalObject/"&filter[]=~format:"0/WorkOfArt/"&filter[]=~format:"0/Map/"&filter[]=~format:"0/Place/"&filter[]=~format:"1/Other/Letter/"&filter[]=~format:"1/Other/Print/"';
+              href += '&type=AllFields&dfApplied=1&limit=50&view=grid';
+
+              datums.push({
+                  val: "",
+                  href: href,
+                  css: ["query query-pictures"],
+                  group: "facets"
+              });
+
+
+              
+              // Facets
               var facets = [];
               if ("facets" in json) {                  
                   $.each(json.facets, function(facet, items) {
-                      $.each(items, function(ind, obj) {
+                      $.each(items.slice(0,3), function(ind, obj) {
                           if (obj.count == 0) {
                               return false;
                           }
                           href = decodeURI(obj.href);
                           href = href.substr(1).replace(/%3A/g, ':').replace(/%2F/g, '/').replace(/&amp;/g, '&');
-
+                          
                           facets.push({
                               val: obj.displayText + ' (' + obj.count + ')',
                               href: base + "?" + href,
@@ -383,6 +396,34 @@ function setupAutocomplete() {
                   });
               }
               datums = datums.concat(facets);
+
+              // Exact
+              var exact = lookfor;
+              if (lookfor.substr(0,1) !== '"' && lookfor.substr(-1) !== '"') {
+                  exact = '"' + lookfor + '"';
+              }
+              datums.push({
+                  val: exact,
+                  href: base + updateQueryStringParameter(parser.search, "lookfor", exact),
+                  css: ["query query-exact"],
+                  group: "operators"
+              });
+
+              
+              $.each(["Title", "Author", "Topic"], function(ind, type) {
+                  href = updateQueryStringParameter(parser.search, "type", type);
+                  href = updateQueryStringParameter(href, "lookfor", lookfor);                  
+                  datums.push({
+                      val: lookfor,
+                      href: href,
+                      css: ["query query-" + type],
+                      group: "operators"
+                  });
+              });
+
+
+                console.log("dat: %o", datums);
+
               cb(datums);
             } else {
               cb([]);
