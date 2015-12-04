@@ -332,16 +332,22 @@ function setupAutocomplete() {
           success: function(json) {
             if (json.status == 'OK' && json.resultCount > 0) {
               var datums = [];
+              var parser = document.createElement('a');
+              parser.href = document.location.href;
+
+              var base = VuFind.getPath() + "/Search/Results";
               var lookfor = decodeURI($(".searchForm_lookfor").val());
-              if (lookfor.split(" ").length > 1) {
-                  var exact = '"' + lookfor + '"';
-                  datums.push({
-                      val: exact,
-                      href: updateQueryStringParameter(document.location.href, "lookfor", exact),
-                      css: ["query query-exact"],
-                      group: "operators"
-                  });
+              var exact = lookfor;
+              if (lookfor.substr(0,1) !== '"' && lookfor.substr(-1) !== '"') {
+                  exact = '"' + lookfor + '"';
               }
+              datums.push({
+                  val: exact,
+                  href: base + updateQueryStringParameter(parser.search, "lookfor", exact),
+                  css: ["query query-exact"],
+                  group: "operators"
+              });
+            
               var suggestionTitles = [];
               suggestions = $(json.records).map(function(ind, obj) {
                   if ($.inArray(obj.title, suggestionTitles) !== -1) {
@@ -350,7 +356,7 @@ function setupAutocomplete() {
                   suggestionTitles.push(obj.title);
                   return  {
                       val: obj.title,
-                      href: updateQueryStringParameter(document.location.href, "lookfor", obj.title),
+                      href: base + updateQueryStringParameter(parser.search, "lookfor", obj.title),
                       css: ["query"],
                       group: "suggestions"
                   };
@@ -369,7 +375,7 @@ function setupAutocomplete() {
 
                           facets.push({
                               val: obj.displayText + ' (' + obj.count + ')',
-                              href: VuFind.getPath() + "/Search/Results?" + href,
+                              href: base + "?" + href,
                               css: ["facet", "facet-" + facet, "facet-" + facet + "-" + obj.value],
                               group: "facets"                              
                           });
