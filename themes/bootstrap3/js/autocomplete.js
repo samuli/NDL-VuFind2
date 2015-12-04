@@ -63,8 +63,8 @@
         element.find('.item').click(function() {
             if ($(this).hasClass("query")) {                
                 populate($(this).attr('value'), input, element);
-                $(".searchForm").submit();
-                return false;
+             //   $(".searchForm").submit();
+             //   return false;
             }
         });
         show(element);
