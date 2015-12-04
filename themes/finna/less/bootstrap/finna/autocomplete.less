@@ -1,0 +1,90 @@
+.autocomplete-results {
+    .box-shadow(0px 5px 16px -2px @gray);
+    margin-top: 4px;
+    border: 1px solid @list-group-border;
+    background-color: #fff;
+    border-radius: 10px;
+    @media (max-width: @screen-sm-max) {
+        max-width: 85% !important;
+    }
+    &.checkbox-active {
+        margin-top: 40px !important;   
+    }
+    .item {
+        display: block;
+        padding: 6px 10px;
+        cursor: pointer;
+        &:not(.loading):hover, &.selected {
+            background-color: @brand-primary;
+            color: #fff;
+        }
+        &.loading {
+            font-style: normal;
+            &:before {
+                  font-family:'Fontawesome';
+                  content: "\f110";
+                  color: @gray-light;
+                  font-size: 1.2em;
+                  margin-right: 5px;
+                  .fa-spin();
+            }
+        }
+    }
+     & .item {
+        border: none; 
+        color: @gray;
+        position: relative;
+        &:hover {
+            text-decoration: none;   
+        }
+     }
+    & .group {
+        padding-bottom: 6px;
+        margin: 6px;
+        margin-top: 0px;
+        border-bottom: 1px solid @gray-mid-light;
+        &:first-child {
+            margin-top: 5px;   
+        }
+        &:last-child {
+            border-bottom: none; 
+            padding-bottom: 0px;
+        }
+    }
+    & .query-exact:after {
+        margin-left: 5px;
+        content: 'hae täsmälleen';
+        font-weight: bold;
+    }
+    & .group:before {
+        float: right;
+        margin-top: 3px;
+        line-height: 1em;
+        font-size: 1em;
+        margin-right: 2px;
+        color: #ADADAD;
+        padding: 0px 2px;
+        font-weight: bold;
+    }
+    & .group:first-child:before {
+        margin-top: 0px;
+    }
+    & .group-operators:before {
+       // content: 'hakumuodot';
+    }
+    & .group-suggestions:before {
+        content: 'Hakuehdotukset';
+    }
+    & .group-facets {
+        font-weight: bold;
+        &:before {
+            content: 'Hae aineistoista';
+        }
+    }
+    & .group:first-child {
+        & .item:first-child {border-top-left-radius: 8px; border-top-right-radius: 8px;}
+    }
+     & .group:last-child {
+        & .item:last-child {border-bottom: none; border-bottom-left-radius: 8px; border-bottom-right-radius: 8px;}
+    }
+}
