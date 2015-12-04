@@ -315,22 +315,18 @@ function setupAutocomplete() {
       maxResults: 20,
       loadingString: VuFind.translate('loading')+'...',
       handler: function(query, cb) {
-
-        if (query.indexOf(" ") === -1) {
-//            query = 'title_fullStr:/' + query + '.*/1';
-        }
-
         var preserveFilters = $(".searchFormKeepFilters").is(":checked");
         var fields = {AllFields: "title", author: "authors"};
         var searcher = extractClassParams(op);
+        var searchType = searcher['type'] ? searcher['type'] : $(op).closest('.searchForm').find('.searchForm_type').val();
         $.fn.autocomplete.ajax({
           url: VuFind.getPath() + '/SearchAPI/Search',
           data: {
             lookfor:query,
             method:'getACSuggestions',
             searcher:searcher['searcher'],
-            type:searcher['type'] ? searcher['type'] : $(op).closest('.searchForm').find('.searchForm_type').val(),
-            field: ["title"],
+            type: searchType,
+            field: ["title", "authors", "subjects"],
             limit: 5,
             facet: preserveFilters ? [] : ["online_boolean", "format"],
             filter: preserveFilters ? $.deparam(document.location.href).filter : []
@@ -340,20 +336,62 @@ function setupAutocomplete() {
             if (json.status == 'OK' && json.resultCount > 0) {
               var datums = [];
               var parser = document.createElement('a');
-              parser.href = document.location.href;
-                
-              var base = VuFind.getPath() + "/Search/Results";
+              var location = decodeURI(document.location.href);
+              if (!preserveFilters) {
+                  location = location.replace(/filter\[\]=.*(\&)?/g, "");
+              } else {
+                  location = updateQueryStringParameter(location, "dfApplied", "1");                               
+              }
+              
+              parser.href = location;
+              href = parser.search;
 
+              var base = VuFind.getPath() + "/Search/Results";
               var suggestionTitles = [];
+              
               suggestions = $(json.records).map(function(ind, obj) {
-                  if ($.inArray(obj.title, suggestionTitles) !== -1) {
+                  field = null;
+                  switch (searchType) {
+                  case "Author":
+                      if (!("authors" in obj)) {
+                          return null;
+                          break;
+                      }
+                      if ("main" in obj.authors && obj.authors.main != "") {
+                          field = obj.authors.main;
+                      } else if ("secondary" in obj.authors) {
+                          field = obj.authors.secondary[0];
+                      }
+                      break;
+                  
+                  case "Subject":
+                      if (!("subjects" in obj)) { 
+                          return null;
+                          break;
+                      }
+                      if (!obj.subjects.length) {
+                          return null;
+                          break;
+                      }
+                      field = obj.subjects[0];
+                      
+                      break;
+                      
+                  default:
+                      field = obj.title;
+                      break;
+                  }
+                  if ($.inArray(field, suggestionTitles) !== -1) {
                       return null;
                   }
-                  suggestionTitles.push(obj.title);
-                  //href = updateQueryStringParameter(parser.search, "dfApplied", ob);
+
+                  suggestionTitles.push(field);
+                  suggestionHref = base + updateQueryStringParameter(href, "lookfor", field);
+                  suggestionHref = updateQueryStringParameter(suggestionHref, "type", searchType);
+                  
                   return  {
-                      val: obj.title,
-                      href: base + updateQueryStringParameter(parser.search, "lookfor", obj.title),
+                      val: field,
+                      href: suggestionHref,
                       css: ["query"],
                       group: "suggestions"
                   };
@@ -362,18 +400,16 @@ function setupAutocomplete() {
 
               var lookfor = decodeURI($(".searchForm_lookfor").val());
 
-              href = base + "?lookfor=" + lookfor;
-              href += '&filter[]=online_boolean:"1"&filter[]=~format:"0/Image/"&filter[]=~format:"0/PhysicalObject/"&filter[]=~format:"0/WorkOfArt/"&filter[]=~format:"0/Map/"&filter[]=~format:"0/Place/"&filter[]=~format:"1/Other/Letter/"&filter[]=~format:"1/Other/Print/"';
-              href += '&type=AllFields&dfApplied=1&limit=50&view=grid';
-
+              // Pictures
+              picHref = base + "?lookfor=" + lookfor;
+              picHref += '&filter[]=online_boolean:"1"&filter[]=~format:"0/Image/"&filter[]=~format:"0/PhysicalObject/"&filter[]=~format:"0/WorkOfArt/"&filter[]=~format:"0/Map/"&filter[]=~format:"0/Place/"&filter[]=~format:"1/Other/Letter/"&filter[]=~format:"1/Other/Print/"';
+              picHref += '&type=AllFields&limit=50&view=grid';
               datums.push({
                   val: "",
-                  href: href,
+                  href: picHref,
                   css: ["query query-pictures"],
                   group: "facets"
               });
-
-
               
               // Facets
               var facets = [];
@@ -383,12 +419,11 @@ function setupAutocomplete() {
                           if (obj.count == 0) {
                               return false;
                           }
-                          href = decodeURI(obj.href);
-                          href = href.substr(1).replace(/%3A/g, ':').replace(/%2F/g, '/').replace(/&amp;/g, '&');
-                          
+                          facetHref = decodeURI(obj.href);
+                          facetHref = facetHref.substr(1).replace(/%3A/g, ':').replace(/%2F/g, '/').replace(/&amp;/g, '&');
                           facets.push({
                               val: obj.displayText + ' (' + obj.count + ')',
-                              href: base + "?" + href,
+                              href: base + "?" + facetHref,
                               css: ["facet", "facet-" + facet, "facet-" + facet + "-" + obj.value],
                               group: "facets"                              
                           });
@@ -399,30 +434,29 @@ function setupAutocomplete() {
 
               // Exact
               var exact = lookfor;
+              var exactHref = parser.search;
               if (lookfor.substr(0,1) !== '"' && lookfor.substr(-1) !== '"') {
                   exact = '"' + lookfor + '"';
-              }
+              }                
               datums.push({
                   val: exact,
-                  href: base + updateQueryStringParameter(parser.search, "lookfor", exact),
+                  href: base + updateQueryStringParameter(exactHref, "lookfor", exact),
                   css: ["query query-exact"],
                   group: "operators"
               });
 
-              
-              $.each(["Title", "Author", "Topic"], function(ind, type) {
-                  href = updateQueryStringParameter(parser.search, "type", type);
-                  href = updateQueryStringParameter(href, "lookfor", lookfor);                  
+              // Search types
+              var typeHref = parser.search;
+              $.each(["Title", "Author", "Subject"], function(ind, type) {
+                  typeHref = updateQueryStringParameter(typeHref, "type", type);
+                  typeHref = updateQueryStringParameter(typeHref, "lookfor", lookfor);                  
                   datums.push({
                       val: lookfor,
-                      href: href,
+                      href: base + typeHref,
                       css: ["query query-" + type],
                       group: "operators"
                   });
               });
-
-
-                console.log("dat: %o", datums);
 
               cb(datums);
             } else {
