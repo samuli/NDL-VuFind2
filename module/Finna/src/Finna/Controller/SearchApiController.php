@@ -30,6 +30,8 @@ namespace Finna\Controller;
 use VuFind\I18n\TranslatableString;
 use Finna\RecordDriver\SolrQdc;
 
+use RecursiveIteratorIterator, RecursiveArrayIterator;
+
 /**
  * SearchApiController Class
  *
@@ -321,6 +323,8 @@ class SearchApiController extends \VuFind\Controller\AbstractSearch
             $records[] = $this->getFields($result, $requestedFields);
         }
 
+        $this->filterRecordFieldValues($records);
+
         $response = [
             'resultCount' => $results->getResultTotal(),
         ];
@@ -332,29 +336,6 @@ class SearchApiController extends \VuFind\Controller\AbstractSearch
         }
 
         return $this->output($response, self::STATUS_OK);
-    }
-
-    /**
-     * Check if an array is practically empty
-     *
-     * @param array $array Array to check
-     *
-     * @return bool
-     */
-    protected function arrayEmpty($array)
-    {
-        $result = true;
-
-        array_walk_recursive(
-            $array,
-            function ($value) use (&$result) {
-                if (!empty($value)) {
-                    $result = false;
-                }
-            }
-        );
-
-        return $result;
     }
 
     /**
@@ -414,6 +395,25 @@ class SearchApiController extends \VuFind\Controller\AbstractSearch
                 = $this->buildFacetValues($facetData['list'], $facetDepth);
         }
         return $result;
+    }
+
+
+    /**
+     * Recursive function to filter out empty record fields.
+     *
+     * @param array $records Records to check
+     *
+     * @return void
+     */
+    protected function filterRecordFieldValues(&$records)
+    {
+        foreach ($records as $key => &$value) {
+            if (is_array($value) && !empty($value)) {
+                $this->filterRecordFieldValues($value);
+            } else if (empty($value) && $value !== 0 && $value !== '0') {
+                unset($records[$key]);
+            }
+        }
     }
 
     /**
@@ -493,11 +493,7 @@ class SearchApiController extends \VuFind\Controller\AbstractSearch
             } else {
                 $value = $record->tryMethod($this->recordFields[$field]);
             }
-            if ((!empty($value) || $value === 0 || $value === '0')
-                && (!is_array($value) || !$this->arrayEmpty($value))
-            ) {
-                $result[$field] = $value;
-            }
+            $result[$field] = $value;
         }
         // Convert any translation aware string classes to strings
         $translate = $this->getViewRenderer()->plugin('translate');
