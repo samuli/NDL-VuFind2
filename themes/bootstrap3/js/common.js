@@ -337,8 +337,10 @@ function setupAutocomplete() {
               var datums = [];
               var parser = document.createElement('a');
               var location = decodeURI(document.location.href);
+              location = location.replace(/(&|\?)limit=.*?(&|$)/g, "");
+
               if (!preserveFilters) {
-                  location = location.replace(/filter\[\]=.*(\&)?/g, "");
+                  location = location.replace(/(\&|\?)filter\[\]=.*(\&)?/g, "");
               } else {
                   location = updateQueryStringParameter(location, "dfApplied", "1");                               
               }
@@ -421,6 +423,7 @@ function setupAutocomplete() {
                           }
                           facetHref = decodeURI(obj.href);
                           facetHref = facetHref.substr(1).replace(/%3A/g, ':').replace(/%2F/g, '/').replace(/&amp;/g, '&');
+                          facetHref = facetHref.replace(/limit=.*?(&|$)/g, "");
                           facets.push({
                               val: obj.displayText + ' (' + obj.count + ')',
                               href: base + "?" + facetHref,
