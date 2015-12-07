@@ -23,56 +23,38 @@
       }
     }
 
-    function createList(data, input, element) {
-      if (data.length === 0) {
-        hide(element);
-        return;
-      } else {
-        var container = $('<div/>').addClass("container");
-        var group = null;
-        var groupContainer = null;
-
-        var op = $('<div/>');
-        for (var i=0, len=Math.min(options.maxResults, data.length); i<len; i++) {
-          if (typeof data[i] === 'string') {
-            data[i] = {val: data[i]};
-          }
-          if (typeof data[i].href === "undefined") {
-            op.append(
-              $('<div/>')
-                .attr('value', data[i].val)
-                .html(data[i].val)
-                .addClass('item')
-            );
-          } else {
-            if (data[i].group != group) {
-                if (groupContainer) {
-                    op.append(groupContainer);
-                }
-                group = data[i].group;
-                groupContainer = $('<div/>').addClass("group").addClass("group-" + group);
-            }
-            groupContainer.append(
-              $('<a/>')
-                .attr('href', data[i].href)
-                .attr('value', data[i].val)
-                .html(data[i].val)
-                .addClass('item')
-                .addClass(data[i].css.join(" "))
-            );
-          }
+    function createList(data, input) {
+      var shell = $('<div/>');
+      var length = Math.min(options.maxResults, data.length);
+      input.data('length', length);
+      for (var i=0; i<length; i++) {
+        if (typeof data[i] === 'string') {
+          data[i] = {val: data[i]};
         }
-        op.append(groupContainer);
-
-        element.html(op.html());
-        element.find('.item').click(function() {
-            if ($(this).hasClass("query")) {                
-                populate($(this).attr('value'), input, element);
-             //   $(".searchForm").submit();
-             //   return false;
-            }
-        });
-        show(element);
+        var content = data[i].val;
+        if (options.highlight) {
+          // escape term for regex
+          // https://github.com/sindresorhus/escape-string-regexp/blob/master/index.js
+          var escapedTerm = input.val().replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
+          var regex = new RegExp('('+escapedTerm+')', 'ig');
+          content = content.replace(regex, '<b>$1</b>');
+        }
+        var item = typeof data[i].href === 'undefined'
+          ? $('<div/>')
+          : $('<a/>').attr('href', data[i].href);
+        item.attr('data-index', i+0)
+            .attr('data-value', data[i].val)
+            .addClass('item')
+            .html(content)
+            .mouseover(function() {
+              $.fn.autocomplete.element.find('.item.selected').removeClass('selected');
+              $(this).addClass('selected');
+              input.data('selected', this.dataset.index);
+            });
+        if (typeof data[i].description !== 'undefined') {
+          item.append($('<small/>').text(data[i].description));
+        }
+        shell.append(item);
       }
       $.fn.autocomplete.element.html(shell);
       $.fn.autocomplete.element.find('.item').mousedown(function() {
