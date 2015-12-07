@@ -15,50 +15,85 @@
       $.fn.autocomplete.element.addClass(options.hidingClass);
     }
 
-    function populate(value, input, eventType) {
-      input.val(value);
+    function populate(item, input, eventType) {
+      if (item.hasClass("query")) {
+          input.val(item.attr("data-value"));
+      }
+        
       hide();
       if (typeof options.onselection !== 'undefined') {
-        options.onselection(value, input, eventType);
+        options.onselection(item, input, eventType);
       }
     }
 
     function createList(data, input) {
-      var shell = $('<div/>');
       var length = Math.min(options.maxResults, data.length);
       input.data('length', length);
-      for (var i=0; i<length; i++) {
-        if (typeof data[i] === 'string') {
-          data[i] = {val: data[i]};
-        }
-        var content = data[i].val;
-        if (options.highlight) {
-          // escape term for regex
-          // https://github.com/sindresorhus/escape-string-regexp/blob/master/index.js
-          var escapedTerm = input.val().replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
-          var regex = new RegExp('('+escapedTerm+')', 'ig');
-          content = content.replace(regex, '<b>$1</b>');
-        }
-        var item = typeof data[i].href === 'undefined'
-          ? $('<div/>')
-          : $('<a/>').attr('href', data[i].href);
-        item.attr('data-index', i+0)
-            .attr('data-value', data[i].val)
-            .addClass('item')
-            .html(content)
-            .mouseover(function() {
+      
+      var group = null;
+      var groupContainer = null;
+        
+      var op = $('<div/>');
+      for (var i=0, len=Math.min(options.maxResults, data.length); i<len; i++) {
+          if (typeof data[i] === 'string') {
+              data[i] = {val: data[i]};
+          }
+          var content = data[i].val;
+          if (options.highlight) {
+              // escape term for regex
+              // https://github.com/sindresorhus/escape-string-regexp/blob/master/index.js
+              var escapedTerm = input.val().replace(/[|\\{}()[\]^$+*?.]/g, '\\$&');
+              var regex = new RegExp('('+escapedTerm+')', 'ig');
+              content = content.replace(regex, '<b>$1</b>');
+          }
+
+          var item;
+          if (typeof data[i].href === "undefined") {
+              item = 
+                  //op.append(
+                  $('<div/>')
+                      .attr('data-value', data[i].val)
+                      .html(data[i].val)
+                      .addClass('item');
+              //);
+          } else {
+              if (data[i].group != group) {
+                  if (groupContainer) {
+                      op.append(groupContainer);
+                  }
+                  group = data[i].group;
+                  groupContainer = $('<div/>').addClass("group").addClass("group-" + group);
+                  item = groupContainer;
+              }
+              groupContainer.append(
+                  $('<a/>')
+                      .attr('href', data[i].href)
+                      .attr('data-value', data[i].val)
+                      .html(data[i].val)
+                      .addClass('item')
+                      .addClass(data[i].css.join(" "))
+              );
+          }
+          item.attr('data-index', i+0);
+          item.attr('data-value', data[i].val);
+          item.attr('data-href', data[i].href);
+
+          item.mouseover(function() {
               $.fn.autocomplete.element.find('.item.selected').removeClass('selected');
               $(this).addClass('selected');
               input.data('selected', this.dataset.index);
-            });
-        if (typeof data[i].description !== 'undefined') {
-          item.append($('<small/>').text(data[i].description));
-        }
-        shell.append(item);
+          });
+          if (typeof data[i].description !== 'undefined') {
+              item.append($('<small/>').text(data[i].description));
+          }          
       }
-      $.fn.autocomplete.element.html(shell);
+        
+      op.append(groupContainer);
+
+      $.fn.autocomplete.element.html(op);
+        
       $.fn.autocomplete.element.find('.item').mousedown(function() {
-        populate($(this).attr('data-value'), input, {mouse: true})
+          populate($(this), input, {mouse: true});
       });
       align(input, $.fn.autocomplete.element);
     }
@@ -211,7 +246,7 @@
               if (event.which === 13 && selected.attr('href')) {
                 location.assign(selected.attr('href'));
               } else {
-                populate(selected.attr('data-value'), $(this), element, {key: true});
+                populate(selected, $(this), element, {key: true});
                 element.find('.item.selected').removeClass('selected');
                 $(this).data('selected', -1);
               }

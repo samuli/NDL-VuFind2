@@ -314,6 +314,10 @@ function setupAutocomplete() {
     $(op).autocomplete({
       maxResults: 20,
       loadingString: VuFind.translate('loading')+'...',
+      onselection: function (item, input, eventType) {
+          location.href = item.attr("href");
+          return false;
+      },        
       handler: function(query, cb) {
         var preserveFilters = $(".searchFormKeepFilters").is(":checked");
         var fields = {AllFields: "title", author: "authors"};
