@@ -429,7 +429,7 @@ function setupAutocomplete() {
                           facetHref = facetHref.substr(1).replace(/%3A/g, ':').replace(/%2F/g, '/').replace(/&amp;/g, '&');
                           facetHref = facetHref.replace(/limit=.*?(&|$)/g, "");
                           facets.push({
-                              val: obj.displayText + ' (' + obj.count + ')',
+                              val: obj.translated + ' (' + obj.count + ')',
                               href: base + "?" + facetHref,
                               css: ["facet", "facet-" + facet, "facet-" + facet + "-" + obj.value],
                               group: "facets"                              
