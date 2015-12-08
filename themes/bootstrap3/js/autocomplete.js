@@ -114,7 +114,9 @@
           }
         } else if (typeof options.handler !== "undefined") {
           options.handler(input.val(), function(data) {
-            $.fn.autocomplete.cache[cid][term] = data;
+            if (options.cache) {
+                $.fn.autocomplete.cache[cid][term] = data;
+            }
             if (data.length === 0) {
               hide();
             } else {

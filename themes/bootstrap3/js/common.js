@@ -312,6 +312,7 @@ function setupAutocomplete() {
   // Search autocomplete
   $('.autocomplete').each(function(i, op) {
     $(op).autocomplete({
+      cache: false,
       maxResults: 20,
       loadingString: VuFind.translate('loading')+'...',
       onselection: function (item, input, eventType) {
