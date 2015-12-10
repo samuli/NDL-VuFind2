@@ -347,6 +347,27 @@ class SearchApiController extends \VuFind\Controller\AbstractSearch
     }
 
     /**
+     * Check if an array is practically empty
+     *
+     * @param array $array Array to check
+     *
+     * @return bool
+     */
+    protected function arrayEmpty($array)
+    {
+        $result = true;
+        array_walk_recursive(
+            $array,
+            function ($value) use (&$result) {
+                if (!empty($value)) {
+                    $result = false;
+                }
+            }
+        );
+        return $result;
+    }
+
+    /**
      * Recursive function to create a facet value list for a single facet
      *
      * @param array $list    Facet items
@@ -359,21 +380,19 @@ class SearchApiController extends \VuFind\Controller\AbstractSearch
         $result = [];
         $fields = [
             'value', 'displayText', 'count',
-            'children', 'href', 'isApplied'
+            'children', 'href', 'isApplied', 'level'
         ];
         foreach ($list as $value) {
             $resultValue = [];
+            $accept = empty($filters);
+
             if (!empty($value['value']) && !empty($filters)) {
-                $accept = empty($filters);
                 foreach ($filters as $filter) {
                     $pattern = '/' . addcslashes($filter, '/') . '/';
                     if (preg_match($pattern, $value['value']) === 1) {
                         $accept = true;
                         break;
                     }
-                }
-                if (!$accept) {
-                    continue;
                 }
             }
 
@@ -395,7 +414,13 @@ class SearchApiController extends \VuFind\Controller\AbstractSearch
                     $resultValue[$key] = $item;
                 }
             }
-            $result[] = $resultValue;
+
+            if (!empty($resultValue)) {
+                if ($filters) {
+                    $resultValue['_accept'] = $accept;
+                }
+                $result[] = $resultValue;
+            }
         }
         return $result;
     }
@@ -413,12 +438,20 @@ class SearchApiController extends \VuFind\Controller\AbstractSearch
         $result = [];
 
         foreach ($facetList as $facetName => $facetData) {
-            $result[$facetName]
-                = $this->buildFacetValues(
-                    $facetData['list'],
-                    !empty($filters[$facetName]) ? $filters[$facetName] : false
-                );
+            $facetFilters
+                = isset($filters[$facetName]) ? $filters[$facetName] : false;
+            $values = $this->buildFacetValues(
+                $facetData['list'],
+                $facetFilters
+            );
+
+            if ($facetFilters) {
+                $this->markRequestedFacetValues($values);
+                $this->removeUnmarkedFacetValues($values);
+            }
+            $result[$facetName] = $values;
         }
+
         return $result;
     }
 
@@ -741,5 +774,63 @@ class SearchApiController extends \VuFind\Controller\AbstractSearch
             $urls += $serviceUrls;
         }
         return $urls ? $urls : null;
+    }
+
+    /**
+     * Recursive function to mark parents of requested facet items.
+     *
+     * @param array $array Facets
+     *
+     * @return void
+     */
+    protected function markRequestedFacetValues(&$array)
+    {
+        foreach ($array as $key => &$val) {
+            if (is_array($val)) {
+                $accept = false;
+                array_walk_recursive(
+                    $val,
+                    function ($item, $key) use (&$accept) {
+                        if ($key == '_accept' && (boolean)$item) {
+                            $accept = true;
+                        }
+                    }
+                );
+                if (isset($array['level']) && empty($array['_accept'])) {
+                    $array['_accept'] = $accept;
+                }
+                $this->markRequestedFacetValues($val, $accept);
+            }
+        }
+    }
+
+    /**
+     * Recursive function to remove all unmarked facet values
+     * (called after markRequestedFacetValues).
+     *
+     * @param array $array Facets
+     *
+     * @return void
+     */
+    protected function removeUnmarkedFacetValues(&$array)
+    {
+        foreach ($array as $key => &$val) {
+            if (!empty($val['children'])) {
+                $this->removeUnmarkedFacetValues($val['children']);
+            }
+            if (isset($val['level'])) {
+                if (is_array($val)) {
+                    foreach ($val as $k => &$v) {
+                        if ($k == '_accept') {
+                            if (!(boolean)$v) {
+                                unset($array[$key]);
+                                $array = array_values($array);
+                            }
+                            unset($val[$k]);
+                        }
+                    }
+                }
+            }
+        }
     }
 }
