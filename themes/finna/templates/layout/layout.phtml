@@ -55,6 +55,7 @@
             'bulk_noitems_advice' => 'bulk_noitems_advice',
             'bulk_save_success' => 'bulk_save_success',
             'close' => 'close',
+            'go_to_list' => 'go_to_list',
             'libphonenumber_invalid' => 'libphonenumber_invalid',
             'libphonenumber_invalidcountry' => 'libphonenumber_invalidcountry',
             'libphonenumber_invalidregion' => 'libphonenumber_invalidregion',
@@ -120,13 +121,14 @@
        $this->headScript()->appendFile('custom.js');
     }
     ?>
+    <?
+      $root = rtrim($this->url('home'), '/');
+      $translations = $this->jsTranslations()->getJSON();
+      $dsb = DEFAULT_SEARCH_BACKEND;
+      $setupJS = "var VuFind = new VuFindNamespace('{$root}', {$translations}, '{$dsb}');";
+      $this->headScript()->appendScript($setupJS);
+    ?>
     <?=$this->headScript()?>
-    <script>
-      var VuFind = new VuFindNamespace(
-        '<?=rtrim($this->url('home'), '/') ?>',
-        <?=$this->jsTranslations()->getJSON() ?>
-      );
-    </script>
     <? if ($template = $this->content()->findTemplateForLng("content/Additions/general-post-head")): ?>
       <?=$this->render($template)?>
     <? endif; ?>
@@ -205,11 +207,6 @@
       </div>
     </section>
     <section role="main" class="main template-dir-<?=$this->templateDir?> template-name-<?=$this->templateName?><?= $this->browse ? ' browse' : ''?>">
-      <? if ($logoutText = $this->logoutMessage()): ?>
-        <div class="container-fluid alert-info">
-          <div class="logout-msg text-center"><h3><?=$this->transEsc($logoutText) ?></h3></div>
-        </div>
-      <? endif; ?>
       <? if (!empty($this->layout()->finnaMainHeader)): ?>
       <div class="container-fluid finna-main-header">
         <div class="container">

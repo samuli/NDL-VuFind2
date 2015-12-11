@@ -330,6 +330,21 @@ finna.dateRangeVis = (function() {
         });
     };
 
+    var updateFieldLimits = function(evt) {
+        var params = evt.data;
+        params['from'].attr('max', params['to'].val());
+        params['to'].attr('min', params['from'].val());
+        
+        var within = params['form'].find('input[type=radio][name=type]:checked').val() == 'within';
+        if (within && (params['from'].val() !== '' || params['to'].val() !== '')) {
+            params['from'].attr('required', 'required');
+            params['to'].attr('required', 'required');
+        } else {
+            params['from'].removeAttr('required');
+            params['to'].removeAttr('required');
+        }
+    };
+    
     var initForm = function(form, backend, facetField) {
         form.find('a.submit').on('click',
            function() {
@@ -337,14 +352,43 @@ finna.dateRangeVis = (function() {
                return false;
            }
         );
-
+        
+        
+        var fromElement = form.find('.year-from');
+        var toElement = form.find('.year-to');
+        
+        var params = {
+           form: form,
+           from: fromElement,
+           to: toElement
+        }
+        var typeElements = form.find('input[type=radio][name=type]');
+        fromElement.change(params, updateFieldLimits);
+        toElement.change(params, updateFieldLimits);
+        typeElements.change(params, updateFieldLimits);
+        updateFieldLimits({data: params});
+        
         form.submit(function(e) {
             e.preventDefault();
 
+            if (typeof form[0].checkValidity == 'function') {
+                // This is for Safari, which doesn't validate forms on submit
+                if (!form[0].checkValidity()) {
+                    return;
+                }
+            }
+            
+            var isSolr = backend == 'solr';
+            var type = null;
+            if (isSolr) {
+                var typeElement = form.find('input[type=radio][name=type]:checked');
+                if (typeElement.length) {
+                    type = typeElement.val();
+                }
+            }
+            
             // Get dates, build query
-            var fromElement = $(this).find('.year-from');
             var from = fromElement.val();
-            var toElement = $(this).find('.year-to');
             var to = toElement.val();
             var action = $(this).attr('action');
             if (action.indexOf('?') < 0) {
@@ -354,19 +398,9 @@ finna.dateRangeVis = (function() {
             }
 
             var query = action;
-            var isSolr = backend == 'solr';
 
-
-            var type = null;
-            if (isSolr) {
-                type = $(this).find('input[type=radio][name=type]:checked');
-                if (type.length) {
-                    type = type.val();
-                    query += facetField + '_type=' + type + '&';
-                }
-            }
-            fromElement.removeClass('error');
-            toElement.removeClass('error');
+            fromElement.removeClass('invalid');
+            toElement.removeClass('invalid');
             query += 'filter[]=' + facetField + ':';
 
             // Require numerical values
@@ -375,7 +409,7 @@ finna.dateRangeVis = (function() {
                     query = action;
                 } else if (from == '') { // only end date set
                     if (type == 'within') {
-                        fromElement.addClass('error');
+                        fromElement.addClass('invalid');
                         return false;
                     }
                     to = parseInt(to, 10);
@@ -384,7 +418,7 @@ finna.dateRangeVis = (function() {
                     query += '+TO+' + padZeros(to) + ']"';
                 } else if (to == '')  { // only start date set
                     if (type == 'within') {
-                        toElement.addClass('error');
+                        toElement.addClass('invalid');
                         return false;
                     }
                     from = parseInt(from, 10);
@@ -392,8 +426,8 @@ finna.dateRangeVis = (function() {
                     query += isSolr ? '*' : (from <= 2100 ? 2100 : from+100);
                     query += ']"';
                 } else if (parseInt(from, 10) > parseInt(to, 10)) {
-                    fromElement.addClass('error');
-                    toElement.addClass('error');
+                    fromElement.addClass('invalid');
+                    toElement.addClass('invalid');
                     return false;
                 } else { // both dates set
                     query += '"['+padZeros(from)+' TO '+padZeros(to)+']"';

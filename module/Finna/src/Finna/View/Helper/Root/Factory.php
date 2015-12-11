@@ -320,21 +320,8 @@ class Factory extends \VuFind\View\Helper\Root\Factory
         $customVars = isset($config->Piwik->custom_variables)
             ? $config->Piwik->custom_variables
             : false;
-        return new Piwik($url, $siteId, $customVars);
-    }
-
-    /**
-     * Construct the Logout message view helper.
-     *
-     * @param ServiceManager $sm Service manager.
-     *
-     * @return \Finna\View\Helper\Root\LogoutMessage
-     */
-    public static function getLogoutMessage(ServiceManager $sm)
-    {
-        $authManager = $sm->getServiceLocator()->get('VuFind\AuthManager');
-        $request = $sm->getServiceLocator()->get('Request');
-        return new LogoutMessage($authManager, $request);
+        $translator = $sm->getServiceLocator()->get('VuFind\Translator');
+        return new Piwik($url, $siteId, $customVars, $translator);
     }
 
     /**
@@ -348,6 +335,20 @@ class Factory extends \VuFind\View\Helper\Root\Factory
     {
         return new Feed(
             $sm->getServiceLocator()->get('VuFind\Config')->get('rss')
+        );
+    }
+
+    /**
+     * Construct the FileSrc helper.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return ImageSrc
+     */
+    public static function getFileSrc(ServiceManager $sm)
+    {
+        return new FileSrc(
+            $sm->getServiceLocator()->get('VuFindTheme\ThemeInfo')
         );
     }
 

@@ -160,7 +160,8 @@ class Connector extends \VuFindSearch\Backend\Primo\Connector
                 $hilited = [];
 
                 foreach ($res['documents'][$i] as $fieldName => $fieldData) {
-                    $values = is_array($fieldData) ? $fieldData : [$fieldData];
+                    $isArr = is_array($fieldData);
+                    $values = $isArr ? $fieldData : [$fieldData];
                     if (isset($highlightFields[$fieldName])) {
                         $valuesHilited = [];
                         foreach ($values as $val) {
@@ -183,14 +184,13 @@ class Connector extends \VuFindSearch\Backend\Primo\Connector
                         }
                     }
 
-                    foreach ($values as $val) {
+                    foreach ($values as &$val) {
                         // Strip Primo hilite-tags from record fields
                         $val = str_replace($start, '', $val);
                         $val = str_replace($end, '', $val);
-                        $res['documents'][$i][$fieldName]
-                            = is_array($fieldData)
-                            ? [$val] : $val;
                     }
+                    $res['documents'][$i][$fieldName]
+                        = $isArr ? $values : $values[0];
                 }
                 $res['documents'][$i]['highlightDetails'] = $hilited;
             }
@@ -204,14 +204,15 @@ class Connector extends \VuFindSearch\Backend\Primo\Connector
      *
      * @param string $recordId  The document to retrieve from the Primo API
      * @param string $inst_code Institution code (optional)
+     * @param bool   $onCampus  Whether the user is on campus
      *
      * @throws \Exception
      * @return string    The requested resource
      */
-    public function getRecord($recordId, $inst_code = null)
+    public function getRecord($recordId, $inst_code = null, $onCampus = false)
     {
         list(,$recordId) = explode('.', $recordId, 2);
-        return parent::getRecord($recordId, $inst_code);
+        return parent::getRecord($recordId, $inst_code, $onCampus);
     }
 
     /**

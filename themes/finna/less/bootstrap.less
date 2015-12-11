@@ -249,6 +249,16 @@ footer {
     padding-left: 20px !important;
     padding-right: 20px !important;
 }
+/* Input styles */
+input[type=number].input-year {
+    -moz-appearance:textfield;
+    width: 5em;
+}
+input[type=number].input-year::-webkit-inner-spin-button,
+input[type=number].input-year::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
 /* Results */
 .resultListLabeling {
     display: none;   
@@ -490,6 +500,18 @@ label.list-group-item {border-radius:0;font-weight:normal;margin-top:0;padding-l
 .template-dir-collection.template-name-view {
     & .collection-title {
         margin-top: 0;   
+    }
+    & .list-group.filters {
+        & input {
+            max-width: 100%;
+            @media (min-width: @screen-sm-min) and (max-width: @screen-md-max) {
+                width: 100%;
+                margin-bottom: 5px;
+            }
+            @media (max-width: @screen-xs-max) {
+                display: inline-block;
+            }
+        }
     }
 }
 
