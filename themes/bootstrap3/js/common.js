@@ -311,6 +311,39 @@ function updateQueryStringParameter(uri, key, value) {
     }
 }
 
+function parseFacets(base, facets, filters) {
+    var results = [];
+    for (var i=0; i<facets.length; i++) {
+        if (facets[i].count == 0) {
+            continue;
+        }
+
+        var discard = filters.length;
+        for (var j=0; j<filters.length; j++) {
+            var filter = filters[j].split(":");
+            if (facets[i].value === filter[1]) {
+                discard = false;
+                break;
+            }
+        }
+        if (!discard) {
+            var facetHref = decodeURI(facets[i].href);
+            facetHref = facetHref.substr(1).replace(/%3A/g, ':').replace(/%2F/g, '/').replace(/&amp;/g, '&');
+            facetHref = facetHref.replace(/limit=.*?(&|$)/g, "");
+            results.push({
+                val: facets[i].translated + ' (' + facets[i].count + ')',
+                href: base + "?" + facetHref,
+                css: ["facet", "facet-" + facets[i], "facet-" + facets[i] + "-" + facets[i].value],
+                group: "facets"
+            });
+        }
+        if ("children" in facets[i]) {
+            results = results.concat(parseFacets(base, facets[i].children, filters));
+        }
+    }
+    return results;
+}
+
 function setupAutocomplete() {
   // Search autocomplete
   $('.autocomplete').each(function(i, op) {
@@ -327,16 +360,19 @@ function setupAutocomplete() {
         var fields = {AllFields: "title", author: "authors"};
         var searcher = extractClassParams(op);
         var searchType = searcher['type'] ? searcher['type'] : $(op).closest('.searchForm').find('.searchForm_type').val();
+        var facetFilters = ["format:1/Book/Book/", "format:0/Journal/", "format:0/Thesis/", "format:0/Database/", "building:2/JYU/100/3/"];
         $.fn.autocomplete.ajax({
           url: VuFind.getPath() + '/api/search',
           data: {
+            lng: 'fi', // TODO
             lookfor:query,
             method:'getACSuggestions',
             searcher:searcher['searcher'],
             type: searchType,
-            field: ["title", "authors", "subjects"],
+            field: ["title"],
             limit: 5,
-            facet: preserveFilters ? [] : ["online_boolean", "format"],
+            facet: preserveFilters ? [] : ["building", "format"],
+            facetFilter: facetFilters,
             filter: preserveFilters ? $.deparam(document.location.href).filter : []
           },
           dataType:'json',
@@ -409,7 +445,7 @@ function setupAutocomplete() {
               datums = datums.concat(suggestions.toArray());
 
               var lookfor = decodeURI($(".searchForm_lookfor").val());
-
+                /*
               // Pictures
               picHref = base + "?lookfor=" + lookfor;
               picHref += '&filter[]=online_boolean:"1"&filter[]=~format:"0/Image/"&filter[]=~format:"0/PhysicalObject/"&filter[]=~format:"0/WorkOfArt/"&filter[]=~format:"0/Map/"&filter[]=~format:"0/Place/"&filter[]=~format:"1/Other/Letter/"&filter[]=~format:"1/Other/Print/"';
@@ -420,25 +456,13 @@ function setupAutocomplete() {
                   css: ["query query-pictures"],
                   group: "facets"
               });
-              
+              */
               // Facets
               var facets = [];
               if ("facets" in json) {                  
                   $.each(json.facets, function(facet, items) {
-                      $.each(items.slice(0,3), function(ind, obj) {
-                          if (obj.count == 0) {
-                              return false;
-                          }
-                          facetHref = decodeURI(obj.href);
-                          facetHref = facetHref.substr(1).replace(/%3A/g, ':').replace(/%2F/g, '/').replace(/&amp;/g, '&');
-                          facetHref = facetHref.replace(/limit=.*?(&|$)/g, "");
-                          facets.push({
-                              val: obj.translated + ' (' + obj.count + ')',
-                              href: base + "?" + facetHref,
-                              css: ["facet", "facet-" + facet, "facet-" + facet + "-" + obj.value],
-                              group: "facets"                              
-                          });
-                      });                      
+                      var parsed = parseFacets(base, items, facetFilters);
+                      facets = facets.concat(parsed);
                   });
               }
               datums = datums.concat(facets);
