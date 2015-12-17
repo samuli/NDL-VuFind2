@@ -1625,4 +1625,30 @@ class AjaxController extends \VuFind\Controller\AjaxController
 
         return $facetList;
     }
+
+    /**
+     * Support method for getItemStatuses() -- process a single bibliographic record
+     * for location settings other than "group".
+     *
+     * @param array  $record            Information on items linked to a single bib
+     *                                  record
+     * @param array  $messages          Custom status HTML
+     *                                  (keys = available/unavailable)
+     * @param string $locationSetting   The location mode setting used for
+     *                                  pickValue()
+     * @param string $callnumberSetting The callnumber mode setting used for
+     *                                  pickValue()
+     *
+     * @return array                    Summarized availability information
+     */
+    protected function getItemStatusGroup($record, $messages, $callnumberSetting)
+    {
+        foreach ($record as &$info) {
+            $info['availability'] = $info['status']['available'];
+        }
+        $status = parent::getItemStatusGroup(
+            $record, $messages, $locationSetting, $callnumberSetting
+        );
+        return $status;
+    }
 }
