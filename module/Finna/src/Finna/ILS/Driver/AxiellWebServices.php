@@ -24,7 +24,6 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:building_an_ils_driver Wiki
  */
-
 namespace Finna\ILS\Driver;
 use SoapClient, SoapFault, SoapHeader, File_MARC, PDO, PDOException, DOMDocument,
     VuFind\Exception\Date as DateException,
@@ -32,7 +31,6 @@ use SoapClient, SoapFault, SoapHeader, File_MARC, PDO, PDOException, DOMDocument
     VuFind\I18n\Translator\TranslatorAwareInterface as TranslatorAwareInterface,
     Zend\Validator\EmailAddress as EmailAddressValidator,
     Zend\Session\Container as SessionContainer;
-
 
 /**
  * Axiell Web Services ILS Driver
@@ -43,7 +41,7 @@ use SoapClient, SoapFault, SoapHeader, File_MARC, PDO, PDOException, DOMDocument
  * @link     http://vufind.org/wiki/vufind2:building_an_ils_driver Wiki
  */
 class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
-    implements TranslatorAwareInterface, \Zend\Log\LoggerAwareInterface, \VuFindHttp\HttpServiceAwareInterface
+implements TranslatorAwareInterface, \Zend\Log\LoggerAwareInterface, \VuFindHttp\HttpServiceAwareInterface
 {
     use \VuFindHttp\HttpServiceAwareTrait;
     use \VuFind\I18n\Translator\TranslatorAwareTrait;
@@ -93,20 +91,20 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
      */
     protected $session;
 
-    protected $soapOptions = array(
-        'soap_version' => SOAP_1_1,
-        'exceptions' => true,
-        'trace' => 1,
-        'connection_timeout' => 60,
-        'typemap' => array(
-            array(
-                'type_ns' => 'http://www.w3.org/2001/XMLSchema',
-                'type_name' => 'anySimpleType',
-                'from_xml' => array('\AxiellWebServices', 'anySimpleTypeToString'),
-                'to_xml' => array('\AxiellWebServices', 'stringToAnySimpleType')
-            )
-        )
-    );
+    protected $soapOptions = [
+                              'soap_version' => SOAP_1_1,
+                              'exceptions' => true,
+                              'trace' => 1,
+                              'connection_timeout' => 60,
+        'typemap' => [
+            [
+             'type_ns' => 'http://www.w3.org/2001/XMLSchema',
+             'type_name' => 'anySimpleType',
+             'from_xml' => ['\AxiellWebServices', 'anySimpleTypeToString'],
+             'to_xml' => ['\AxiellWebServices', 'stringToAnySimpleType']
+            ]
+        ]
+                              ];
 
     /**
      * Constructor
@@ -167,7 +165,7 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
     {
         if (isset($patron['cat_username'])
             && ($pos = strpos($patron['cat_username'], '.')) > 0
-        ) {
+            ) {
             $source = substr($patron['cat_username'], 0, $pos);
 
             $config = $this->configReader->get($source);
@@ -192,7 +190,6 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
         $msg = date('Y-m-d H:i:s') . ' [' . getmypid() . "] $msg\n";
         file_put_contents($this->logFile, $msg, FILE_APPEND);
     }
-
 
     /**
      * Initialize the driver.
@@ -219,8 +216,8 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
         $this->reservations_wsdl = 'local/config/vufind/' . $this->config['Catalog']['reservations_wsdl'];
 
         $this->defaultPickUpLocation
-        = (isset($this->config['Holds']['defaultPickUpLocation']))
-        ? $this->config['Holds']['defaultPickUpLocation'] : false;
+            = (isset($this->config['Holds']['defaultPickUpLocation']))
+            ? $this->config['Holds']['defaultPickUpLocation'] : false;
         if ($this->defaultPickUpLocation == '0') {
             $this->defaultPickUpLocation = false;
         }
@@ -236,9 +233,9 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
         if (isset($this->config['Debug']['log'])) {
             $this->logFile = $this->config['Debug']['log'];
         }
-        $this->holdingsOrganisationOrder = isset($this->config['Holdings']['holdingsOrganisationOrder']) ? explode(":", $this->config['Holdings']['holdingsOrganisationOrder']) : array();
+        $this->holdingsOrganisationOrder = isset($this->config['Holdings']['holdingsOrganisationOrder']) ? explode(":", $this->config['Holdings']['holdingsOrganisationOrder']) : [];
         $this->holdingsOrganisationOrder = array_flip($this->holdingsOrganisationOrder);
-        $this->holdingsBranchOrder = isset($this->config['Holdings']['holdingsBranchOrder']) ? explode(":", $this->config['Holdings']['holdingsBranchOrder']) : array();
+        $this->holdingsBranchOrder = isset($this->config['Holdings']['holdingsBranchOrder']) ? explode(":", $this->config['Holdings']['holdingsBranchOrder']) : [];
         $this->holdingsBranchOrder = array_flip($this->holdingsBranchOrder);
 
         // Establish a namespace in the session for persisting cached data
@@ -285,11 +282,10 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
             $this->session->cache = [];
         }
         $this->session->cache[$id] = [
-            'time' => time(),
+                                      'time' => time(),
             'entry' => $entry
-        ];
+                                      ];
     }
-
 
     /**
      * Get Pickup Locations
@@ -302,7 +298,6 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
      * @throws ILSException
      *
      * @return array      Array of the patron's fines on success
-     * @access public
      */
     public function getPickUpLocations($user, $holdDetails)
     {
@@ -310,12 +305,12 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
         $password = $user['cat_password'];
 
         $id = !empty($holdDetails['item_id'])
-        ? $holdDetails['item_id'] : $holdDetails['id'];
+            ? $holdDetails['item_id'] : $holdDetails['id'];
 
         $functionResult = 'getReservationBranchesResult';
-        $result = $this->doSOAPRequest($this->reservations_wsdl, 'getReservationBranches', $functionResult, $username, array('getReservationBranchesParam' => array('arenaMember' => $this->arenaMember, 'user' => $username, 'password' => $password, 'language' => $this->getLanguage(), 'country' => 'FI', 'reservationEntities' => $id, 'reservationType' => 'normal')));
+        $result = $this->doSOAPRequest($this->reservations_wsdl, 'getReservationBranches', $functionResult, $username, ['getReservationBranchesParam' => ['arenaMember' => $this->arenaMember, 'user' => $username, 'password' => $password, 'language' => $this->getLanguage(), 'country' => 'FI', 'reservationEntities' => $id, 'reservationType' => 'normal']]);
 
-        $locationsList = array();
+        $locationsList = [];
         if (!isset($result->$functionResult->organisations->organisation)) {
             // If we didn't get any pickup locations for item_id, fall back to id
             // and try again... This seems to happen when there are only ordered
@@ -327,8 +322,8 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
             return $locationsList;
         }
         $organisations = is_object($result->$functionResult->organisations->organisation)
-        ? array($result->$functionResult->organisations->organisation)
-        : $result->$functionResult->organisations->organisation;
+        ? [$result->$functionResult->organisations->organisation]
+            : $result->$functionResult->organisations->organisation;
 
         foreach ($organisations as $organisation) {
             if (!isset($organisation->branches->branch)) {
@@ -339,26 +334,26 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
 
             // TODO: Make it configurable whether organisation names should be included in the location name
             $branches = is_object($organisation->branches->branch)
-            ? array($organisation->branches->branch)
-            : $organisation->branches->branch;
+            ? [$organisation->branches->branch]
+                : $organisation->branches->branch;
 
             if (is_object($organisation->branches->branch)) {
-                $locationsList[] = array(
-                    'locationID' => $organisationID . '.' .  $organisation->branches->branch->id,
+                $locationsList[] = [
+                                    'locationID' => $organisationID . '.' .  $organisation->branches->branch->id,
                     'locationDisplay' => $organisation->branches->branch->name
-                );
+                                    ];
             } else {
                 foreach ($organisation->branches->branch as $branch) {
-                    $locationsList[] = array(
-                        'locationID' => $organisationID . '.' . $branch->id,
+                    $locationsList[] = [
+                                        'locationID' => $organisationID . '.' . $branch->id,
                         'locationDisplay' => $branch->name
-                    );
+                                        ];
                 }
             }
         }
 
         // Sort pick up locations
-        usort($locationsList, array($this, 'pickUpLocationsSortFunction'));
+        usort($locationsList, [$this, 'pickUpLocationsSortFunction']);
 
         return $locationsList;
     }
@@ -402,7 +397,6 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
         return $requestGroups[0]['id'];
     }
 
-
     /**
      * Get request groups
      *
@@ -430,7 +424,6 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
      *
      * @return mixed           True if successful, false if unsuccessful
      *
-     * @access public
      */
     public function placeHold($holdDetails)
     {
@@ -452,8 +445,8 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
                 $validToDate = $this->getDefaultRequiredByDate();
             } else {
                 $validToDate = $this->dateFormat->convertFromDisplayDate(
-                    'Y-m-d', $holdDetails['requiredBy']
-                );
+                                                                         'Y-m-d', $holdDetails['requiredBy']
+                                                                         );
             }
         } catch (DateException $e) {
             // Hold Date is invalid
@@ -463,21 +456,21 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
         $pickUpLocation = $holdDetails['pickUpLocation'];
         list($organisation, $branch) = explode('.', $pickUpLocation, 2);
 
-        $result = $this->doSOAPRequest($this->reservations_wsdl, 'addReservation', 'addReservationResult', $username, array('addReservationParam' => array('arenaMember' => $this->arenaMember, 'user' => $username, 'password' => $password, 'language' => 'en', 'reservationEntities' => $entityId, 'reservationSource' => $reservationSource, 'reservationType' => 'normal', 'organisationId' => $organisation, 'pickUpBranchId' => $branch, 'validFromDate' => $validFromDate, 'validToDate' => $validToDate )));
+        $result = $this->doSOAPRequest($this->reservations_wsdl, 'addReservation', 'addReservationResult', $username, ['addReservationParam' => ['arenaMember' => $this->arenaMember, 'user' => $username, 'password' => $password, 'language' => 'en', 'reservationEntities' => $entityId, 'reservationSource' => $reservationSource, 'reservationType' => 'normal', 'organisationId' => $organisation, 'pickUpBranchId' => $branch, 'validFromDate' => $validFromDate, 'validToDate' => $validToDate ]]);
 
         if ($statusAWS->type != 'ok') {
-                $message = $this->handleError($function, $statusAWS->message, $username);
-                if ($message == 'ils_connection_failed') {
-                    throw new ILSException('ils_offline_status');
-                }
-                return array(
-                    'success' => false
-                );
+            $message = $this->handleError($function, $statusAWS->message, $username);
+            if ($message == 'ils_connection_failed') {
+                throw new ILSException('ils_offline_status');
             }
+                return [
+                    'success' => false
+                        ];
+        }
 
-        return array(
+        return [
             'success' => true
-        );
+                ];
     }
 
     /**
@@ -491,34 +484,33 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
      *
      * @return array           Associative array of the results
      *
-     * @access public
      */
     public function cancelHolds($cancelDetails)
     {
         $username = $cancelDetails['patron']['cat_username'];
         $password = $cancelDetails['patron']['cat_password'];
         $succeeded = 0;
-        $results = array();
+        $results = [];
 
         foreach ($cancelDetails['details'] as $details) {
-            $result = $this->doSOAPRequest($this->reservations_wsdl, 'removeReservation', 'removeReservationResult', $username, array('removeReservationsParam' => array('arenaMember' => $this->arenaMember, 'user' => $username, 'password' => $password, 'language' => 'en', 'id' => $details)));
+            $result = $this->doSOAPRequest($this->reservations_wsdl, 'removeReservation', 'removeReservationResult', $username, ['removeReservationsParam' => ['arenaMember' => $this->arenaMember, 'user' => $username, 'password' => $password, 'language' => 'en', 'id' => $details]]);
 
-             if ($statusAWS->type != 'ok') {
+            if ($statusAWS->type != 'ok') {
                 $message = $this->handleError($function, $statusAWS->message, $username);
                 if ($message == 'ils_connection_failed') {
                     throw new ILSException('ils_offline_status');
                 }
-                $results[$details] = array(
-                    'success' => false,
-                    'status' => 'hold_cancel_fail',
+                $results[$details] = [
+                                      'success' => false,
+                                      'status' => 'hold_cancel_fail',
                     'sysMessage' => $statusAWS->message
-                );
+                                      ];
             } else {
-                $results[$details] = array(
-                    'success' => true,
-                    'status' => 'hold_cancel_success',
+                $results[$details] = [
+                                      'success' => true,
+                                      'status' => 'hold_cancel_success',
                     'sysMessage' => ''
-                );
+                                      ];
             }
 
             ++$succeeded;
@@ -536,13 +528,11 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
      *
      * @return string           Required details passed to cancelHold
      *
-     * @access public
      */
     public function getCancelHoldDetails($holdDetails)
     {
         return $holdDetails['reqnum'];
     }
-
 
     /**
      * Change pickup location
@@ -553,7 +543,6 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
      * @param string $holdDetails The request details
      *
      * @return array Response
-     * @access public
      */
     public function changePickupLocation($patron, $holdDetails)
     {
@@ -562,15 +551,15 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
         $password = $patron['cat_password'];
         $pickUpLocation = $holdDetails['pickup'];
         $created = $this->dateFormat->convertFromDisplayDate(
-            "Y-m-d", $holdDetails['created']
-        );
+                                                             "Y-m-d", $holdDetails['created']
+                                                             );
         $expires = $this->dateFormat->convertFromDisplayDate(
-            "Y-m-d", $holdDetails['expires']
-        );
+                                                             "Y-m-d", $holdDetails['expires']
+                                                             );
         $reservationId = $holdDetails['reservationId'];
         list($organisation, $branch) = explode('.', $pickUpLocation, 2);
 
-        $result = $this->doSOAPRequest($this->reservations_wsdl, 'changeReservation', 'changeReservationResult', $username, array('changeReservationsParam' => array('arenaMember' => $this->arenaMember, 'user' => $username, 'password' => $password, 'language' => 'en', 'id' => $reservationId, 'pickUpBranchId' => $branch, 'validFromDate' => $created, 'validToDate' => $expires )));
+        $result = $this->doSOAPRequest($this->reservations_wsdl, 'changeReservation', 'changeReservationResult', $username, ['changeReservationsParam' => ['arenaMember' => $this->arenaMember, 'user' => $username, 'password' => $password, 'language' => 'en', 'id' => $reservationId, 'pickUpBranchId' => $branch, 'validFromDate' => $created, 'validToDate' => $expires ]]);
 
         $statusAWS = $result->$functionResult->status;
 
@@ -579,15 +568,15 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
             if ($message == 'ils_connection_failed') {
                 throw new ILSException('ils_offline_status');
             }
-            return array(
-                'success' => false,
+            return [
+                    'success' => false,
                 'sysMessage' => $statusAWS->message
-            );
+                    ];
         }
 
-        return array(
+        return [
             'success' => true
-        );
+                ];
     }
 
     /**
@@ -620,7 +609,7 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
      */
     public function getStatuses($idList)
     {
-        $items = array();
+        $items = [];
         foreach ($ids as $id) {
             $items[] = $this->getHolding($id);
         }
@@ -663,8 +652,8 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
         }
 
         $holdings = is_object($result->$functionResult->catalogueRecord->compositeHolding)
-        ? array($result->$functionResult->catalogueRecord->compositeHolding)
-        : $result->$functionResult->catalogueRecord->compositeHolding;
+            ? array($result->$functionResult->catalogueRecord->compositeHolding)
+            : $result->$functionResult->catalogueRecord->compositeHolding;
 
         if (isset($holdings[0]->type) && $holdings[0]->type == 'year') {
             $result = [];
@@ -677,17 +666,17 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
                     $edition = $holdingsEdition->value;
                     $holdingsOrganisations = is_object($holdingsEdition->compositeHolding)
                       ? [$holdingsEdition->compositeHolding]
-                      : $holdingsEdition->compositeHolding;
+                        : $holdingsEdition->compositeHolding;
 
                     $journalInfo = [
-                        'year' => $year,
+                                    'year' => $year,
                         'edition' => $edition                           
-                    ];
+                                    ];
 
                     $result = array_merge(
-                        $result, 
-                        $this->parseHoldings($holdingsOrganisations, $id, $journalInfo)
-                    );
+                                          $result, 
+                                          $this->parseHoldings($holdingsOrganisations, $id, $journalInfo)
+                                          );
                 }
             }
         } else {
@@ -740,7 +729,7 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
                     // This holding is only holdable if it has a reservable id
                     // different from the record id
                     $holdable = $branch->reservationButtonStatus == 'reservationOk';
-//                         && $reservableId != $id;
+                    //                         && $reservableId != $id;
                     $departments = is_object($branch->holdings->holding)
                         ? array($branch->holdings->holding)
                         : $branch->holdings->holding;
@@ -749,9 +738,9 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
                         // Get holding data
                         $dueDate = isset($department->firstLoanDueDate)
                             ? $this->dateFormat->convertToDisplayDate(
-                                '* M d G:i:s e Y',
+                                                                      '* M d G:i:s e Y',
                                 $department->firstLoanDueDate
-                            ) : '';
+                                                                      ) : '';
                         $departmentName = $department->department;
                         $locationName = isset($department->location)
                             ? $department->location : '';
@@ -784,7 +773,7 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
                         $available = false;
                         if ($status == 'availableForLoan'
                             || $status == 'returnedToday'
-                        ) {
+                            ) {
                             $available = true;
                         }
 
@@ -792,21 +781,21 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
                         if ($status == 'nonAvailableForLoan'
                             && isset($department->nofReference)
                             && $department->nofReference == 0
-                        ) {
+                            ) {
                             $status = 'onRefDesk';
                         }
 
                         // Status table
                         $statusArray = array(
-                            'availableForLoan' => 'Available',
-                            'onLoan' => 'Charged',
-                            //'nonAvailableForLoan' => 'Not Available',
-                            'nonAvailableForLoan' => 'On Reference Desk',
-                            'onRefDesk' => 'On Reference Desk',
-                            'overdueLoan' => 'overdueLoan',
-                            'ordered' => 'Ordered',
+                                             'availableForLoan' => 'Available',
+                                             'onLoan' => 'Charged',
+                                             //'nonAvailableForLoan' => 'Not Available',
+                                             'nonAvailableForLoan' => 'On Reference Desk',
+                                             'onRefDesk' => 'On Reference Desk',
+                                             'overdueLoan' => 'overdueLoan',
+                                             'ordered' => 'Ordered',
                             'returnedToday' => 'returnedToday'
-                        );
+                                             );
 
                         // Convert status text
                         if (isset($statusArray[$status])) {
@@ -815,34 +804,34 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
                             $this->debugLog(
                                 'Unhandled status ' +
                                 $department->status + " for $id"
-                            );
+                                            );
                         }
 
                         $holding = [
-                            'id' => $id,
-                            'barcode' => $id,
-                            'item_id' => $reservableId,
-                            'holdings_id' => $group,
-                            'availability' => $available || $status == 'On Reference Desk',
+                                    'id' => $id,
+                                    'barcode' => $id,
+                                    'item_id' => $reservableId,
+                                    'holdings_id' => $group,
+                                    'availability' => $available || $status == 'On Reference Desk',
                             'availabilityInfo' => [
-                               'available' => $nofAvailableForLoan,
-                               'displayText' => $status,
-                               'reservations' => isset($branch->nofReservations) ? $branch->nofReservations : 0,
-                               'ordered' => $nofOrdered,
-                               'total' => $nofTotal,
-                            ],
-                            'status' => $status,
-                            'location' => $group,
-                            'branch' => $branchName,
-                            'branch_id' => $branchId,
-                            'department' => $departmentName,
-                            'duedate' => $dueDate,
-                            'is_holdable' => $holdable,
-                            'addLink' => $holdable ? 'hold' : false,
-                            'callnumber' => isset($department->shelfMark)
-                                ? $department->shelfMark : '',
-                            'is_holdable' => $branch->reservationButtonStatus == 'reservationOk',
-                        ];
+                                                   'available' => $nofAvailableForLoan,
+                                                   'displayText' => $status,
+                                                   'reservations' => isset($branch->nofReservations) ? $branch->nofReservations : 0,
+                                                   'ordered' => $nofOrdered,
+                                                   'total' => $nofTotal,
+                                                   ],
+                                    'status' => $status,
+                                    'location' => $group,
+                                    'branch' => $branchName,
+                                    'branch_id' => $branchId,
+                                    'department' => $departmentName,
+                                    'duedate' => $dueDate,
+                                    'is_holdable' => $holdable,
+                                    'addLink' => $holdable ? 'hold' : false,
+                                    'callnumber' => isset($department->shelfMark)
+                                    ? $department->shelfMark : '',
+                                    'is_holdable' => $branch->reservationButtonStatus == 'reservationOk',
+                                    ];
                         $result[] = $holding;
                     }
                 }
@@ -852,438 +841,430 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
         return $result;
     }
 
-    /**
-     * Get Purchase History
-     *
-     * This is responsible for retrieving the acquisitions history data for the
-     * specific record (usually recently received issues of a serial).
-     *
-     * @param string $id The record id to retrieve the info for
-     *
-     * @throws ILSException
-     * @return array     An array with the acquisitions data on success.
-     */
-    public function getPurchaseHistory($id)
-    {
-        return array();
-    }
-
-
-    /**
-     * Patron Login
-     *
-     * This is responsible for authenticating a patron against the catalog.
-     *
-     * @param string $username The patron barcode
-     * @param string $password   The patron's last name or PIN (depending on config)
-     *
-     * @throws ILSException
-     * @return mixed          Associative array of patron info on successful login,
-     * null on unsuccessful login.
-     */
-    public function patronLogin($username, $password)
-    {
-        // Secondary login field not supported
-        if (is_array($password)) {
-            $password = $password[0];
+        /**
+         * Get Purchase History
+         *
+         * This is responsible for retrieving the acquisitions history data for the
+         * specific record (usually recently received issues of a serial).
+         *
+         * @param string $id The record id to retrieve the info for
+         *
+         * @throws ILSException
+         * @return array     An array with the acquisitions data on success.
+         */
+        public function getPurchaseHistory($id)
+        {
+            return [];
         }
 
-        $function = 'getPatronInformation';
-        $functionResult = 'patronInformationResult';
-        $result = $this->doSOAPRequest($this->patron_wsdl, $function, $functionResult, $username, array('patronInformationParam' => array('arenaMember' => $this->arenaMember, 'user' => $username, 'password' => $password, 'language' => $this->getLanguage())));
-
-        $statusAWS = $result->$functionResult->status;
-
-        if ($statusAWS->type != 'ok') {
-            $message = $this->handleError($function, $statusAWS->message, $username);
-            if ($message == 'ils_connection_failed') {
-                throw new ILSException('ils_offline_login_message');
-            }
-            return null;
-        }
-
-        $info = $result->$functionResult->patronInformation;
-
-        $user = array();
-        $user['id'] = $username;
-        $user['cat_username'] = $username;
-        $user['cat_password'] = $password;
-        $names = explode(' ', $info->patronName);
-        $user['lastname'] = array_pop($names);
-        $user['firstname'] = implode(' ', $names);
-        $user['email'] = '';
-        $user['emailId'] = '';
-        $user['address1'] = '';
-        $user['zip'] = '';
-        $user['phone'] = '';
-        $user['phoneId'] = '';
-        $user['phoneLocalCode'] = '';
-        $user['phoneAreaCode'] = '';
-        $user['major'] = null;
-        $user['college'] = null;
-
-        if (isset($info->emailAddresses) && $info->emailAddresses->emailAddress) {
-            $emailAddresses = is_object($info->emailAddresses->emailAddress) ? array($info->emailAddresses->emailAddress) : $info->emailAddresses->emailAddress;
-            foreach ($emailAddresses as $emailAddress) {
-                if ($emailAddress->isActive == 'yes') {
-                    $user['email'] = isset($emailAddress->address) ? $emailAddress->address : '';
-                    $user['emailId'] = isset($emailAddress->id) ? $emailAddress->id : '';
-                }
-            }
-        }
-
-        if (isset($info->addresses)) {
-            $addresses = is_object($info->addresses->address) ? array($info->addresses->address) : $info->addresses->address;
-            foreach ($addresses as $address) {
-                if ($address->isActive == 'yes') {
-                    $user['address1'] = isset($address->streetAddress) ? $address->streetAddress : '';
-                    $user['zip'] = isset($address->zipCode) ? $address->zipCode : '';
-                    if (isset($address->city)) {
-                        if ($user['zip']) {
-                            $user['zip'] .= ', ';
-                        }
-                        $user['zip'] .= $address->city;
-                    }
-                    if (isset($address->country)) {
-                        if ($user['zip']) {
-                            $user['zip'] .= ', ';
-                        }
-                        $user['zip'] .= $address->country;
-                    }
-                }
-            }
-        }
-
-        if (isset($info->phoneNumbers)) {
-            $phoneNumbers = is_object($info->phoneNumbers->phoneNumber) ? array($info->phoneNumbers->phoneNumber) : $info->phoneNumbers->phoneNumber;
-            foreach ($phoneNumbers as $phoneNumber) {
-                if ($phoneNumber->sms->useForSms == 'yes') {
-                    $user['phone'] = isset($phoneNumber->areaCode) ? $phoneNumber->areaCode : '';
-                    $user['phoneAreaCode'] = $user['phone'];
-                    if (isset($phoneNumber->localCode)) {
-                        $user['phone'] .= $phoneNumber->localCode;
-                        $user['phoneLocalCode'] = $phoneNumber->localCode;
-                    }
-                    if (isset($phoneNumber->id)) {
-                        $user['phoneId'] = $phoneNumber->id;
-                    }
-                }
-            }
-        }
-
-
-//         $user['messagingServices'] = array();
-//         $services = array('pickUpNotice', 'overdueNotice', 'dueDateAlert');
-
-//         foreach ($services as $service) {
-//             $data = array(
-//                 'active' => false,
-//                 'type' => translate("messaging_settings_type_$service")
-//             );
-//             if ($service == 'dueDateAlert') {
-//                 $data['sendMethods']['email'] = array('active' => false, 'type' => 'email');
-//             } else {
-//                 $data['sendMethods'] = array(
-//                     'snailMail' => array('active' => false, 'type' => 'letter'),
-//                     'email' => array('active' => false, 'type' => 'email'),
-//                     'sms' => array('active' => false, 'type' => 'sms')
-//                 );
-//             }
-//             $user['messagingServices'][$service] = $data;
-//         }
-
-//         if (isset($info->messageServices)) {
-//             foreach ($info->messageServices->messageService as $service) {
-//                 $methods = array();
-//                 $type = $service->serviceType;
-//                 $numOfDays = $service->nofDays->value;
-//                 $active = $service->isActive === 'yes';
-
-//                 if (array_values((array)$service->sendMethods) === (array)$service->sendMethods) {
-//                     foreach ($service->sendMethods as $method) {
-//                         $user['messagingServices'][$type]['sendMethods'][$method->value]['active'] = $method->isActive === 'yes';
-//                     }
-//                 } else {
-//                     if (isset($service->sendMethods->sendMethod->value)) {
-//                         $user['messagingServices'][$type]['sendMethods'][$service->sendMethods->sendMethod->value]['active'] = $service->sendMethods->sendMethod->isActive === 'yes';
-//                     }
-//                 }
-//                 foreach ($user['messagingServices'][$type]['sendMethods'] as $key => &$data) {
-//                     $methodType = $data['type'];
-//                     $typeLabel = translate("messaging_settings_type_$type");
-//                     $methodLabel = translate("messaging_settings_method_$methodType");
-
-//                     if ($numOfDays > 0) {
-//                         $days = translate(
-//                             $numOfDays == 1
-//                             ? 'messaging_settings_num_of_days'
-//                             : 'messaging_settings_num_of_days_plural'
-//                         );
-//                         $methodLabel = str_replace('{1}', $numOfDays, $days);
-//                     }
-
-//                     if (!$active) {
-//                         $methodLabel = translate('messaging_settings_method_none');
-//                     }
-//                     $data['method'] = $methodLabel;
-//                 }
-
-//                 if (isset($user['messagingServices'][$type])) {
-//                     $user['messagingServices'][$type]['active'] = $active;
-//                     $user['messagingServices'][$type]['numOfDays'] = $numOfDays;
-//                 }
-//             }
-//         }
-
-        return $user;
-    }
-
-    /**
-     * Get Patron Transactions
-     *
-     * This is responsible for retrieving all transactions (i.e. checked out items)
-     * by a specific patron.
-     *
-     * @param array $user The patron array from patronLogin
-     *
-     *
-     * @throws DateException
-     * @throws ILSException
-     * @return array        Array of the patron's transactions on success.
-     */
-    public function getMyTransactions($user)
-    {
-        $username = $user['cat_username'];
-        $password = $user['cat_password'];
-
-        $functionResult = 'loansResponse';
-        $result = $this->doSOAPRequest($this->loans_wsdl, 'GetLoans', $functionResult, $username, array('loansRequest' => array('arenaMember' => $this->arenaMember, 'user' => $username, 'password' => $password, 'language' => $this->getLanguage())));
-
-        $statusAWS = $result->$functionResult->status;
-
-        if ($statusAWS->type != 'ok') {
-            $message = $this->handleError($function, $statusAWS->message, $username);
-            if ($message == 'catalog_connection_failed') {
-                throw new ILSException($message);
-            }
-            return array();
-        }
-
-        $transList = array();
-        if (!isset($result->$functionResult->loans->loan)) {
-            return $transList;
-        }
-        $loans = is_object($result->$functionResult->loans->loan) ? array($result->$functionResult->loans->loan) : $result->$functionResult->loans->loan;
-
-        foreach ($loans as $loan) {
-            $title = $loan->catalogueRecord->title;
-            if ($loan->note) {
-                $title .= ' (' . $loan->note . ')';
+        /**
+         * Patron Login
+         *
+         * This is responsible for authenticating a patron against the catalog.
+         *
+         * @param string $username The patron barcode
+         * @param string $password   The patron's last name or PIN (depending on config)
+         *
+         * @throws ILSException
+         * @return mixed          Associative array of patron info on successful login,
+         * null on unsuccessful login.
+         */
+        public function patronLogin($username, $password)
+        {
+            // Secondary login field not supported
+            if (is_array($password)) {
+                $password = $password[0];
             }
 
-            $trans = array();
-            $trans['id'] = $loan->catalogueRecord->id;
-            $trans['item_id'] = $loan->id;
-            $trans['title'] = $title;
-            $trans['duedate'] = $loan->loanDueDate;
-            $trans['renewable'] = (string)$loan->loanStatus->isRenewable == 'yes';
-            $trans['message'] = $this->mapStatus($loan->loanStatus->status);
-            $trans['barcode'] = $loan->id;
-            $trans['renewalCount'] = max(array(0, $this->config['Loans']['renewalLimit'] - $loan->remainingRenewals));
-            $trans['renewalLimit'] = $this->config['Loans']['renewalLimit'];
-            $transList[] = $trans;
-        }
+            $function = 'getPatronInformation';
+            $functionResult = 'patronInformationResult';
+            $result = $this->doSOAPRequest($this->patron_wsdl, $function, $functionResult, $username, ['patronInformationParam' => ['arenaMember' => $this->arenaMember, 'user' => $username, 'password' => $password, 'language' => $this->getLanguage()]]);
 
-        // Sort the Loans
-        $date = array();
-        foreach ($transList as $key => $row) {
-            $date[$key] = $row['duedate'];
-        }
-        array_multisort($date, SORT_ASC, $transList);
+            $statusAWS = $result->$functionResult->status;
 
-        // Convert Axiell format to display date format
-        foreach ($transList as &$row) {
-            $row['duedate'] = $this->formatDate($row['duedate']);
-        }
-
-        return $transList;
-    }
-
-
-    /**
-     * Get Patron Fines
-     *
-     * This is responsible for retrieving all fines by a specific patron.
-     *
-     * @param array $user The patron array from patronLogin
-     *
-     * @throws DateException
-     * @throws ILSException
-     * @return array        Array of the patron's fines on success.
-     */
-    public function getMyFines($user)
-    {
-        $username = $user['cat_username'];
-        $password = $user['cat_password'];
-
-        $functionResult = 'debtsResponse';
-        $result = $this->doSOAPRequest($this->payments_wsdl, 'GetDebts', $functionResult, $username, array('debtsRequest' => array('arenaMember' => $this->arenaMember,'user' => $username, 'password' => $password, 'language' => $this->getLanguage(), 'fromDate' => '1699-12-31', 'toDate' => time())));
-
-        $statusAWS = $result->$functionResult->status;
-
-        if ($statusAWS->type != 'ok') {
-            $message = $this->handleError($function, $statusAWS->message, $username);
-            if ($message == 'catalog_connection_failed') {
-                throw new ILSException($message);
-            }
-            return array();
-        }
-
-        $finesList = array();
-        if (!isset($result->$functionResult->debts->debt))
-            return $finesList;
-        $debts = is_object($result->$functionResult->debts->debt) ? array($result->$functionResult->debts->debt) : $result->$functionResult->debts->debt;
-
-        foreach ($debts as $debt) {
-            $fine = array();
-            $fine['debt_id'] = $debt->id;
-            $fine['amount'] = str_replace(',', '.', $debt->debtAmountFormatted) * 100;
-            $fine['checkout'] = '';
-            $fine['fine'] = $debt->debtType . ' - ' . $debt->debtNote;
-            $fine['balance'] = str_replace(',', '.', $debt->debtAmountFormatted) * 100;
-            // Convert Axiell format to display date format
-            $fine['createdate'] = $this->formatDate($debt->debtDate);
-            $fine['duedate'] = $this->formatDate($debt->debtDate);
-            $finesList[] = $fine;
-        }
-        return $finesList;
-     }
-
-
-    /**
-     * Get Patron Holds
-     *
-     * This is responsible for retrieving all holds by a specific patron.
-     *
-     * @param array $user The patron array from patronLogin
-     *
-     * @throws DateException
-     * @throws ILSException
-     * @return array        Array of the patron's holds on success.
-     */
-     public function getMyHolds($user)
-     {
-        $username = $user['cat_username'];
-        $password = $user['cat_password'];
-
-        $functionResult =  'getReservationsResult';
-        $result = $this->doSOAPRequest($this->reservations_wsdl, 'getReservations', $functionResult, $username, array('getReservationsParam' => array('arenaMember' => $this->arenaMember, 'user' => $username, 'password' => $password, 'language' => $this->getLanguage())));
-
-        $statusAWS = $result->$functionResult->status;
-
-        if ($statusAWS->type != 'ok') {
-            $message = $this->handleError($function, $statusAWS->message, $username);
-            if ($message == 'catalog_connection_failed') {
-                throw new ILSException($message);
-            }
-            return array();
-        }
-
-        $holdsList = array();
-        if (!isset($result->$functionResult->reservations->reservation))
-            return $holdsList;
-        $reservations = is_object($result->$functionResult->reservations->reservation) ? array($result->$functionResult->reservations->reservation) : $result->$functionResult->reservations->reservation;
-
-        foreach ($reservations as $reservation) {
-            $expireDate = $reservation->reservationStatus == 'fetchable' ? $reservation->pickUpExpireDate : $reservation->validToDate;
-            $title = isset($reservation->catalogueRecord->title) ? $reservation->catalogueRecord->title : '';
-            if (isset($reservation->note)) {
-                $title .= ' (' . $reservation->note . ')';
-            }
-
-            $hold = array(
-                'id' => $reservation->catalogueRecord->id,
-                'type' => $reservation->reservationStatus,
-                'location' => $reservation->pickUpBranchId,
-                'reqnum' => ($reservation->isDeletable == 'yes' && isset($reservation->id)) ? $reservation->id : '',
-                'pickupnum' => isset($reservation->pickUpNo) ? $reservation->pickUpNo : '',
-                'expire' => $this->formatDate($expireDate),
-                'create' => $this->formatDate($reservation->validFromDate),
-                'position' => isset($reservation->queueNo) ? $reservation->queueNo : '-',
-                'available' => $reservation->reservationStatus == 'fetchable',
-                'modifiable' => $reservation->reservationStatus == 'active',
-                'item_id' => '',
-                'reservation_id' => $reservation->id,
-                'volume' => isset($reservation->catalogueRecord->volume) ? $reservation->catalogueRecord->volume : '',
-                'publication_year' => isset($reservation->catalogueRecord->publicationYear) ? $reservation->catalogueRecord->publicationYear : '',
-                'title' => $title
-            );
-            $holdsList[] = $hold;
-           }
-        return $holdsList;
-     }
-
-
-     /**
-      * Renew Details
-      *
-      * This is responsible for getting the details required for renewing loans.
-      *
-      * @param string $checkoutDetails The request details
-      *
-      * @return string           Required details passed to renewMyItems
-      *
-      * @access public
-      */
-     public function getRenewDetails($checkoutDetails)
-     {
-         return $checkoutDetails['barcode'];
-     }
-
-     /**
-      * Renew Items
-      *
-      * This is responsible for renewing items.
-      *
-      * @param string $renewDetails The request details
-      *
-      * @return array           Associative array of the results
-      *
-      * @access public
-      */
-     public function renewMyItems($renewDetails)
-     {
-         $succeeded = 0;
-         $results = array('blocks' => array(), 'details' => array());
-         foreach ($renewDetails['details'] as $id) {
-             $username = $renewDetails['patron']['cat_username'];
-             $password = $renewDetails['patron']['cat_password'];
-
-             $functionResult = 'renewLoansResponse';
-             $result = $this->doSOAPRequest($this->loans_wsdl, 'RenewLoans', $functionResult, $username, array('renewLoansRequest' => array('arenaMember' => $this->arenaMember, 'user' => $username, 'password' => $password, 'language' => 'en', 'loans' => array($id))));
-
-             if ($statusAWS->type != 'ok') {
+            if ($statusAWS->type != 'ok') {
                 $message = $this->handleError($function, $statusAWS->message, $username);
                 if ($message == 'ils_connection_failed') {
-                    throw new ILSException('ils_offline_status');
+                    throw new ILSException('ils_offline_login_message');
+                }
+                return null;
+            }
+
+            $info = $result->$functionResult->patronInformation;
+
+            $user = [];
+            $user['id'] = $username;
+            $user['cat_username'] = $username;
+            $user['cat_password'] = $password;
+            $names = explode(' ', $info->patronName);
+            $user['lastname'] = array_pop($names);
+            $user['firstname'] = implode(' ', $names);
+            $user['email'] = '';
+            $user['emailId'] = '';
+            $user['address1'] = '';
+            $user['zip'] = '';
+            $user['phone'] = '';
+            $user['phoneId'] = '';
+            $user['phoneLocalCode'] = '';
+            $user['phoneAreaCode'] = '';
+            $user['major'] = null;
+            $user['college'] = null;
+
+            if (isset($info->emailAddresses) && $info->emailAddresses->emailAddress) {
+                $emailAddresses = is_object($info->emailAddresses->emailAddress) ? [$info->emailAddresses->emailAddress] : $info->emailAddresses->emailAddress;
+                foreach ($emailAddresses as $emailAddress) {
+                    if ($emailAddress->isActive == 'yes') {
+                        $user['email'] = isset($emailAddress->address) ? $emailAddress->address : '';
+                        $user['emailId'] = isset($emailAddress->id) ? $emailAddress->id : '';
+                    }
                 }
             }
 
-             $status = trim($result->$functionResult->loans->loan->loanStatus->status);
-             $success = $status === 'isRenewedToday';
+            if (isset($info->addresses)) {
+                $addresses = is_object($info->addresses->address) ? [$info->addresses->address] : $info->addresses->address;
+                foreach ($addresses as $address) {
+                    if ($address->isActive == 'yes') {
+                        $user['address1'] = isset($address->streetAddress) ? $address->streetAddress : '';
+                        $user['zip'] = isset($address->zipCode) ? $address->zipCode : '';
+                        if (isset($address->city)) {
+                            if ($user['zip']) {
+                                $user['zip'] .= ', ';
+                            }
+                            $user['zip'] .= $address->city;
+                        }
+                        if (isset($address->country)) {
+                            if ($user['zip']) {
+                                $user['zip'] .= ', ';
+                            }
+                            $user['zip'] .= $address->country;
+                        }
+                    }
+                }
+            }
 
-             $results['details'][$id] = array(
-                 'success' => $success,
-                 'status' => $success ? 'Loan renewed' : 'Renewal failed',
-                 'sysMessage' => $status,
-                 'item_id' => $id,
-                 'new_date' => $this->formatDate($result->$functionResult->loans->loan->loanDueDate),
+            if (isset($info->phoneNumbers)) {
+                $phoneNumbers = is_object($info->phoneNumbers->phoneNumber) ? [$info->phoneNumbers->phoneNumber] : $info->phoneNumbers->phoneNumber;
+                foreach ($phoneNumbers as $phoneNumber) {
+                    if ($phoneNumber->sms->useForSms == 'yes') {
+                        $user['phone'] = isset($phoneNumber->areaCode) ? $phoneNumber->areaCode : '';
+                        $user['phoneAreaCode'] = $user['phone'];
+                        if (isset($phoneNumber->localCode)) {
+                            $user['phone'] .= $phoneNumber->localCode;
+                            $user['phoneLocalCode'] = $phoneNumber->localCode;
+                        }
+                        if (isset($phoneNumber->id)) {
+                            $user['phoneId'] = $phoneNumber->id;
+                        }
+                    }
+                }
+            }
+
+            //         $user['messagingServices'] = array();
+            //         $services = array('pickUpNotice', 'overdueNotice', 'dueDateAlert');
+
+            //         foreach ($services as $service) {
+            //             $data = array(
+            //                 'active' => false,
+            //                 'type' => translate("messaging_settings_type_$service")
+            //             );
+            //             if ($service == 'dueDateAlert') {
+            //                 $data['sendMethods']['email'] = array('active' => false, 'type' => 'email');
+            //             } else {
+            //                 $data['sendMethods'] = array(
+            //                     'snailMail' => array('active' => false, 'type' => 'letter'),
+            //                     'email' => array('active' => false, 'type' => 'email'),
+            //                     'sms' => array('active' => false, 'type' => 'sms')
+            //                 );
+            //             }
+            //             $user['messagingServices'][$service] = $data;
+            //         }
+
+            //         if (isset($info->messageServices)) {
+            //             foreach ($info->messageServices->messageService as $service) {
+            //                 $methods = array();
+            //                 $type = $service->serviceType;
+            //                 $numOfDays = $service->nofDays->value;
+            //                 $active = $service->isActive === 'yes';
+
+            //                 if (array_values((array)$service->sendMethods) === (array)$service->sendMethods) {
+            //                     foreach ($service->sendMethods as $method) {
+            //                         $user['messagingServices'][$type]['sendMethods'][$method->value]['active'] = $method->isActive === 'yes';
+            //                     }
+            //                 } else {
+            //                     if (isset($service->sendMethods->sendMethod->value)) {
+            //                         $user['messagingServices'][$type]['sendMethods'][$service->sendMethods->sendMethod->value]['active'] = $service->sendMethods->sendMethod->isActive === 'yes';
+            //                     }
+            //                 }
+            //                 foreach ($user['messagingServices'][$type]['sendMethods'] as $key => &$data) {
+            //                     $methodType = $data['type'];
+            //                     $typeLabel = translate("messaging_settings_type_$type");
+            //                     $methodLabel = translate("messaging_settings_method_$methodType");
+
+            //                     if ($numOfDays > 0) {
+            //                         $days = translate(
+            //                             $numOfDays == 1
+            //                             ? 'messaging_settings_num_of_days'
+            //                             : 'messaging_settings_num_of_days_plural'
+            //                         );
+            //                         $methodLabel = str_replace('{1}', $numOfDays, $days);
+            //                     }
+
+            //                     if (!$active) {
+            //                         $methodLabel = translate('messaging_settings_method_none');
+            //                     }
+            //                     $data['method'] = $methodLabel;
+            //                 }
+
+            //                 if (isset($user['messagingServices'][$type])) {
+            //                     $user['messagingServices'][$type]['active'] = $active;
+            //                     $user['messagingServices'][$type]['numOfDays'] = $numOfDays;
+            //                 }
+            //             }
+            //         }
+
+            return $user;
+        }
+
+        /**
+         * Get Patron Transactions
+         *
+         * This is responsible for retrieving all transactions (i.e. checked out items)
+         * by a specific patron.
+         *
+         * @param array $user The patron array from patronLogin
+         *
+         *
+         * @throws DateException
+         * @throws ILSException
+         * @return array        Array of the patron's transactions on success.
+         */
+        public function getMyTransactions($user)
+        {
+            $username = $user['cat_username'];
+            $password = $user['cat_password'];
+
+            $functionResult = 'loansResponse';
+            $result = $this->doSOAPRequest($this->loans_wsdl, 'GetLoans', $functionResult, $username, ['loansRequest' => ['arenaMember' => $this->arenaMember, 'user' => $username, 'password' => $password, 'language' => $this->getLanguage()]]);
+
+            $statusAWS = $result->$functionResult->status;
+
+            if ($statusAWS->type != 'ok') {
+                $message = $this->handleError($function, $statusAWS->message, $username);
+                if ($message == 'catalog_connection_failed') {
+                    throw new ILSException($message);
+                }
+                return [];
+            }
+
+            $transList = [];
+            if (!isset($result->$functionResult->loans->loan)) {
+                return $transList;
+            }
+            $loans = is_object($result->$functionResult->loans->loan) ? [$result->$functionResult->loans->loan] : $result->$functionResult->loans->loan;
+
+            foreach ($loans as $loan) {
+                $title = $loan->catalogueRecord->title;
+                if ($loan->note) {
+                    $title .= ' (' . $loan->note . ')';
+                }
+
+                $trans = [];
+                $trans['id'] = $loan->catalogueRecord->id;
+                $trans['item_id'] = $loan->id;
+                $trans['title'] = $title;
+                $trans['duedate'] = $loan->loanDueDate;
+                $trans['renewable'] = (string)$loan->loanStatus->isRenewable == 'yes';
+                $trans['message'] = $this->mapStatus($loan->loanStatus->status);
+                $trans['barcode'] = $loan->id;
+                $trans['renewalCount'] = max([0, $this->config['Loans']['renewalLimit'] - $loan->remainingRenewals]);
+                $trans['renewalLimit'] = $this->config['Loans']['renewalLimit'];
+                $transList[] = $trans;
+            }
+
+            // Sort the Loans
+            $date = [];
+            foreach ($transList as $key => $row) {
+                $date[$key] = $row['duedate'];
+            }
+            array_multisort($date, SORT_ASC, $transList);
+
+            // Convert Axiell format to display date format
+            foreach ($transList as &$row) {
+                $row['duedate'] = $this->formatDate($row['duedate']);
+            }
+
+            return $transList;
+        }
+
+        /**
+         * Get Patron Fines
+         *
+         * This is responsible for retrieving all fines by a specific patron.
+         *
+         * @param array $user The patron array from patronLogin
+         *
+         * @throws DateException
+         * @throws ILSException
+         * @return array        Array of the patron's fines on success.
+         */
+        public function getMyFines($user)
+        {
+            $username = $user['cat_username'];
+            $password = $user['cat_password'];
+
+            $functionResult = 'debtsResponse';
+            $result = $this->doSOAPRequest($this->payments_wsdl, 'GetDebts', $functionResult, $username, ['debtsRequest' => ['arenaMember' => $this->arenaMember,'user' => $username, 'password' => $password, 'language' => $this->getLanguage(), 'fromDate' => '1699-12-31', 'toDate' => time()]]);
+
+            $statusAWS = $result->$functionResult->status;
+
+            if ($statusAWS->type != 'ok') {
+                $message = $this->handleError($function, $statusAWS->message, $username);
+                if ($message == 'catalog_connection_failed') {
+                    throw new ILSException($message);
+                }
+                return [];
+            }
+
+            $finesList = [];
+            if (!isset($result->$functionResult->debts->debt))
+                return $finesList;
+            $debts = is_object($result->$functionResult->debts->debt) ? [$result->$functionResult->debts->debt] : $result->$functionResult->debts->debt;
+
+            foreach ($debts as $debt) {
+                $fine = [];
+                $fine['debt_id'] = $debt->id;
+                $fine['amount'] = str_replace(',', '.', $debt->debtAmountFormatted) * 100;
+                $fine['checkout'] = '';
+                $fine['fine'] = $debt->debtType . ' - ' . $debt->debtNote;
+                $fine['balance'] = str_replace(',', '.', $debt->debtAmountFormatted) * 100;
+                // Convert Axiell format to display date format
+                $fine['createdate'] = $this->formatDate($debt->debtDate);
+                $fine['duedate'] = $this->formatDate($debt->debtDate);
+                $finesList[] = $fine;
+            }
+            return $finesList;
+        }
+
+        /**
+         * Get Patron Holds
+         *
+         * This is responsible for retrieving all holds by a specific patron.
+         *
+         * @param array $user The patron array from patronLogin
+         *
+         * @throws DateException
+         * @throws ILSException
+         * @return array        Array of the patron's holds on success.
+         */
+        public function getMyHolds($user)
+        {
+            $username = $user['cat_username'];
+            $password = $user['cat_password'];
+
+            $functionResult =  'getReservationsResult';
+            $result = $this->doSOAPRequest($this->reservations_wsdl, 'getReservations', $functionResult, $username, ['getReservationsParam' => ['arenaMember' => $this->arenaMember, 'user' => $username, 'password' => $password, 'language' => $this->getLanguage()]]);
+
+            $statusAWS = $result->$functionResult->status;
+
+            if ($statusAWS->type != 'ok') {
+                $message = $this->handleError($function, $statusAWS->message, $username);
+                if ($message == 'catalog_connection_failed') {
+                    throw new ILSException($message);
+                }
+                return [];
+            }
+
+            $holdsList = [];
+            if (!isset($result->$functionResult->reservations->reservation))
+                return $holdsList;
+            $reservations = is_object($result->$functionResult->reservations->reservation) ? [$result->$functionResult->reservations->reservation] : $result->$functionResult->reservations->reservation;
+
+            foreach ($reservations as $reservation) {
+                $expireDate = $reservation->reservationStatus == 'fetchable' ? $reservation->pickUpExpireDate : $reservation->validToDate;
+                $title = isset($reservation->catalogueRecord->title) ? $reservation->catalogueRecord->title : '';
+                if (isset($reservation->note)) {
+                    $title .= ' (' . $reservation->note . ')';
+                }
+
+            $hold = [
+                     'id' => $reservation->catalogueRecord->id,
+                     'type' => $reservation->reservationStatus,
+                     'location' => $reservation->pickUpBranchId,
+                     'reqnum' => ($reservation->isDeletable == 'yes' && isset($reservation->id)) ? $reservation->id : '',
+                     'pickupnum' => isset($reservation->pickUpNo) ? $reservation->pickUpNo : '',
+                     'expire' => $this->formatDate($expireDate),
+                     'create' => $this->formatDate($reservation->validFromDate),
+                     'position' => isset($reservation->queueNo) ? $reservation->queueNo : '-',
+                     'available' => $reservation->reservationStatus == 'fetchable',
+                     'modifiable' => $reservation->reservationStatus == 'active',
+                     'item_id' => '',
+                     'reservation_id' => $reservation->id,
+                     'volume' => isset($reservation->catalogueRecord->volume) ? $reservation->catalogueRecord->volume : '',
+                     'publication_year' => isset($reservation->catalogueRecord->publicationYear) ? $reservation->catalogueRecord->publicationYear : '',
+                'title' => $title
+                     ];
+            $holdsList[] = $hold;
+            }
+            return $holdsList;
+        }
+
+        /**
+         * Renew Details
+         *
+         * This is responsible for getting the details required for renewing loans.
+         *
+         * @param string $checkoutDetails The request details
+         *
+         * @return string           Required details passed to renewMyItems
+         *
+         */
+        public function getRenewDetails($checkoutDetails)
+        {
+            return $checkoutDetails['barcode'];
+        }
+
+        /**
+         * Renew Items
+         *
+         * This is responsible for renewing items.
+         *
+         * @param string $renewDetails The request details
+         *
+         * @return array           Associative array of the results
+         *
+         */
+        public function renewMyItems($renewDetails)
+        {
+            $succeeded = 0;
+            $results = ['blocks' => [], 'details' => []];
+            foreach ($renewDetails['details'] as $id) {
+                $username = $renewDetails['patron']['cat_username'];
+                $password = $renewDetails['patron']['cat_password'];
+
+                $functionResult = 'renewLoansResponse';
+                $result = $this->doSOAPRequest($this->loans_wsdl, 'RenewLoans', $functionResult, $username, ['renewLoansRequest' => ['arenaMember' => $this->arenaMember, 'user' => $username, 'password' => $password, 'language' => 'en', 'loans' => [$id]]]);
+
+                if ($statusAWS->type != 'ok') {
+                    $message = $this->handleError($function, $statusAWS->message, $username);
+                    if ($message == 'ils_connection_failed') {
+                        throw new ILSException('ils_offline_status');
+                    }
+                }
+
+                $status = trim($result->$functionResult->loans->loan->loanStatus->status);
+                $success = $status === 'isRenewedToday';
+
+             $results['details'][$id] = [
+                                         'success' => $success,
+                                         'status' => $success ? 'Loan renewed' : 'Renewal failed',
+                                         'sysMessage' => $status,
+                                         'item_id' => $id,
+                                         'new_date' => $this->formatDate($result->$functionResult->loans->loan->loanDueDate),
                  'new_time' => ''
-             );
-         }
-         return $results;
-     }
-
+                                         ];
+            }
+            return $results;
+        }
 
         /**
          * Set patron phone number
@@ -1300,22 +1281,22 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
             $phoneCountry = isset($patron['phoneCountry']) ? $patron['phoneCountry'] : 'FI';
             $areaCode = '';
 
-            $conf = array(
-                'arenaMember'  => $this->arenaMember,
-                'language'     => 'en',
-                'user'         => $username,
-                'password'     => $password,
-                'areaCode'     => $areaCode,
-                'country'      => $phoneCountry,
-                'localCode'    => $phone,
+            $conf = [
+                     'arenaMember'  => $this->arenaMember,
+                     'language'     => 'en',
+                     'user'         => $username,
+                     'password'     => $password,
+                     'areaCode'     => $areaCode,
+                     'country'      => $phoneCountry,
+                     'localCode'    => $phone,
                 'useForSms'    => 'yes'
-            );
+                     ];
 
             if (!empty($patron['phoneId'])) {
                 $conf['id'] = $patron['phoneId'];
-                $result = $this->doSOAPRequest($this->patron_wsdl, 'changePhone', 'changePhoneNumberResult', $username, array('changePhoneNumberParam' => $conf));
+                $result = $this->doSOAPRequest($this->patron_wsdl, 'changePhone', 'changePhoneNumberResult', $username, ['changePhoneNumberParam' => $conf]);
             } else {
-                $result = $this->doSOAPRequest($this->patron_wsdl, 'addPhone', 'addPhoneNumberResult', $username, array('addPhoneNumberParam' => $conf));
+                $result = $this->doSOAPRequest($this->patron_wsdl, 'addPhone', 'addPhoneNumberResult', $username, ['addPhoneNumberParam' => $conf]);
             }
 
             $statusAWS = $result->$functionResult->status;
@@ -1325,18 +1306,18 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
                 if ($message == 'ils_connection_failed') {
                     throw new ILSException('ils_offline_status');
                 }
-                return  array(
-                    'success' => false,
-                    'status' => 'Changing the phone number failed',
+                return  [
+                         'success' => false,
+                         'status' => 'Changing the phone number failed',
                     'sys_message' => $statusAWS->message
-                );
+                         ];
             }
 
-            return array(
+            return [
                     'success' => true,
                     'status' => 'Phone number changed',
                     'sys_message' => ''
-                );
+                    ];
         }
 
         /**
@@ -1352,20 +1333,20 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
             $username = $patron['cat_username'];
             $password = $patron['cat_password'];
 
-            $conf = array(
-                'arenaMember'  => $this->arenaMember,
-                'language'     => 'en',
-                'user'         => $username,
-                'password'     => $password,
-                'address'      => $email,
+            $conf = [
+                     'arenaMember'  => $this->arenaMember,
+                     'language'     => 'en',
+                     'user'         => $username,
+                     'password'     => $password,
+                     'address'      => $email,
                 'isActive'     => 'yes'
-            );
+                     ];
 
             if (!empty($patron['emailId'])) {
                 $conf['id'] = $patron['emailId'];
-                $result = $this->doSOAPRequest($this->patron_wsdl, 'changeEmail', 'changeEmailAddressResult', $username, array('changeEmailAddressParam' => $conf));
+                $result = $this->doSOAPRequest($this->patron_wsdl, 'changeEmail', 'changeEmailAddressResult', $username, ['changeEmailAddressParam' => $conf]);
             } else {
-                $result = $this->doSOAPRequest($this->patron_wsdl, 'addEmail', 'addEmailAddressResult', $username, array('addEmailAddressParam' => $conf));
+                $result = $this->doSOAPRequest($this->patron_wsdl, 'addEmail', 'addEmailAddressResult', $username, ['addEmailAddressParam' => $conf]);
             }
 
             $statusAWS = $result->$functionResult->status;
@@ -1375,18 +1356,18 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
                 if ($message == 'ils_connection_failed') {
                     throw new ILSException('ils_offline_status');
                 }
-                return  array(
-                    'success' => false,
-                    'status' => 'Changing the email address failed',
+                return  [
+                         'success' => false,
+                         'status' => 'Changing the email address failed',
                     'sys_message' => $statusAWS->message
-                );
+                         ];
             }
 
-            return array(
+            return [
                     'success' => true,
                     'status' => 'Email address changed',
                     'sys_message' => '',
-                );
+                    ];
         }
 
         /**
@@ -1401,14 +1382,14 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
             $username = $cardDetails['patron']['cat_username'];
             $password = $cardDetails['patron']['cat_password'];
 
-            $conf = array(
-                'arenaMember'  => $this->arenaMember,
-                'cardNumber'   => $cardDetails['patron']['cat_username'],
-                'cardPin'      => $cardDetails['oldPassword'],
-                'newCardPin'   => $cardDetails['newPassword'],
-            );
+            $conf = [
+                     'arenaMember'  => $this->arenaMember,
+                     'cardNumber'   => $cardDetails['patron']['cat_username'],
+                     'cardPin'      => $cardDetails['oldPassword'],
+                     'newCardPin'   => $cardDetails['newPassword'],
+                     ];
 
-            $result = $this->doSOAPRequest($this->patron_wsdl, 'changeCardPin', 'changeCardPinResult', $username, array('changeCardPinParam' => $conf));
+            $result = $this->doSOAPRequest($this->patron_wsdl, 'changeCardPin', 'changeCardPinResult', $username, ['changeCardPinParam' => $conf]);
 
             $statusAWS = $result->$functionResult->status;
 
@@ -1417,34 +1398,17 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
                 if ($message == 'ils_connection_failed') {
                     throw new ILSException('ils_offline_status');
                 }
-                return  array(
-                    'success' => false,
+                return  [
+                         'success' => false,
                     'status' => $statusAWS->message
-                );
+                         ];
             }
 
-            return  array(
-                    'success' => true,
-                    'status' => '',
-                );
+            return  [
+                     'success' => true,
+                     'status' => '',
+                     ];
         }
-
-    /**
-     * Helper method to determine whether or not a certain method can be
-     * called on this driver.  Required method for any smart drivers.
-     *
-     * @param string $method The name of the called method.
-     * @param array  $params Array of passed parameters
-     *
-     * @return bool True if the method can be called with the given parameters,
-     * false otherwise.
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function supportsMethod($method, $params)
-    {
-        return is_callable([$this, $method]);
-    }
 
         /**
          * Send a SOAP request
@@ -1459,12 +1423,7 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
          */
         protected function doSOAPRequest($wsdl, $function, $functionResult, $id, $params)
         {
-            $this->debugLog("ws: $wsdl");
-            ini_set("soap.wsdl_cache_enabled", "0");
-
             $client = new SoapClient($wsdl, $this->soapOptions);
-
-            $this->debugLog("functions: " . var_export($client->__getFunctions(), true));
 
             $this->debugLog("$function Request for '$id'");
 
@@ -1527,12 +1486,11 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
             global $interface;
             //$language = $interface->getLanguage();
             $language = 'fi';
-            if (!in_array($language, array('en', 'sv', 'fi'))) {
+            if (!in_array($language, ['en', 'sv', 'fi'])) {
                 $language = 'en';
             }
             return $language;
         }
-
 
         /**
          * Handle system status error messages from Axiell Web Services
@@ -1544,12 +1502,12 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
          */
         protected function handleError($function, $message, $id)
         {
-            $status = array (
-                // Axiell system status error messages
-                'BackendError'           => 'ils_connection_failed',
-                'LocalServiceTimeout'    => 'ils_connection_failed',
-                'DatabaseError'          => 'ils_connection_failed',
-            );
+            $status =  [
+                        // Axiell system status error messages
+                        'BackendError'           => 'ils_connection_failed',
+                        'LocalServiceTimeout'    => 'ils_connection_failed',
+                        'DatabaseError'          => 'ils_connection_failed',
+                        ];
 
             if (isset($status[$message])) {
                 $this->debugLog("$function Request failed for '$id'");
@@ -1589,7 +1547,6 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
          *
          * @return number
          */
-
         protected function holdingsBranchSortFunction($a, $b)
         {
             $locationA = $a['branch'] . " " . $a['department'];
@@ -1622,7 +1579,7 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
          */
         protected function pickUpLocationsSortFunction($a, $b)
         {
-            $pickUpLocationOrder = isset($this->config['Holds']['pickUpLocationOrder']) ? explode(":", $this->config['Holds']['pickUpLocationOrder']) : array();
+            $pickUpLocationOrder = isset($this->config['Holds']['pickUpLocationOrder']) ? explode(":", $this->config['Holds']['pickUpLocationOrder']) : [];
             $pickUpLocationOrder = array_flip($pickUpLocationOrder);
             if (isset($pickUpLocationOrder[$a['locationID']])) {
                 if (isset($pickUpLocationOrder[$b['locationID']])) {
@@ -1645,22 +1602,43 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
          */
         protected function mapStatus($status)
         {
-            $statuses = array (
-                'isLoanedToday'         => 'Borrowed today',
-                'isRenewedToday'        => 'Renewed today',
-                'isOverdue'             => 'renew_item_overdue',
-                'patronIsDeniedLoan'    => 'fine_limit_patron',
-                'patronHasDebt'         => 'renew_item_patron_has_debt',
-                'maxNofRenewals'        => 'renew_item_limit',
-                'patronIsInvoiced'      => 'renew_item_patron_is_invoiced',
-                'copyHasSpecialCircCat' => 'Copy has special circulation',
-                'copyIsReserved'        => 'renew_item_requested',
+            $statuses =  [
+                          'isLoanedToday'         => 'Borrowed today',
+                          'isRenewedToday'        => 'Renewed today',
+                          'isOverdue'             => 'renew_item_overdue',
+                          'patronIsDeniedLoan'    => 'fine_limit_patron',
+                          'patronHasDebt'         => 'renew_item_patron_has_debt',
+                          'maxNofRenewals'        => 'renew_item_limit',
+                          'patronIsInvoiced'      => 'renew_item_patron_is_invoiced',
+                          'copyHasSpecialCircCat' => 'Copy has special circulation',
+                          'copyIsReserved'        => 'renew_item_requested',
                 'renewalIsDenied'       => 'renew_denied'
-            );
+                          ];
 
             if (isset($statuses[$status])) {
                 return $statuses[$status];
             }
             return $status;
         }
-}
+
+        /**
+         * Helper method to determine whether or not a certain method can be
+         * called on this driver.  Required method for any smart drivers.
+         *
+         * @param string $method The name of the called method.
+         * @param array  $params Array of passed parameters
+         *
+         * @return bool True if the method can be called with the given parameters,
+         * false otherwise.
+         *
+         * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+         */
+        public function supportsMethod($method, $params)
+        {
+            // Special case: change password is only available if properly configured.
+            if ($method == 'changePassword') {
+                return isset($this->config['changePassword']);
+            }
+            return is_callable([$this, $method]);
+        }
+    }

@@ -117,6 +117,9 @@ $config = [
             'VuFind\DbTablePluginManager' => 'Finna\Service\Factory::getDbTablePluginManager',
             'VuFind\AuthManager' => 'Finna\Auth\Factory::getManager',
             'VuFind\SearchResultsPluginManager' => 'Finna\Service\Factory::getSearchResultsPluginManager',
+        ],
+        'invokables' => [
+            'VuFind\HierarchicalFacetHelper' => 'Finna\Search\Solr\HierarchicalFacetHelper',
         ]
     ],
     // This section contains all VuFind-specific settings (i.e. configurations
@@ -159,6 +162,7 @@ $config = [
                     'multibackend' => 'Finna\ILS\Driver\Factory::getMultiBackend',
                     'voyager' => 'Finna\ILS\Driver\Factory::getVoyager',
                     'voyagerrestful' => 'Finna\ILS\Driver\Factory::getVoyagerRestful',
+                    'axiellwebservices' => 'Finna\ILS\Driver\Factory::getAxiellWebServices',
                 ],
             ],
             'recommend' => [
