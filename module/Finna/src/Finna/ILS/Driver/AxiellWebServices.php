@@ -635,7 +635,15 @@ implements TranslatorAwareInterface, \Zend\Log\LoggerAwareInterface, \VuFindHttp
     {
         $functionResult = 'GetHoldingResult';
 
-        $result = $this->doSOAPRequest($this->catalogue_wsdl, 'GetHoldings', $functionResult, $id, array('GetHoldingsRequest' => array('arenaMember' => $this->arenaMember, 'id' => $id, 'language' => 'fi')));
+        $result = $this->doSOAPRequest(
+            $this->catalogue_wsdl, 
+            'GetHoldings', 
+            $functionResult, 
+            $id, 
+            ['GetHoldingsRequest' => 
+               ['arenaMember' => $this->arenaMember, 'id' => $id, 'language' => 'fi']
+            ]
+        );
 
         $statusAWS = $result->$functionResult->status;
 
@@ -651,7 +659,8 @@ implements TranslatorAwareInterface, \Zend\Log\LoggerAwareInterface, \VuFindHttp
             return array();
         }
 
-        $holdings = is_object($result->$functionResult->catalogueRecord->compositeHolding)
+        $holdings 
+            = is_object($result->$functionResult->catalogueRecord->compositeHolding)
             ? array($result->$functionResult->catalogueRecord->compositeHolding)
             : $result->$functionResult->catalogueRecord->compositeHolding;
 
@@ -664,19 +673,22 @@ implements TranslatorAwareInterface, \Zend\Log\LoggerAwareInterface, \VuFindHttp
                     : $holding->compositeHolding;
                 foreach ($holdingsEditions as $holdingsEdition) {
                     $edition = $holdingsEdition->value;
-                    $holdingsOrganisations = is_object($holdingsEdition->compositeHolding)
-                      ? [$holdingsEdition->compositeHolding]
+                    $holdingsOrganisations 
+                        = is_object($holdingsEdition->compositeHolding)
+                        ? [$holdingsEdition->compositeHolding]
                         : $holdingsEdition->compositeHolding;
 
                     $journalInfo = [
-                                    'year' => $year,
+                        'year' => $year,
                         'edition' => $edition                           
-                                    ];
+                    ];
 
                     $result = array_merge(
-                                          $result, 
-                                          $this->parseHoldings($holdingsOrganisations, $id, $journalInfo)
-                                          );
+                        $result, 
+                        $this->parseHoldings(
+                            $holdingsOrganisations, $id, $journalInfo
+                        )
+                    );
                 }
             }
         } else {
@@ -738,9 +750,9 @@ implements TranslatorAwareInterface, \Zend\Log\LoggerAwareInterface, \VuFindHttp
                         // Get holding data
                         $dueDate = isset($department->firstLoanDueDate)
                             ? $this->dateFormat->convertToDisplayDate(
-                                                                      '* M d G:i:s e Y',
+                                '* M d G:i:s e Y',
                                 $department->firstLoanDueDate
-                                                                      ) : '';
+                            ) : '';
                         $departmentName = $department->department;
                         $locationName = isset($department->location)
                             ? $department->location : '';
@@ -773,7 +785,7 @@ implements TranslatorAwareInterface, \Zend\Log\LoggerAwareInterface, \VuFindHttp
                         $available = false;
                         if ($status == 'availableForLoan'
                             || $status == 'returnedToday'
-                            ) {
+                        ) {
                             $available = true;
                         }
 
@@ -781,21 +793,21 @@ implements TranslatorAwareInterface, \Zend\Log\LoggerAwareInterface, \VuFindHttp
                         if ($status == 'nonAvailableForLoan'
                             && isset($department->nofReference)
                             && $department->nofReference == 0
-                            ) {
+                        ) {
                             $status = 'onRefDesk';
                         }
 
                         // Status table
-                        $statusArray = array(
-                                             'availableForLoan' => 'Available',
-                                             'onLoan' => 'Charged',
-                                             //'nonAvailableForLoan' => 'Not Available',
-                                             'nonAvailableForLoan' => 'On Reference Desk',
-                                             'onRefDesk' => 'On Reference Desk',
-                                             'overdueLoan' => 'overdueLoan',
-                                             'ordered' => 'Ordered',
-                            'returnedToday' => 'returnedToday'
-                                             );
+                        $statusArray = [
+                           'availableForLoan' => 'Available',
+                           'onLoan' => 'Charged',
+                           //'nonAvailableForLoan' => 'Not Available',
+                           'nonAvailableForLoan' => 'On Reference Desk',
+                           'onRefDesk' => 'On Reference Desk',
+                           'overdueLoan' => 'overdueLoan',
+                           'ordered' => 'Ordered',
+                           'returnedToday' => 'returnedToday'
+                        ];
 
                         // Convert status text
                         if (isset($statusArray[$status])) {
@@ -804,34 +816,36 @@ implements TranslatorAwareInterface, \Zend\Log\LoggerAwareInterface, \VuFindHttp
                             $this->debugLog(
                                 'Unhandled status ' +
                                 $department->status + " for $id"
-                                            );
+                            );
                         }
 
                         $holding = [
-                                    'id' => $id,
-                                    'barcode' => $id,
-                                    'item_id' => $reservableId,
-                                    'holdings_id' => $group,
-                                    'availability' => $available || $status == 'On Reference Desk',
-                            'availabilityInfo' => [
-                                                   'available' => $nofAvailableForLoan,
-                                                   'displayText' => $status,
-                                                   'reservations' => isset($branch->nofReservations) ? $branch->nofReservations : 0,
-                                                   'ordered' => $nofOrdered,
-                                                   'total' => $nofTotal,
-                                                   ],
-                                    'status' => $status,
-                                    'location' => $group,
-                                    'branch' => $branchName,
-                                    'branch_id' => $branchId,
-                                    'department' => $departmentName,
-                                    'duedate' => $dueDate,
-                                    'is_holdable' => $holdable,
-                                    'addLink' => $holdable ? 'hold' : false,
-                                    'callnumber' => isset($department->shelfMark)
-                                    ? $department->shelfMark : '',
-                                    'is_holdable' => $branch->reservationButtonStatus == 'reservationOk',
-                                    ];
+                           'id' => $id,
+                           'barcode' => $id,
+                           'item_id' => $reservableId,
+                           'holdings_id' => $group,
+                           'availability' => $available || $status == 'On Reference Desk',
+                           'availabilityInfo' => [
+                               'available' => $nofAvailableForLoan,
+                               'displayText' => $status,
+                               'reservations' => isset($branch->nofReservations) 
+                                  ? $branch->nofReservations : 0,
+                               'ordered' => $nofOrdered,
+                               'total' => $nofTotal,
+                            ],
+                           'status' => $status,
+                           'location' => $group,
+                           'branch' => $branchName,
+                           'branch_id' => $branchId,
+                           'department' => $departmentName,
+                           'duedate' => $dueDate,
+                           'is_holdable' => $holdable,
+                           'addLink' => $holdable ? 'hold' : false,
+                           'callnumber' => isset($department->shelfMark)
+                              ? $department->shelfMark : '',
+                           'is_holdable' 
+                              => $branch->reservationButtonStatus == 'reservationOk',
+                        ];
                         $result[] = $holding;
                     }
                 }
