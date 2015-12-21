@@ -190,10 +190,18 @@
     <? $checkStorageRetrievalRequest = (isset($row['checkStorageRetrievalRequest']) && $row['checkStorageRetrievalRequest']); ?>
     <? $checkILLRequest = (isset($row['checkILLRequest']) && $row['checkILLRequest']); ?>
     <? if (isset($row['barcode']) && $row['barcode'] != ""): ?>
-      <tr vocab="http://schema.org/" typeof="Offer" class="copy-details <?=$holdingsDetails?>">
-        <td class="copy-title"><?=$rowNum == 0 ? $this->transEsc('Copies') : '' ?></td>
-        <? // $row['number'] contains item number, and possible enumeration in parenthesis. We only display the part in parenthesis: ?>
-        <td class="copy-number"><?=preg_match('/\d+ \((.+)\)/', $row['number'], $matches) ? $this->escapeHtml($matches[1]) : $this->transEsc("Copy") ?></td>
+      <tr vocab="http://schema.org/" typeof="Offer" class="copy-details <?=$holdingsDetails?>">        
+        <? if (isset($row['branch']) && isset($row['department'])): ?>
+        <td class="copy-title">
+          <span class="branch"><?=$row['branch']?></span><span class="department">, <?=$row['department']?></span>
+        </td>
+        <? else: ?>
+        <td class="copy-title">
+          <<?=$rowNum == 0 ? $this->transEsc('Copies') : ''?>
+          <? // $row['number'] contains item number, and possible enumeration in parenthesis. We only display the part in parenthesis: ?>
+          <td class="copy-number"><?=preg_match('/\d+ \((.+)\)/', $row['number'], $matches) ? $this->escapeHtml($matches[1]) : $this->transEsc("Copy") ?></td>
+        </td>
+        <? endif; ?>
         <td class="copy-info" colspan="3">
           <? if ($row['reserve'] == "Y"): ?>
             <link property="availability" href="http://schema.org/InStoreOnly" />
@@ -204,7 +212,7 @@
           <? else: ?>
             <? if ($row['availability']): ?>
               <? /* Begin Available Items (Holds) */ ?>
-              <span class="text-success"><i class="fa fa-ok"></i> <?=$this->transEsc("Available")?><link property="availability" href="http://schema.org/InStock" /></span>
+              <span class="text-success"><i class="fa fa-ok"></i> <?=$this->transEsc(isset($row['availabilityInfo']['displayText']) ? 'status_' . $row['availabilityInfo']['displayText'] : 'Available')?><link property="availability" href="http://schema.org/InStock" /></span>
               <div class="pull-right">
               <? if (isset($row['link']) && $row['link'] && $holdsAllowed): ?>
                 <a class="<?=$check ? "{$holdingsDetails}CheckRequest " : ''?>inlineblock modal-link placehold btn btn-primary hidden-print" href="<?=$this->recordLink()->getRequestUrl($row['link'])?>" title="<?=$this->transEsc($check ? "Check Hold" : "Place a Hold")?>"><?=$this->transEsc($check ? "Check Hold" : "Place a Hold")?></a>
@@ -218,7 +226,7 @@
               </div>
             <? else: ?>
               <? /* Begin Unavailable Items (Recalls) */ ?>
-              <span class="text-danger"><i class="fa fa-remove"></i> <?=$this->transEsc($row['status'])?><link property="availability" href="http://schema.org/OutOfStock" /></span>
+              <span class="text-danger"><i class="fa fa-remove"></i> <? $status = $row['status']; if (!$this->translationEmpty("status_$status")): $status = "status_$status"; endif; ?><?=$this->transEsc($status)?><link property="availability" href="http://schema.org/OutOfStock" /></span>
               <? if (isset($row['returnDate']) && $row['returnDate']): ?>&ndash; <span class="small"><?=$this->escapeHtml($row['returnDate'])?></span><? endif; ?>
               <? if (isset($row['duedate']) && $row['duedate']): ?>
                 &ndash; <span class="small"><?=$this->transEsc("Due")?>: <?=$this->escapeHtml($row['duedate'])?></span>
@@ -247,6 +255,11 @@
             <link property="businessFunction" href="http://purl.org/goodrelations/v1#LeaseOut" />
             <link property="itemOffered" href="#record" />
         </td>
+        <? if (isset($row['availabilityInfo'])): ?>
+        <td class="copy-available">
+          <?=$this->translate('Available items')?>: <?=$row['availabilityInfo']['available']?> / <?=$row['availabilityInfo']['total']?>
+        </td>
+        <? endif; ?>
       </tr>
     <? endif; ?>
   <? endforeach; ?>

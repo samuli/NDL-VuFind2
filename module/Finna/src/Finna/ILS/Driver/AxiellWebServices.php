@@ -666,27 +666,34 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
         ? array($result->$functionResult->catalogueRecord->compositeHolding)
         : $result->$functionResult->catalogueRecord->compositeHolding;
 
-//          print_r(var_export($interface->getLanguage();, true) . PHP_EOL);
-
-        $vfHoldings = array();
         if (isset($holdings[0]->type) && $holdings[0]->type == 'year') {
+            $result = [];
             foreach ($holdings as $holding) {
                 $year = $holding->value;
                 $holdingsEditions = is_object($holding->compositeHolding)
-                ? array($holding->compositeHolding)
-                : $holding->compositeHolding;
+                    ? array($holding->compositeHolding)
+                    : $holding->compositeHolding;
                 foreach ($holdingsEditions as $holdingsEdition) {
                     $edition = $holdingsEdition->value;
                     $holdingsOrganisations = is_object($holdingsEdition->compositeHolding)
-                    ? array($holdingsEdition->compositeHolding)
-                    : $holdingsEdition->compositeHolding;
-                    $this->parseHoldings($holdingsOrganisations, $id, $vfHoldings, $year, $edition);
+                      ? [$holdingsEdition->compositeHolding]
+                      : $holdingsEdition->compositeHolding;
+
+                    $journalInfo = [
+                        'year' => $year,
+                        'edition' => $edition                           
+                    ];
+
+                    $result = array_merge(
+                        $result, 
+                        $this->parseHoldings($holdingsOrganisations, $id, $journalInfo)
+                    );
                 }
             }
         } else {
-            $this->parseHoldings($holdings, $id, $vfHoldings, '', '');
+            $result = $this->parseHoldings($holdings, $id, '', '');
         }
-
+        /*
         // Sort Organisations
         usort($vfHoldings, array($this, 'holdingsOrganisationSortFunction'));
 
@@ -694,26 +701,21 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
         foreach ($vfHoldings as $key => $location) {
             usort($vfHoldings[$key]['holdings'], array($this, 'holdingsBranchSortFunction'));
         }
+        */
 
-//         print_r(var_export($vfHoldings, true) . PHP_EOL);
-
-        return empty($vfHoldings) ? false : $vfHoldings;
+        return empty($result) ? false : $result;
     }
-
 
     /**
      * This is responsible for iterating the organisation holdings
      *
-     * @param array     $organisationHoldings Organisation holdings
-     * @param string    $id                   The record id to retrieve the holdings
-     * @param reference &$vfHoldings          Reference
-     * @param string    $year                 Publication year of the magazine
-     * @param string    $edition              Edition of the magazine
+     * @param array  $organisationHoldings Organisation holdings
+     * @param string $id                   The record id to retrieve the holdings
+     * @param array  $journalInfo          Jornal information
      *
-     * @return null
-     * @access protected
+     * @return array
      */
-    protected function parseHoldings($organisationHoldings, $id, &$vfHoldings, $year, $edition)
+    protected function parseHoldings($organisationHoldings, $id, $journalInfo = null)
     {
         if ($organisationHoldings[0]->status == 'noHolding') {
             return;
@@ -721,6 +723,8 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
         if ($organisationHoldings[0]->type != 'organisation') {
             return;
         }
+
+        $result = [];
         foreach ($organisationHoldings as $organisation) {
             $group = $organisation->value;
             $organisationId = $organisation->id;
@@ -760,8 +764,9 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
                             ? $department->nofOrdered : 0;
 
                         // Group journals by issue number
-                        $journal = false;
-                        if ($year !== '' || $edition !== '') {
+                        if ($journalInfo) {
+                            $year = isset($journalInfo['year']) ? $journalInfo['year'] : '';
+                            $edition = isset($journalInfo['edition']) ? $journalInfo['edition'] : '';
                             if ($year !== '' && $edition !== '') {
                                 if (strncmp($year, $edition, strlen($year)) == 0) {
                                     $group = $edition;
@@ -771,7 +776,7 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
                             } else {
                                 $group = $year . $edition;
                             }
-                            $journal = true;
+                            $departmentName .= ", $locationName";
                         }
 
                         // Status & availability
@@ -813,100 +818,38 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
                             );
                         }
 
-                        // Holding table
-                        $holding = array(
-                            'id'                => $id,
-                            'availability'      => $available,
-                            'status'            => $status,
-                            'location'          => $locationName,
-                            'available'         => $nofAvailableForLoan,
-                            'organisation'      => $group,
-                            'organisation_id'   => $organisationId,
-                            'branch'            => $branchName,
-                            'branch_id'         => $branchId,
-                            'department'        => $departmentName,
-                            'duedate'           => $dueDate,
-                            'is_holdable'       => $holdable,
-                            'addLink'           => $holdable ? 'hold' : false,
-                            'item_id'           => $reservableId,
-                            'ordered'           => $nofOrdered,
-                            'total'             => $nofTotal,
-                            'reservations'      => isset($branch->nofReservations) ? $branch->nofReservations : 0
-                        );
-
-                        $vfKey = false;
-                        // Does this location exist?
-                        foreach ($vfHoldings as $key => $vfHolding) {
-                            if ($vfHolding['location'] == $group) {
-                                $vfKey = $key;
-                            }
-                        }
-
-                        // If new location, initialize
-                        if ($vfKey === false) {
-                            $vfKey = count($vfHoldings);
-                            $reservations = isset($organisation->nofReservations)
-                                ? $organisation->nofReservations : 0;
-                            $shelfMark = isset($department->shelfMark) ?
-                                $department->shelfMark : '';
-                            $branchHoldable = $branch->reservationButtonStatus ==
-                                'reservationOk';
-                            $vfHoldings[$vfKey] = array(
-                                'id' => $id,
-                                'callnumber'   => $shelfMark,
-                                'holdings'     => array(),
-                                'journal'      => $journal,
-                                'location'     => $group,
-                                'organisation' => $organisation->value,
-                                'status'       => array(
-                                    'available' => false,
-                                    'availableCount' => 0,
-                                    'closestDueDate' => '',
-                                    'dueDateStamp' => '',
-                                    'text' => '',
-                                    'reservations' => $reservations,
-                                ),
-                                'title'        => $group,
-                                'number'       => $vfKey,
-                                'is_holdable'  => $branchHoldable
-                            );
-                        }
-
-                        $vfHoldings[$vfKey]['holdings'][] = $holding;
-
-                        // Location level
-                        $availableLocation
-                            = $vfHoldings[$vfKey]['status']['available'];
-
-                        if ($available) {
-                            $vfHoldings[$vfKey]['status']['availableCount']++;
-                            $vfHoldings[$vfKey]['status']['text'] = 'Available';
-                            $vfHoldings[$vfKey]['status']['available'] = true;
-                        } else if ($dueDate != '' && !$availableLocation) {
-                            $thisDueDate
-                                = strtotime($department->firstLoanDueDate);
-                            $closestDueDate
-                                = $vfHoldings[$vfKey]['status']['dueDateStamp'];
-
-                            // If no closest due date set or
-                            // if closest due date > this due date, then save
-                            if ($closestDueDate == ''
-                                || $closestDueDate > $thisDueDate
-                            ) {
-                                $vfHoldings[$vfKey]['status']['dueDateStamp']
-                                    = $thisDueDate;
-                                $vfHoldings[$vfKey]['status']['closestDueDate']
-                                    = $dueDate;
-                            }
-                            $vfHoldings[$vfKey]['status']['text']
-                                = 'Closest due';
-                        } else if (!$availableLocation) {
-                            $vfHoldings[$vfKey]['status']['text'] = $status;
-                        }
+                        $holding = [
+                            'id' => $id,
+                            'barcode' => $id,
+                            'item_id' => $reservableId,
+                            'holdings_id' => $group,
+                            'availability' => $available || $status == 'On Reference Desk',
+                            'availabilityInfo' => [
+                               'available' => $nofAvailableForLoan,
+                               'displayText' => $status,
+                               'reservations' => isset($branch->nofReservations) ? $branch->nofReservations : 0,
+                               'ordered' => $nofOrdered,
+                               'total' => $nofTotal,
+                            ],
+                            'status' => $status,
+                            'location' => $group,
+                            'branch' => $branchName,
+                            'branch_id' => $branchId,
+                            'department' => $departmentName,
+                            'duedate' => $dueDate,
+                            'is_holdable' => $holdable,
+                            'addLink' => $holdable ? 'hold' : false,
+                            'callnumber' => isset($department->shelfMark)
+                                ? $department->shelfMark : '',
+                            'is_holdable' => $branch->reservationButtonStatus == 'reservationOk',
+                        ];
+                        $result[] = $holding;
                     }
                 }
             }
         }
+
+        return $result;
     }
 
     /**
