@@ -99,9 +99,12 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
         'typemap' => [
             [
                 'type_ns' => 'http://www.w3.org/2001/XMLSchema',
-                'type_name' => 'anySimpleType',
-                'from_xml' => ['\AxiellWebServices', 'anySimpleTypeToString'],
-                'to_xml' => ['\AxiellWebServices', 'stringToAnySimpleType']
+//                 'type_name' => 'anySimpleType',
+//                 'from_xml' => ['\AxiellWebServices', 'anySimpleTypeToString'],
+//                 'to_xml' => ['\AxiellWebServices', 'stringToAnySimpleType']
+                'type_name' => 'anyType',
+                'from_xml' => ['\AxiellWebServices', 'anyTypeToString'],
+                'to_xml' => ['\AxiellWebServices', 'stringToAnyType']
             ]
         ]
     ];
@@ -450,13 +453,30 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
             }
         } catch (DateException $e) {
             // Hold Date is invalid
-            return $this->holdError("hold_date_invalid");
+            throw new ILSException('hold_date_invalid');
+//             return $this->holdError("hold_date_invalid");
         }
 
         $pickUpLocation = $holdDetails['pickUpLocation'];
         list($organisation, $branch) = explode('.', $pickUpLocation, 2);
 
-        $result = $this->doSOAPRequest($this->reservations_wsdl, 'addReservation', 'addReservationResult', $username, ['addReservationParam' => ['arenaMember' => $this->arenaMember, 'user' => $username, 'password' => $password, 'language' => 'en', 'reservationEntities' => $entityId, 'reservationSource' => $reservationSource, 'reservationType' => 'normal', 'organisationId' => $organisation, 'pickUpBranchId' => $branch, 'validFromDate' => $validFromDate, 'validToDate' => $validToDate ]]);
+        $conf = [
+            'arenaMember'  => $this->arenaMember,
+            'user'         => $username,
+            'password'     => $password,
+            'language'     => 'en',
+            'reservationEntities' => $entityId,
+            'reservationSource' => $reservationSource,
+            'reservationType' => 'normal',
+            'organisationId' => $organisation,
+            'pickUpBranchId' => $branch,
+            'validFromDate' => $validFromDate,
+            'validToDate' => $validToDate
+        ];
+
+//         $result = $this->doSOAPRequest($this->reservations_wsdl, 'addReservation', 'addReservationResult', $username, ['addReservationParam' => ['arenaMember' => $this->arenaMember, 'user' => $username, 'password' => $password, 'language' => 'en', 'reservationEntities' => $entityId, 'reservationSource' => $reservationSource, 'reservationType' => 'normal', 'organisationId' => $organisation, 'pickUpBranchId' => $branch, 'validFromDate' => $validFromDate, 'validToDate' => $validToDate ]]);
+
+        $result = $this->doSOAPRequest($this->reservations_wsdl, 'addReservation', 'addReservationResult', $username, ['addReservationParam' => $conf]);
 
         if ($statusAWS->type != 'ok') {
                 $message = $this->handleError($function, $statusAWS->message, $username);
@@ -941,6 +961,8 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
             $message = $this->handleError($function, $statusAWS->message, $username);
             if ($message == 'ils_connection_failed') {
                 throw new ILSException('ils_offline_login_message');
+            } if ($message == 'InvalidPinCode') {
+                throw new ILSException('authentication_error_invalid');
             }
             return null;
         }
@@ -1078,6 +1100,26 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
 //         }
 
         return $user;
+    }
+
+
+    /**
+     * Public Function which retrieves renew, hold and cancel settings from the
+     * driver ini file.
+     *
+     * @param string $function The name of the feature to be checked
+     *
+     * @return array An array with key-value pairs.
+     * @access public
+     */
+    public function getConfig($function)
+    {
+        if (isset($this->config[$function]) ) {
+            $functionConfig = $this->config[$function];
+        } else {
+            $functionConfig = false;
+        }
+        return $functionConfig;
     }
 
     /**
@@ -1321,379 +1363,402 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
          return $results;
      }
 
-        /**
-         * Set patron phone number
-         *
-         * @param array  $patron Patron array
-         * @param string $phone  Phone number
-         *
-         * @return array Response
-         */
-        public function setPhoneNumber($patron, $phone)
-        {
-            $username = $patron['cat_username'];
-            $password = $patron['cat_password'];
-            $phoneCountry = isset($patron['phoneCountry']) ? $patron['phoneCountry'] : 'FI';
-            $areaCode = '';
+    /**
+     * Update patron phone number
+     *
+     * @param array  $patron Patron array
+     * @param string $phone  Phone number
+     *
+     * @return array Response
+     */
+    public function updatePhone($patron, $phone)
+    {
+        $username = $patron['cat_username'];
+        $password = $patron['cat_password'];
+        $phoneCountry = isset($patron['phoneCountry']) ? $patron['phoneCountry'] : 'FI';
+        $areaCode = '';
+        $function = '';
+        $functionResult = '';
+        $functionParam = '';
 
-            $conf = [
-                'arenaMember'  => $this->arenaMember,
-                'language'     => 'en',
-                'user'         => $username,
-                'password'     => $password,
-                'areaCode'     => $areaCode,
-                'country'      => $phoneCountry,
-                'localCode'    => $phone,
-                'useForSms'    => 'yes'
-            ];
+        $conf = [
+            'arenaMember'  => $this->arenaMember,
+            'language'     => 'en',
+            'user'         => $username,
+            'password'     => $password,
+            'areaCode'     => $areaCode,
+            'country'      => $phoneCountry,
+            'localCode'    => $phone,
+            'useForSms'    => 'yes'
+        ];
 
-            if (!empty($patron['phoneId'])) {
-                $conf['id'] = $patron['phoneId'];
-                $result = $this->doSOAPRequest($this->patron_wsdl, 'changePhone', 'changePhoneNumberResult', $username, ['changePhoneNumberParam' => $conf]);
-            } else {
-                $result = $this->doSOAPRequest($this->patron_wsdl, 'addPhone', 'addPhoneNumberResult', $username, ['addPhoneNumberParam' => $conf]);
-            }
-
-            $statusAWS = $result->$functionResult->status;
-
-            if ($statusAWS->type != 'ok') {
-                $message = $this->handleError($function, $statusAWS->message, $username);
-                if ($message == 'ils_connection_failed') {
-                    throw new ILSException('ils_offline_status');
-                }
-                return  [
-                    'success' => false,
-                    'status' => 'Changing the phone number failed',
-                    'sys_message' => $statusAWS->message
-                ];
-            }
-
-            return [
-                    'success' => true,
-                    'status' => 'Phone number changed',
-                    'sys_message' => ''
-                ];
+        if (!empty($patron['phoneId'])) {
+            $conf['id'] = $patron['phoneId'];
+            $function = 'changePhone';
+            $functionResult = 'changePhoneNumberResult';
+            $functionParam = 'changePhoneNumberParam';
+        } else {
+            $function = 'addPhone';
+            $functionResult = 'addPhoneNumberResult';
+            $functionParam = 'addPhoneNumberParam';
         }
 
-        /**
-         * Set patron email address
-         *
-         * @param array  $patron Patron array
-         * @param String $email  User Email
-         *
-         * @return array Response
-         */
-        public function setEmailAddress($patron, $email)
-        {
-            $username = $patron['cat_username'];
-            $password = $patron['cat_password'];
+        $result = $this->doSOAPRequest($this->patron_wsdl, $function, $functionResult, $username, [$functionParam => $conf]);
 
-            $conf = [
-                'arenaMember'  => $this->arenaMember,
-                'language'     => 'en',
-                'user'         => $username,
-                'password'     => $password,
-                'address'      => $email,
-                'isActive'     => 'yes'
-            ];
 
-            if (!empty($patron['emailId'])) {
-                $conf['id'] = $patron['emailId'];
-                $result = $this->doSOAPRequest($this->patron_wsdl, 'changeEmail', 'changeEmailAddressResult', $username, ['changeEmailAddressParam' => $conf]);
-            } else {
-                $result = $this->doSOAPRequest($this->patron_wsdl, 'addEmail', 'addEmailAddressResult', $username, ['addEmailAddressParam' => $conf]);
+        $statusAWS = $result->$functionResult->status;
+
+        if ($statusAWS->type != 'ok') {
+            $message = $this->handleError($function, $statusAWS->message, $username);
+            if ($message == 'ils_connection_failed') {
+                throw new ILSException('ils_offline_status');
             }
-
-            $statusAWS = $result->$functionResult->status;
-
-            if ($statusAWS->type != 'ok') {
-                $message = $this->handleError($function, $statusAWS->message, $username);
-                if ($message == 'ils_connection_failed') {
-                    throw new ILSException('ils_offline_status');
-                }
-                return  [
-                    'success' => false,
-                    'status' => 'Changing the email address failed',
-                    'sys_message' => $statusAWS->message
-                ];
-            }
-
-            return [
-                    'success' => true,
-                    'status' => 'Email address changed',
-                    'sys_message' => '',
-                ];
-        }
-
-        /**
-         * Change pin code
-         *
-         * @param String $cardDetails Patron card data
-         *
-         * @return array Response
-         */
-        public function changePassword($cardDetails)
-        {
-            $username = $cardDetails['patron']['cat_username'];
-            $password = $cardDetails['patron']['cat_password'];
-
-            $conf = [
-                'arenaMember'  => $this->arenaMember,
-                'cardNumber'   => $cardDetails['patron']['cat_username'],
-                'cardPin'      => $cardDetails['oldPassword'],
-                'newCardPin'   => $cardDetails['newPassword'],
-            ];
-
-            $result = $this->doSOAPRequest($this->patron_wsdl, 'changeCardPin', 'changeCardPinResult', $username, ['changeCardPinParam' => $conf]);
-
-            $statusAWS = $result->$functionResult->status;
-
-            if ($statusAWS->type != 'ok') {
-                $message = $this->handleError($function, $statusAWS->message, $username);
-                if ($message == 'ils_connection_failed') {
-                    throw new ILSException('ils_offline_status');
-                }
-                return  [
-                    'success' => false,
-                    'status' => $statusAWS->message
-                ];
-            }
-
             return  [
-                    'success' => true,
-                    'status' => '',
-                ];
-        }
-
-        /**
-         * Send a SOAP request
-         *
-         * @param string $wsdl           Name of the wsdl file
-         * @param string $function       Name of the function
-         * @param string $functionResult Name of the Result tag
-         * @param string $id             Username or record id
-         * @param array  $params         Parameters needed for the SOAP call
-         *
-         * @return object SOAP response
-         */
-        protected function doSOAPRequest($wsdl, $function, $functionResult, $id, $params)
-        {
-            $client = new SoapClient($wsdl, $this->soapOptions);
-
-            $this->debugLog("$function Request for '$id'");
-
-            $startTime = microtime(true);
-            $result = $client->$function($params);
-
-            if ($this->durationLogPrefix) {
-                file_put_contents($this->durationLogPrefix . '_' . $function . '.log', date('Y-m-d H:i:s ') . round(microtime(true) - $startTime, 4) . "\n", FILE_APPEND);
-            }
-
-            if ($this->verbose) {
-                $this->debugLog("$function Request: " . $this->formatXML($client->__getLastRequest()));
-                $this->debugLog("$function Response: " . $this->formatXML($client->__getLastResponse()));
-            }
-
-            return $result;
-        }
-
-        /**
-         * Format date
-         *
-         * @param string $dateString Date as a string
-         *
-         * @return string Formatted date
-         */
-        protected function formatDate($dateString)
-        {
-            // remove timezone from Axiell obscure dateformat
-            $date = substr($dateString, 0, strpos("$dateString*", "+"));
-
-            return $this->dateFormat->convertToDisplayDate("Y-m-d", $date);
-        }
-
-        /**
-         * Pretty-print an XML string
-         *
-         * @param string $xml XML string
-         *
-         * @return string Pretty XML string
-         */
-        protected function formatXML($xml)
-        {
-            if (!$xml) {
-                return $xml;
-            }
-            $dom = new DOMDocument('1.0');
-            $dom->preserveWhiteSpace = false;
-            $dom->formatOutput = true;
-            $dom->loadXML($xml);
-            return $dom->saveXML();
-        }
-
-        /**
-         * Get the language to be used in the interface
-         *
-         * @return string Language as string
-         */
-        protected function getLanguage()
-        {
-            global $interface;
-            //$language = $interface->getLanguage();
-            $language = 'fi';
-            if (!in_array($language, ['en', 'sv', 'fi'])) {
-                $language = 'en';
-            }
-            return $language;
-        }
-
-        /**
-         * Handle system status error messages from Axiell Web Services
-         *
-         * @param string     $function Function name
-         * @param string     $message  Error message
-         *
-         * @return string    Error message as string
-         */
-        protected function handleError($function, $message, $id)
-        {
-            $status =  [
-                // Axiell system status error messages
-                'BackendError'           => 'ils_connection_failed',
-                'LocalServiceTimeout'    => 'ils_connection_failed',
-                'DatabaseError'          => 'ils_connection_failed',
+                'success' => false,
+                'status' => 'Changing the phone number failed',
+                'sys_message' => $statusAWS->message
             ];
-
-            if (isset($status[$message])) {
-                $this->debugLog("$function Request failed for '$id'");
-                $this->debugLog("AWS error: '$message'");
-                return $status[$message];
-            } return $message;
         }
 
-        /**
-         * Sort function for sorting holdings locations according to organisation
-         *
-         * @param array $a Holdings location
-         * @param array $b Holdings location
-         *
-         * @return number
-         */
-        protected function holdingsOrganisationSortFunction($a, $b)
-        {
-            if (isset($this->holdingsOrganisationOrder[$a['holdings'][0]['organisation_id']])) {
-                if (isset($this->holdingsOrganisationOrder[$b['holdings'][0]['organisation_id']])) {
+        return [
+                'success' => true,
+                'status' => 'Phone number changed',
+                'sys_message' => ''
+            ];
+    }
 
-                    return $this->holdingsOrganisationOrder[$a['holdings'][0]['organisation_id']] - $this->holdingsOrganisationOrder[$b['holdings'][0]['organisation_id']];
-                }
-                return -1;
+    //TODO: Error handling
+    /**
+     * Set patron email address
+     *
+     * @param array  $patron Patron array
+     * @param String $email  User Email
+     *
+     * @return array Response
+     */
+    public function updateEmail($patron, $email)
+    {
+        $username = $patron['cat_username'];
+        $password = $patron['cat_password'];
+        $function = '';
+        $functionResult = '';
+        $functionParam = '';
+
+        $conf = [
+            'arenaMember'  => $this->arenaMember,
+            'language'     => 'en',
+            'user'         => $username,
+            'password'     => $password,
+            'address'      => $email,
+            'isActive'     => 'yes'
+        ];
+
+        if (!empty($patron['emailId'])) {
+            $conf['id'] = $patron['emailId'];
+            $function = 'changeEmail';
+            $functionResult = 'changeEmailAddressResult';
+            $functionParam = 'changeEmailAddressParam';
+        } else {
+            $function = 'addEmail';
+            $functionResult = 'addEmailAddressResult';
+            $functionParam = 'addEmailAddressParam';
+        }
+
+        $result = $this->doSOAPRequest($this->patron_wsdl, $function, $functionResult, $username, [$functionParam => $conf]);
+
+        $statusAWS = $result->$functionResult->status;
+
+        if ($statusAWS->type != 'ok') {
+            $message = $this->handleError($function, $statusAWS->message, $username);
+            if ($message == 'ils_connection_failed') {
+                throw new ILSException('ils_offline_status');
             }
+            return  [
+                'success' => false,
+                'status' => 'Changing the email address failed',
+                'sys_message' => $statusAWS->message
+            ];
+        }
+
+        return [
+                'success' => true,
+                'status' => 'Email address changed',
+                'sys_message' => '',
+            ];
+    }
+
+    /**
+     * Change pin code
+     *
+     * @param String $cardDetails Patron card data
+     *
+     * @return array Response
+     */
+    public function changePassword($cardDetails)
+    {
+        $username = $cardDetails['patron']['cat_username'];
+        $password = $cardDetails['patron']['cat_password'];
+
+        $function = 'changeCardPin';
+        $functionResult = 'changeCardPinResult';
+
+        $conf = [
+            'arenaMember'  => $this->arenaMember,
+            'cardNumber'   => $cardDetails['patron']['cat_username'],
+            'cardPin'      => $cardDetails['oldPassword'],
+            'newCardPin'   => $cardDetails['newPassword'],
+        ];
+
+        $result = $this->doSOAPRequest($this->patron_wsdl, $function, $functionResult, $username, ['changeCardPinParam' => $conf]);
+
+        $statusAWS = $result->$functionResult->status;
+
+        if ($statusAWS->type != 'ok') {
+            $message = $this->handleError($function, $statusAWS->message, $username);
+            if ($message == 'ils_connection_failed') {
+                throw new ILSException('ils_offline_status');;
+            }
+            return  [
+                'success' => false,
+                'status' => $statusAWS->message
+            ];
+        }
+
+        return  [
+                'success' => true,
+                'status' => 'change_password_ok',
+            ];
+    }
+
+    /**
+     * Send a SOAP request
+     *
+     * @param string $wsdl           Name of the wsdl file
+     * @param string $function       Name of the function
+     * @param string $functionResult Name of the Result tag
+     * @param string $id             Username or record id
+     * @param array  $params         Parameters needed for the SOAP call
+     *
+     * @return object SOAP response
+     */
+    protected function doSOAPRequest($wsdl, $function, $functionResult, $id, $params)
+    {
+        $client = new SoapClient($wsdl, $this->soapOptions);
+
+        $this->debugLog("$function Request for '$id'");
+
+        $startTime = microtime(true);
+        $result = $client->$function($params);
+
+        if ($this->durationLogPrefix) {
+            file_put_contents($this->durationLogPrefix . '_' . $function . '.log', date('Y-m-d H:i:s ') . round(microtime(true) - $startTime, 4) . "\n", FILE_APPEND);
+        }
+
+        if ($this->verbose) {
+            $this->debugLog("$function Request: " . $this->formatXML($client->__getLastRequest()));
+            $this->debugLog("$function Response: " . $this->formatXML($client->__getLastResponse()));
+        }
+
+        return $result;
+    }
+
+    /**
+     * Format date
+     *
+     * @param string $dateString Date as a string
+     *
+     * @return string Formatted date
+     */
+    protected function formatDate($dateString)
+    {
+        // remove timezone from Axiell obscure dateformat
+        $date = substr($dateString, 0, strpos("$dateString*", "+"));
+
+        return $this->dateFormat->convertToDisplayDate("Y-m-d", $date);
+    }
+
+    /**
+     * Pretty-print an XML string
+     *
+     * @param string $xml XML string
+     *
+     * @return string Pretty XML string
+     */
+    protected function formatXML($xml)
+    {
+        if (!$xml) {
+            return $xml;
+        }
+        $dom = new DOMDocument('1.0');
+        $dom->preserveWhiteSpace = false;
+        $dom->formatOutput = true;
+        $dom->loadXML($xml);
+        return $dom->saveXML();
+    }
+
+    /**
+     * Get the language to be used in the interface
+     *
+     * @return string Language as string
+     */
+    protected function getLanguage()
+    {
+        global $interface;
+        //$language = $interface->getLanguage();
+        $language = 'fi';
+        if (!in_array($language, ['en', 'sv', 'fi'])) {
+            $language = 'en';
+        }
+        return $language;
+    }
+
+    /**
+     * Handle system status error messages from Axiell Web Services
+     *
+     * @param string     $function Function name
+     * @param string     $message  Error message
+     *
+     * @return string    Error message as string
+     */
+    protected function handleError($function, $message, $id)
+    {
+        $status =  [
+            // Axiell system status error messages
+            'BackendError'           => 'ils_connection_failed',
+            'LocalServiceTimeout'    => 'ils_connection_failed',
+            'DatabaseError'          => 'ils_connection_failed',
+        ];
+
+        if (isset($status[$message])) {
+            $this->debugLog("$function Request failed for '$id'");
+            $this->debugLog("AWS error: '$message'");
+            return $status[$message];
+        } return $message;
+    }
+
+    /**
+     * Sort function for sorting holdings locations according to organisation
+     *
+     * @param array $a Holdings location
+     * @param array $b Holdings location
+     *
+     * @return number
+     */
+    protected function holdingsOrganisationSortFunction($a, $b)
+    {
+        if (isset($this->holdingsOrganisationOrder[$a['holdings'][0]['organisation_id']])) {
             if (isset($this->holdingsOrganisationOrder[$b['holdings'][0]['organisation_id']])) {
-                return 1;
+
+                return $this->holdingsOrganisationOrder[$a['holdings'][0]['organisation_id']] - $this->holdingsOrganisationOrder[$b['holdings'][0]['organisation_id']];
             }
-            return strcasecmp($a['organisation'], $b['organisation']);
+            return -1;
         }
+        if (isset($this->holdingsOrganisationOrder[$b['holdings'][0]['organisation_id']])) {
+            return 1;
+        }
+        return strcasecmp($a['organisation'], $b['organisation']);
+    }
 
-        /**
-         * Sort function for sorting holdings locations according to branch
-         *
-         * @param array $a Holdings location
-         * @param array $b Holdings location
-         *
-         * @return number
-         */
-        protected function holdingsBranchSortFunction($a, $b)
-        {
-            $locationA = $a['branch'] . " " . $a['department'];
-            $locationB = $b['branch'] . " " . $b['department'];
+    /**
+     * Sort function for sorting holdings locations according to branch
+     *
+     * @param array $a Holdings location
+     * @param array $b Holdings location
+     *
+     * @return number
+     */
+    protected function holdingsBranchSortFunction($a, $b)
+    {
+        $locationA = $a['branch'] . " " . $a['department'];
+        $locationB = $b['branch'] . " " . $b['department'];
 
-            if (isset($this->holdingsBranchOrder[$a['branch_id']])) {
-                if (isset($this->holdingsBranchOrder[$b['branch_id']])) {
-                    $order = $this->holdingsBranchOrder[$a['branch_id']] - $this->holdingsBranchOrder[$b['branch_id']];
-                    if ($order == 0) {
-                        return strcasecmp($locationA, $locationB);
-                    }
-                    return $order;
-                }
-                return -1;
-            }
+        if (isset($this->holdingsBranchOrder[$a['branch_id']])) {
             if (isset($this->holdingsBranchOrder[$b['branch_id']])) {
-                return 1;
-            }
-
-            return strcasecmp($locationA, $locationB);
-        }
-
-        /**
-         * Sort function for sorting pickup locations
-         *
-         * @param array $a Pickup location
-         * @param array $b Pickup location
-         *
-         * @return number
-         */
-        protected function pickUpLocationsSortFunction($a, $b)
-        {
-            $pickUpLocationOrder = isset($this->config['Holds']['pickUpLocationOrder']) ? explode(":", $this->config['Holds']['pickUpLocationOrder']) : [];
-            $pickUpLocationOrder = array_flip($pickUpLocationOrder);
-            if (isset($pickUpLocationOrder[$a['locationID']])) {
-                if (isset($pickUpLocationOrder[$b['locationID']])) {
-                    return $pickUpLocationOrder[$a['locationID']] - $pickUpLocationOrder[$b['locationID']];
+                $order = $this->holdingsBranchOrder[$a['branch_id']] - $this->holdingsBranchOrder[$b['branch_id']];
+                if ($order == 0) {
+                    return strcasecmp($locationA, $locationB);
                 }
-                return -1;
+                return $order;
             }
+            return -1;
+        }
+        if (isset($this->holdingsBranchOrder[$b['branch_id']])) {
+            return 1;
+        }
+
+        return strcasecmp($locationA, $locationB);
+    }
+
+    /**
+     * Sort function for sorting pickup locations
+     *
+     * @param array $a Pickup location
+     * @param array $b Pickup location
+     *
+     * @return number
+     */
+    protected function pickUpLocationsSortFunction($a, $b)
+    {
+        $pickUpLocationOrder = isset($this->config['Holds']['pickUpLocationOrder']) ? explode(":", $this->config['Holds']['pickUpLocationOrder']) : [];
+        $pickUpLocationOrder = array_flip($pickUpLocationOrder);
+        if (isset($pickUpLocationOrder[$a['locationID']])) {
             if (isset($pickUpLocationOrder[$b['locationID']])) {
-                return 1;
+                return $pickUpLocationOrder[$a['locationID']] - $pickUpLocationOrder[$b['locationID']];
             }
-            return strcasecmp($a['locationDisplay'], $b['locationDisplay']);
+            return -1;
         }
-
-        /**
-         * Map statuses
-         *
-         * @param string $status as a string
-         *
-         * @return string Mapped status
-         */
-        protected function mapStatus($status)
-        {
-            $statuses =  [
-                'isLoanedToday'         => 'Borrowed today',
-                'isRenewedToday'        => 'Renewed today',
-                'isOverdue'             => 'renew_item_overdue',
-                'patronIsDeniedLoan'    => 'fine_limit_patron',
-                'patronHasDebt'         => 'renew_item_patron_has_debt',
-                'maxNofRenewals'        => 'renew_item_limit',
-                'patronIsInvoiced'      => 'renew_item_patron_is_invoiced',
-                'copyHasSpecialCircCat' => 'Copy has special circulation',
-                'copyIsReserved'        => 'renew_item_requested',
-                'renewalIsDenied'       => 'renew_denied'
-            ];
-
-            if (isset($statuses[$status])) {
-                return $statuses[$status];
-            }
-            return $status;
+        if (isset($pickUpLocationOrder[$b['locationID']])) {
+            return 1;
         }
+        return strcasecmp($a['locationDisplay'], $b['locationDisplay']);
+    }
 
-        /**
-         * Helper method to determine whether or not a certain method can be
-         * called on this driver.  Required method for any smart drivers.
-         *
-         * @param string $method The name of the called method.
-         * @param array  $params Array of passed parameters
-         *
-         * @return bool True if the method can be called with the given parameters,
-         * false otherwise.
-         *
-         * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-         */
-        public function supportsMethod($method, $params)
-        {
-            // Special case: change password is only available if properly configured.
-            if ($method == 'changePassword') {
-                return isset($this->config['changePassword']);
-            }
-            return is_callable([$this, $method]);
+    /**
+     * Map statuses
+     *
+     * @param string $status as a string
+     *
+     * @return string Mapped status
+     */
+    protected function mapStatus($status)
+    {
+        $statuses =  [
+            'isLoanedToday'         => 'Borrowed today',
+            'isRenewedToday'        => 'Renewed today',
+            'isOverdue'             => 'renew_item_overdue',
+            'patronIsDeniedLoan'    => 'fine_limit_patron',
+            'patronHasDebt'         => 'renew_item_patron_has_debt',
+            'maxNofRenewals'        => 'renew_item_limit',
+            'patronIsInvoiced'      => 'renew_item_patron_is_invoiced',
+            'copyHasSpecialCircCat' => 'Copy has special circulation',
+            'copyIsReserved'        => 'renew_item_requested',
+            'renewalIsDenied'       => 'renew_denied'
+        ];
+
+        if (isset($statuses[$status])) {
+            return $statuses[$status];
         }
+        return $status;
+    }
+
+    /**
+     * Helper method to determine whether or not a certain method can be
+     * called on this driver.  Required method for any smart drivers.
+     *
+     * @param string $method The name of the called method.
+     * @param array  $params Array of passed parameters
+     *
+     * @return bool True if the method can be called with the given parameters,
+     * false otherwise.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function supportsMethod($method, $params)
+    {
+        //Special case: change password is only available if properly configured.
+        if ($method == 'changePassword') {
+            return isset($this->config['changePassword']);
+        }
+        return is_callable([$this, $method]);
+    }
 }
