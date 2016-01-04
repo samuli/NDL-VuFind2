@@ -35,9 +35,19 @@ finna.itemStatus = (function() {
               // Full status mode is on -- display the HTML:
               var details = item.find('.locationDetails');
               details.empty().append(result.full_status);
-              details.wrapInner('<div class="truncate-field" data-rows="5"></div>');
+              //details.wrapInner('<div class="truncate-field" data-rows="5"></div>');
               details.removeClass('hidden');
               finna.layout.initTruncate(details);
+
+              details.find('.header').click(function () {
+                 $(this).parent().find('.locations').toggleClass('collapsed');
+                  /*
+                    $(this).nextUntil('.holdings-container-heading').toggleClass('collapsed');
+                    if ($('.location .fa', this).hasClass('fa-arrow-down')) {
+                    $('.location .fa', this).removeClass('fa-arrow-down');
+                    $('.location .fa', this).addClass('fa-arrow-right'); 
+                    }*/
+              });
             } else if (typeof(result.missing_data) != 'undefined'
               && result.missing_data
             ) {

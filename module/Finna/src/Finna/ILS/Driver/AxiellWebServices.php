@@ -725,6 +725,9 @@ implements TranslatorAwareInterface, \Zend\Log\LoggerAwareInterface, \VuFindHttp
             return;
         }
 
+
+        error_log(var_export($organisationHoldings, true)); 
+
         $result = [];
         foreach ($organisationHoldings as $organisation) {
             $group = $organisation->value;
@@ -756,6 +759,11 @@ implements TranslatorAwareInterface, \Zend\Log\LoggerAwareInterface, \VuFindHttp
                         $departmentName = $department->department;
                         $locationName = isset($department->location)
                             ? $department->location : '';
+
+                        if (!empty($locationName)) {
+                            $departmentName = "{$departmentName}, $locationName";
+                        }
+
                         $nofAvailableForLoan
                             = isset($department->nofAvailableForLoan)
                             ? $department->nofAvailableForLoan : 0;
@@ -842,10 +850,14 @@ implements TranslatorAwareInterface, \Zend\Log\LoggerAwareInterface, \VuFindHttp
                            'is_holdable' => $holdable,
                            'addLink' => $holdable ? 'hold' : false,
                            'callnumber' => isset($department->shelfMark)
-                              ? $department->shelfMark : '',
+                           ? ($department->shelfMark) : '',
                            'is_holdable' 
                               => $branch->reservationButtonStatus == 'reservationOk',
+                           'collapsed' => true
                         ];
+                        if ($journalInfo) {
+                            $holding['journalInfo'] = $journalInfo;
+                        }
                         $result[] = $holding;
                     }
                 }
