@@ -5,6 +5,7 @@
  * PHP version 5
  *
  * Copyright (C) Villanova University 2010.
+ * Copyright (C) The National Library of Finland 2015.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -22,10 +23,12 @@
  * @category VuFind2
  * @package  Config
  * @author   Demian Katz <demian.katz@villanova.edu>
+ * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org   Main Site
  */
-namespace VuFind\Config;
+namespace Finna\Config;
+use VuFind\Config\Locator;
 use Symfony\Component\Yaml\Yaml;
 
 /**
@@ -34,35 +37,12 @@ use Symfony\Component\Yaml\Yaml;
  * @category VuFind2
  * @package  Config
  * @author   Demian Katz <demian.katz@villanova.edu>
+ * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org   Main Site
  */
-class SearchSpecsReader
+class SearchSpecsReader extends \VuFind\Config\SearchSpecsReader
 {
-    /**
-     * Cache manager
-     *
-     * @var \VuFind\Cache\Manager
-     */
-    protected $cacheManager;
-
-    /**
-     * Cache of loaded search specs.
-     *
-     * @var array
-     */
-    protected $searchSpecs = [];
-
-    /**
-     * Constructor
-     *
-     * @param \VuFind\Cache\Manager $cacheManager Cache manager (optional)
-     */
-    public function __construct(\VuFind\Cache\Manager $cacheManager = null)
-    {
-        $this->cacheManager = $cacheManager;
-    }
-
     /**
      * Return search specs
      *
@@ -81,10 +61,14 @@ class SearchSpecsReader
             // Determine full configuration file path:
             $fullpath = Locator::getBaseConfigPath($filename);
             $local = Locator::getLocalConfigPath($filename);
+            $finna = Locator::getLocalConfigPath($filename, 'config/finna');
 
             // Generate cache key:
             $cacheKey = $filename . '-'
                 . (file_exists($fullpath) ? filemtime($fullpath) : 0);
+            if (!empty($finna)) {
+                $cacheKey .= '-finna-' . filemtime($local);
+            }
             if (!empty($local)) {
                 $cacheKey .= '-local-' . filemtime($local);
             }
@@ -94,6 +78,12 @@ class SearchSpecsReader
             if ($cache === false || !($results = $cache->getItem($cacheKey))) {
                 $results = file_exists($fullpath)
                     ? Yaml::parse(file_get_contents($fullpath)) : [];
+                if (!empty($finna)) {
+                    $localResults = Yaml::parse(file_get_contents($finna));
+                    foreach ($localResults as $key => $value) {
+                        $results[$key] = $value;
+                    }
+                }
                 if (!empty($local)) {
                     $localResults = Yaml::parse(file_get_contents($local));
                     foreach ($localResults as $key => $value) {
