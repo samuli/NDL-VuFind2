@@ -99,9 +99,6 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
         'typemap' => [
             [
                 'type_ns' => 'http://www.w3.org/2001/XMLSchema',
-//                 'type_name' => 'anySimpleType',
-//                 'from_xml' => ['\AxiellWebServices', 'anySimpleTypeToString'],
-//                 'to_xml' => ['\AxiellWebServices', 'stringToAnySimpleType']
                 'type_name' => 'anyType',
                 'from_xml' => ['\AxiellWebServices', 'anyTypeToString'],
                 'to_xml' => ['\AxiellWebServices', 'stringToAnyType']
@@ -454,7 +451,6 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
         } catch (DateException $e) {
             // Hold Date is invalid
             throw new ILSException('hold_date_invalid');
-//             return $this->holdError("hold_date_invalid");
         }
 
         $pickUpLocation = $holdDetails['pickUpLocation'];
@@ -689,8 +685,6 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
         ? [$result->$functionResult->catalogueRecord->compositeHolding]
         : $result->$functionResult->catalogueRecord->compositeHolding;
 
-//          print_r(var_export($interface->getLanguage();, true) . PHP_EOL);
-
         $vfHoldings = [];
         if (isset($holdings[0]->type) && $holdings[0]->type == 'year') {
             foreach ($holdings as $holding) {
@@ -717,8 +711,6 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
         foreach ($vfHoldings as $key => $location) {
             usort($vfHoldings[$key]['holdings'], [$this, 'holdingsBranchSortFunction']);
         }
-
-//         print_r(var_export($vfHoldings, true) . PHP_EOL);
 
         return empty($vfHoldings) ? false : $vfHoldings;
     }
@@ -975,8 +967,6 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
             $message = $this->handleError($function, $statusAWS->message, $username);
             if ($message == 'ils_connection_failed') {
                 throw new ILSException('ils_offline_login_message');
-            } if ($message == 'InvalidPinCode') {
-                throw new ILSException('authentication_error_invalid');
             }
             return null;
         }
@@ -1049,69 +1039,6 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
                 }
             }
         }
-
-//         $user['messagingServices'] = array();
-//         $services = array('pickUpNotice', 'overdueNotice', 'dueDateAlert');
-
-//         foreach ($services as $service) {
-//             $data = array(
-//                 'active' => false,
-//                 'type' => translate("messaging_settings_type_$service")
-//             );
-//             if ($service == 'dueDateAlert') {
-//                 $data['sendMethods']['email'] = array('active' => false, 'type' => 'email');
-//             } else {
-//                 $data['sendMethods'] = array(
-//                     'snailMail' => array('active' => false, 'type' => 'letter'),
-//                     'email' => array('active' => false, 'type' => 'email'),
-//                     'sms' => array('active' => false, 'type' => 'sms')
-//                 );
-//             }
-//             $user['messagingServices'][$service] = $data;
-//         }
-
-//         if (isset($info->messageServices)) {
-//             foreach ($info->messageServices->messageService as $service) {
-//                 $methods = array();
-//                 $type = $service->serviceType;
-//                 $numOfDays = $service->nofDays->value;
-//                 $active = $service->isActive === 'yes';
-
-//                 if (array_values((array)$service->sendMethods) === (array)$service->sendMethods) {
-//                     foreach ($service->sendMethods as $method) {
-//                         $user['messagingServices'][$type]['sendMethods'][$method->value]['active'] = $method->isActive === 'yes';
-//                     }
-//                 } else {
-//                     if (isset($service->sendMethods->sendMethod->value)) {
-//                         $user['messagingServices'][$type]['sendMethods'][$service->sendMethods->sendMethod->value]['active'] = $service->sendMethods->sendMethod->isActive === 'yes';
-//                     }
-//                 }
-//                 foreach ($user['messagingServices'][$type]['sendMethods'] as $key => &$data) {
-//                     $methodType = $data['type'];
-//                     $typeLabel = translate("messaging_settings_type_$type");
-//                     $methodLabel = translate("messaging_settings_method_$methodType");
-
-//                     if ($numOfDays > 0) {
-//                         $days = translate(
-//                             $numOfDays == 1
-//                             ? 'messaging_settings_num_of_days'
-//                             : 'messaging_settings_num_of_days_plural'
-//                         );
-//                         $methodLabel = str_replace('{1}', $numOfDays, $days);
-//                     }
-
-//                     if (!$active) {
-//                         $methodLabel = translate('messaging_settings_method_none');
-//                     }
-//                     $data['method'] = $methodLabel;
-//                 }
-
-//                 if (isset($user['messagingServices'][$type])) {
-//                     $user['messagingServices'][$type]['active'] = $active;
-//                     $user['messagingServices'][$type]['numOfDays'] = $numOfDays;
-//                 }
-//             }
-//         }
 
         return $user;
     }
@@ -1329,6 +1256,8 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
       *
       * @param string $checkoutDetails The request details
       *
+      * @throws ILSException
+      *
       * @return string           Required details passed to renewMyItems
       *
       */
@@ -1343,6 +1272,7 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
       * This is responsible for renewing items.
       *
       * @param string $renewDetails The request details
+      * @throws ILSException
       *
       * @return array           Associative array of the results
       *
@@ -1386,6 +1316,8 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
      *
      * @param array  $patron Patron array
      * @param string $phone  Phone number
+     *
+     * @throws ILSException
      *
      * @return array Response
      */
@@ -1445,12 +1377,13 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
             ];
     }
 
-    //TODO: Error handling
     /**
      * Set patron email address
      *
      * @param array  $patron Patron array
      * @param String $email  User Email
+     *
+     * @throws ILSException
      *
      * @return array Response
      */
@@ -1510,6 +1443,8 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
      *
      * @param String $cardDetails Patron card data
      *
+     * @throws ILSException
+     *
      * @return array Response
      */
     public function changePassword($cardDetails)
@@ -1534,7 +1469,7 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
         if ($statusAWS->type != 'ok') {
             $message = $this->handleError($function, $statusAWS->message, $username);
             if ($message == 'ils_connection_failed') {
-                throw new ILSException('ils_offline_status');;
+                throw new ILSException('ils_offline_status');
             }
             return  [
                 'success' => false,
