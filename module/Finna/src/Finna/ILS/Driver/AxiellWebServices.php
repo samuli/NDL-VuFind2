@@ -307,8 +307,19 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
         $id = !empty($holdDetails['item_id'])
         ? $holdDetails['item_id'] : $holdDetails['id'];
 
+        $function = 'getReservationBranches';
         $functionResult = 'getReservationBranchesResult';
-        $result = $this->doSOAPRequest($this->reservations_wsdl, 'getReservationBranches', $functionResult, $username, ['getReservationBranchesParam' => ['arenaMember' => $this->arenaMember, 'user' => $username, 'password' => $password, 'language' => $this->getLanguage(), 'country' => 'FI', 'reservationEntities' => $id, 'reservationType' => 'normal']]);
+        $conf = [
+            'arenaMember' => $this->arenaMember,
+            'user' => $username,
+            'password' => $password,
+            'language' => $this->getLanguage(),
+            'country' => 'FI',
+            'reservationEntities' => $id,
+            'reservationType' => 'normal'
+        ];
+
+        $result = $this->doSOAPRequest($this->reservations_wsdl, $function, $functionResult, $username, ['getReservationBranchesParam' => $conf]);
 
         $locationsList = [];
         if (!isset($result->$functionResult->organisations->organisation)) {
@@ -515,9 +526,16 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
 
         $function = 'removeReservation';
         $functionResult = 'removeReservationResult';
+        $conf = [
+            'arenaMember' => $this->arenaMember,
+            'user' => $username,
+            'password' => $password,
+            'language' => 'en',
+            'id' => $details
+        ];
 
         foreach ($cancelDetails['details'] as $details) {
-            $result = $this->doSOAPRequest($this->reservations_wsdl, $function, $functionResult, $username, ['removeReservationsParam' => ['arenaMember' => $this->arenaMember, 'user' => $username, 'password' => $password, 'language' => 'en', 'id' => $details]]);
+            $result = $this->doSOAPRequest($this->reservations_wsdl, $function, $functionResult, $username, ['removeReservationsParam' => $conf]);
 
             $statusAWS = $result->$functionResult->status;
 
@@ -587,8 +605,18 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
 
         $function = 'changeReservation';
         $functionResult = 'changeReservationResult';
+        $conf = [
+            'arenaMember' => $this->arenaMember,
+            'user' => $username,
+            'password' => $password,
+            'language' => 'en',
+            'id' => $reservationId,
+            'pickUpBranchId' => $branch,
+            'validFromDate' => $created,
+            'validToDate' => $expires
+        ];
 
-        $result = $this->doSOAPRequest($this->reservations_wsdl, $function, $functionResult, $username, ['changeReservationsParam' => ['arenaMember' => $this->arenaMember, 'user' => $username, 'password' => $password, 'language' => 'en', 'id' => $reservationId, 'pickUpBranchId' => $branch, 'validFromDate' => $created, 'validToDate' => $expires ]]);
+        $result = $this->doSOAPRequest($this->reservations_wsdl, $function, $functionResult, $username, ['changeReservationsParam' => $conf]);
 
         $statusAWS = $result->$functionResult->status;
 
@@ -664,8 +692,13 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
     {
         $function = 'GetHoldings';
         $functionResult = 'GetHoldingResult';
+        $conf = [
+            'arenaMember' => $this->arenaMember,
+            'id' => $id,
+            'language' => 'fi'
+        ];
 
-        $result = $this->doSOAPRequest($this->catalogue_wsdl, $function, $functionResult, $id, ['GetHoldingsRequest' => ['arenaMember' => $this->arenaMember, 'id' => $id, 'language' => 'fi']]);
+        $result = $this->doSOAPRequest($this->catalogue_wsdl, $function, $functionResult, $id, ['GetHoldingsRequest' => $conf]);
 
         $statusAWS = $result->$functionResult->status;
 
@@ -959,7 +992,15 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
 
         $function = 'getPatronInformation';
         $functionResult = 'patronInformationResult';
-        $result = $this->doSOAPRequest($this->patron_wsdl, $function, $functionResult, $username, ['patronInformationParam' => ['arenaMember' => $this->arenaMember, 'user' => $username, 'password' => $password, 'language' => $this->getLanguage()]]);
+        $conf = [
+            'arenaMember' => $this->arenaMember,
+            'user' => $username,
+            'password' => $password,
+            'language' => $this->getLanguage()
+
+        ];
+
+        $result = $this->doSOAPRequest($this->patron_wsdl, $function, $functionResult, $username, ['patronInformationParam' => $conf]);
 
         $statusAWS = $result->$functionResult->status;
 
@@ -1083,7 +1124,14 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
 
         $function = 'GetLoans';
         $functionResult = 'loansResponse';
-        $result = $this->doSOAPRequest($this->loans_wsdl, $function, $functionResult, $username, ['loansRequest' => ['arenaMember' => $this->arenaMember, 'user' => $username, 'password' => $password, 'language' => $this->getLanguage()]]);
+        $conf = [
+            'arenaMember' => $this->arenaMember,
+            'user' => $username,
+            'password' => $password,
+            'language' => $this->getLanguage()
+        ];
+
+        $result = $this->doSOAPRequest($this->loans_wsdl, $function, $functionResult, $username, ['loansRequest' => $conf]);
 
         $statusAWS = $result->$functionResult->status;
 
@@ -1153,7 +1201,16 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
 
         $function = 'GetDebts';
         $functionResult = 'debtsResponse';
-        $result = $this->doSOAPRequest($this->payments_wsdl, $function, $functionResult, $username, ['debtsRequest' => ['arenaMember' => $this->arenaMember,'user' => $username, 'password' => $password, 'language' => $this->getLanguage(), 'fromDate' => '1699-12-31', 'toDate' => time()]]);
+        $conf = [
+            'arenaMember' => $this->arenaMember,
+            'user' => $username,
+            'password' => $password,
+            'language' => $this->getLanguage(),
+            'fromDate' => '1699-12-31',
+            'toDate' => time()
+        ];
+
+        $result = $this->doSOAPRequest($this->payments_wsdl, $function, $functionResult, $username, ['debtsRequest' => $conf]);
 
         $statusAWS = $result->$functionResult->status;
 
@@ -1203,7 +1260,16 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
 
         $function = 'getReservations';
         $functionResult =  'getReservationsResult';
-        $result = $this->doSOAPRequest($this->reservations_wsdl, $function, $functionResult, $username, ['getReservationsParam' => ['arenaMember' => $this->arenaMember, 'user' => $username, 'password' => $password, 'language' => $this->getLanguage()]]);
+
+        $conf = [
+            'arenaMember' => $this->arenaMember,
+            'user' => $username,
+            'password' => $password,
+            'language' => $this->getLanguage()
+
+        ];
+
+        $result = $this->doSOAPRequest($this->reservations_wsdl, $function, $functionResult, $username, ['getReservationsParam' => $conf]);
 
         $statusAWS = $result->$functionResult->status;
 
@@ -1287,7 +1353,17 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
 
              $function = 'RenewLoans';
              $functionResult = 'renewLoansResponse';
-             $result = $this->doSOAPRequest($this->loans_wsdl, $function, $functionResult, $username, ['renewLoansRequest' => ['arenaMember' => $this->arenaMember, 'user' => $username, 'password' => $password, 'language' => 'en', 'loans' => [$id]]]);
+
+             $conf = [
+                 'arenaMember' => $this->arenaMember,
+                 'user' => $username,
+                 'password' => $password,
+                 'language' => 'en',
+                 'loans' => [$id]
+
+             ];
+
+             $result = $this->doSOAPRequest($this->loans_wsdl, $function, $functionResult, $username, ['renewLoansRequest' => $conf]);
 
              if ($statusAWS->type != 'ok') {
                 $message = $this->handleError($function, $statusAWS->message, $username);
@@ -1296,17 +1372,17 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
                 }
             }
 
-             $status = trim($result->$functionResult->loans->loan->loanStatus->status);
-             $success = $status === 'isRenewedToday';
+            $status = trim($result->$functionResult->loans->loan->loanStatus->status);
+            $success = $status === 'isRenewedToday';
 
-             $results['details'][$id] = [
-                 'success' => $success,
-                 'status' => $success ? 'Loan renewed' : 'Renewal failed',
-                 'sysMessage' => $status,
-                 'item_id' => $id,
-                 'new_date' => $this->formatDate($result->$functionResult->loans->loan->loanDueDate),
-                 'new_time' => ''
-             ];
+            $results['details'][$id] = [
+                'success' => $success,
+                'status' => $success ? 'Loan renewed' : 'Renewal failed',
+                'sysMessage' => $status,
+                'item_id' => $id,
+                'new_date' => $this->formatDate($result->$functionResult->loans->loan->loanDueDate),
+                'new_time' => ''
+            ];
          }
          return $results;
      }
