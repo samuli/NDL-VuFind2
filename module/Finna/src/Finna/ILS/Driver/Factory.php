@@ -42,21 +42,6 @@ use Zend\ServiceManager\ServiceManager;
 class Factory
 {
     /**
-     * Factory for Demo driver.
-     *
-     * @param ServiceManager $sm Service manager.
-     *
-     * @return Demo
-     */
-    public static function getDemo(ServiceManager $sm)
-    {
-        return new Demo(
-            $sm->getServiceLocator()->get('VuFind\DateConverter'),
-            $sm->getServiceLocator()->get('VuFind\Search')
-        );
-    }
-
-    /**
      * Factory for MultiBackend driver.
      *
      * @param ServiceManager $sm Service manager.
@@ -95,6 +80,24 @@ class Factory
         $ils = $sm->getServiceLocator()->get('VuFind\ILSHoldSettings');
         $configReader = $sm->getServiceLocator()->get('VuFind\Config');
         return new VoyagerRestful(
+            $sm->getServiceLocator()->get('VuFind\DateConverter'),
+            $ils->getHoldsMode(), $ils->getTitleHoldsMode(),
+            $configReader
+        );
+    }
+
+    /**
+     * Factory for AxiellWebServices driver.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return AxiellWebServices
+     */
+    public static function getAxiellWebServices(ServiceManager $sm)
+    {
+        $ils = $sm->getServiceLocator()->get('VuFind\ILSHoldSettings');
+        $configReader = $sm->getServiceLocator()->get('Vufind\Config');
+        return new AxiellWebServices(
             $sm->getServiceLocator()->get('VuFind\DateConverter'),
             $ils->getHoldsMode(), $ils->getTitleHoldsMode(),
             $configReader

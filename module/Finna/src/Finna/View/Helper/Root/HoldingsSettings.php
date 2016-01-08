@@ -38,7 +38,7 @@ use Zend\View\Helper\AbstractHelper;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
-class HoldingsDetailsMode extends AbstractHelper
+class HoldingsSettings extends AbstractHelper
 {
     /**
      * VuFind configuration
@@ -62,10 +62,59 @@ class HoldingsDetailsMode extends AbstractHelper
      *
      * @return string
      */
-    public function __invoke()
+    public function getDetailsMode()
     {
         return empty($this->config->Record['holdings_details'])
             ? 'expand-first'
             : $this->config->Record['holdings_details'];
     }
+
+    /**
+     * Return the configured mode
+     *
+     * @return string
+     */
+    public function getCollapseThreshold()
+    {
+        return empty($this->config->Item_Status->collapse_threshold)
+            ? null : $this->config->Item_Status->collapse_threshold->toArray();
+    }
+
+    /**
+     * Return the configured mode
+     *
+     * @return string
+     */
+    public function showLinkToRecordPage()
+    {
+        return empty($this->config->Item_Status->show_link_to_record_page)
+            ? false 
+            : (boolean)$this->config->Item_Status->show_link_to_record_page;
+    }
+
+    /**
+     * Return the configured mode
+     *
+     * @return string
+     */
+    public function showSearchResultsTitleHold()
+    {
+        return empty($this->config->Item_Status->show_title_hold)
+            ? false 
+            : (boolean)$this->config->Item_Status->show_title_hold;
+    }
+
+    /**
+     * Return the configured mode
+     *
+     * @return string
+     */
+    public function showRecordPageSummary()
+    {
+        return empty($this->config->Item_Status->show_holdings_summary)
+            ? false 
+            : (boolean)$this->config->Item_Status->show_holdings_summary;
+    }
+
+
 }
