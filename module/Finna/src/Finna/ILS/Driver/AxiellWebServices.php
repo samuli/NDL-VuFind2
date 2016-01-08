@@ -233,10 +233,19 @@ implements TranslatorAwareInterface, \Zend\Log\LoggerAwareInterface, \VuFindHttp
         if (isset($this->config['Debug']['log'])) {
             $this->logFile = $this->config['Debug']['log'];
         }
-        $this->holdingsOrganisationOrder = isset($this->config['Holdings']['holdingsOrganisationOrder']) ? explode(":", $this->config['Holdings']['holdingsOrganisationOrder']) : [];
-        $this->holdingsOrganisationOrder = array_flip($this->holdingsOrganisationOrder);
-        $this->holdingsBranchOrder = isset($this->config['Holdings']['holdingsBranchOrder']) ? explode(":", $this->config['Holdings']['holdingsBranchOrder']) : [];
-        $this->holdingsBranchOrder = array_flip($this->holdingsBranchOrder);
+        $this->holdingsOrganisationOrder 
+            = isset($this->config['Holdings']['holdingsOrganisationOrder']) 
+            ? explode(":", $this->config['Holdings']['holdingsOrganisationOrder']) 
+            : [];
+        $this->holdingsOrganisationOrder 
+            = array_flip($this->holdingsOrganisationOrder);
+
+        $this->holdingsBranchOrder 
+            = isset($this->config['Holdings']['holdingsBranchOrder']) 
+            ? explode(":", $this->config['Holdings']['holdingsBranchOrder']) 
+            : [];
+        $this->holdingsBranchOrder 
+            = array_flip($this->holdingsBranchOrder);
 
         // Establish a namespace in the session for persisting cached data
         $this->session = new SessionContainer('AxiellWebServices_' . $this->arenaMember);
@@ -616,6 +625,12 @@ implements TranslatorAwareInterface, \Zend\Log\LoggerAwareInterface, \VuFindHttp
         return $items;
     }
 
+    public function getStatusesSummary($statuses)
+    {
+        die('getStatusesSummary');
+    }
+    
+
     /**
      * Get Holding
      *
@@ -694,15 +709,19 @@ implements TranslatorAwareInterface, \Zend\Log\LoggerAwareInterface, \VuFindHttp
         } else {
             $result = $this->parseHoldings($holdings, $id, '', '');
         }
-        /*
-        // Sort Organisations
-        usort($vfHoldings, array($this, 'holdingsOrganisationSortFunction'));
+        
+        //error_log("sort: " . var_export($this->holdingsOrganisationOrder, true));
 
+        // Sort Organisations
+        usort($result, [$this, 'holdingsSortFunction']);
+
+        //error_log("holdings: " . var_export($result, true));
+
+        /*
         // Sort Branches
-        foreach ($vfHoldings as $key => $location) {
-            usort($vfHoldings[$key]['holdings'], array($this, 'holdingsBranchSortFunction'));
-        }
-        */
+        foreach ($result as $key => $location) {
+            usort($result[$key]['holdings'], [$this, 'holdingsBranchSortFunction']);
+            }*/
 
         return empty($result) ? false : $result;
     }
@@ -726,11 +745,11 @@ implements TranslatorAwareInterface, \Zend\Log\LoggerAwareInterface, \VuFindHttp
         }
 
 
-        error_log(var_export($organisationHoldings, true)); 
+        //error_log(var_export($organisationHoldings, true)); 
 
         $result = [];
         foreach ($organisationHoldings as $organisation) {
-            $group = $organisation->value;
+            $organisationName = $group = $organisation->value;
             $organisationId = $organisation->id;
             $holdingsBranch = is_object($organisation->compositeHolding) ?
                 array($organisation->compositeHolding) :
@@ -785,7 +804,7 @@ implements TranslatorAwareInterface, \Zend\Log\LoggerAwareInterface, \VuFindHttp
                             } else {
                                 $group = $year . $edition;
                             }
-                            $departmentName .= ", $locationName";
+                            $journalInfo['location'] = $organisationName;
                         }
 
                         // Status & availability
@@ -843,6 +862,7 @@ implements TranslatorAwareInterface, \Zend\Log\LoggerAwareInterface, \VuFindHttp
                             ],
                            'status' => $status,
                            'location' => $group,
+                           'organisation_id' => $organisationId,
                            'branch' => $branchName,
                            'branch_id' => $branchId,
                            'department' => $departmentName,
@@ -1543,55 +1563,107 @@ implements TranslatorAwareInterface, \Zend\Log\LoggerAwareInterface, \VuFindHttp
         }
 
         /**
-         * Sort function for sorting holdings locations according to organisation
+         * Sort function for sorting holdings locations 
+         * according to organisation and branch
          *
-         * @param array $a Holdings location
-         * @param array $b Holdings location
+         * @param array $a Holding info
+         * @param array $b Holding info
          *
-         * @return number
+         * @return int
          */
-        protected function holdingsOrganisationSortFunction($a, $b)
+        protected function holdingsSortFunction($a, $b)
         {
-            if (isset($this->holdingsOrganisationOrder[$a['holdings'][0]['organisation_id']])) {
-                if (isset($this->holdingsOrganisationOrder[$b['holdings'][0]['organisation_id']])) {
+            if (isset($a['journalInfo']) && isset($b['journalInfo'])) {
+                return $this->journalHoldingsSortFunction($a, $b);
+            } else {
+                return $this->defaultHoldingsSortFunction($a, $b);
+            }
+        }
 
-                    return $this->holdingsOrganisationOrder[$a['holdings'][0]['organisation_id']] - $this->holdingsOrganisationOrder[$b['holdings'][0]['organisation_id']];
+        protected function journalHoldingsSortFunction($a, $b)
+        {
+            $editionA = $a['journalInfo']['edition'];
+            $editionB = $b['journalInfo']['edition'];
+            if ($editionA ==  $editionB) {
+                $a['location'] = $a['journalInfo']['location'];
+                $b['location'] = $b['journalInfo']['location'];
+                return $this->defaultHoldingsSortFunction($a, $b);
+            } else {
+                $a = $this->parseJournalIssue($editionA);
+                $b = $this->parseJournalIssue($editionB);
+                
+                if (empty($a)) {
+                    return 1;
                 }
-                return -1;
+                if (empty($b)) {
+                    return -1;
+                }
+                
+                if ($a === $b) {
+                    return 0;
+                }
+                
+                $cnt = min(count($a), count($b));
+                $a = array_slice($a, 0, $cnt);
+                $b = array_slice($b, 0, $cnt);
+                
+                $f = function ($str) {
+                    return (reset(explode('-', $str)));
+                };
+                
+                $a = array_map($f, $a);
+                $b = array_map($f, $b);
+                
+                return $a > $b ? -1 : 1;
             }
-            if (isset($this->holdingsOrganisationOrder[$b['holdings'][0]['organisation_id']])) {
-                return 1;
-            }
-            return strcasecmp($a['organisation'], $b['organisation']);
         }
 
         /**
-         * Sort function for sorting holdings locations according to branch
+         * Utility function for parsing journal issue.
          *
-         * @param array $a Holdings location
-         * @param array $b Holdings location
+         * @param string $issue Journal issue.
          *
-         * @return number
+         * @return array
          */
-        protected function holdingsBranchSortFunction($a, $b)
+        protected function parseJournalIssue($issue)
         {
-            $locationA = $a['branch'] . " " . $a['department'];
-            $locationB = $b['branch'] . " " . $b['department'];
-
-            if (isset($this->holdingsBranchOrder[$a['branch_id']])) {
-                if (isset($this->holdingsBranchOrder[$b['branch_id']])) {
-                    $order = $this->holdingsBranchOrder[$a['branch_id']] - $this->holdingsBranchOrder[$b['branch_id']];
-                    if ($order == 0) {
-                        return strcasecmp($locationA, $locationB);
-                    }
-                    return $order;
+            $parts = explode(':', $issue);
+            return array_map('trim', $parts);
+        }
+        
+        protected function defaultHoldingsSortFunction($a, $b)
+        {
+            if ($a['organisation_id'] !== $b['organisation_id']) {
+                $key = 'organisation_id';
+                $sortOrder = $this->holdingsOrganisationOrder;
+                $locationA = $a['location'];
+                $locationB = $b['location'];
+            } else {
+                $key = 'branch_id';
+                $sortOrder = $this->holdingsBranchOrder;
+                $locationA 
+                    = $a['location'] . ' ' . $a['branch'] . ' ' . $a['department'];
+                $locationB 
+                    = $b['location'] . ' ' . $b['branch'] . ' ' . $b['department'];
+            }
+            
+            $orderA 
+                = isset($sortOrder[$a[$key]]) ? $sortOrder[$a[$key]] : null;
+            
+            $orderB 
+                = isset($sortOrder[$b[$key]]) ? $sortOrder[$b[$key]] : null;
+            
+            if ($orderA !== null) {
+                if ($orderB !== null) {
+                    $order = $orderA-$orderB;
+                    return $order != 0 
+                        ? $order : strcasecmp($locationA, $locationB);
                 }
                 return -1;
             }
-            if (isset($this->holdingsBranchOrder[$b['branch_id']])) {
+            if ($orderB !== null) {
                 return 1;
             }
-
             return strcasecmp($locationA, $locationB);
         }
 

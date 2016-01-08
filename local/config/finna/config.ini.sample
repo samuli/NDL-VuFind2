@@ -927,7 +927,7 @@ multiple_locations = group
 ; Show the full location,call number, availability for each item
 ; You can customize the way each item's status is display in AJAX/status-full.tpl
 ; When enabled, this largely overrides multiple_call_nos and multiple_locations
-show_full_status = false
+show_full_status = 1
 
 ; This section controls the behavior of the Record module.
 [Record]

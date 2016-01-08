@@ -1,0 +1,14 @@
+<? if (($ils->getHoldsMode() == 'driver' && !empty($holdings)) || $ils->getTitleHoldsMode() == 'driver'): ?>
+  <? if ($account->loginEnabled() && $ils->getOfflineMode() != 'ils-offline' && $ils->loginAvailable()): ?>
+    <? if (!$user): ?>
+      <div class="pull-right">
+        <a href="?login=true&amp;catalogLogin=true" class="btn btn-primary modal-link login-link" title="<?=$this->transEsc("Login")?>"><i class="fa fa-sign-in"></i> <?=$this->transEsc("Login")?></a> <?=$this->transEsc("hold_login")?>
+      </div>
+      <div class="clearfix"></div>
+    <? elseif (!$user->cat_username): ?>
+      <div class="alert alert-info">
+        <?=$this->translate("hold_profile_html", array('%%url%%' => $this->currentPath() . '?catalogLogin=true'))?>
+      </div>
+    <? endif; ?>
+  <? endif; ?>
+<? endif; ?>

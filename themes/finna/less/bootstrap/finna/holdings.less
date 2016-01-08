@@ -49,7 +49,10 @@
         }
     }
     & .copy-title {
-        font-weight: bold;   
+        font-weight: bold;
+        & .department {
+            font-weight: normal;
+        }
     }
     & .copy-details {
         &.collapsed {
@@ -94,5 +97,30 @@
 .callnumAndLocation {
     & .collapsed {
         display: none;
+    }
+    & .holdings-container:not(.root) {
+        border-bottom: 1px solid @gray-lighter;
+        padding: 1px 0 1px 0;
+    }
+    & .holdings-container.collapsible > .holdings:not(.root) {
+        padding-left: 10px;
+    }
+    & .holdings-container.collapsible > .header {
+        cursor: pointer;
+    }
+    & .header .info,
+    & .holdings .branchInfo {
+        float: right;
+        color: @gray-light;
+    }
+    & .title-hold {
+        float: right;
+        margin-top: 10px;
+        & .all-holdings {
+            text-align: right;
+        }
+    }
+    & .fa.arrow {
+        color: @gray-light;
     }
 }

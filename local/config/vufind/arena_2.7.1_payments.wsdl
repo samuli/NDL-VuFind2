@@ -1,0 +1,2032 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="PaymentsPalmaService" targetNamespace="http://payments.palma.services.arena.axiell.com/" xmlns:ns1="http://cxf.apache.org/bindings/xformat" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://payments.palma.services.arena.axiell.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <wsdl:types>
+        <xs:schema elementFormDefault="qualified" targetNamespace="http://axiell.com/arena/services/palma/util" xmlns="http://axiell.com/arena/services/palma/util" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+            <xs:element name="language">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <!-- ISO ISO  639-1 language codes, parsed from http://www.loc.gov/standards/iso639-2/ISO-639-2_utf-8.txt  -->
+                        <xs:enumeration value="aa"/>
+                        <xs:enumeration value="ab"/>
+                        <xs:enumeration value="af"/>
+                        <xs:enumeration value="ak"/>
+                        <xs:enumeration value="sq"/>
+                        <xs:enumeration value="am"/>
+                        <xs:enumeration value="ar"/>
+                        <xs:enumeration value="an"/>
+                        <xs:enumeration value="hy"/>
+                        <xs:enumeration value="as"/>
+                        <xs:enumeration value="av"/>
+                        <xs:enumeration value="ae"/>
+                        <xs:enumeration value="ay"/>
+                        <xs:enumeration value="az"/>
+                        <xs:enumeration value="ba"/>
+                        <xs:enumeration value="bm"/>
+                        <xs:enumeration value="eu"/>
+                        <xs:enumeration value="be"/>
+                        <xs:enumeration value="bn"/>
+                        <xs:enumeration value="bh"/>
+                        <xs:enumeration value="bi"/>
+                        <xs:enumeration value="bs"/>
+                        <xs:enumeration value="br"/>
+                        <xs:enumeration value="bg"/>
+                        <xs:enumeration value="my"/>
+                        <xs:enumeration value="ca"/>
+                        <xs:enumeration value="ch"/>
+                        <xs:enumeration value="ce"/>
+                        <xs:enumeration value="zh"/>
+                        <xs:enumeration value="cu"/>
+                        <xs:enumeration value="cv"/>
+                        <xs:enumeration value="kw"/>
+                        <xs:enumeration value="co"/>
+                        <xs:enumeration value="cr"/>
+                        <xs:enumeration value="cs"/>
+                        <xs:enumeration value="da"/>
+                        <xs:enumeration value="dv"/>
+                        <xs:enumeration value="nl"/>
+                        <xs:enumeration value="dz"/>
+                        <xs:enumeration value="en"/>
+                        <xs:enumeration value="eo"/>
+                        <xs:enumeration value="et"/>
+                        <xs:enumeration value="ee"/>
+                        <xs:enumeration value="fo"/>
+                        <xs:enumeration value="fj"/>
+                        <xs:enumeration value="fi"/>
+                        <xs:enumeration value="fr"/>
+                        <xs:enumeration value="fy"/>
+                        <xs:enumeration value="ff"/>
+                        <xs:enumeration value="ka"/>
+                        <xs:enumeration value="de"/>
+                        <xs:enumeration value="gd"/>
+                        <xs:enumeration value="ga"/>
+                        <xs:enumeration value="gl"/>
+                        <xs:enumeration value="gv"/>
+                        <xs:enumeration value="el"/>
+                        <xs:enumeration value="gn"/>
+                        <xs:enumeration value="gu"/>
+                        <xs:enumeration value="ht"/>
+                        <xs:enumeration value="ha"/>
+                        <xs:enumeration value="he"/>
+                        <xs:enumeration value="hz"/>
+                        <xs:enumeration value="hi"/>
+                        <xs:enumeration value="ho"/>
+                        <xs:enumeration value="hr"/>
+                        <xs:enumeration value="hu"/>
+                        <xs:enumeration value="ig"/>
+                        <xs:enumeration value="is"/>
+                        <xs:enumeration value="io"/>
+                        <xs:enumeration value="ii"/>
+                        <xs:enumeration value="iu"/>
+                        <xs:enumeration value="ie"/>
+                        <xs:enumeration value="ia"/>
+                        <xs:enumeration value="id"/>
+                        <xs:enumeration value="ik"/>
+                        <xs:enumeration value="it"/>
+                        <xs:enumeration value="jv"/>
+                        <xs:enumeration value="ja"/>
+                        <xs:enumeration value="kl"/>
+                        <xs:enumeration value="kn"/>
+                        <xs:enumeration value="ks"/>
+                        <xs:enumeration value="kr"/>
+                        <xs:enumeration value="kk"/>
+                        <xs:enumeration value="km"/>
+                        <xs:enumeration value="ki"/>
+                        <xs:enumeration value="rw"/>
+                        <xs:enumeration value="ky"/>
+                        <xs:enumeration value="kv"/>
+                        <xs:enumeration value="kg"/>
+                        <xs:enumeration value="ko"/>
+                        <xs:enumeration value="kj"/>
+                        <xs:enumeration value="ku"/>
+                        <xs:enumeration value="lo"/>
+                        <xs:enumeration value="la"/>
+                        <xs:enumeration value="lv"/>
+                        <xs:enumeration value="li"/>
+                        <xs:enumeration value="ln"/>
+                        <xs:enumeration value="lt"/>
+                        <xs:enumeration value="lb"/>
+                        <xs:enumeration value="lu"/>
+                        <xs:enumeration value="lg"/>
+                        <xs:enumeration value="mk"/>
+                        <xs:enumeration value="mh"/>
+                        <xs:enumeration value="ml"/>
+                        <xs:enumeration value="mi"/>
+                        <xs:enumeration value="mr"/>
+                        <xs:enumeration value="ms"/>
+                        <xs:enumeration value="mg"/>
+                        <xs:enumeration value="mt"/>
+                        <xs:enumeration value="mn"/>
+                        <xs:enumeration value="na"/>
+                        <xs:enumeration value="nv"/>
+                        <xs:enumeration value="nr"/>
+                        <xs:enumeration value="nd"/>
+                        <xs:enumeration value="ng"/>
+                        <xs:enumeration value="ne"/>
+                        <xs:enumeration value="nn"/>
+                        <xs:enumeration value="nb"/>
+                        <xs:enumeration value="no"/>
+                        <xs:enumeration value="ny"/>
+                        <xs:enumeration value="oc"/>
+                        <xs:enumeration value="oj"/>
+                        <xs:enumeration value="or"/>
+                        <xs:enumeration value="om"/>
+                        <xs:enumeration value="os"/>
+                        <xs:enumeration value="pa"/>
+                        <xs:enumeration value="fa"/>
+                        <xs:enumeration value="pi"/>
+                        <xs:enumeration value="pl"/>
+                        <xs:enumeration value="pt"/>
+                        <xs:enumeration value="ps"/>
+                        <xs:enumeration value="qu"/>
+                        <xs:enumeration value="rm"/>
+                        <xs:enumeration value="ro"/>
+                        <xs:enumeration value="rn"/>
+                        <xs:enumeration value="ru"/>
+                        <xs:enumeration value="sg"/>
+                        <xs:enumeration value="sa"/>
+                        <xs:enumeration value="si"/>
+                        <xs:enumeration value="sk"/>
+                        <xs:enumeration value="sl"/>
+                        <xs:enumeration value="se"/>
+                        <xs:enumeration value="sm"/>
+                        <xs:enumeration value="sn"/>
+                        <xs:enumeration value="sd"/>
+                        <xs:enumeration value="so"/>
+                        <xs:enumeration value="st"/>
+                        <xs:enumeration value="es"/>
+                        <xs:enumeration value="sc"/>
+                        <xs:enumeration value="sr"/>
+                        <xs:enumeration value="ss"/>
+                        <xs:enumeration value="su"/>
+                        <xs:enumeration value="sw"/>
+                        <xs:enumeration value="sv"/>
+                        <xs:enumeration value="ty"/>
+                        <xs:enumeration value="ta"/>
+                        <xs:enumeration value="tt"/>
+                        <xs:enumeration value="te"/>
+                        <xs:enumeration value="tg"/>
+                        <xs:enumeration value="tl"/>
+                        <xs:enumeration value="th"/>
+                        <xs:enumeration value="bo"/>
+                        <xs:enumeration value="ti"/>
+                        <xs:enumeration value="to"/>
+                        <xs:enumeration value="tn"/>
+                        <xs:enumeration value="ts"/>
+                        <xs:enumeration value="tk"/>
+                        <xs:enumeration value="tr"/>
+                        <xs:enumeration value="tw"/>
+                        <xs:enumeration value="ug"/>
+                        <xs:enumeration value="uk"/>
+                        <xs:enumeration value="ur"/>
+                        <xs:enumeration value="uz"/>
+                        <xs:enumeration value="ve"/>
+                        <xs:enumeration value="vi"/>
+                        <xs:enumeration value="vo"/>
+                        <xs:enumeration value="cy"/>
+                        <xs:enumeration value="wa"/>
+                        <xs:enumeration value="wo"/>
+                        <xs:enumeration value="xh"/>
+                        <xs:enumeration value="yi"/>
+                        <xs:enumeration value="yo"/>
+                        <xs:enumeration value="za"/>
+                        <xs:enumeration value="zu"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="country">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <!-- ISO ISO 3166-1-alpha-2 country codes, parsed from http://www.iso.org/iso/list-en1-semic-3.txt  -->
+                        <xs:enumeration value="AF"/>
+                        <xs:enumeration value="AX"/>
+                        <xs:enumeration value="AL"/>
+                        <xs:enumeration value="DZ"/>
+                        <xs:enumeration value="AS"/>
+                        <xs:enumeration value="AD"/>
+                        <xs:enumeration value="AO"/>
+                        <xs:enumeration value="AI"/>
+                        <xs:enumeration value="AQ"/>
+                        <xs:enumeration value="AG"/>
+                        <xs:enumeration value="AR"/>
+                        <xs:enumeration value="AM"/>
+                        <xs:enumeration value="AW"/>
+                        <xs:enumeration value="AU"/>
+                        <xs:enumeration value="AT"/>
+                        <xs:enumeration value="AZ"/>
+                        <xs:enumeration value="BS"/>
+                        <xs:enumeration value="BH"/>
+                        <xs:enumeration value="BD"/>
+                        <xs:enumeration value="BB"/>
+                        <xs:enumeration value="BY"/>
+                        <xs:enumeration value="BE"/>
+                        <xs:enumeration value="BZ"/>
+                        <xs:enumeration value="BJ"/>
+                        <xs:enumeration value="BM"/>
+                        <xs:enumeration value="BT"/>
+                        <xs:enumeration value="BO"/>
+                        <xs:enumeration value="BQ"/>
+                        <xs:enumeration value="BA"/>
+                        <xs:enumeration value="BW"/>
+                        <xs:enumeration value="BV"/>
+                        <xs:enumeration value="BR"/>
+                        <xs:enumeration value="IO"/>
+                        <xs:enumeration value="BN"/>
+                        <xs:enumeration value="BG"/>
+                        <xs:enumeration value="BF"/>
+                        <xs:enumeration value="BI"/>
+                        <xs:enumeration value="KH"/>
+                        <xs:enumeration value="CM"/>
+                        <xs:enumeration value="CA"/>
+                        <xs:enumeration value="CV"/>
+                        <xs:enumeration value="KY"/>
+                        <xs:enumeration value="CF"/>
+                        <xs:enumeration value="TD"/>
+                        <xs:enumeration value="CL"/>
+                        <xs:enumeration value="CN"/>
+                        <xs:enumeration value="CX"/>
+                        <xs:enumeration value="CC"/>
+                        <xs:enumeration value="CO"/>
+                        <xs:enumeration value="KM"/>
+                        <xs:enumeration value="CG"/>
+                        <xs:enumeration value="CD"/>
+                        <xs:enumeration value="CK"/>
+                        <xs:enumeration value="CR"/>
+                        <xs:enumeration value="CI"/>
+                        <xs:enumeration value="HR"/>
+                        <xs:enumeration value="CU"/>
+                        <xs:enumeration value="CW"/>
+                        <xs:enumeration value="CY"/>
+                        <xs:enumeration value="CZ"/>
+                        <xs:enumeration value="DK"/>
+                        <xs:enumeration value="DJ"/>
+                        <xs:enumeration value="DM"/>
+                        <xs:enumeration value="DO"/>
+                        <xs:enumeration value="EC"/>
+                        <xs:enumeration value="EG"/>
+                        <xs:enumeration value="SV"/>
+                        <xs:enumeration value="GQ"/>
+                        <xs:enumeration value="ER"/>
+                        <xs:enumeration value="EE"/>
+                        <xs:enumeration value="ET"/>
+                        <xs:enumeration value="FK"/>
+                        <xs:enumeration value="FO"/>
+                        <xs:enumeration value="FJ"/>
+                        <xs:enumeration value="FI"/>
+                        <xs:enumeration value="FR"/>
+                        <xs:enumeration value="GF"/>
+                        <xs:enumeration value="PF"/>
+                        <xs:enumeration value="TF"/>
+                        <xs:enumeration value="GA"/>
+                        <xs:enumeration value="GM"/>
+                        <xs:enumeration value="GE"/>
+                        <xs:enumeration value="DE"/>
+                        <xs:enumeration value="GH"/>
+                        <xs:enumeration value="GI"/>
+                        <xs:enumeration value="GR"/>
+                        <xs:enumeration value="GL"/>
+                        <xs:enumeration value="GD"/>
+                        <xs:enumeration value="GP"/>
+                        <xs:enumeration value="GU"/>
+                        <xs:enumeration value="GT"/>
+                        <xs:enumeration value="GG"/>
+                        <xs:enumeration value="GN"/>
+                        <xs:enumeration value="GW"/>
+                        <xs:enumeration value="GY"/>
+                        <xs:enumeration value="HT"/>
+                        <xs:enumeration value="HM"/>
+                        <xs:enumeration value="VA"/>
+                        <xs:enumeration value="HN"/>
+                        <xs:enumeration value="HK"/>
+                        <xs:enumeration value="HU"/>
+                        <xs:enumeration value="IS"/>
+                        <xs:enumeration value="IN"/>
+                        <xs:enumeration value="ID"/>
+                        <xs:enumeration value="IR"/>
+                        <xs:enumeration value="IQ"/>
+                        <xs:enumeration value="IE"/>
+                        <xs:enumeration value="IM"/>
+                        <xs:enumeration value="IL"/>
+                        <xs:enumeration value="IT"/>
+                        <xs:enumeration value="JM"/>
+                        <xs:enumeration value="JP"/>
+                        <xs:enumeration value="JE"/>
+                        <xs:enumeration value="JO"/>
+                        <xs:enumeration value="KZ"/>
+                        <xs:enumeration value="KE"/>
+                        <xs:enumeration value="KI"/>
+                        <xs:enumeration value="KP"/>
+                        <xs:enumeration value="KR"/>
+                        <xs:enumeration value="KW"/>
+                        <xs:enumeration value="KG"/>
+                        <xs:enumeration value="LA"/>
+                        <xs:enumeration value="LV"/>
+                        <xs:enumeration value="LB"/>
+                        <xs:enumeration value="LS"/>
+                        <xs:enumeration value="LR"/>
+                        <xs:enumeration value="LY"/>
+                        <xs:enumeration value="LI"/>
+                        <xs:enumeration value="LT"/>
+                        <xs:enumeration value="LU"/>
+                        <xs:enumeration value="MO"/>
+                        <xs:enumeration value="MK"/>
+                        <xs:enumeration value="MG"/>
+                        <xs:enumeration value="MW"/>
+                        <xs:enumeration value="MY"/>
+                        <xs:enumeration value="MV"/>
+                        <xs:enumeration value="ML"/>
+                        <xs:enumeration value="MT"/>
+                        <xs:enumeration value="MH"/>
+                        <xs:enumeration value="MQ"/>
+                        <xs:enumeration value="MR"/>
+                        <xs:enumeration value="MU"/>
+                        <xs:enumeration value="YT"/>
+                        <xs:enumeration value="MX"/>
+                        <xs:enumeration value="FM"/>
+                        <xs:enumeration value="MD"/>
+                        <xs:enumeration value="MC"/>
+                        <xs:enumeration value="MN"/>
+                        <xs:enumeration value="ME"/>
+                        <xs:enumeration value="MS"/>
+                        <xs:enumeration value="MA"/>
+                        <xs:enumeration value="MZ"/>
+                        <xs:enumeration value="MM"/>
+                        <xs:enumeration value="NA"/>
+                        <xs:enumeration value="NR"/>
+                        <xs:enumeration value="NP"/>
+                        <xs:enumeration value="NL"/>
+                        <xs:enumeration value="NC"/>
+                        <xs:enumeration value="NZ"/>
+                        <xs:enumeration value="NI"/>
+                        <xs:enumeration value="NE"/>
+                        <xs:enumeration value="NG"/>
+                        <xs:enumeration value="NU"/>
+                        <xs:enumeration value="NF"/>
+                        <xs:enumeration value="MP"/>
+                        <xs:enumeration value="NO"/>
+                        <xs:enumeration value="OM"/>
+                        <xs:enumeration value="PK"/>
+                        <xs:enumeration value="PW"/>
+                        <xs:enumeration value="PS"/>
+                        <xs:enumeration value="PA"/>
+                        <xs:enumeration value="PG"/>
+                        <xs:enumeration value="PY"/>
+                        <xs:enumeration value="PE"/>
+                        <xs:enumeration value="PH"/>
+                        <xs:enumeration value="PN"/>
+                        <xs:enumeration value="PL"/>
+                        <xs:enumeration value="PT"/>
+                        <xs:enumeration value="PR"/>
+                        <xs:enumeration value="QA"/>
+                        <xs:enumeration value="RE"/>
+                        <xs:enumeration value="RO"/>
+                        <xs:enumeration value="RU"/>
+                        <xs:enumeration value="RW"/>
+                        <xs:enumeration value="BL"/>
+                        <xs:enumeration value="SH"/>
+                        <xs:enumeration value="KN"/>
+                        <xs:enumeration value="LC"/>
+                        <xs:enumeration value="MF"/>
+                        <xs:enumeration value="PM"/>
+                        <xs:enumeration value="VC"/>
+                        <xs:enumeration value="WS"/>
+                        <xs:enumeration value="SM"/>
+                        <xs:enumeration value="ST"/>
+                        <xs:enumeration value="SA"/>
+                        <xs:enumeration value="SN"/>
+                        <xs:enumeration value="RS"/>
+                        <xs:enumeration value="SC"/>
+                        <xs:enumeration value="SL"/>
+                        <xs:enumeration value="SG"/>
+                        <xs:enumeration value="SX"/>
+                        <xs:enumeration value="SK"/>
+                        <xs:enumeration value="SI"/>
+                        <xs:enumeration value="SB"/>
+                        <xs:enumeration value="SO"/>
+                        <xs:enumeration value="ZA"/>
+                        <xs:enumeration value="GS"/>
+                        <xs:enumeration value="SS"/>
+                        <xs:enumeration value="ES"/>
+                        <xs:enumeration value="LK"/>
+                        <xs:enumeration value="SD"/>
+                        <xs:enumeration value="SR"/>
+                        <xs:enumeration value="SJ"/>
+                        <xs:enumeration value="SZ"/>
+                        <xs:enumeration value="SE"/>
+                        <xs:enumeration value="CH"/>
+                        <xs:enumeration value="SY"/>
+                        <xs:enumeration value="TW"/>
+                        <xs:enumeration value="TJ"/>
+                        <xs:enumeration value="TZ"/>
+                        <xs:enumeration value="TH"/>
+                        <xs:enumeration value="TL"/>
+                        <xs:enumeration value="TG"/>
+                        <xs:enumeration value="TK"/>
+                        <xs:enumeration value="TO"/>
+                        <xs:enumeration value="TT"/>
+                        <xs:enumeration value="TN"/>
+                        <xs:enumeration value="TR"/>
+                        <xs:enumeration value="TM"/>
+                        <xs:enumeration value="TC"/>
+                        <xs:enumeration value="TV"/>
+                        <xs:enumeration value="UG"/>
+                        <xs:enumeration value="UA"/>
+                        <xs:enumeration value="AE"/>
+                        <xs:enumeration value="GB"/>
+                        <xs:enumeration value="US"/>
+                        <xs:enumeration value="UM"/>
+                        <xs:enumeration value="UY"/>
+                        <xs:enumeration value="UZ"/>
+                        <xs:enumeration value="VU"/>
+                        <xs:enumeration value="VE"/>
+                        <xs:enumeration value="VN"/>
+                        <xs:enumeration value="VG"/>
+                        <xs:enumeration value="VI"/>
+                        <xs:enumeration value="WF"/>
+                        <xs:enumeration value="EH"/>
+                        <xs:enumeration value="YE"/>
+                        <xs:enumeration value="ZM"/>
+                        <xs:enumeration value="ZW"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:complexType name="moneyType">
+                <xs:annotation>
+                    <xs:documentation>standard money type with amount and currency</xs:documentation>
+                </xs:annotation>
+                <xs:attribute name="currency" type="ISOCurrencyCodeType" use="required"/>
+                <xs:attribute name="amount" type="xs:double" use="required"/>
+            </xs:complexType>
+            <xs:simpleType name="ISOCurrencyCodeType">
+                <xs:annotation>
+                    <xs:documentation>ISO 4217:2008 Currency codes</xs:documentation>
+                </xs:annotation>
+                <xs:restriction base="xs:NMTOKEN">
+                    <xs:enumeration value="AED">
+                        <xs:annotation>
+                            <xs:documentation>UAE Dirham</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="AFN">
+                        <xs:annotation>
+                            <xs:documentation>Afghan Afghani</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="ALL">
+                        <xs:annotation>
+                            <xs:documentation>Albanian Lek</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="AMD">
+                        <xs:annotation>
+                            <xs:documentation>Armenian Dram</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="ANG">
+                        <xs:annotation>
+                            <xs:documentation>Netherlands Antillian Guilder</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="AOA">
+                        <xs:annotation>
+                            <xs:documentation>Angolan Kwanza</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="ARS">
+                        <xs:annotation>
+                            <xs:documentation>Argentine Peso</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="AUD">
+                        <xs:annotation>
+                            <xs:documentation>Australian Dollar</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="AWG">
+                        <xs:annotation>
+                            <xs:documentation>Aruban Guilder</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="AZN">
+                        <xs:annotation>
+                            <xs:documentation>Azerbaijanian Manat</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="BAM">
+                        <xs:annotation>
+                            <xs:documentation>Bosnia and Herzogovina Convertible Mark</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="BBD">
+                        <xs:annotation>
+                            <xs:documentation>Barbados Dollar</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="BDT">
+                        <xs:annotation>
+                            <xs:documentation>Bangladeshi Taka</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="BGN">
+                        <xs:annotation>
+                            <xs:documentation>Bulgarian Lev</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="BHD">
+                        <xs:annotation>
+                            <xs:documentation>Bahraini Dinar</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="BIF">
+                        <xs:annotation>
+                            <xs:documentation>Burundi Franc</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="BMD">
+                        <xs:annotation>
+                            <xs:documentation>Bermudian Dollar (customarily: Bermuda Dollar)</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="BND">
+                        <xs:annotation>
+                            <xs:documentation>Brunei Dollar</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="BOB">
+                        <xs:annotation>
+                            <xs:documentation>Bolivian Boliviano</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="BRL">
+                        <xs:annotation>
+                            <xs:documentation>Brazilian Real</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="BSD">
+                        <xs:annotation>
+                            <xs:documentation>Bahamian Dollar</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="BTN">
+                        <xs:annotation>
+                            <xs:documentation>Bhutanese Ngultrum</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="BWP">
+                        <xs:annotation>
+                            <xs:documentation>Botswana Pula</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="BYR">
+                        <xs:annotation>
+                            <xs:documentation>Belarussian Ruble</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="BZD">
+                        <xs:annotation>
+                            <xs:documentation>Belize Dollar</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="CAD">
+                        <xs:annotation>
+                            <xs:documentation>Canadian Dollar</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="CDF">
+                        <xs:annotation>
+                            <xs:documentation>Franc Congolais</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="CHF">
+                        <xs:annotation>
+                            <xs:documentation>Swiss Franc</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="CLP">
+                        <xs:annotation>
+                            <xs:documentation>Chilean Peso</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="CNY">
+                        <xs:annotation>
+                            <xs:documentation>Yuan Renminbi</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="COP">
+                        <xs:annotation>
+                            <xs:documentation>Colombian Peso</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="CRC">
+                        <xs:annotation>
+                            <xs:documentation>Costa Rican Colon</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="CUP">
+                        <xs:annotation>
+                            <xs:documentation>Cuban Peso</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="CVE">
+                        <xs:annotation>
+                            <xs:documentation>Cape Verde Escudo</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="CZK">
+                        <xs:annotation>
+                            <xs:documentation>Czech Koruna</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="DJF">
+                        <xs:annotation>
+                            <xs:documentation>Djibouti Franc</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="DKK">
+                        <xs:annotation>
+                            <xs:documentation>Danish Krone</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="DOP">
+                        <xs:annotation>
+                            <xs:documentation>Dominican Peso</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="DZD">
+                        <xs:annotation>
+                            <xs:documentation>Algerian Dinar</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="EEK">
+                        <xs:annotation>
+                            <xs:documentation>Estonian Kroon (replaced by the Euro)</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="EGP">
+                        <xs:annotation>
+                            <xs:documentation>Egyptian Pound</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="ERN">
+                        <xs:annotation>
+                            <xs:documentation>Eritrean Nakfa</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="ETB">
+                        <xs:annotation>
+                            <xs:documentation>Ethopian Birr</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="EUR">
+                        <xs:annotation>
+                            <xs:documentation>Euro</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="FJD">
+                        <xs:annotation>
+                            <xs:documentation>Fiji Dollar</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="FKP">
+                        <xs:annotation>
+                            <xs:documentation>Falkland Islands Pound</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="GBP">
+                        <xs:annotation>
+                            <xs:documentation>Pound Sterling</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="GEL">
+                        <xs:annotation>
+                            <xs:documentation>Georgian Lari</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="GHS">
+                        <xs:annotation>
+                            <xs:documentation>Ghanaian Cedi</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="GIP">
+                        <xs:annotation>
+                            <xs:documentation>Gibraltar Pound</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="GMD">
+                        <xs:annotation>
+                            <xs:documentation>Gambian Dalasi</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="GNF">
+                        <xs:annotation>
+                            <xs:documentation>Guinea Franc</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="GTQ">
+                        <xs:annotation>
+                            <xs:documentation>Guatemalan Quetzal</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="GYD">
+                        <xs:annotation>
+                            <xs:documentation>Guyana Dollar</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="GWP">
+                        <xs:annotation>
+                            <xs:documentation>Guinea-Bisau Peso</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="HKD">
+                        <xs:annotation>
+                            <xs:documentation>Hong Kong Dollar</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="HNL">
+                        <xs:annotation>
+                            <xs:documentation>Honduran Lempira</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="HRK">
+                        <xs:annotation>
+                            <xs:documentation>Crotian Kuna</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="HTG">
+                        <xs:annotation>
+                            <xs:documentation>Haitian Gourde</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="HUF">
+                        <xs:annotation>
+                            <xs:documentation>Hungarian Forint</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="IDR">
+                        <xs:annotation>
+                            <xs:documentation>Indonesian Rupiah</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="ILS">
+                        <xs:annotation>
+                            <xs:documentation>New Israeli Sheqel</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="INR">
+                        <xs:annotation>
+                            <xs:documentation>Indian Rupee</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="IQD">
+                        <xs:annotation>
+                            <xs:documentation>Iraqi Dinar</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="IRR">
+                        <xs:annotation>
+                            <xs:documentation>Iranian Rial</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="ISK">
+                        <xs:annotation>
+                            <xs:documentation>Iceland Krona</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="JMD">
+                        <xs:annotation>
+                            <xs:documentation>Jamaican Dollar</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="JOD">
+                        <xs:annotation>
+                            <xs:documentation>Jordanian Dinar</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="JPY">
+                        <xs:annotation>
+                            <xs:documentation>Japanese Yen</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="KES">
+                        <xs:annotation>
+                            <xs:documentation>Kenyan Shilling</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="KGS">
+                        <xs:annotation>
+                            <xs:documentation>Kyrgyzstani Som</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="KHR">
+                        <xs:annotation>
+                            <xs:documentation>Cambodian Riel</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="KMF">
+                        <xs:annotation>
+                            <xs:documentation>Comoro Franc</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="KPW">
+                        <xs:annotation>
+                            <xs:documentation>North Korean Won</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="KRW">
+                        <xs:annotation>
+                            <xs:documentation>South Korean Won</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="KWD">
+                        <xs:annotation>
+                            <xs:documentation>Kuwaiti Dinar</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="KYD">
+                        <xs:annotation>
+                            <xs:documentation>Cayman Islands Dollar</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="KZT">
+                        <xs:annotation>
+                            <xs:documentation>Kazakhstani Tenge</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="LAK">
+                        <xs:annotation>
+                            <xs:documentation>Laos Kip</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="LBP">
+                        <xs:annotation>
+                            <xs:documentation>Lebanese Pound</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="LKR">
+                        <xs:annotation>
+                            <xs:documentation>Sri Lanka Rupee</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="LRD">
+                        <xs:annotation>
+                            <xs:documentation>Liberian Dollar</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="LSL">
+                        <xs:annotation>
+                            <xs:documentation>Lesotho Loti</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="LTL">
+                        <xs:annotation>
+                            <xs:documentation>Lithuanian Litas</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="LVL">
+                        <xs:annotation>
+                            <xs:documentation>Latvian Lats</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="LYD">
+                        <xs:annotation>
+                            <xs:documentation>Libyan Dinar</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="MAD">
+                        <xs:annotation>
+                            <xs:documentation>Morrocan Dirham</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="MDL">
+                        <xs:annotation>
+                            <xs:documentation>Moldovan Leu</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="MGA">
+                        <xs:annotation>
+                            <xs:documentation>Malagasy Ariary</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="MKD">
+                        <xs:annotation>
+                            <xs:documentation>Macedonian Denar</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="MMK">
+                        <xs:annotation>
+                            <xs:documentation>Myanmar Kyat</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="MNT">
+                        <xs:annotation>
+                            <xs:documentation>Mongolian Tugrik</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="MOP">
+                        <xs:annotation>
+                            <xs:documentation>Macao Pataca</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="MRO">
+                        <xs:annotation>
+                            <xs:documentation>Mauritanian Ouguiya</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="MUR">
+                        <xs:annotation>
+                            <xs:documentation>Mauritius Rupee</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="MVR">
+                        <xs:annotation>
+                            <xs:documentation>Madivian Rufiyaa</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="MWK">
+                        <xs:annotation>
+                            <xs:documentation>Malawi Kwacha</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="MXN">
+                        <xs:annotation>
+                            <xs:documentation>Mexican Peso</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="MYR">
+                        <xs:annotation>
+                            <xs:documentation>Malaysian Ringgit</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="MZN">
+                        <xs:annotation>
+                            <xs:documentation>Mozambique Metical</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="NAD">
+                        <xs:annotation>
+                            <xs:documentation>Namibia Dollar</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="NGN">
+                        <xs:annotation>
+                            <xs:documentation>Nigerian Naira</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="NIO">
+                        <xs:annotation>
+                            <xs:documentation>Nicaraguan Cordoba</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="NOK">
+                        <xs:annotation>
+                            <xs:documentation>Norwegian Krone</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="NPR">
+                        <xs:annotation>
+                            <xs:documentation>Nepalese Rupee</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="NZD">
+                        <xs:annotation>
+                            <xs:documentation>New Zealand Dollar</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="OMR">
+                        <xs:annotation>
+                            <xs:documentation>Omani Rial</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="PAB">
+                        <xs:annotation>
+                            <xs:documentation>Panamanian Balboa</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="PEN">
+                        <xs:annotation>
+                            <xs:documentation>Peruvian Nuevo Sol</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="PGK">
+                        <xs:annotation>
+                            <xs:documentation>Papua New Guinea Kina</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="PHP">
+                        <xs:annotation>
+                            <xs:documentation>Philippine Peso</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="PKR">
+                        <xs:annotation>
+                            <xs:documentation>Pakistan Rupee</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="PLN">
+                        <xs:annotation>
+                            <xs:documentation>Polish Zloty</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="PYG">
+                        <xs:annotation>
+                            <xs:documentation>Paraguayan Guarani</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="QAR">
+                        <xs:annotation>
+                            <xs:documentation>Qatari Rial</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="RON">
+                        <xs:annotation>
+                            <xs:documentation>Romanian New Leu</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="RSD">
+                        <xs:annotation>
+                            <xs:documentation>Serbian Dinar</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="RUB">
+                        <xs:annotation>
+                            <xs:documentation>Russian Ruble</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="RWF">
+                        <xs:annotation>
+                            <xs:documentation>Rwanda Franc</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="SAR">
+                        <xs:annotation>
+                            <xs:documentation>Saudi Riyal</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="SBD">
+                        <xs:annotation>
+                            <xs:documentation>Solomon Islands Dollar</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="SCR">
+                        <xs:annotation>
+                            <xs:documentation>Seychelles Rupee</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="SDG">
+                        <xs:annotation>
+                            <xs:documentation>Sudanese Pound</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="SEK">
+                        <xs:annotation>
+                            <xs:documentation>Swedish Krona</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="SGD">
+                        <xs:annotation>
+                            <xs:documentation>Singapore Dollar</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="SHP">
+                        <xs:annotation>
+                            <xs:documentation>St. Helena Pound</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="SKK">
+                        <xs:annotation>
+                            <xs:documentation>Slovak Koruna</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="SLL">
+                        <xs:annotation>
+                            <xs:documentation>Sierra Leone Leone</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="SOS">
+                        <xs:annotation>
+                            <xs:documentation>Somali Shilling</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="SRD">
+                        <xs:annotation>
+                            <xs:documentation>Suriname Dollar</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="STD">
+                        <xs:annotation>
+                            <xs:documentation>São Tomé and Príncipe Dobra</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="SVC">
+                        <xs:annotation>
+                            <xs:documentation>El Salvador Colon</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="SYP">
+                        <xs:annotation>
+                            <xs:documentation>Syrian Pound</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="SZL">
+                        <xs:annotation>
+                            <xs:documentation>Swazi Lilangeni</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="THB">
+                        <xs:annotation>
+                            <xs:documentation>Tibetan Baht</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="TJS">
+                        <xs:annotation>
+                            <xs:documentation>Tajikistan Somoni</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="TMM">
+                        <xs:annotation>
+                            <xs:documentation>Turkmenistan Manat</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="TND">
+                        <xs:annotation>
+                            <xs:documentation>Tunisian Dinar</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="TOP">
+                        <xs:annotation>
+                            <xs:documentation>Tongan Pa'anga</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="TRY">
+                        <xs:annotation>
+                            <xs:documentation>New Turkish Lira</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="TTD">
+                        <xs:annotation>
+                            <xs:documentation>Trinidad and Tobago Dollar</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="TWD">
+                        <xs:annotation>
+                            <xs:documentation>New Taiwan Dollar</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="TZS">
+                        <xs:annotation>
+                            <xs:documentation>Tanzanian Shilling</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="UAH">
+                        <xs:annotation>
+                            <xs:documentation>Ukranian Hryvnia</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="UGX">
+                        <xs:annotation>
+                            <xs:documentation>Uganda Shilling</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="USD">
+                        <xs:annotation>
+                            <xs:documentation>US Dollar</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="UYU">
+                        <xs:annotation>
+                            <xs:documentation>Uruguayan Peso</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="UZS">
+                        <xs:annotation>
+                            <xs:documentation>Uzbekistan Sum</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="VEF">
+                        <xs:annotation>
+                            <xs:documentation>Venezuelan Bolivar Fuerte</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="VND">
+                        <xs:annotation>
+                            <xs:documentation>Vietnamese Dong</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="VUV">
+                        <xs:annotation>
+                            <xs:documentation>Vanuatu Vatu</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="WST">
+                        <xs:annotation>
+                            <xs:documentation>Samoan Tala</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="XAF">
+                        <xs:annotation>
+                            <xs:documentation>CFA Franc</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="XAG">
+                        <xs:annotation>
+                            <xs:documentation>Silver</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="XAU">
+                        <xs:annotation>
+                            <xs:documentation>Gold</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="XCD">
+                        <xs:annotation>
+                            <xs:documentation>East Carribean Dollar</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="XDR">
+                        <xs:annotation>
+                            <xs:documentation>SDR</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="XOF">
+                        <xs:annotation>
+                            <xs:documentation>CFA Franc</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="XPD">
+                        <xs:annotation>
+                            <xs:documentation>Palladium</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="XPF">
+                        <xs:annotation>
+                            <xs:documentation>CFP Franc</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="XPT">
+                        <xs:annotation>
+                            <xs:documentation>Platinum</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="YER">
+                        <xs:annotation>
+                            <xs:documentation>Yemeni Rial</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="ZAR">
+                        <xs:annotation>
+                            <xs:documentation>South African Rand</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="ZMK">
+                        <xs:annotation>
+                            <xs:documentation>Zambian Kwacha</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                    <xs:enumeration value="ZWR">
+                        <xs:annotation>
+                            <xs:documentation>Zimbabwe Dollar</xs:documentation>
+                        </xs:annotation>
+                    </xs:enumeration>
+                </xs:restriction>
+            </xs:simpleType>
+            <xs:element name="fee" type="moneyType"/>
+            <xs:element name="arenaMember" type="xs:string"/>
+            <xs:element name="password" type="xs:string"/>
+            <xs:element name="patronId" type="xs:string"/>
+            <xs:element name="reservationSource">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="catalogueRecordDetail"/>
+                        <xs:enumeration value="holdings"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="reservationType">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="normal"/>
+                        <xs:enumeration value="regional"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="serviceType">
+                <xs:simpleType>
+                    <xs:restriction base="xs:string">
+                        <xs:enumeration value="unknown"/>
+                        <xs:enumeration value="dueDateAlert"/>
+                        <xs:enumeration value="libraryMessage"/>
+                        <xs:enumeration value="overdueNotice"/>
+                        <xs:enumeration value="pickUpNotice"/>
+                    </xs:restriction>
+                </xs:simpleType>
+            </xs:element>
+            <xs:element name="user" type="xs:string"/>
+            <xs:attribute name="enable" type="simpleOptionType"/>
+            <xs:element name="isActive" type="simpleOptionType"/>
+            <xs:element name="isAddable" type="simpleOptionType"/>
+            <xs:element name="isDeletable" type="simpleOptionType"/>
+            <xs:element name="isEditable" type="simpleOptionType"/>
+            <xs:element name="isValid" type="simpleOptionType"/>
+            <xs:simpleType name="simpleOptionType">
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="no"/>
+                    <xs:enumeration value="yes"/>
+                </xs:restriction>
+            </xs:simpleType>
+            <xs:simpleType name="mediaClassType">
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="article"/>
+                    <xs:enumeration value="book"/>
+                    <xs:enumeration value="cassette"/>
+                    <xs:enumeration value="cd"/>
+                    <xs:enumeration value="cdBook"/>
+                    <xs:enumeration value="cdAndBook"/>
+                    <xs:enumeration value="daisy"/>
+                    <xs:enumeration value="data"/>
+                    <xs:enumeration value="document"/>
+                    <xs:enumeration value="dvd"/>
+                    <xs:enumeration value="eBook"/>
+                    <xs:enumeration value="eMusic"/>
+                    <xs:enumeration value="ePeriodical"/>
+                    <xs:enumeration value="internet"/>
+                    <xs:enumeration value="map"/>
+                    <xs:enumeration value="microFilm"/>
+                    <xs:enumeration value="music"/>
+                    <xs:enumeration value="newspaper"/>
+                    <xs:enumeration value="otherMaterial"/>
+                    <xs:enumeration value="periodical"/>
+                    <xs:enumeration value="picture"/>
+                    <xs:enumeration value="sheetMusic"/>
+                    <xs:enumeration value="talkingBook"/>
+                    <xs:enumeration value="video"/>
+                    <xs:enumeration value="videoGame"/>
+                    <xs:enumeration value="vinyl"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:schema><xs:schema elementFormDefault="qualified" targetNamespace="http://axiell.com/arena/services/palma/util/debt" xmlns="http://axiell.com/arena/services/palma/util/debt" xmlns:util="http://axiell.com/arena/services/palma/util" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+        <xs:import namespace="http://axiell.com/arena/services/palma/util"/>
+        <xs:element name="debt">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element ref="id"/>
+                    <xs:element ref="debtDate"/>
+                    <xs:element ref="debtType"/>
+                    <xs:element ref="debtAmount"/>
+                    <xs:element ref="debtAmountFormatted"/>
+                    <xs:element minOccurs="0" ref="debtNote"/>
+                    <xs:element ref="organisation"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+        <xs:element name="id" type="xs:string"/>
+        <xs:element name="debtDate" type="xs:date"/>
+        <xs:element name="debtType" type="xs:string"/>
+        <xs:element name="debtAmount" type="xs:string"/>
+        <xs:element name="debtAmountFormatted" type="xs:string"/>
+        <xs:element name="debtNote" type="xs:string"/>
+        <xs:element name="organisation" type="xs:string"/>
+    </xs:schema><xs:schema elementFormDefault="qualified" targetNamespace="http://axiell.com/arena/services/palma/util/payment" xmlns="http://axiell.com/arena/services/palma/util/payment" xmlns:debt="http://axiell.com/arena/services/palma/util/debt" xmlns:util="http://axiell.com/arena/services/palma/util" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+        <xs:import namespace="http://axiell.com/arena/services/palma/util/debt"/>
+        <xs:import namespace="http://axiell.com/arena/services/palma/util"/>
+        <xs:element name="payment">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element ref="id"/>
+                    <xs:element ref="debt:debtType"/>
+                    <xs:element ref="paymentAmount"/>
+                    <xs:element ref="paymentDate"/>
+                    <xs:element minOccurs="0" ref="paymentPlace"/>
+                    <xs:element ref="paymentType"/>
+                    <xs:element minOccurs="0" ref="transactionNumber"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+        <xs:element name="id" type="xs:string"/>
+        <xs:element name="organisation" type="xs:string"/>
+        <xs:element name="paymentAmount" type="xs:string"/>
+        <xs:element name="paymentDate" type="xs:date"/>
+        <xs:element name="paymentPlace" type="xs:string"/>
+        <xs:element name="paymentType" type="xs:string"/>
+        <xs:element name="transactionNumber" type="xs:string"/>
+    </xs:schema><xs:schema elementFormDefault="qualified" targetNamespace="http://axiell.com/arena/services/palma/patron/addPaymentRequest" xmlns="http://axiell.com/arena/services/palma/patron/addPaymentRequest" xmlns:debt="http://axiell.com/arena/services/palma/util/debt" xmlns:payment="http://axiell.com/arena/services/palma/util/payment" xmlns:util="http://axiell.com/arena/services/palma/util" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+        <xs:import namespace="http://axiell.com/arena/services/palma/util/debt"/>
+        <xs:import namespace="http://axiell.com/arena/services/palma/util/payment"/>
+        <xs:import namespace="http://axiell.com/arena/services/palma/util"/>
+        <xs:element name="PalmaMessage">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element ref="addPaymentRequest"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+        <xs:element name="addPaymentRequest">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element ref="util:arenaMember"/>
+                    <xs:element ref="payment:transactionNumber"/>
+                    <xs:element ref="orderId"/>
+                    <xs:element ref="payment:paymentAmount"/>
+                    <xs:element ref="debts"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+        <xs:element name="orderId" type="xs:string"/>
+        <xs:element name="debts">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element ref="debt:id"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+    </xs:schema><xs:schema elementFormDefault="qualified" targetNamespace="http://axiell.com/arena/services/palma/util/cr" xmlns="http://axiell.com/arena/services/palma/util/cr" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+        <xs:element name="catalogueRecord">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element ref="arenaKey"/>
+                    <xs:element ref="id"/>
+                    <xs:element minOccurs="0" ref="author"/>
+                    <xs:element minOccurs="0" ref="availability"/>
+                    <xs:element minOccurs="0" ref="category"/>
+                    <xs:element minOccurs="0" ref="classificationCodes"/>
+                    <xs:element minOccurs="0" ref="contentTypes"/>
+                    <xs:element minOccurs="0" ref="cover"/>
+                    <xs:element minOccurs="0" ref="descriptions"/>
+                    <xs:element minOccurs="0" ref="edition"/>
+                    <xs:element minOccurs="0" ref="externalUrls"/>
+                    <xs:element minOccurs="0" ref="isbns"/>
+                    <xs:element minOccurs="0" ref="issns"/>
+                    <xs:element minOccurs="0" ref="languages"/>
+                    <xs:element minOccurs="0" ref="languageOriginal"/>
+                    <xs:element minOccurs="0" ref="mediaClass"/>
+                    <xs:element minOccurs="0" ref="mediaClassIcon"/>
+                    <xs:element minOccurs="0" ref="numbers"/>
+                    <xs:element minOccurs="0" ref="publicationYear"/>
+                    <xs:element minOccurs="0" ref="publisher"/>
+                    <xs:element minOccurs="0" ref="ratings"/>
+                    <xs:element minOccurs="0" ref="ratingAverage"/>
+                    <xs:element minOccurs="0" ref="recordSorting"/>
+                    <xs:element minOccurs="0" ref="resourceType"/>
+                    <xs:element minOccurs="0" ref="reviews"/>
+                    <xs:element minOccurs="0" ref="shelfMark"/>
+                    <xs:element minOccurs="0" ref="subjects"/>
+                    <xs:element minOccurs="0" ref="targetAudience"/>
+                    <xs:element minOccurs="0" ref="title"/>
+                    <xs:element minOccurs="0" ref="titleSeries"/>
+                    <xs:element minOccurs="0" ref="partOf"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+        <xs:element name="arenaKey" type="xs:string"/>
+        <xs:element name="id" type="xs:string"/>
+        <xs:element name="author" type="xs:string"/>
+        <xs:element name="availability" type="xs:boolean"/>
+        <xs:element name="category" type="xs:string"/>
+        <xs:element name="classificationCode" type="xs:string"/>
+        <xs:element name="classificationCodes">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" ref="classificationCode"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+        <xs:element name="contentType" type="xs:string"/>
+        <xs:element name="contentTypes">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" ref="contentType"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+        <xs:element name="cover" type="xs:base64Binary"/>
+        <xs:element name="description" type="xs:string"/>
+        <xs:element name="descriptions">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" ref="description"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+        <xs:element name="edition" type="xs:string"/>
+        <xs:element name="externalUrl" type="xs:string"/>
+        <xs:element name="externalUrls">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" ref="externalUrl"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+        <xs:element name="isbn" type="xs:string"/>
+        <xs:element name="isbns">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" ref="isbn"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+        <xs:element name="issn" type="xs:string"/>
+        <xs:element name="issns">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" ref="issn"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+        <xs:element name="language">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element name="code" type="xs:string"/>
+                    <xs:element name="name" type="xs:string"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+        <xs:element name="languages">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" ref="language"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+        <xs:element name="languageOriginal" type="xs:string"/>
+        <xs:element name="mediaClass" type="xs:string"/>
+        <xs:element name="mediaClassIcon">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="article"/>
+                    <xs:enumeration value="book"/>
+                    <xs:enumeration value="cassette"/>
+                    <xs:enumeration value="cd"/>
+                    <xs:enumeration value="cdBook"/>
+                    <xs:enumeration value="cdAndBook"/>
+                    <xs:enumeration value="daisy"/>
+                    <xs:enumeration value="data"/>
+                    <xs:enumeration value="document"/>
+                    <xs:enumeration value="dvd"/>
+                    <xs:enumeration value="eBook"/>
+                    <xs:enumeration value="eMusic"/>
+                    <xs:enumeration value="ePeriodical"/>
+                    <xs:enumeration value="internet"/>
+                    <xs:enumeration value="map"/>
+                    <xs:enumeration value="microFilm"/>
+                    <xs:enumeration value="music"/>
+                    <xs:enumeration value="newspaper"/>
+                    <xs:enumeration value="otherMaterial"/>
+                    <xs:enumeration value="periodical"/>
+                    <xs:enumeration value="picture"/>
+                    <xs:enumeration value="sheetMusic"/>
+                    <xs:enumeration value="talkingBook"/>
+                    <xs:enumeration value="video"/>
+                    <xs:enumeration value="videoGame"/>
+                    <xs:enumeration value="vinyl"/>
+
+                    <xs:enumeration value="artefact"/>
+                    <xs:enumeration value="audioBook"/>
+                    <xs:enumeration value="bibliography"/>
+                    <xs:enumeration value="blueray"/>
+                    <xs:enumeration value="braille"/>
+                    <xs:enumeration value="brailleAndText"/>
+                    <xs:enumeration value="cdRom"/>
+                    <xs:enumeration value="digitalAudioFile"/>
+                    <xs:enumeration value="dissertation"/>
+                    <xs:enumeration value="dvdRom"/>
+                    <xs:enumeration value="dvdVideo"/>
+                    <xs:enumeration value="eAudio"/>
+                    <xs:enumeration value="eBraille"/>
+                    <xs:enumeration value="electronicMaterial"/>
+                    <xs:enumeration value="game"/>
+                    <xs:enumeration value="giantPrint"/>
+                    <xs:enumeration value="hardback"/>
+                    <xs:enumeration value="largePrint"/>
+                    <xs:enumeration value="microform"/>
+                    <xs:enumeration value="mixedMedia"/>
+                    <xs:enumeration value="moonAlphabet"/>
+                    <xs:enumeration value="paperback"/>
+                    <xs:enumeration value="photograph"/>
+                    <xs:enumeration value="printedMusic"/>
+                    <xs:enumeration value="score"/>
+                    <xs:enumeration value="serial"/>
+                    <xs:enumeration value="soundRecording"/>
+                    <xs:enumeration value="talkingBookMp3"/>
+                    <xs:enumeration value="text"/>
+                    <xs:enumeration value="topicBox"/>
+                    <xs:enumeration value="toy"/>
+                    <xs:enumeration value="gameboyGame"/>
+                    <xs:enumeration value="psGame"/>
+                    <xs:enumeration value="ps2Game"/>
+                    <xs:enumeration value="wiiGame"/>
+                    <xs:enumeration value="xboxGame"/>
+                    <xs:enumeration value="videoTape"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:element>
+        <xs:element name="number" type="xs:string"/>
+        <xs:element name="numbers">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" ref="number"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+        <xs:element name="publicationYear" type="xs:string"/>
+        <xs:element name="publisher" type="xs:string"/>
+        <xs:element name="rating">
+            <xs:complexType>
+                <xs:simpleContent>
+                    <xs:extension base="xs:string">
+                        <xs:attribute name="user" type="xs:string" use="required"/>
+                    </xs:extension>
+                </xs:simpleContent>
+            </xs:complexType>
+        </xs:element>
+        <xs:element name="ratings">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" ref="rating"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+        <xs:element name="ratingAverage" type="xs:float"/>
+        <xs:element name="recordSorting" type="xs:string"/>
+        <xs:element name="resourceType" type="xs:string"/>
+        <xs:element name="review">
+            <xs:complexType>
+                <xs:simpleContent>
+                    <xs:extension base="xs:string">
+                        <xs:attribute name="user" type="xs:string" use="required"/>
+                    </xs:extension>
+                </xs:simpleContent>
+            </xs:complexType>
+        </xs:element>
+        <xs:element name="reviews">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" ref="review"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+        <xs:element name="shelfMark" type="xs:string"/>
+        <xs:element name="subject" type="xs:string"/>
+        <xs:element name="subjects">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" minOccurs="0" ref="subject"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+        <xs:element name="targetAudience" type="xs:string"/>
+        <xs:element name="title" type="xs:string"/>
+        <xs:element name="titles">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" ref="title"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+        <xs:element name="titleSeries" type="xs:string"/>
+        <xs:element name="partOf" type="xs:string"/>
+    </xs:schema><xs:schema elementFormDefault="qualified" targetNamespace="http://axiell.com/arena/services/palma/util/reservation" xmlns="http://axiell.com/arena/services/palma/util/reservation" xmlns:cr="http://axiell.com/arena/services/palma/util/cr" xmlns:util="http://axiell.com/arena/services/palma/util" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+        <xs:import namespace="http://axiell.com/arena/services/palma/util/cr"/>
+        <xs:import namespace="http://axiell.com/arena/services/palma/util"/>
+        <xs:element name="reservation">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element ref="cr:catalogueRecord"/>
+                    <xs:element ref="createDate"/>
+                    <xs:element minOccurs="0" ref="group"/>
+                    <xs:element minOccurs="0" ref="groupSequenceNo"/>
+                    <xs:element ref="id"/>
+                    <xs:element ref="isEditable"/>
+                    <xs:element ref="organisation"/>
+                    <xs:element ref="pickUpBranch"/>
+                    <xs:element minOccurs="0" ref="pickUpExpireDate"/>
+                    <xs:element minOccurs="0" ref="pickUpNo"/>
+                    <xs:element minOccurs="0" ref="queueNo"/>
+                    <xs:element minOccurs="0" ref="reservationStatus"/>
+                    <xs:element minOccurs="0" ref="status"/>
+                    <xs:element ref="validFromDate"/>
+                    <xs:element ref="validToDate"/>
+                    <xs:element ref="pool"/>
+                    <xs:element ref="note"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+        <xs:element name="id" type="xs:string"/>
+        <xs:element name="createDate" type="xs:date"/>
+        <xs:element name="group" type="xs:string"/>
+        <xs:element name="groupSequenceNo" type="xs:string"/>
+        <xs:element name="isEditable" type="util:simpleOptionType"/>
+        <xs:element name="organisation" type="xs:string"/>
+        <xs:element name="pickUpBranch" type="xs:string"/>
+        <xs:element name="pickUpExpireDate" type="xs:date"/>
+        <xs:element name="pickUpNo" type="xs:string"/>
+        <xs:element name="queueNo" type="xs:string"/>
+        <xs:element name="reservationStatus">
+            <xs:simpleType>
+                <xs:restriction base="xs:string">
+                    <xs:enumeration value="active"/>
+                    <xs:enumeration value="expired"/>
+                    <xs:enumeration value="fetchable"/>
+                    <xs:enumeration value="inTransit"/>
+                    <xs:enumeration value="inactive"/>
+                    <xs:enumeration value="loaned"/>
+                    <xs:enumeration value="pickUpExpired"/>
+                </xs:restriction>
+            </xs:simpleType>
+        </xs:element>
+        <xs:element name="status">
+            <xs:complexType>
+                <xs:attribute name="value" use="required">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="reservationOk"/>
+                            <xs:enumeration value="reservationNotOk"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:attribute>
+                <xs:attribute name="key" use="optional">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="reservationDenied"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:attribute>
+            </xs:complexType>
+        </xs:element>
+        <xs:element name="validFromDate" type="xs:date"/>
+        <xs:element name="validToDate" type="xs:date"/>
+        <xs:element name="pool" type="xs:string"/>
+        <xs:element name="note" type="xs:string"/>
+    </xs:schema><xs:schema elementFormDefault="qualified" targetNamespace="http://axiell.com/arena/services/palma/util/status" xmlns="http://axiell.com/arena/services/palma/util/status" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+        <xs:element name="status">
+            <xs:complexType>
+                <xs:attribute name="type" use="required">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="error"/>
+                            <xs:enumeration value="ok"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:attribute>
+                <xs:attribute name="message" use="optional">
+                    <xs:simpleType>
+                        <xs:restriction base="xs:string">
+                            <xs:enumeration value="CentralServiceFeaturesNotEnabled"/>
+                            <xs:enumeration value="BackendError"/>
+                            <xs:enumeration value="AgencyCredentialsNotFound"/>
+                            <xs:enumeration value="AgencyNotFound"/>
+                            <xs:enumeration value="ArenaMemberNotFound"/>
+                            <xs:enumeration value="ReservationDenied"/>
+                            <xs:enumeration value="InstallationNotFound"/>
+                            <xs:enumeration value="DecoratorError"/>
+                            <xs:enumeration value="InvalidSearchQuery"/>
+                            <xs:enumeration value="CatalogueRecordNotFound"/>
+                            <xs:enumeration value="RatingNotFound"/>
+                            <xs:enumeration value="InvalidDateFormat"/>
+                            <xs:enumeration value="ReservationsNotFound"/>
+                            <xs:enumeration value="LoanNotFound"/>
+                            <xs:enumeration value="InvalidLogin"/>
+                            <xs:enumeration value="UserNotFound"/>
+                            <xs:enumeration value="Error"/>
+                            <xs:enumeration value="PortalSiteNotFound"/>
+                            <xs:enumeration value="RecordNotFound"/>
+                            <xs:enumeration value="ItemNotFound"/>
+                            <xs:enumeration value="CheckoutDenied"/>
+                        </xs:restriction>
+                    </xs:simpleType>
+                </xs:attribute>
+            </xs:complexType>
+        </xs:element>
+    </xs:schema><xs:schema elementFormDefault="qualified" targetNamespace="http://axiell.com/arena/services/palma/patron/addPaymentResponse" xmlns="http://axiell.com/arena/services/palma/patron/addPaymentResponse" xmlns:status="http://axiell.com/arena/services/palma/util/status" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+        <xs:import namespace="http://axiell.com/arena/services/palma/util/reservation"/>
+        <xs:import namespace="http://axiell.com/arena/services/palma/util/status"/>
+        <xs:element name="PalmaMessage">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element ref="addPaymentResponse"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+        <xs:element name="addPaymentResponse">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element ref="status:status"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+    </xs:schema><xs:schema elementFormDefault="qualified" targetNamespace="http://axiell.com/arena/services/palma/patron/paymentsRequest" xmlns="http://axiell.com/arena/services/palma/patron/paymentsRequest" xmlns:util="http://axiell.com/arena/services/palma/util" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+        <xs:import namespace="http://axiell.com/arena/services/palma/util"/>
+        <xs:element name="PalmaMessage">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element ref="paymentsRequest"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+        <xs:element name="paymentsRequest">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element ref="util:arenaMember"/>
+                    <xs:element minOccurs="0" ref="util:user"/>
+                    <xs:element minOccurs="0" ref="util:password"/>
+                    <xs:element minOccurs="0" ref="util:patronId"/>
+                    <xs:element ref="util:language"/>
+                    <xs:element minOccurs="0" ref="fromDate"/>
+                    <xs:element minOccurs="0" ref="toDate"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+        <xs:element name="fromDate" type="xs:date"/>
+        <xs:element name="toDate" type="xs:date"/>
+    </xs:schema><xs:schema elementFormDefault="qualified" targetNamespace="http://axiell.com/arena/services/palma/patron/paymentsResponse" xmlns="http://axiell.com/arena/services/palma/patron/paymentsResponse" xmlns:payment="http://axiell.com/arena/services/palma/util/payment" xmlns:status="http://axiell.com/arena/services/palma/util/status" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+        <xs:import namespace="http://axiell.com/arena/services/palma/util/payment"/>
+        <xs:import namespace="http://axiell.com/arena/services/palma/util/status"/>
+        <xs:element name="PalmaMessage">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element ref="paymentsResponse"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+        <xs:element name="paymentsResponse">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element ref="status:status"/>
+                    <xs:element ref="payments"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+        <xs:element name="payments">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" ref="payment:payment"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+    </xs:schema><xs:schema elementFormDefault="qualified" targetNamespace="http://axiell.com/arena/services/palma/patron/debtsRequest" xmlns="http://axiell.com/arena/services/palma/patron/debtsRequest" xmlns:util="http://axiell.com/arena/services/palma/util" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+        <xs:import namespace="http://axiell.com/arena/services/palma/util"/>
+        <xs:element name="PalmaMessage">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element ref="debtsRequest"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+        <xs:element name="debtsRequest">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element ref="util:arenaMember"/>
+                    <xs:element minOccurs="0" ref="util:user"/>
+                    <xs:element minOccurs="0" ref="util:password"/>
+                    <xs:element minOccurs="0" ref="util:patronId"/>
+                    <xs:element ref="util:language"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+    </xs:schema><xs:schema elementFormDefault="qualified" targetNamespace="http://axiell.com/arena/services/palma/patron/debtsResponse" xmlns="http://axiell.com/arena/services/palma/patron/debtsResponse" xmlns:debt="http://axiell.com/arena/services/palma/util/debt" xmlns:status="http://axiell.com/arena/services/palma/util/status" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema">
+        <xs:import namespace="http://axiell.com/arena/services/palma/util/debt"/>
+        <xs:import namespace="http://axiell.com/arena/services/palma/util/status"/>
+        <xs:element name="PalmaMessage">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element ref="debtsResponse"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+        <xs:element name="debtsResponse">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element ref="status:status"/>
+                    <xs:element ref="debts"/>
+                </xs:sequence>
+            </xs:complexType>
+        </xs:element>
+        <xs:element name="debts">
+            <xs:complexType>
+                <xs:sequence>
+                    <xs:element maxOccurs="unbounded" ref="debt:debt"/>
+                </xs:sequence>
+                <xs:attribute name="totalDebtAmountFormatted"/>
+            </xs:complexType>
+        </xs:element>
+    </xs:schema><xsd:schema attributeFormDefault="qualified" elementFormDefault="qualified" targetNamespace="http://payments.palma.services.arena.axiell.com/" xmlns:ns0="http://axiell.com/arena/services/palma/patron/addPaymentRequest" xmlns:ns1="http://axiell.com/arena/services/palma/patron/addPaymentResponse" xmlns:ns2="http://axiell.com/arena/services/palma/patron/paymentsRequest" xmlns:ns3="http://axiell.com/arena/services/palma/patron/paymentsResponse" xmlns:ns4="http://axiell.com/arena/services/palma/patron/debtsRequest" xmlns:ns5="http://axiell.com/arena/services/palma/patron/debtsResponse" xmlns:tns="http://payments.palma.services.arena.axiell.com/" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+        <xsd:import namespace="http://axiell.com/arena/services/palma/patron/addPaymentRequest"/>
+        <xsd:import namespace="http://axiell.com/arena/services/palma/patron/addPaymentResponse"/>
+        <xsd:import namespace="http://axiell.com/arena/services/palma/patron/paymentsRequest"/>
+        <xsd:import namespace="http://axiell.com/arena/services/palma/patron/paymentsResponse"/>
+        <xsd:import namespace="http://axiell.com/arena/services/palma/patron/debtsRequest"/>
+        <xsd:import namespace="http://axiell.com/arena/services/palma/patron/debtsResponse"/>
+        <xsd:element name="AddPayment" type="tns:AddPayment"/>
+        <xsd:complexType name="AddPayment">
+            <xsd:sequence>
+                <xsd:element minOccurs="0" ref="ns0:addPaymentRequest"/>
+            </xsd:sequence>
+        </xsd:complexType>
+        <xsd:element name="AddPaymentResponse" type="tns:AddPaymentResponse"/>
+        <xsd:complexType name="AddPaymentResponse">
+            <xsd:sequence>
+                <xsd:element minOccurs="0" ref="ns1:addPaymentResponse"/>
+            </xsd:sequence>
+        </xsd:complexType>
+        <xsd:element name="GetPayments" type="tns:GetPayments"/>
+        <xsd:complexType name="GetPayments">
+            <xsd:sequence>
+                <xsd:element minOccurs="0" ref="ns2:paymentsRequest"/>
+            </xsd:sequence>
+        </xsd:complexType>
+        <xsd:element name="GetPaymentsResponse" type="tns:GetPaymentsResponse"/>
+        <xsd:complexType name="GetPaymentsResponse">
+            <xsd:sequence>
+                <xsd:element minOccurs="0" ref="ns3:paymentsResponse"/>
+            </xsd:sequence>
+        </xsd:complexType>
+        <xsd:element name="GetDebts" type="tns:GetDebts"/>
+        <xsd:complexType name="GetDebts">
+            <xsd:sequence>
+                <xsd:element minOccurs="0" ref="ns4:debtsRequest"/>
+            </xsd:sequence>
+        </xsd:complexType>
+        <xsd:element name="GetDebtsResponse" type="tns:GetDebtsResponse"/>
+        <xsd:complexType name="GetDebtsResponse">
+            <xsd:sequence>
+                <xsd:element minOccurs="0" ref="ns5:debtsResponse"/>
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:schema>  </wsdl:types>
+    <wsdl:message name="GetDebts">
+        <wsdl:part element="tns:GetDebts" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetPaymentsResponse">
+        <wsdl:part element="tns:GetPaymentsResponse" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="AddPaymentResponse">
+        <wsdl:part element="tns:AddPaymentResponse" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="AddPayment">
+        <wsdl:part element="tns:AddPayment" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetDebtsResponse">
+        <wsdl:part element="tns:GetDebtsResponse" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:message name="GetPayments">
+        <wsdl:part element="tns:GetPayments" name="parameters">
+        </wsdl:part>
+    </wsdl:message>
+    <wsdl:portType name="payments">
+        <wsdl:operation name="AddPayment">
+            <wsdl:input message="tns:AddPayment" name="AddPayment">
+            </wsdl:input>
+            <wsdl:output message="tns:AddPaymentResponse" name="AddPaymentResponse">
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="GetPayments">
+            <wsdl:input message="tns:GetPayments" name="GetPayments">
+            </wsdl:input>
+            <wsdl:output message="tns:GetPaymentsResponse" name="GetPaymentsResponse">
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="GetDebts">
+            <wsdl:input message="tns:GetDebts" name="GetDebts">
+            </wsdl:input>
+            <wsdl:output message="tns:GetDebtsResponse" name="GetDebtsResponse">
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:portType>
+    <wsdl:binding name="PaymentsPalmaServiceSoapBinding" type="tns:payments">
+        <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+        <wsdl:operation name="AddPayment">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="AddPayment">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="AddPaymentResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="GetPayments">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="GetPayments">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="GetPaymentsResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+        <wsdl:operation name="GetDebts">
+            <soap:operation soapAction="" style="document"/>
+            <wsdl:input name="GetDebts">
+                <soap:body use="literal"/>
+            </wsdl:input>
+            <wsdl:output name="GetDebtsResponse">
+                <soap:body use="literal"/>
+            </wsdl:output>
+        </wsdl:operation>
+    </wsdl:binding>
+    <wsdl:service name="PaymentsPalmaService">
+        <wsdl:port binding="tns:PaymentsPalmaServiceSoapBinding" name="payments">
+            <soap:address location="https://ndl.verkkokirjasto.fi/arena.pa.palma/payments"/>
+        </wsdl:port>
+    </wsdl:service>
+</wsdl:definitions>

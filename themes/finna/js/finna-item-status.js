@@ -39,8 +39,12 @@ finna.itemStatus = (function() {
               details.removeClass('hidden');
               finna.layout.initTruncate(details);
 
-              details.find('.header').click(function () {
-                 $(this).parent().find('.locations').toggleClass('collapsed');
+              details.find('.holdings-container.collapsible > .header').click(function () {
+                 $(this).next('.holdings').toggleClass('collapsed');
+                  $(this).find('.fa.arrow:first')
+                      .removeClass('fa-arrow-right fa-arrow-down')
+                      .addClass('fa-arrow-' + ($(this).next('.holdings').hasClass('collapsed') ? 'right' : 'down'));
+
                   /*
                     $(this).nextUntil('.holdings-container-heading').toggleClass('collapsed');
                     if ($('.location .fa', this).hasClass('fa-arrow-down')) {
