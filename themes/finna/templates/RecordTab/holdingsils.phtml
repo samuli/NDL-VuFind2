@@ -212,7 +212,7 @@ if ($holdsAllowed) {
         </td>
         <? else: ?>
         <td class="copy-title">
-          <<?=$rowNum == 0 ? $this->transEsc('Copies') : ''?>
+          <?=$rowNum == 0 ? $this->transEsc('Copies') : ''?>
           <? // $row['number'] contains item number, and possible enumeration in parenthesis. We only display the part in parenthesis: ?>
           <td class="copy-number"><?=preg_match('/\d+ \((.+)\)/', $row['number'], $matches) ? $this->escapeHtml($matches[1]) : $this->transEsc("Copy") ?></td>
         </td>
