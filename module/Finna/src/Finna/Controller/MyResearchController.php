@@ -148,12 +148,14 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
             }
         }
 
-        $view = parent::profileAction();
-        $profile = $view->profile;
-
         if ($this->formWasSubmitted('saveLibraryProfile')) {
             $this->processLibraryDataUpdate($profile, $values);
+            $this->flashMessenger()->setNamespace('info')
+                ->addMessage('profile_update');
         }
+
+        $view = parent::profileAction();
+        $profile = $view->profile;
 
         $parentTemplate = $view->getTemplate();
         // If returned view is not profile view, show it below our profile part.
@@ -550,11 +552,18 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
      */
     protected function processLibraryDataUpdate($profile, $values)
     {
+        // Connect to the ILS:
+        $catalog = $this->getILS();
+
         $validator = new \Zend\Validator\EmailAddress();
         if ($validator->isValid($values->profile_email)) {
-            // ToDo: Save mail
+            //Update Email
+            $result = $catalog->updateEmail($profile, $values->profile_email);
         }
-        // ToDo: Save phone $values->profile_tel
+        // Update Phone
+        $result = $catalog->updatePhone($profile, $values->profile_tel);
+
+        return result;
     }
 
     /**

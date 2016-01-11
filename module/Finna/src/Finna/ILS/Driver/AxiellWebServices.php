@@ -523,7 +523,6 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
         $succeeded = 0;
         $results = [];
 
-
         $function = 'removeReservation';
         $functionResult = 'removeReservationResult';
         $conf = [
@@ -1084,7 +1083,6 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
         return $user;
     }
 
-
     /**
      * Public Function which retrieves renew, hold and cancel settings from the
      * driver ini file.
@@ -1092,11 +1090,10 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
      * @param string $function The name of the feature to be checked
      *
      * @return array An array with key-value pairs.
-     * @access public
      */
     public function getConfig($function)
     {
-        if (isset($this->config[$function]) ) {
+        if (isset($this->config[$function])) {
             $functionConfig = $this->config[$function];
         } else {
             $functionConfig = false;
@@ -1430,7 +1427,6 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
         }
 
         $result = $this->doSOAPRequest($this->patron_wsdl, $function, $functionResult, $username, [$functionParam => $conf]);
-
 
         $statusAWS = $result->$functionResult->status;
 
