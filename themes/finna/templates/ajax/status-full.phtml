@@ -181,24 +181,21 @@ if ($this->holdingsSettings()->showSearchResultsTitleHold()) {
   $id = $this->statusItems[0]['id'];
   $driver = $this->record($id)->getDriver();
   if ($driver->tryMethod('getHoldsAllowed')) {
-    $account = $this->auth()->getManager();
-    $user = $account->isLoggedIn();
-    echo $this->partial(
-      'record/title-hold.phtml',
-       [
-         'driver' => $driver,
-         'ils' => $this->ils(),       
-         'illRequestLink' => $illRequestLink,
-         'user' => $user,
-       ]
-    );
+    $holdingTitleHold = $driver->tryMethod('getRealTimeTitleHold');
+    if (!empty($holdingTitleHold)) {
+?>
+    <div class="title-hold">
+      <a class="placehold modal-link btn btn-primary hidden-print" title="<?=$this->transEsc('request_place_text')?>" href="<?=$this->recordLink()->getRequestUrl($holdingTitleHold)?>"> <?=$this->transEsc('title_hold_place')?></a>
+    </div>
+<?
+    }
   }
 }
 ?>
-  <? if ($this->holdingsSettings()->showLinkToRecordPage()): ?>
+<? if ($this->holdingsSettings()->showLinkToRecordPage()): ?>
   <div class="all-holdings">
     <a href="<?=sprintf('%s%s/Holdings#tabnav', $this->url('record'), $this->statusItems[0]['id']);?>"><?=$this->transEsc('See all holdings')?></a>
   </div>
-  <? endif; ?>
+<? endif; ?>
 </div>
 

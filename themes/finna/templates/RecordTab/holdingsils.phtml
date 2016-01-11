@@ -46,51 +46,59 @@
 ?>
 
 <? if ($offlineMode == "ils-offline"): ?>
-  <div class="alert alert-warning">
-    <h2><?=$this->transEsc('ils_offline_title')?></h2>
-    <p><strong><?=$this->transEsc('ils_offline_status')?></strong></p>
-    <p><?=$this->transEsc('ils_offline_holdings_message')?></p>
-    <? $supportEmail = $this->escapeHtmlAttr($this->systemEmail()); ?>
-    <p><a href="mailto:<?=$supportEmail?>"><?=$supportEmail?></a></p>
-  </div>
+<div class="alert alert-warning">
+  <h2><?=$this->transEsc('ils_offline_title')?></h2>
+  <p><strong><?=$this->transEsc('ils_offline_status')?></strong></p>
+  <p><?=$this->transEsc('ils_offline_holdings_message')?></p>
+  <? $supportEmail = $this->escapeHtmlAttr($this->systemEmail()); ?>
+  <p><a href="mailto:<?=$supportEmail?>"><?=$supportEmail?></a></p>
+</div>
+<? endif; ?>
+<? if ($holdsAllowed && (($this->ils()->getHoldsMode() == 'driver' && !empty($holdings)) || $this->ils()->getTitleHoldsMode() == 'driver')): ?>
+<? if ($account->loginEnabled() && $offlineMode != 'ils-offline' && $ilsLoginAvailable): ?>
+<? if (!$user): ?>
+<div class="pull-right">
+  <a href="?login=true&amp;catalogLogin=true" class="btn btn-primary modal-link login-link" title="<?=$this->transEsc("Login")?>"><i class="fa fa-sign-in"></i> <?=$this->transEsc("Login")?></a> <?=$this->transEsc("hold_login")?>
+</div>
+<div class="clearfix"></div>
+                                                                    <? elseif (!$user->cat_username): ?>
+<div class="alert alert-info">
+  <?=$this->translate("hold_profile_html", array('%%url%%' => $this->currentPath() . '?catalogLogin=true'))?>
+</div>
+<? endif; ?>
+<? endif; ?>
 <? endif; ?>
 
-
-<?
-if ($holdsAllowed) {
-  echo $this->partial(
-     'record/title-hold-login.phtml',
-     [
-        'account' => $account,
-        'ils' => $this->ils(),
-        'user' => $user,
-        'holdings' => $holdings
-     ]
-  );
-}
-?>
 <? if (!empty($urls) || $openUrlActive): ?>
-  <h3><?=$this->transEsc("Internet")?></h3>
-  <? if (!empty($urls)): ?>
-    <? foreach ($urls as $current): ?>
-      <a href="<?=$this->escapeHtmlAttr($this->proxyUrl($current['url']))?>"><?=$this->escapeHtml($current['desc'])?></a><br/>
-    <? endforeach; ?>
-  <? endif; ?>
-  <? if ($openUrlActive): ?><?=$openUrl->renderTemplate()?><? endif; ?>
+<h3><?=$this->transEsc("Internet")?></h3>
+<? if (!empty($urls)): ?>
+<? foreach ($urls as $current): ?>
+<a href="<?=$this->escapeHtmlAttr($this->proxyUrl($current['url']))?>"><?=$this->escapeHtml($current['desc'])?></a><br/>
+<? endforeach; ?>
+<? endif; ?>
+<? if ($openUrlActive): ?><?=$openUrl->renderTemplate()?><? endif; ?>
 <? endif; ?>
 <? if ($holdsAllowed): ?>
-  <div class="place-hold-wrapper text-right hidden-print">
+<div class="place-hold-wrapper text-right hidden-print">
   <?=$this->context($this)->renderInContext('librarycards/selectcard.phtml', array('user' => $this->auth()->isLoggedIn(), 'label' => 'Library Card')); ?>
-
-  <?= $this->partial('record/title-hold.phtml', [
-    'driver' => $this->driver,
-    'ils' => $this->ils(),
-    'illRequestLink' => $illRequestLink,
-    'user' => $user
-  ]); ?> 
-  </div>
+  <? if ($illRequestLink): ?>
+  <a class="expandedCheckILLRequest modal-link placeILLRequest btn btn-primary" href="<?=$this->recordLink()->getRequestUrl($illRequestLink)?>"  title="<?=$this->transEsc("ill_request_check_text")?>"><?=$this->transEsc("ill_request_check_text")?></a>
+  <? endif; ?>
+  <? $holdingTitleHold = $this->driver->tryMethod('getRealTimeTitleHold'); if (!empty($holdingTitleHold)): ?>
+  <a class="placehold modal-link btn btn-primary hidden-print" title="<?=$this->transEsc('request_place_text')?>" href="<?=$this->recordLink()->getRequestUrl($holdingTitleHold)?>"> <?=$this->transEsc('title_hold_place')?></a>
+                                                                                        <? elseif ($user): ?>
+  <? $patron = $ilsLoginAvailable && $user->cat_username ? $this->ils()->patronLogin($user->cat_username, $user->getCatPassword()) : null; if ($patron): ?>
+  <? if ($profile = $this->ils()->getMyProfile($patron)): ?>
+  <? if (!empty($profile['blocks'])): ?>
+  <?=$this->transEsc('hold_error_blocked'); ?>
+                                                                                            <? elseif (!$illRequestLink && !$holdLinks): ?>
+  <?=$this->transEsc('title_cant_place_hold'); ?>
+  <? endif; ?>
+  <? endif; ?>
 <? endif; ?>
-
+<? endif; ?>
+</div>
+<? endif; ?>
 <table class="table record-holdings-table">
   <tr>
     <th <? if (!empty($holdings)): ?> colspan="3" <? endif; ?> class="headers">
