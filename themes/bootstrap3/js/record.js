@@ -118,7 +118,7 @@ function registerTabEvents() {
   // register the record comment form to be submitted via AJAX
   registerAjaxCommentRecord();
 
-  setUpCheckRequest();
+//  setUpCheckRequest();
 
   // Place a Hold
   // Place a Storage Hold
