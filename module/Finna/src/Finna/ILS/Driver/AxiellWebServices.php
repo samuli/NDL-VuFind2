@@ -525,16 +525,9 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
 
         $function = 'removeReservation';
         $functionResult = 'removeReservationResult';
-        $conf = [
-            'arenaMember' => $this->arenaMember,
-            'user' => $username,
-            'password' => $password,
-            'language' => 'en',
-            'id' => $details
-        ];
 
         foreach ($cancelDetails['details'] as $details) {
-            $result = $this->doSOAPRequest($this->reservations_wsdl, $function, $functionResult, $username, ['removeReservationsParam' => $conf]);
+            $result =  $this->doSOAPRequest($this->reservations_wsdl, $function, $functionResult, $username, ['removeReservationsParam' => ['arenaMember' => $this->arenaMember, 'user' => $username, 'password' => $password, 'language' => 'en', 'id' => $details]]);
 
             $statusAWS = $result->$functionResult->status;
 
