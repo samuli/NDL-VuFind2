@@ -65,6 +65,54 @@ class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
     }
 
     /**
+     * Update Phone
+     *
+     * Attempts to update patron's phone number
+     *
+     * @param array $details new phone number
+     *
+     * @return mixed An array of data on the request including
+     * whether or not it was successful and a system message (if available)
+     */
+    public function updatePhone($patron, $details)
+    {
+        $source = $this->getSource($patron['cat_username']);
+        $driver = $this->getDriver($source);
+        if ($driver
+            && $this->methodSupported($driver, 'updatePhone', [$patron, $details])
+        ) {
+            return $driver->updatePhone(
+                $this->stripIdPrefixes($patron, $source), $details
+            );
+        }
+        throw new ILSException('No suitable backend driver found');
+    }
+
+    /**
+     * Update Phone
+     *
+     * Attempts to update patron's email address
+     *
+     * @param array $details new email address
+     *
+     * @return mixed An array of data on the request including
+     * whether or not it was successful and a system message (if available)
+     */
+    public function updateEmail($patron, $details)
+    {
+        $source = $this->getSource($patron['cat_username']);
+        $driver = $this->getDriver($source);
+        if ($driver
+            && $this->methodSupported($driver, 'updateEmail', [$patron, $details])
+        ) {
+            return $driver->updateEmail(
+                $this->stripIdPrefixes($patron, $source), $details
+            );
+        }
+        throw new ILSException('No suitable backend driver found');
+    }
+
+    /**
      * Return total amount of fees that may be paid online.
      *
      * @param array $patron Patron
