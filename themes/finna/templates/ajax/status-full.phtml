@@ -28,17 +28,19 @@ if ($groupBranches) {
     }
   }
 
-  $summary = $this->statusItems[0]['summary'];
-  $itemsTotal = $summary['total'];
-  $availableTotal = $summary['available'];
-  $reservationsTotal = $summary['reservations'];
-  $locations = $summary['locations'];  
-  
   if (!empty($closestDueDateInLocation)) {
     $closestDueDate = date('j.n.Y', min(array_values($closestDueDateInLocation)));
     foreach ($closestDueDateInLocation as &$duedate) {
       $duedate = date('j.n.Y', $duedate);
     }
+  }
+
+  if (isset($this->statusItems[0]['summaryCounts'])) {
+    $summary = $this->statusItems[0]['summaryCounts'];
+    $itemsTotal = $summary['total'];
+    $availableTotal = $summary['available'];
+    $reservationsTotal = $summary['reservations'];
+    $locations = $summary['locations'];  
   }
 
   $collapseThreshold = $this->holdingsSettings()->getCollapseThreshold();
