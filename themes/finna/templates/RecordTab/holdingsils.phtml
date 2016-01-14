@@ -12,37 +12,42 @@
     $holdsAllowed = $this->driver->tryMethod('getHoldsAllowed');
 
     $illRequestLink = false;
-    $holdLinks = false;
-
+    $holdLinks = $holdLinksBranch = false;
     if ($showSummary = $this->holdingsSettings()->showRecordPageSummary()) {
-      $itemsTotal = $reservationsTotal = 0;
-    }
-    $journal = false;
+      $location = reset($holdings);
+      $item = $location['items'][0];
+      $summary = isset($item['summaryCounts']) ? $item['summaryCounts'] : null;
+      $itemsTotal
+        = isset($summary['total']) ? $summary['total'] : null;
+      $reservationsTotal
+        = isset($summary['reservations']) ? $summary['reservations'] : null;
 
+      $showSummary = $itemsTotal !== null && $reservationsTotal !== null;
+    }
+
+    $journal = false;
     foreach ($holdings as $holding) {
         foreach ($holding['items'] as $row) {
+
+            $journal = $journal || isset($row['journalInfo']);
             if (isset($row['ILLRequestLink']) && $row['ILLRequestLink']) {
                 $illRequestLink = $row['ILLRequestLink'];
             }
             if (isset($row['link']) && $row['link']) {
                 $holdLinks = true;
+                if (!$journal || !empty($row['item_id'])) {
+        //echo "link: " . $row['location'] . ", " . var_export($row['item_id'], true) . PHP_EOL;
+                    $holdLinksLocation[$row['location']] = $row['link'];
+                }
             }
-
-            if ($showSummary) {
-              if (isset($row['availabilityInfo']['total'])) {  
-                $itemsTotal += $row['availabilityInfo']['total'];
-              } else {
-                $itemsTotal++;
-              }
-              if (isset($row['availabilityInfo']['reservations'])) {
-                 $reservationsTotal
-                    = max($reservationsTotal, $row['availabilityInfo']['reservations']);
-              }
-            }
-            $journal = $journal || isset($row['journalInfo']);
         }
     }
     $ilsLoginAvailable = $this->ils()->loginAvailable();
+//echo "locations: " . var_export($holdLinksLocation, true);
+//echo "holdings: " . var_export($holdings, true);
+//echo "locations: " . var_export($holdLinksLocation, true);
+
+//die();
 ?>
 
 <? if ($offlineMode == "ils-offline"): ?>
@@ -129,6 +134,7 @@
       <th class="headers">
         <?=$this->transEsc("shelf_location"); ?>
       </th>
+      <? if ($journal): ?><th class="headers"></th><? endif ?>
     <? endif; ?>
   </tr>
 <? $holdingsGroup = 0; ?>
@@ -193,6 +199,15 @@
         <?=$this->escapeHtml($callNo)?><br />
       <? endforeach; ?>
     </th>
+    <? if ($journal): ?>
+    <th>
+      <? if ($holdsAllowed && isset($holdLinksLocation[$holding['location']])): ?>
+      <a class="expandedCheckRequest inlineblock modal-link placehold btn btn-primary hidden-print" href="<?=$this->recordLink()->getRequestUrl($holdLinksLocation[$holding['location']])?>" title="<?=$this->transEsc("request_place_text")?>"><?=$this->transEsc("request_place_text")?></a>
+      <? else: ?>
+      &nbsp;
+      <? endif ?>
+    </th>
+    <? endif; ?>
   </tr>
   <? endif; ?>
   <? foreach ($this->ils()->getHoldingsTextFieldNames() as $textField): ?>
@@ -209,6 +224,7 @@
     <? endif; ?>
   <? endforeach; ?>
   <? foreach ($holding['items'] as $rowNum => $row): ?>
+      <? var_export($row, true) ?>
     <? $check = (isset($row['check']) && $row['check'] && $holdsAllowed); ?>
     <? $checkStorageRetrievalRequest = (isset($row['checkStorageRetrievalRequest']) && $row['checkStorageRetrievalRequest']); ?>
     <? $checkILLRequest = (isset($row['checkILLRequest']) && $row['checkILLRequest']); ?>
@@ -226,7 +242,7 @@
         </td>
         <? endif; ?>
         <td class="copy-info" colspan="3">
-          <? if ($row['reserve'] == "Y"): ?>
+          <? if (isset($row['reserve']) && $row['reserve'] == "Y"): ?>
             <link property="availability" href="http://schema.org/InStoreOnly" />
             <?=$this->transEsc("On Reserve - Ask at Circulation Desk")?><br />
           <? endif; ?>
@@ -237,14 +253,16 @@
               <? /* Begin Available Items (Holds) */ ?>
               <span class="text-success"><i class="fa fa-ok"></i> <?=$this->transEsc(isset($row['availabilityInfo']['displayText']) ? 'status_' . $row['availabilityInfo']['displayText'] : 'Available')?><link property="availability" href="http://schema.org/InStock" /></span>
               <div class="pull-right">
-              <? if (isset($row['link']) && $row['link'] && $holdsAllowed): ?>
-                <a class="<?=$check ? "{$holdingsDetails}CheckRequest " : ''?>inlineblock modal-link placehold btn btn-primary hidden-print" href="<?=$this->recordLink()->getRequestUrl($row['link'])?>" title="<?=$this->transEsc($check ? "Check Hold" : "Place a Hold")?>"><?=$this->transEsc($check ? "Check Hold" : "Place a Hold")?></a>
-              <? endif; ?>
-              <? if (isset($row['storageRetrievalRequestLink']) && $row['storageRetrievalRequestLink']): ?>
-                <a class="<?=$checkStorageRetrievalRequest ? "{$holdingsDetails}CheckStorageRetrievalRequest " : ''?>inlineblock modal-link placeStorageRetrievalRequest btn btn-primary hidden-print" href="<?=$this->recordLink()->getRequestUrl($row['storageRetrievalRequestLink'])?>" title="<?=$this->transEsc($checkStorageRetrievalRequest ? "storage_retrieval_request_check_text" : "storage_retrieval_request_place_text")?>"><?=$this->transEsc($checkStorageRetrievalRequest ? "storage_retrieval_request_check_text" : "storage_retrieval_request_place_text")?></a>
-              <? endif; ?>
-              <? if (isset($row['ILLRequestLink']) && $row['ILLRequestLink']): ?>
-                <a class="<?=$checkILLRequest ? "{$holdingsDetails}CheckILLRequest " : ''?>inlineblock modal-link placeILLRequest btn btn-primary hidden-print" href="<?=$this->recordLink()->getRequestUrl($row['ILLRequestLink'])?>"  title="<?=$this->transEsc($checkILLRequest ? "ill_request_check_text" : "ill_request_place_text")?>"><?=$this->transEsc($checkILLRequest ? "ill_request_check_text" : "ill_request_place_text")?></a>
+              <? if (!$journal): ?>
+                <? if (isset($row['link']) && $row['link'] && $holdsAllowed): ?>
+                  <a class="<?=$check ? "{$holdingsDetails}CheckRequest " : ''?>inlineblock modal-link placehold btn btn-primary hidden-print" href="<?=$this->recordLink()->getRequestUrl($row['link'])?>" title="<?=$this->transEsc($check ? "Check Hold" : "Place a Hold")?>"><?=$this->transEsc($check ? "Check Hold" : "Place a Hold")?></a>
+                <? endif; ?>
+                <? if (isset($row['storageRetrievalRequestLink']) && $row['storageRetrievalRequestLink']): ?>
+                  <a class="<?=$checkStorageRetrievalRequest ? "{$holdingsDetails}CheckStorageRetrievalRequest " : ''?>inlineblock modal-link placeStorageRetrievalRequest btn btn-primary hidden-print" href="<?=$this->recordLink()->getRequestUrl($row['storageRetrievalRequestLink'])?>" title="<?=$this->transEsc($checkStorageRetrievalRequest ? "storage_retrieval_request_check_text" : "storage_retrieval_request_place_text")?>"><?=$this->transEsc($checkStorageRetrievalRequest ? "storage_retrieval_request_check_text" : "storage_retrieval_request_place_text")?></a>
+                <? endif; ?>
+                <? if (isset($row['ILLRequestLink']) && $row['ILLRequestLink']): ?>
+                  <a class="<?=$checkILLRequest ? "{$holdingsDetails}CheckILLRequest " : ''?>inlineblock modal-link placeILLRequest btn btn-primary hidden-print" href="<?=$this->recordLink()->getRequestUrl($row['ILLRequestLink'])?>"  title="<?=$this->transEsc($checkILLRequest ? "ill_request_check_text" : "ill_request_place_text")?>"><?=$this->transEsc($checkILLRequest ? "ill_request_check_text" : "ill_request_place_text")?></a>
+                <? endif; ?>
               <? endif; ?>
               </div>
             <? else: ?>
@@ -257,7 +275,7 @@
               <? if (isset($row['requests_placed']) && $row['requests_placed'] > 0): ?>
                 <span><?=$this->transEsc("Requests")?>: <?=$this->escapeHtml($row['requests_placed'])?></span>
               <? endif; ?>
-              <? if (isset($row['link']) && $row['link'] && $holdsAllowed): ?>
+              <? if (!$journal && isset($row['link']) && $row['link'] && $holdsAllowed): ?>
               <div class="pull-right">
                 <a class="<?=$check ? "{$holdingsDetails}CheckRequest " : ''?>inlineblock modal-link placehold btn btn-primary hidden-print" href="<?=$this->recordLink()->getRequestUrl($row['link'])?>"><?=$this->transEsc($check ? "Check Recall" : "Recall This")?></a>
               </div>
@@ -279,7 +297,7 @@
             <link property="itemOffered" href="#record" />
         </td>
         <? if (isset($row['availabilityInfo'])): ?>
-        <td class="copy-available">
+        <td class="copy-available"<?=$journal ? ' colspan="2"' : ''?>>
           <? if (!empty($row['availabilityInfo']['ordered'])): ?>
             <div class="ordered">
               <?=$this->translate('status_Ordered')?>: <?=$row['availabilityInfo']['ordered']?>

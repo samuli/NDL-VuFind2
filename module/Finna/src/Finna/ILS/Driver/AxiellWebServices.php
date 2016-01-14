@@ -134,6 +134,28 @@ implements TranslatorAwareInterface, \Zend\Log\LoggerAwareInterface, \VuFindHttp
     }
 
     /**
+     * Public Function which retrieves renew, hold and cancel settings from the
+     * driver ini file.
+     *
+     * @param string $function The name of the feature to be checked
+     * @param array  $params   Optional feature-specific parameters (array)
+     *
+     * @return array An array with key-value pairs.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function getConfig($function, $params = null)
+    {
+        if (isset($this->config[$function])) {
+            $functionConfig = $this->config[$function];
+        } else {
+            $functionConfig = false;
+        }
+
+        return $functionConfig;
+    }
+
+    /**
      * Get Patron Profile
      *
      * This is responsible for retrieving the profile for a specific patron.
@@ -727,18 +749,10 @@ implements TranslatorAwareInterface, \Zend\Log\LoggerAwareInterface, \VuFindHttp
             $result = $this->parseHoldings($holdings, $id, '', '');
         }
         
-        //error_log("sort: " . var_export($this->holdingsOrganisationOrder, true));
-
         // Sort Organisations
         usort($result, [$this, 'holdingsSortFunction']);
 
-        //error_log("holdings: " . var_export($result, true));
-
-        /*
-        // Sort Branches
-        foreach ($result as $key => $location) {
-            usort($result[$key]['holdings'], [$this, 'holdingsBranchSortFunction']);
-            }*/
+        $result = $this->addHoldingsSummary($result);
 
         return empty($result) ? false : $result;
     }
@@ -760,9 +774,6 @@ implements TranslatorAwareInterface, \Zend\Log\LoggerAwareInterface, \VuFindHttp
         if ($organisationHoldings[0]->type != 'organisation') {
             return;
         }
-
-
-        //error_log(var_export($organisationHoldings, true)); 
 
         $result = [];
         foreach ($organisationHoldings as $organisation) {
@@ -884,10 +895,9 @@ implements TranslatorAwareInterface, \Zend\Log\LoggerAwareInterface, \VuFindHttp
                            'branch_id' => $branchId,
                            'department' => $departmentName,
                            'duedate' => $dueDate,
-                           'is_holdable' => $holdable,
-                           'addLink' => $holdable ? 'hold' : false,
+                           'addLink' => $journalInfo,
                            'callnumber' => isset($department->shelfMark)
-                           ? ($department->shelfMark) : '',
+                              ? ($department->shelfMark) : '',
                            'is_holdable' 
                               => $branch->reservationButtonStatus == 'reservationOk',
                            'collapsed' => true
@@ -902,6 +912,48 @@ implements TranslatorAwareInterface, \Zend\Log\LoggerAwareInterface, \VuFindHttp
         }
 
         return $result;
+    }
+
+    /**
+     * Annotate holdings items with summary counts.
+     *
+     * @param array $holdings Parsed holdings items
+     *
+     * @return array Annotated holdings
+     */
+    protected function addHoldingsSummary($holdings)
+    {
+        $availableTotal = $itemsTotal = $reservationsTotal = 0;
+        $locations = [];
+        
+        foreach ($holdings as $item) {
+            if (!empty($item['availability'])) {
+                $availableTotal++;
+            }
+            if (isset($item['availabilityInfo']['total'])) {
+                $itemsTotal += $item['availabilityInfo']['total'];
+            } else {
+                $itemsTotal++;
+            }
+            
+            if (isset($item['availabilityInfo']['reservations'])) {
+                $reservations = max(
+                    $reservationsTotal, 
+                    $item['availabilityInfo']['reservations']
+                );
+            }            
+            $locations[$item['location']] = true;
+        }
+        
+        foreach ($holdings as &$item) {
+            $item['summaryCounts'] = [
+                'available' => $availableTotal,
+                'total' => $itemsTotal,
+                'reservations' => $reservations,
+                'locations' => count($locations)
+            ];
+        }
+        return $holdings;
     }
 
         /**
@@ -1756,4 +1808,5 @@ implements TranslatorAwareInterface, \Zend\Log\LoggerAwareInterface, \VuFindHttp
             }
             return is_callable([$this, $method]);
         }
+
     }
