@@ -21,11 +21,13 @@ finna.itemStatus = (function() {
        function (holder) {
            initTitleHolds(holder);
            holder.find('a.login').unbind('click').click(function() {
-              var followUp = $(this).attr('href');
-              Lightbox.addCloseAction(function() { 
-                  window.location = followUp; 
-              });
-              return Lightbox.get('MyResearch', 'UserLogin');
+               var followUp = $(this).attr('href');
+               Lightbox.addCloseAction(function() { 
+                   window.location = followUp; 
+               });
+               $('#modal .modal-title').html(VuFind.translate('login'));
+               Lightbox.titleSet = true;
+               return Lightbox.get('MyResearch', 'UserLogin');
            });
        }
     ;
@@ -48,7 +50,6 @@ finna.itemStatus = (function() {
               // Full status mode is on -- display the HTML:
               var details = item.find('.locationDetails');
               details.empty().append(result.full_status);
-              //details.wrapInner('<div class="truncate-field" data-rows="5"></div>');
               details.removeClass('hidden');
               finna.layout.initTruncate(details);
 
@@ -57,13 +58,6 @@ finna.itemStatus = (function() {
                   $(this).find('.fa.arrow:first')
                       .removeClass('fa-arrow-right fa-arrow-down')
                       .addClass('fa-arrow-' + ($(this).next('.holdings').hasClass('collapsed') ? 'right' : 'down'));
-
-                  /*
-                    $(this).nextUntil('.holdings-container-heading').toggleClass('collapsed');
-                    if ($('.location .fa', this).hasClass('fa-arrow-down')) {
-                    $('.location .fa', this).removeClass('fa-arrow-down');
-                    $('.location .fa', this).addClass('fa-arrow-right'); 
-                    }*/
               });
               statusCallback(item);
             } else if (typeof(result.missing_data) != 'undefined'
