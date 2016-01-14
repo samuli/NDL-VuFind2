@@ -13,18 +13,6 @@
 
     $illRequestLink = false;
     $holdLinks = $holdLinksBranch = false;
-    if ($showSummary = $this->holdingsSettings()->showRecordPageSummary()) {
-      $location = reset($holdings);
-      $item = $location['items'][0];
-      $summary = isset($item['summaryCounts']) ? $item['summaryCounts'] : null;
-      $itemsTotal
-        = isset($summary['total']) ? $summary['total'] : null;
-      $reservationsTotal
-        = isset($summary['reservations']) ? $summary['reservations'] : null;
-
-      $showSummary = $itemsTotal !== null && $reservationsTotal !== null;
-    }
-
     $journal = false;
     foreach ($holdings as $holding) {
         foreach ($holding['items'] as $row) {
@@ -42,6 +30,18 @@
             }
         }
     }
+    if ($showSummary = !$journal && $this->holdingsSettings()->showRecordPageSummary()) {
+      $location = reset($holdings);
+      $item = $location['items'][0];
+      $summary = isset($item['summaryCounts']) ? $item['summaryCounts'] : null;
+      $itemsTotal
+        = isset($summary['total']) ? $summary['total'] : null;
+      $reservationsTotal
+        = isset($summary['reservations']) ? $summary['reservations'] : null;
+
+      $showSummary = $itemsTotal !== null && $reservationsTotal !== null;
+    }
+
     $ilsLoginAvailable = $this->ils()->loginAvailable();
 //echo "locations: " . var_export($holdLinksLocation, true);
 //echo "holdings: " . var_export($holdings, true);
