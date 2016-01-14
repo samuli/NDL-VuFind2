@@ -144,7 +144,6 @@ $config = [
             ],
             'db_table' => [
                 'factories' => [
-                    'resource' => 'Finna\Db\Table\Factory::getResource',
                     'user' => 'Finna\Db\Table\Factory::getUser',
                 ],
                 'invokables' => [
@@ -171,6 +170,7 @@ $config = [
                 'factories' => [
                     'collectionsidefacets' => 'Finna\Recommend\Factory::getCollectionSideFacets',
                     'sidefacets' => 'Finna\Recommend\Factory::getSideFacets',
+                    'sidefacetsdeferred' => 'Finna\Recommend\Factory::getSideFacetsDeferred',
                 ],
             ],
             'resolver_driver' => [
@@ -199,6 +199,7 @@ $config = [
                 'abstract_factories' => ['Finna\Search\Results\PluginFactory'],
                 'factories' => [
                     'combined' => 'Finna\Search\Results\Factory::getCombined',
+                    'favorites' => 'Finna\Search\Results\Factory::getFavorites',
                     'metalib' => 'Finna\Search\Results\Factory::getMetaLib',
                     'solr' => 'Finna\Search\Results\Factory::getSolr',
                     'primo' => 'Finna\Search\Results\Factory::getPrimo',
