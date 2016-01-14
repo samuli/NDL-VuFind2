@@ -750,9 +750,10 @@ implements TranslatorAwareInterface, \Zend\Log\LoggerAwareInterface, \VuFindHttp
         }
         
         // Sort Organisations
-        usort($result, [$this, 'holdingsSortFunction']);
-
-        $result = $this->addHoldingsSummary($result);
+        if (!empty($result)) {
+            usort($result, [$this, 'holdingsSortFunction']);
+            $result = $this->addHoldingsSummary($result);
+        }
 
         return empty($result) ? false : $result;
     }
