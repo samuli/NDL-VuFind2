@@ -158,6 +158,7 @@ $config = [
             ],
             'ils_driver' => [
                 'factories' => [
+                    'axiellwebservices' => 'Finna\ILS\Driver\Factory::getAxiellWebServices',
                     'demo' => 'Finna\ILS\Driver\Factory::getDemo',
                     'multibackend' => 'Finna\ILS\Driver\Factory::getMultiBackend',
                     'voyager' => 'Finna\ILS\Driver\Factory::getVoyager',
