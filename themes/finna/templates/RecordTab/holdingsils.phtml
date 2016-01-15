@@ -16,7 +16,6 @@
     $journal = false;
     foreach ($holdings as $holding) {
         foreach ($holding['items'] as $row) {
-
             $journal = $journal || isset($row['journalInfo']);
             if (isset($row['ILLRequestLink']) && $row['ILLRequestLink']) {
                 $illRequestLink = $row['ILLRequestLink'];
@@ -24,7 +23,6 @@
             if (isset($row['link']) && $row['link']) {
                 $holdLinks = true;
                 if (!$journal || !empty($row['item_id'])) {
-        //echo "link: " . $row['location'] . ", " . var_export($row['item_id'], true) . PHP_EOL;
                     $holdLinksLocation[$row['location']] = $row['link'];
                 }
             }
@@ -38,17 +36,14 @@
         = isset($summary['total']) ? $summary['total'] : null;
       $reservationsTotal
         = isset($summary['reservations']) ? $summary['reservations'] : null;
-
-      $showSummary = $itemsTotal !== null && $reservationsTotal !== null;
     }
 
     $ilsLoginAvailable = $this->ils()->loginAvailable();
-//echo "locations: " . var_export($holdLinksLocation, true);
-//echo "holdings: " . var_export($holdings, true);
-//echo "locations: " . var_export($holdLinksLocation, true);
-
-//die();
 ?>
+
+<!--
+<?= var_export($holdings, true); ?>
+-->
 
 <? if ($offlineMode == "ils-offline"): ?>
 <div class="alert alert-warning">
@@ -128,7 +123,12 @@
       <? // N.B. The division to 3 + 2 cols is required for the table to be valid HTML ?>
       <th class="headers">
         <? if ($showSummary): ?>
-          <?=sprintf('<span class="reservatins">%s: %d</span>, <span class="total">%s: %d</span>', $this->transEsc('Requests'), $reservations, $this->transEsc('axiell_items'), $itemsTotal);?>
+          <? if ($reservationsTotal): ?>
+            <span class="reservations"><?=sprintf('%s: %d', $this->transEsc('Requests'), $reservationsTotal);?></span>
+          <? endif; ?>
+          <? if ($itemsTotal): ?>
+            <span class="total"><?=sprintf('%s: %d', ucfirst($this->transEsc('axiell_items')), $itemsTotal);?></span>
+          <? endif; ?>
         <? endif; ?>
       </th>
       <th class="headers">
@@ -151,8 +151,7 @@
         ++$available;
       }
       if ($row['duedate']) {
-        list($day, $mon, $year) = explode('.', $row['duedate']);
-        $date = "$year-$mon-$day";
+        $date = strtotime($row['duedate']);
         if (!$firstDueDate || $date < $firstDueDate) {
           $firstDueDate = $date;
           $firstDueStr = $row['duedate'];

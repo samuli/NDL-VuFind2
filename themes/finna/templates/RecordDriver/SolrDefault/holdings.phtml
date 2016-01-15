@@ -1,9 +1,13 @@
 <!-- START of: finna - RecordDriver/SolrDefault/holdings.phtml -->
-<div class="holding-details">
+<?
+  $dedupData = $this->driver->getDedupData();
+  $deduplicated = count($dedupData) > 1;
+?>
+
+<div class="holding-details<?= $deduplicated ? ' deduplicated' : ''?>">
   <?
   /* Display information on duplicate records if available */
-  $dedupData = $this->driver->getDedupData();
-  if (count($dedupData) > 1): ?>
+  if ($deduplicated): ?>
     <div class="dedupInformation">
         <select class="dedup-select form-control" role="listbox" aria-haspopup="true">
           <?

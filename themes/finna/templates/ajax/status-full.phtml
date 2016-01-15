@@ -1,6 +1,17 @@
+<!--
+<?= var_export($this->statusItems, true) ?>
+-->
 
 <?
 $groupBranches = isset($this->statusItems[0]['branch']);
+if (isset($this->statusItems[0]['summaryCounts'])) {
+  $summary = $this->statusItems[0]['summaryCounts'];
+  $itemsTotal = $summary['total'];
+  $availableTotal = $summary['available'];
+  $reservationsTotal = $summary['reservations'];
+  $locations = $summary['locations'];  
+}
+
 if ($groupBranches) {
   $journal = isset($this->statusItems[0]['journalInfo']);
 
@@ -35,14 +46,6 @@ if ($groupBranches) {
     }
   }
 
-  if (isset($this->statusItems[0]['summaryCounts'])) {
-    $summary = $this->statusItems[0]['summaryCounts'];
-    $itemsTotal = $summary['total'];
-    $availableTotal = $summary['available'];
-    $reservationsTotal = $summary['reservations'];
-    $locations = $summary['locations'];  
-  }
-
   $collapseThreshold = $this->holdingsSettings()->getCollapseThreshold();
   $collapseLocations
     = isset($collapseThreshold['location'])
@@ -68,9 +71,6 @@ if ($groupBranches) {
 }
 ?>
 
-<!--
-<?= var_export($this->statusItems, true) ?>
--->
 
 <? if ($groupBranches): ?>
 <div class="holdings-container root <?=$collapseLocations ? ' collapsible' : ''?>">
@@ -92,7 +92,10 @@ if ($groupBranches) {
   </div>
   <div class="holdings<?=$collapseLocations ? ' collapsed' : ''?> root">
 <? else: ?>
-<div class="truncate-field" data-rows="5">
+    <? if (isset($availableTotal) && $availableTotal > 0): ?>
+    <div class="available-total"><i class="fa fa-ok"></i><span><?=$availableTotal?> <?=$this->translate('axiell_available')?></span></div>
+    <? endif; ?>
+    <div class="holdings truncate-field" data-rows="5">
 <? endif; ?>
 
 <?
