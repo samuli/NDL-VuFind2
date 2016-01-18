@@ -61,10 +61,10 @@ if ($groupBranches) {
   ;
 } else {
   // Group holdings by location
-  $statsItemsFiltered = [];
+  $statusItemsFiltered = [];
   foreach ($this->statusItems as $item) {
     if (!array_key_exists($item['location'], $statusItemsFiltered)
-      || $item['availability'] > $statusItemsFiltered['availability']
+      || $item['availability'] > $statusItemsFiltered[$item['location']]['availability']
     ) {
       $statusItemsFiltered[$item['location']] = $item;
     }
