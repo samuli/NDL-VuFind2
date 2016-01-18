@@ -61,10 +61,18 @@ trait VoyagerFinna
             }
             $locations[$item['location']] = true;
         }
+
+        // Since summary data is appended to the holdings array as a fake item,
+        // we need to add a few dummy-fields that VuFind expects to be
+        // defined for all elements.
+
         return [
            'available' => $availableTotal,
            'total' => count($holdings),
-           'locations' => count($locations)
+           'locations' => count($locations),
+           'availability' => null,
+           'callnumber' => null,
+           'location' => null
         ];
     }
 
@@ -86,12 +94,6 @@ trait VoyagerFinna
         $data = parent::processHoldingData($data, $id, $patron);
         if (!empty($data)) {
             $summary = $this->getHoldingsSummary($data);
-            // Since summary data is appended to the holdings array as a fake item,
-            // we need to add a few dummy-fields that VuFind expects to be
-            // defined for all elements.
-            $summary['availability'] = $summary['callnumber'] = $summary['location']
-                = null;
-
             $data[] = $summary;
         }
         return $data;
@@ -110,7 +112,8 @@ trait VoyagerFinna
     {
         $data = parent::processStatusData($data);
         if (!empty($data)) {
-            $data = $this->addHoldingsSummary($data);
+            $summary = $this->getHoldingsSummary($data);
+            $data[] = $summary;
         }
         return $data;
     }

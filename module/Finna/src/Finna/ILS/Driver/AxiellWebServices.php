@@ -801,12 +801,6 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
             usort($result, [$this, 'holdingsSortFunction']);
 
             $summary = $this->getHoldingsSummary($result);
-            // Since summary data is appended to the holdings array as a fake item,
-            // we need to add a few dummy-fields that VuFind expects to be
-            // defined for all elements.
-            $summary['availability'] = $summary['callnumber'] = $summary['location']
-                = null;
-
             $result[] = $summary;
         }
 
@@ -1002,11 +996,18 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
             }
             $locations[$item['location']] = true;
         }
+
+        // Since summary data is appended to the holdings array as a fake item,
+        // we need to add a few dummy-fields that VuFind expects to be
+        // defined for all elements.
         return [
            'available' => $availableTotal,
            'total' => $itemsTotal,
            'reservations' => $reservations,
-           'locations' => count($locations)
+           'locations' => count($locations),
+           'availability' => null,
+           'callnumber' => null,
+           'location' => null
         ];
     }
 
