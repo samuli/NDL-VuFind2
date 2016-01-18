@@ -1,15 +1,20 @@
 <!-- START of: finna - ajax/status-full.phtml -->
 <?
-$groupBranches = isset($this->statusItems[0]['branch']);
-$journal = isset($this->statusItems[0]['journalInfo']);
-
-if (isset($this->statusItems[0]['summaryCounts'])) {
-  $summary = $this->statusItems[0]['summaryCounts'];
+$holdings = $this->statusItems;
+$summary = array_pop($holdings);
+if (isset($summary['total'])) {
   $itemsTotal = $summary['total'];
   $availableTotal = $summary['available'];
-  $reservationsTotal = $summary['reservations'];
+  $reservationsTotal
+     = isset($summary['reservations']) ? $summary['reservations'] : null;
   $locations = $summary['locations'];
+} else {
+  $holdings[] = $summary;
 }
+$this->statusItems = $holdings;
+
+$groupBranches = isset($this->statusItems[0]['branch']);
+$journal = isset($this->statusItems[0]['journalInfo']);
 
 if ($groupBranches) {
   $locations = $availableLocations = $closestDueDateInLocation = [];
@@ -83,7 +88,7 @@ if ($groupBranches) {
       <? endif; ?>
     </span>
     <? if ($collapseLocations): ?><i class="fa fa-arrow-right arrow"></i><? endif; ?>
-    <? if (!$journal): ?>
+    <? if (!empty($reservations) && !$journal): ?>
     <span class="info"><?=sprintf('%s: %d, %s: %d', $this->transEsc('Requests'), $reservations, $this->transEsc('axiell_items'), $itemsTotal);?></span>
     <? endif; ?>
   </div>

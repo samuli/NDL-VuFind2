@@ -17,8 +17,21 @@
     $location = reset($holdings);
     $item = $location['items'][0];
     $journal = isset($item['journalInfo']);
-    if ($showSummary = !$journal && $this->holdingsSettings()->showRecordPageSummary()) {
-      $summary = isset($item['summaryCounts']) ? $item['summaryCounts'] : null;
+
+    $last = array_pop($holdings);
+    if (isset($last['items']) && is_array($last['items'])) {
+        $summary = $last['items'][0];
+        if (!isset($summary['total'])) {
+           $summary = null;
+        }
+    }
+    if (!$summary) {
+       $holdings[] = $last;
+       $summary = null;
+    }
+
+    $showSummary = !$journal && $this->holdingsSettings()->showRecordPageSummary();
+    if ($summary && $showSummary) {
       $itemsTotal
         = isset($summary['total']) ? $summary['total'] : null;
       $reservationsTotal

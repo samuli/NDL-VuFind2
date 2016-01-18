@@ -44,13 +44,13 @@ use VuFind\Exception\ILS as ILSException,
 trait VoyagerFinna
 {
     /**
-     * Annotate holdings items with summary counts.
+     * Return summary of holdings items.
      *
      * @param array $holdings Parsed holdings items
      *
-     * @return array Annotated holdings
+     * @return array summary
      */
-    protected function addHoldingsSummary($holdings)
+    protected function getHoldingsSummary($holdings)
     {
         $availableTotal = $itemsTotal = $reservationsTotal = 0;
         $locations = [];
@@ -61,15 +61,11 @@ trait VoyagerFinna
             }
             $locations[$item['location']] = true;
         }
-
-        foreach ($holdings as &$item) {
-            $item['summaryCounts'] = [
-                'available' => $availableTotal,
-                'total' => count($holdings),
-                'locations' => count($locations)
-            ];
-        }
-        return $holdings;
+        return [
+           'available' => $availableTotal,
+           'total' => count($holdings),
+           'locations' => count($locations)
+        ];
     }
 
     /**
@@ -89,7 +85,14 @@ trait VoyagerFinna
     {
         $data = parent::processHoldingData($data, $id, $patron);
         if (!empty($data)) {
-            $data = $this->addHoldingsSummary($data);
+            $summary = $this->getHoldingsSummary($data);
+            // Since summary data is appended to the holdings array as a fake item,
+            // we need to add a few dummy-fields that VuFind expects to be
+            // defined for all elements.
+            $summary['availability'] = $summary['callnumber'] = $summary['location']
+                = null;
+
+            $data[] = $summary;
         }
         return $data;
     }

@@ -799,7 +799,15 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
 
         if (!empty($result)) {
             usort($result, [$this, 'holdingsSortFunction']);
-            $result = $this->addHoldingsSummary($result);
+
+            $summary = $this->getHoldingsSummary($result);
+            // Since summary data is appended to the holdings array as a fake item,
+            // we need to add a few dummy-fields that VuFind expects to be
+            // defined for all elements.
+            $summary['availability'] = $summary['callnumber'] = $summary['location']
+                = null;
+
+            $result[] = $summary;
         }
 
         return empty($result) ? false : $result;
@@ -951,7 +959,8 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
                               ? ($department->shelfMark) : '',
                            'is_holdable'
                               => $branch->reservationButtonStatus == 'reservationOk',
-                           'collapsed' => true
+                           'collapsed' => true,
+                           'reserve' => null
                         ];
                         if ($journalInfo) {
                             $holding['journalInfo'] = $journalInfo;
@@ -966,13 +975,13 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
     }
 
     /**
-     * Annotate holdings items with summary counts.
+     * Return summary of holdings items.
      *
      * @param array $holdings Parsed holdings items
      *
-     * @return array Annotated holdings
+     * @return array summary
      */
-    protected function addHoldingsSummary($holdings)
+    protected function getHoldingsSummary($holdings)
     {
         $availableTotal = $itemsTotal = $reservationsTotal = 0;
         $locations = [];
@@ -993,15 +1002,12 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
             }
             $locations[$item['location']] = true;
         }
-        foreach ($holdings as &$item) {
-            $item['summaryCounts'] = [
-                'available' => $availableTotal,
-                'total' => $itemsTotal,
-                'reservations' => $reservations,
-                'locations' => count($locations)
-            ];
-        }
-        return $holdings;
+        return [
+           'available' => $availableTotal,
+           'total' => $itemsTotal,
+           'reservations' => $reservations,
+           'locations' => count($locations)
+        ];
     }
 
     /**
