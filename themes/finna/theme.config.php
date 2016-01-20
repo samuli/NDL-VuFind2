@@ -55,6 +55,7 @@ return array(
     ),
     'js' => array(
         'finna.js',
+        'finna-autocomplete.js',
         'finna-combined-results.js',
         'image-popup.js',
         'finna-adv-search.js',
