@@ -122,7 +122,9 @@ class RecordImage extends \Zend\View\Helper\AbstractHelper
 
         $view = $this->getView();
         $urlHelper = $this->getView()->plugin('url');
-        $numOfImages = $this->record->getNumOfRecordImages('large');
+        $numOfImages = $this->record->getNumOfRecordImages('small');
+        $numOfLargeImages = $this->record->getNumOfRecordImages('large');
+
         if ($view->layout()->templateDir === 'combined') {
             $numOfImages = min(1, $numOfImages);
         }
@@ -137,7 +139,9 @@ class RecordImage extends \Zend\View\Helper\AbstractHelper
         foreach ($imageTypes as $imageType => $viewParam) {
             $params = $this->record->getRecordImage($imageType);
 
-            if (is_array($params)) {
+            if ($imageType == 'large' && !$numOfLargeImages || !is_array($params)) {
+                $view->{$viewParam} = $params;
+            } else {
                 unset($params['url']);
                 unset($params['size']);
 
@@ -162,8 +166,6 @@ class RecordImage extends \Zend\View\Helper\AbstractHelper
                             );
                     }
                 }
-            } else {
-                $view->{$viewParam} = $params;
             }
         }
         $view->allImages = $images;

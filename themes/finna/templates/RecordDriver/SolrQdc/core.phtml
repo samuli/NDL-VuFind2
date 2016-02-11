@@ -55,22 +55,28 @@
       $openUrlActive = $openUrl->isActive();
       // Account for replace_other_urls setting
       $urls = $this->record($this->driver)->getLinkDetails($openUrlActive);
+      $onlineURLs = $this->driver->getOnlineURLs();
+      $mergedData = $this->driver->tryMethod('getMergedRecordData');
+      $images = $this->record($this->driver)->getAllRecordImages();
+
+    error_log("imgs: " . var_export($images, true));
+    
     ?>
-    <? $onlineURLs = $this->driver->getOnlineURLs(); $mergedData = $this->driver->tryMethod('getMergedRecordData'); ?>
     <? if (!empty($urls) || $openUrlActive || !empty($onlineURLs) || !empty($mergedData['urls']) || strncmp($this->driver->getUniqueID(), 'metalib_', 8) == 0): ?>
       <div class="recordURLs local-available-online-record">
         <div class="truncate-field">
           <? if (!empty($onlineURLs) || !empty($mergedData['urls'])): ?>
-            <? foreach (!empty($mergedData['urls']) ? $mergedData['urls'] : $onlineURLs as $url): ?>
+          <? foreach (!empty($mergedData['urls']) ? $mergedData['urls'] : $onlineURLs as $url): ?>
+              <? if (in_array($url['url'], $images)) { continue; } ?>
               <div class="fulltextField"><a class="fulltext" href="<?=$this->escapeHtmlAttr($this->proxyUrl($url['url'])) ?>" target="_blank" title="<?=$this->escapeHtmlAttr($url['url']) ?>"><i class="fa fa-external-link"></i> <?=!empty($url['text']) ? $this->transEsc('link_' . $url['text'], null, $url['text']) : $this->escapeHtml($this->truncateUrl($url['url'])) ?></a>
               <? if ($url['source']): ?>
                 <span class="online-source">(<?=is_array($url['source']) ? $this->transEsc('Multiple Organisations') : $this->transEsc('source_' . $url['source'], null, $url['source']) ?>)</span>
               <? endif; ?>
               </div>
             <? endforeach; ?>
-          <? endif; ?>
-          <? if (!empty($urls)): ?>
+          <? elseif (!empty($urls)): ?>
             <? foreach ($urls as $url): ?>
+              <? if (in_array($url['url'], $images)) { continue; } ?>
               <? $desc = isset($url['desc']) ? $url['desc'] : $this->truncateUrl($url['url']); ?>
               <div class="fulltextField"><a class="fulltext" href="<?=$this->escapeHtmlAttr($this->proxyUrl($url['url'])) ?>" target="_blank" title="<?=$this->escapeHtmlAttr($url['url']) ?>"><i class="fa fa-external-link"></i> <?=$this->transEsc('link_' . $desc, null, $desc) ?></a></div>
             <? endforeach; ?>

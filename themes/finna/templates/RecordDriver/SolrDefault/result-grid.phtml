@@ -31,7 +31,9 @@ $urls = $this->record($this->driver)->getLinkDetails($openUrlActive);
     <div class="dateyeartype">
       <? $summAuthor = $this->driver->getPrimaryAuthor(); if (!empty($summAuthor)): ?>
         <? $authorForSearch = $this->driver->tryMethod('getPrimaryAuthorForSearch'); ?>
-        <?=$this->escapeHtml($summAuthor) ?>
+        <div class="truncate-field" data-rows="1">
+          <p><?=$this->escapeHtml($summAuthor) ?></p>
+        </div>
       <? else: ?>
         <? $authors = $this->driver->tryMethod('getNonPresenterAuthors'); if (!empty($authors)): ?>
           <div class="truncate-field" data-rows="1">

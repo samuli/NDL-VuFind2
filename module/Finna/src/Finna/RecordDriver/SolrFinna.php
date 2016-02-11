@@ -272,14 +272,19 @@ trait SolrFinna
      *
      * @return array
      */
-    public function getOnlineURLs($raw = false)
+    public function getOnlineURLs($raw = false, $discardImages = false)
     {
         if (!isset($this->fields['online_urls_str_mv'])) {
             return [];
         }
-        return $raw ? $this->fields['online_urls_str_mv'] : $this->mergeURLArray(
+        $urls = $raw ? $this->fields['online_urls_str_mv'] : $this->mergeURLArray(
             $this->fields['online_urls_str_mv'], true
         );
+        if ($discardImages) {
+            $images = array_merge($this->getAllThumbnails('large'), $this->getAllThumbnails('small'));
+            $urls = array_diff($urls, $images);
+        }
+        return $urls;
     }
 
     /**
@@ -315,7 +320,9 @@ trait SolrFinna
      */
     public function getRecordImage($size = 'small', $index = 0)
     {
+        error_log("getrecimg: $size, index: $index");
         if ($urls = $this->getAllThumbnails($size)) {
+            error_log("   urls: " . var_export($urls, true));
             $urls = array_keys($urls);
             if ($index == 0) {
                 $url = $urls[0];
@@ -329,6 +336,8 @@ trait SolrFinna
                 if ($size == 'large') {
                     $params['fullres'] = 1;
                 }
+                error_log("   params: " . var_export($params, true));
+                
                 return $params;
             }
         }
