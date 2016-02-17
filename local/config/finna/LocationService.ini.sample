@@ -1,8 +1,10 @@
-;National Library of Finland Location Service. See https://wiki.helsinki.fi/display/kirjastokartta/About+the+Location+Service
+; National Library of Finland Location Service. 
+; See https://wiki.helsinki.fi/display/kirjastokartta/About+the+Location+Service
 
 [General]
 url = "http://kirjastokartta.kansalliskirjasto.fi/LocationHandler"
 modal = true
+qr_code = false
 
 [jykdok]
 owner = "FI-J"

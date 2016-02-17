@@ -96,6 +96,48 @@ finna.record = (function() {
         });
     };
 
+    var initLocationService = function() {
+        var closeModalCallback = function(modal) {
+            modal.removeClass('location-service location-service-qrcode');
+            modal.find('.modal-dialog').removeClass('modal-lg');
+        };
+
+        $('.location-service.location-service-modal').on('click', function() {
+            var modal = $('#modal');
+            modal.addClass('location-service');
+            modal.find('.modal-dialog').addClass('modal-lg');
+            modal.find('.modal-title').html(VuFind.translate('location-service'));
+            Lightbox.titleSet = true;
+
+            $('#modal').one('hidden.bs.modal', function() {
+                closeModalCallback($(this));
+            });
+            return Lightbox.get(
+                'LocationService', 'modal',
+                {source: $('.hiddenId').val().split('.')[0], callnumber: $(this).attr('data-callnumber')}
+            );
+        });
+
+        $('.location-service.fa-qrcode').on('click', function() {
+            var modal = $('#modal');
+            modal.addClass('location-service-qrcode');
+            modal.find('.modal-title').html(VuFind.translate('location-service'));
+            Lightbox.titleSet = true;
+            Lightbox.changeContent('');
+            modal.find('.modal-body').qrcode({
+                render: 'div',
+                size: $(window).width() < 768 ? 240 : 300,
+                text: $(this).prev('a.location-service').attr('href')
+            });
+            modal.modal();
+
+            $('#modal').one('hidden.bs.modal', function() {
+                closeModalCallback($(this));
+            });
+            return false;
+        });
+    };
+
     var initMobileModals = function() {
       var id = $('.hiddenId')[0].value;
       $('.cite-record-mobile').click(function() {
@@ -135,6 +177,7 @@ finna.record = (function() {
         setupHoldingsTab: function() {
             initHoldingsControls();
             setUpCheckRequest();
+            initLocationService();
             finna.layout.initJumpMenus($('.holdings-tab'));
             finna.layout.initLightbox($('.holdings-tab'));
         }
