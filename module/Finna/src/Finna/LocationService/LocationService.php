@@ -60,24 +60,30 @@ class LocationService
      *
      * @param string $source     Record source
      * @param string $callnumber Callnumber that is used as a location code.
+     * @param string $language   Language
      *
      * @return array Array with the following keys:
      *   [url]   string  URL to the Location Service map.
      *   [modal] boolean True if the map should be displayed in a modal.
      *   [qr]    boolean True if a QR-code of the map link should be displayed.
      */
-    public function getConfig($source, $callnumber)
+    public function getConfig($source, $callnumber, $language)
     {
-        if (empty($this->config->General->url)
+        if (empty($this->config->General->enabled)
+            || empty($this->config->General->url)
             || !isset($this->config->{$source}->owner)
         ) {
             return false;
         }
 
-        $url
-            = $this->config->General->url
-            . '&owner=' . $this->config->{$source}->owner
-            . '&callno=' . urlencode($callnumber);
+        list($url,) = explode('?', $this->config->General->url);
+        $params = [
+            'owner' => $this->config->{$source}->owner,
+            'callno' => $callnumber,
+            'lang' => substr($language, 0, 2),
+        ];
+
+        $url .= '?' . http_build_query($params);
 
         return [
            'url' => $url,

@@ -59,8 +59,10 @@ class LocationServiceController extends \Finna\Controller\AjaxController
         $callnumber = $request['callnumber'];
         $locationService
             = $this->getServiceLocator()->get('Finna\LocationService');
+        $language
+            = $this->getServiceLocator()->get('VuFind\Translator')->getLocale();
 
-        if ($config = $locationService->getConfig($source, $callnumber)) {
+        if ($config = $locationService->getConfig($source, $callnumber, $language)) {
             $view = $this->createViewModel();
             $view->url = $config['url'];
             return $view;
