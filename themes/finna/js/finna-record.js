@@ -112,10 +112,12 @@ finna.record = (function() {
             $('#modal').one('hidden.bs.modal', function() {
                 closeModalCallback($(this));
             });
-            return Lightbox.get(
-                'LocationService', 'modal',
-                {source: $('.hiddenId').val().split('.')[0], callnumber: $(this).attr('data-callnumber')}
-            );
+            var params = {
+                source: $('.hiddenId').val().split('.')[0], 
+                callnumber: $(this).attr('data-callnumber'),
+                collection: $(this).attr('data-collection')
+            };
+            return Lightbox.get('LocationService', 'modal', params);
         });
 
         $('.location-service.fa-qrcode').on('click', function() {

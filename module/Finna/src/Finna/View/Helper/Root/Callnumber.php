@@ -61,17 +61,20 @@ class Callnumber extends \Zend\View\Helper\AbstractHelper
      *
      * @param string $source     Record source
      * @param string $callnumber Callnumber
+     * @param string $collection Collection
      * @param string $language   Language
      *
      * @return string
      */
-    public function __invoke($source, $callnumber, $language)
+    public function __invoke($source, $callnumber, $collection, $language)
     {
         $params = ['callnumber' => $callnumber];
-        $config
-            = $this->locationService->getConfig($source, $callnumber, $language);
+        $config = $this->locationService->getConfig(
+           $source, $callnumber, $collection, $language
+        );
 
         if ($config) {
+            $params['collection'] = $collection;
             $params['locationServiceUrl'] = $config['url'];
             $params['locationServiceModal'] = $config['modal'];
             $params['qrCode'] = $config['qr'];
