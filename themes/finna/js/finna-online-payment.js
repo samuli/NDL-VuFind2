@@ -11,8 +11,8 @@ finna.onlinePayment = (function() {
         }).done(function(response) {
             location.href = response.data;
         })
-        .fail(function(response, textStatus) {
-            console.log(response, textStatus);
+        .fail(function(response, textStatus) {            
+            location.href = response.responseJSON.data;
         });
     
         return false;

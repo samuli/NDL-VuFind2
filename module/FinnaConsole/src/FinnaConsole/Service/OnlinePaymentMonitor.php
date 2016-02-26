@@ -232,18 +232,26 @@ class OnlinePaymentMonitor extends AbstractService
                 }
             }
             
-            $res = $this->catalog->markFeesAsPaid($patron, $t->amount);
-            if ($res === true) {
+            try {
+                $this->catalog->markFeesAsPaid($patron, $t->amount);
                 if (!$this->transactionTable->setTransactionRegistered($t->transaction_id)) {
                     $this->err('    Failed to update transaction ' . $t->transaction_id . 'as registered');
                 }
                 $registeredCnt++;
                 return true;
-            } else {
-                $this->transactionTable->setTransactionRegistrationFailed($t->transaction_id, $res);
+            } catch (\Exception $e) {
+                $this->err('    Registration of transaction ' . $t->transaction_id . ' failed');
+                $this->err("      " .  $e->getMessage());
+
+                if ($this->transactionTable->setTransactionRegistrationFailed(
+                    $t->transaction_id, $e->getMessage()
+                )) {
+                    $this->err(
+                        "Error updating transaction $transactionId status: "
+                        . 'registering failed'
+                    );                    
+                }
                 $failedCnt++;
-                $this->msg('    Registration of transaction ' . $t->transaction_id . ' failed');
-                $this->msg("      {$res}");
                 return false;
             }
         }
@@ -293,7 +301,7 @@ class OnlinePaymentMonitor extends AbstractService
                 $settings = $this->configReader->get("VoyagerRestful_$driver");
                 if (!$settings || !isset($settings['OnlinePayment']['errorEmail'])) {
                     $this->err(
-                        "  Error email for expired transactions not defined for "
+                        "  No error email for expired transactions not defined for "
                         . "driver $driver ($cnt expired transactions)"
                     );
                     continue;
@@ -325,7 +333,6 @@ class OnlinePaymentMonitor extends AbstractService
             }
         }
     }
-
 
     /**
      * Collect script parameters and print usage
