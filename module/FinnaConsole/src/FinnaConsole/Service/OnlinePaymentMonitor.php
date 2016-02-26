@@ -26,7 +26,8 @@
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
 namespace FinnaConsole\Service;
-use Finna\Db\Table\Transaction,
+use Finna\Db\Row\Transaction,
+    Finna\Db\Row\User,
     Zend\Db\Sql\Select;
 
 /**
@@ -176,14 +177,21 @@ class OnlinePaymentMonitor extends AbstractService
     }
 
     /**
-     * TODO
+     * Try to register a failed transaction.
      *
-     * @param array $arguments Command line arguments.
+     * @param Transaction $t             Transaction
+     * @param array       $report        Processed transactions grouped by source
+     * @param int         $registeredCnt Number of registered transactions.
+     * @param int         $expiredCnt    Number of expired transactions.
+     * @param int         $failedCnt     Number of failed transactions.
+     * @param User        $failedCn t    Number of failed transactions.
+     
+rarray $arguments Command line arguments.
      *
      * @return void
      */
     protected function processTransaction(
-        $t, &$report, &$registeredCnt, &$expiredCnt, &$failedCnt, $user
+        $t, &$report, &$registeredCnt, &$expiredCnt, &$failedCnt, &$user
     ) {
         $this->msg("  Registering transaction id {$t->id} / {$t->transaction_id}");
 
