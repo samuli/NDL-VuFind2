@@ -252,10 +252,12 @@ class OnlinePaymentMonitor extends AbstractService
             $catUsername = $patron = null;
             foreach ($user->getLibraryCards() as $card) {
                 if ($card['cat_username'] == $t->cat_username) {
-                    $patron = $this->catalog->patronLogin(
-                        $t->cat_username, $card['cat_password']
-                    );
-                    if (!$patron) {
+                    try {
+                        $patron = $this->catalog->patronLogin(
+                            $t->cat_username, $card['cat_password']
+                        );
+                        break;
+                    } catch (\Exception $e) {
                         $this->err(
                             '    Could not perform patron login for transaction '
                             . $t->transaction_id
