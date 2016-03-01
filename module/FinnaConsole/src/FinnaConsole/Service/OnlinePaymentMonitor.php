@@ -289,8 +289,8 @@ class OnlinePaymentMonitor extends AbstractService
                     $t->transaction_id, $e->getMessage()
                 )) {
                     $this->err(
-                        'Error updating transaction ' . $t->transaction_id . ' status: '
-                        . 'registering failed'
+                        'Error updating transaction ' . $t->transaction_id
+                        . ' status: ' . 'registering failed'
                     );
                 }
                 $failedCnt++;
