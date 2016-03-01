@@ -261,7 +261,7 @@ class OnlinePaymentMonitor extends AbstractService
                             . $t->transaction_id
                         );
                         $failedCnt++;
-                        return;
+                        return false;
                     }
                 }
             }
