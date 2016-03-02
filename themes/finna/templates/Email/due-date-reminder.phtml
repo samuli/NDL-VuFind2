@@ -1,0 +1,12 @@
+<?= $this->translate('due_date_email_prefix') $this->translate('due_date_email_suffix' . count($loans) == 1 ? '_singular' : '') ?>
+
+<? foreach ($loans as $loan): ?>
+  <?= $loan['title'] ?>
+  <?= $this->translate('Due Date') . ': ' . $loan['dueDateFormatted'] . PHP_EOL ?>
+<? endforeach; ?>
+
+<?= $this->translate('due_date_email_link_title') ?>
+<?= $this->url ?>
+
+<?= $this->translate('unsubscribe_description') ?>
+<?= $this->unsubscribeUrl ?>

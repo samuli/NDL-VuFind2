@@ -58,6 +58,33 @@ class Factory
     }
 
     /**
+     * Construct the console service for sending due date reminders.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return \FinnaConsole\Service\DueDateReminder
+     */
+    public static function getDueDateReminders(ServiceManager $sm)
+    {
+        $userTable = $sm->get('VuFind\DbTablePluginManager')
+            ->get('user');
+        $dueDateReminderTable = $sm->get('VuFind\DbTablePluginManager')
+            ->get('due-date-reminder');
+
+        $catalog = \Finna\Service\Factory::getILSConnection($sm);
+        $configReader = $sm->get('VuFind\Config');
+        $mailer = $sm->get('VuFind\Mailer');
+        $renderer = $sm->get('viewmanager')->getRenderer();
+        $loader = $sm->get('VuFind\RecordLoader');
+        $hmac = $sm->get('VuFind\HMAC');
+
+        return new DueDateReminders(
+            $userTable, $dueDateReminderTable, $catalog,
+            $configReader, $mailer, $renderer, $loader, $hmac
+        );
+    }
+
+    /**
      * Construct the console service for anonymizing expired users accounts.
      *
      * @param ServiceManager $sm Service manager.
