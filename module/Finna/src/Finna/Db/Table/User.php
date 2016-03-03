@@ -118,6 +118,7 @@ class User extends \VuFind\Db\Table\User
         return $this->select(
             function (Select $select) {
                 $select->where->greaterThan('finna_due_date_reminder', 0);
+                $select->order('username desc');
             }
         );
     }

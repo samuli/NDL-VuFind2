@@ -28,7 +28,9 @@
  */
 namespace FinnaConsole\Service;
 
-use VuFind\Crypt\HMAC;
+use VuFind\Crypt\HMAC,
+    Zend\View\Resolver\AggregateResolver,
+    Zend\View\Resolver\TemplatePathStack;
 
 /**
  * Console service for sending due date reminders.
@@ -42,7 +44,22 @@ use VuFind\Crypt\HMAC;
  */
 class DueDateReminders extends AbstractService
 {
+    //    const DUE_DATE_FORMAT = 'Y-m-d H:i:s';
     const DUE_DATE_FORMAT = 'Y-m-d\TH:i:s\Z';
+
+    /**
+     * Current view local configuration directory.
+     *
+     * @var string
+     */
+    protected $baseDir = null;
+
+    /**
+     * Base directory for all views.
+     *
+     * @var string
+     */
+    protected $viewBaseDir = null;
 
     /**
      * ILS connection.
@@ -102,6 +119,8 @@ class DueDateReminders extends AbstractService
     protected $fromEmail = null;
     protected $renderer = null;
 
+    protected $currentInstitution = null;
+    protected $currentSiteConfig = null;
     /**
      * Constructor
      *
@@ -109,8 +128,9 @@ class DueDateReminders extends AbstractService
      */
     public function __construct(
         $userTable, $dueDateReminderTable, $catalog,
-        $configReader, $mailer, $renderer, $recordLoader, $hmac
+        $configReader, $mailer, $renderer, $recordLoader, $hmac, $translator
     ) {
+
         $this->userTable = $userTable;
         $this->dueDateReminderTable = $dueDateReminderTable;
         $this->catalog = $catalog;
@@ -119,7 +139,7 @@ class DueDateReminders extends AbstractService
         $this->configReader = $configReader;
         $this->mailer = $mailer;
         $this->renderer = $renderer;
-        $this->translator = $renderer->plugin('translate');
+        $this->translator = $translator;
         $this->urlHelper = $renderer->plugin('url');
         $this->recordLoader = $recordLoader;
         $this->hmac = $hmac;
@@ -136,6 +156,13 @@ class DueDateReminders extends AbstractService
     {
         $this->msg('Sending due date reminders');
 
+        if (count($arguments) < 2) {
+            $this->msg($this->getUsage());
+            return false;
+        } else {
+            $this->collectScriptArguments($arguments);
+        }
+        
         $users = $this->userTable->getUsersWithDueDateReminders();
         $this->msg('Processing ' . count($users) . ' users');
 
@@ -150,7 +177,6 @@ class DueDateReminders extends AbstractService
                 $this->msg('No loans to remind for user ' . $user->id);
             }
         }
-
         return true;
     }
 
@@ -199,7 +225,7 @@ class DueDateReminders extends AbstractService
                        'user_id' => $user->id,
                        'loan_id' => $loan['item_id'],
                        'due_date' 
-                          => $dueDate->format(DueDateReminder::DUE_DATE_FORMAT)
+                          => $dueDate->format(DueDateReminders::DUE_DATE_FORMAT)
                     ];
 
                     $reminder = $this->dueDateReminderTable->select($params);
@@ -213,15 +239,18 @@ class DueDateReminders extends AbstractService
                         ? $loan['title'] : $this->translator->translate('Title not available');
 
                     if (isset($loan['id'])) {
-                        $record = $this->recordLoader->load($loan['id'], 'Solr');
-                        if ($record && isset($record['title'])) {
-                            $title = $record['title'];
+                        try {
+                            $record = $this->recordLoader->load($loan['id'], 'Solr');
+                            if ($record && isset($record['title'])) {
+                                $title = $record['title'];
+                            }
+                        } catch (\Exception $e) {
                         }
                     }
 
-                    $dateFormat = isset($this->mainConfig->Site->displayDateFormat)
-                        ? $this->mainConfig->Site->displayDateFormat
-                        : 'm-d-Y';
+                    $dateFormat = isset($this->currentSiteConfig['Site']['displayDateFormat'])
+                        ? $this->currentSiteConfig['Site']['displayDateFormat']
+                        : $this->mainConfig->Site->displayDateFormat;
                               
                     $remindLoans[] = [
                         'loanId' => $loan['item_id'],
@@ -237,6 +266,51 @@ class DueDateReminders extends AbstractService
     
     protected function sendReminder($user, $remindLoans)
     {
+        if (!$user->email || trim($user->email) == '') {
+            $this->msg(
+                'User ' . $user->username 
+                . ' does not have an email address, bypassing due date reminders'
+            );
+            return false;
+        }
+
+        list($userInstitution,) = explode(':', $user['username'], 2);
+
+        if (!$this->currentInstitution 
+            || $userInstitution != $this->currentInstitution
+        ) {
+            $this->currentInstitution = $userInstitution;
+            $templateDirs = [
+                "{$this->baseDir}/themes/finna/templates", 
+            ];
+            if (!$viewPath = $this->resolveViewPath($this->currentInstitution)) {
+                $this->err(
+                    "Could not resolve view path for user " . $user['username']
+                );
+            } else {
+                $templateDirs[] = "$viewPath/themes/custom/templates";
+            }
+
+            $resolver = new AggregateResolver();
+            $this->renderer->setResolver($resolver);
+            $stack = new TemplatePathStack(['script_paths' => $templateDirs]);
+            $resolver->attach($stack);
+
+            $siteConfig = $viewPath . '/local/config/vufind/config.ini';
+            $this->currentSiteConfig = parse_ini_file($siteConfig, true);
+        }
+
+        $language = $this->currentSiteConfig['Site']['language'];
+        $validLanguages = array_keys($this->currentSiteConfig['Languages']);
+        if (!empty($user->finna_language) 
+            && in_array($user->finna_language, $validLanguages)
+        ) {
+            $language = $user->finna_language;
+        }
+        $this->translator
+            ->addTranslationFile('ExtendedIni', null, 'default', $language)
+            ->setLocale($language);
+
         $key = $this->getSecret($user, $user->id);
         $params = [
             'id' => $user->id, 
@@ -244,38 +318,44 @@ class DueDateReminders extends AbstractService
             'key' => $key
         ];
         $unsubscribeUrl 
-            = $this->url('myresearch-unsubscribe') . '?' . http_build_query($params);
+            = $this->urlHelper->__invoke('myresearch-unsubscribe') 
+            . '?' . http_build_query($params);
 
+        $baseUrl = 'https://' . $this->currentInstitution . '.finna.fi';
         $params = [
              'loans' => $remindLoans,
-             'url' => $this->url('myresearch-checkedout'),
-             'unsubscribeUrl' => $unsubscribeUrl
+             'url' => $baseUrl . $this->urlHelper->__invoke('myresearch-checkedout'),
+             'unsubscribeUrl' => $baseUrl . $unsubscribeUrl,
+             'baseUrl' => $baseUrl
         ];
         $subject = $this->translator->translate('due_date_email_subject');
-        $message = $this->renderer->render('Email/due-date-reminder.phtml', $params);
-
+        $message = $this->renderer->render("Email/due-date-reminder.phtml", $params);
         try {
-            $to = 'samuli.sillanpaa@helsinki.fi'; //$user->email
+            $to = $user->email;
+            $from = $this->currentSiteConfig['Site']['email'];
             $this->mailer->send(
-                $to, $this->fromEmail, $subject, $message
+                $to, $from, $subject, $message
             );
-            foreach ($remindLoans as $loan) {
-                $params = ['user_id' => $user->id, 'load_id' => $load['id']];
-
-                $this->dueDateReminderTable->delete($params);
-
-                $params['due_date'] = new \DateTime($loan['duedate']);
-                $params['notification_date'] 
-                    = gmdate(DueDateReminder::DUE_DATE_FORMAT, time());
-
-                $this->dueDateReminderTable->insert($params);
-            }
         } catch (\Exception $e) {
             $this->err(
                 'Failed to send due date reminders (user id ' 
-                . $user->id . ', cat_username: ' . $user->cat_username
+                . $user->id . ', cat_username: ' . $user->cat_username . ')'
             );
+            $this->err('   ' . $e->getMessage());
             return false;
+        }
+
+        foreach ($remindLoans as $loan) {
+            $params = ['user_id' => $user->id, 'loan_id' => $loan['loanId']];
+            $this->dueDateReminderTable->delete($params);
+            
+            $dueDate = new \DateTime($loan['dueDate']);
+            $params['due_date']
+                = $dueDate->format(DueDateReminders::DUE_DATE_FORMAT);
+            $params['notification_date'] 
+                = gmdate(DueDateReminders::DUE_DATE_FORMAT, time());
+            
+            $this->dueDateReminderTable->insert($params);
         }
 
         return true;
@@ -300,11 +380,27 @@ class DueDateReminders extends AbstractService
     }
 
     /**
+     * Collect script parameters and print usage
+     * information when all required parameters were not given.
+     *
+     * @param array $arguments Arguments
+     *
+     * @return void
+     */
+    protected function collectScriptArguments($arguments)
+    {
+        // Current view local configuration directory
+        $this->baseDir = isset($arguments[0]) ? $arguments[0] : false;
+        // Base directory for all views.
+        $this->viewBaseDir = isset($arguments[1]) ? $arguments[1] : '..';
+    }
+
+    /**
      * Get usage information.
      *
      * @return string
      */
-    protected function usage()
+    protected function getUsage()
     {
 // @codingStandardsIgnoreStart
         return <<<EOT

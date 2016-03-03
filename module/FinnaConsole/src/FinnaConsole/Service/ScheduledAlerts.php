@@ -62,13 +62,6 @@ use Zend\Stdlib\Parameters;
 class ScheduledAlerts extends AbstractService
 {
     /**
-     * Symbolic link name for institution default view
-     *
-     * @var string
-     */
-    protected $defaultPath = 'default';
-
-    /**
      * Local configuration directory name
      *
      * @var string
@@ -237,7 +230,7 @@ class ScheduledAlerts extends AbstractService
                 $this->err("Skipping alerts for view $url");
                 continue;
             }
-            $this->switchInstitution($path, $url);
+            $this->switchInstitution("$path/{$this->confDir}", $url);
         }
     }
 

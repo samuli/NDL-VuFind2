@@ -77,10 +77,11 @@ class Factory
         $renderer = $sm->get('viewmanager')->getRenderer();
         $loader = $sm->get('VuFind\RecordLoader');
         $hmac = $sm->get('VuFind\HMAC');
+        $translator = $sm->get('VuFind\Translator');
 
         return new DueDateReminders(
             $userTable, $dueDateReminderTable, $catalog,
-            $configReader, $mailer, $renderer, $loader, $hmac
+            $configReader, $mailer, $renderer, $loader, $hmac, $translator
         );
     }
 
