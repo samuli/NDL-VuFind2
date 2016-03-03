@@ -118,7 +118,7 @@ abstract class AbstractService implements ConsoleServiceInterface
     protected function resolveViewPath($institution, $view = false)
     {
         if (!$view) {
-            $view = DEFAULT_PATH;
+            $view = $this::DEFAULT_PATH;
             if (isset($this->datasourceConfig[$institution]['mainView'])) {
                 list($institution, $view)
                     = explode(

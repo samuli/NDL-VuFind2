@@ -275,7 +275,7 @@ class DueDateReminders extends AbstractService
                        'user_id' => $user->id,
                        'loan_id' => $loan['item_id'],
                        'due_date'
-                          => $dueDate->format(DueDateReminders::DUE_DATE_FORMAT)
+                          => $dueDate->format($this::DUE_DATE_FORMAT)
                     ];
 
                     $reminder = $this->dueDateReminderTable->select($params);
@@ -411,8 +411,8 @@ class DueDateReminders extends AbstractService
             $this->dueDateReminderTable->delete($params);
             
             $dueDate = new \DateTime($loan['dueDate']);
-            $params['due_date'] = $dueDate->format(DUE_DATE_FORMAT);
-            $params['notification_date'] = gmdate(DUE_DATE_FORMAT, time());
+            $params['due_date'] = $dueDate->format($this::DUE_DATE_FORMAT);
+            $params['notification_date'] = gmdate($this::DUE_DATE_FORMAT, time());
             
             $this->dueDateReminderTable->insert($params);
         }
