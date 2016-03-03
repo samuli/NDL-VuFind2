@@ -378,7 +378,9 @@ class DueDateReminders extends AbstractService
             }
         }
 
-        $key = $this->getSecret($user, $user->id);
+        $key = $this->dueDateReminderTable->getUnsubscribeSecret(
+            $this->hmac, $user, $user->id
+        );
         $params = [
             'id' => $user->id,
             'type' => 'reminder',
@@ -424,24 +426,6 @@ class DueDateReminders extends AbstractService
         }
 
         return true;
-    }
-
-    /**
-     * Utility function for generating a token.
-     *
-     * @param object $user User
-     * @param string $id   ID
-     *
-     * @return string token
-      */
-    protected function getSecret($user, $id)
-    {
-        $data = [
-           'id' => $id,
-           'user_id' => $user->id,
-           'created' => $user->created
-        ];
-        return $this->hmac->generate(array_keys($data), $data);
     }
 
     /**
