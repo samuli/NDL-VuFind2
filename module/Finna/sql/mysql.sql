@@ -60,7 +60,7 @@ CREATE TABLE `finna_due_date_reminder` (
   `due_date` datetime NOT NULL,
   `notification_date` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `user_id` (`user_id`),
+  KEY `user_loan` (`user_id`,`loan_id`),
   CONSTRAINT `due_date_reminder_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
