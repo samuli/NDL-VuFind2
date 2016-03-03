@@ -28,8 +28,7 @@
  */
 namespace FinnaConsole\Service;
 
-use VuFind\Crypt\HMAC,
-    Zend\View\Resolver\AggregateResolver,
+use Zend\View\Resolver\AggregateResolver,
     Zend\View\Resolver\TemplatePathStack;
 
 /**
@@ -267,7 +266,7 @@ class DueDateReminders extends AbstractService
             $loans = $this->catalog->getMyTransactions($patron);
             foreach ($loans as $loan) {
                 $dueDate = new \DateTime($loan['duedate']);
-                $dayDif = $dueDate->diff($todayTime)->days;
+                $dayDiff = $dueDate->diff($todayTime)->days;
                 if ($todayTime >= $dueDate
                     || $dayDiff <= $user->finna_due_date_reminder
                 ) {

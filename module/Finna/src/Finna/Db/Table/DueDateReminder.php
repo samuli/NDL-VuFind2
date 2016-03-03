@@ -26,6 +26,7 @@
  * @link     https://vufind.org Main Page
  */
 namespace Finna\Db\Table;
+use VuFind\Crypt\HMAC;
 
 /**
  * Table Definition for due date reminders.
