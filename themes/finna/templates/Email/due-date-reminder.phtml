@@ -2,7 +2,7 @@
 
 
 <? foreach ($this->loans as $loan): ?>
-<?= $loan['title'] ?>
+<?= isset($loan['title']) ? $loan['title'] : $this->translate('Title not available') ?>
 
 <?= $this->translate('Due Date') . ': ' . $loan['dueDateFormatted'] ?>
 
