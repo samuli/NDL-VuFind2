@@ -287,7 +287,7 @@ class DueDateReminders extends AbstractService
                     // Store also title for display in email
                     $title = isset($loan['title'])
                         ? $loan['title'] 
-                        : $this->translator->translate('Title not available');
+                        : null;
 
                     if (isset($loan['id'])) {
                         try {
@@ -371,6 +371,12 @@ class DueDateReminders extends AbstractService
         $this->translator
             ->addTranslationFile('ExtendedIni', null, 'default', $language)
             ->setLocale($language);
+
+        foreach ($remindLoans as &$loan) {
+            if (!$loan['title']) {
+                $loan['title'] = $this->translator->translate('Title not available');
+            }
+        }
 
         $key = $this->getSecret($user, $user->id);
         $params = [
