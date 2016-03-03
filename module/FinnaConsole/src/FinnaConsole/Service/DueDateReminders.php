@@ -371,12 +371,6 @@ class DueDateReminders extends AbstractService
             ->addTranslationFile('ExtendedIni', null, 'default', $language)
             ->setLocale($language);
 
-        foreach ($remindLoans as &$loan) {
-            if (!$loan['title']) {
-                $loan['title'] = $this->translator->translate('Title not available');
-            }
-        }
-
         $key = $this->dueDateReminderTable->getUnsubscribeSecret(
             $this->hmac, $user, $user->id
         );
@@ -420,7 +414,7 @@ class DueDateReminders extends AbstractService
             $dueDate = new \DateTime($loan['dueDate']);
             $params['due_date'] = $dueDate->format($this::DUE_DATE_FORMAT);
             $params['notification_date'] = gmdate($this::DUE_DATE_FORMAT, time());
-            
+
             $this->dueDateReminderTable->insert($params);
         }
 
