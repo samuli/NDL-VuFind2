@@ -78,8 +78,6 @@ class Factory
         $hmac = $sm->get('VuFind\HMAC');
         $translator = $sm->get('VuFind\Translator');
 
-        error_log(get_class($renderer));
-
         return new DueDateReminders(
             $userTable, $dueDateReminderTable, $catalog,
             $configReader, $mailer, $renderer, $loader, $hmac, $translator
