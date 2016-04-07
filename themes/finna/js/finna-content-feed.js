@@ -21,14 +21,14 @@ finna.contentFeed = (function() {
                     $('.content-header').text(title);
                     document.title = title + ' | ' + document.title;
                 }
-
-                $('#modal').one('hidden.bs.modal', function() {
-                    $(this).removeClass('feed-content');
-                });
             }
         })
         .fail(function(response, textStatus, err) {
             contentHolder.html('<!-- Feed could not be loaded: ' + response.responseJSON.data + ' -->');
+        });
+
+        $('#modal').one('hidden.bs.modal', function() {
+            $(this).removeClass('feed-content');
         });
     };
 
