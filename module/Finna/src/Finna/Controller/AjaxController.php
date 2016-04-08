@@ -730,10 +730,8 @@ class AjaxController extends \VuFind\Controller\AjaxController
             'items' => $items,
             'touchDevice' => $touchDevice,
             'images' => $images,
+            'modal' => $modal
         ];
-        if ($modal) {
-            $feed['modal'] = $modal;
-        }
 
         if (isset($config->title)) {
             if ($config->title == 'rss') {
@@ -798,8 +796,14 @@ class AjaxController extends \VuFind\Controller\AjaxController
      */
     public function getContentFeedAjax()
     {
-        $id = $this->params()->fromQuery('id');
+        if (!$id = $this->params()->fromQuery('id')) {
+            return $this->output('Missing feed id', self::STATUS_ERROR, 400);
+        }
+
         $num = $this->params()->fromQuery('num');
+        if ($num === null) {
+            $num = 0;
+        }
 
         $feedService = $this->getServiceLocator()->get('Finna\Feed');
         try {

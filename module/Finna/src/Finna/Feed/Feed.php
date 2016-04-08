@@ -39,8 +39,12 @@ use Zend\Config\Config,
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
-class Feed
+class Feed implements \Zend\Log\LoggerAwareInterface
 {
+    use \VuFind\Log\LoggerAwareTrait {
+        logError as error;
+    }
+
     /**
      * Main configuration.
      *
@@ -104,22 +108,24 @@ class Feed
      *
      * @param string $id Feed id
      *
-     * @return array
-     * @throws Exception
+     * @return boolean|array
      */
     protected function getFeedConfig($id)
     {
         if (!isset($this->feedConfig[$id])) {
-            throw new \Exception('Missing feed configuration');
+            $this->error("Missing configuration (id $id)");
+            return false;
         }
 
         $result = $this->feedConfig[$id];
         if (!$result->active) {
-            throw new \Exception('Feed inactive');
+            $this->error("Feed inactive (id $id)");
+            return false;
         }
 
         if (empty($result->url)) {
-            throw new \Exception('Missing feed URL');
+            $this->error("Missing feed URL (id $id)");
+            return false;
         }
 
         $language   = $this->translator->getLocale();
@@ -130,7 +136,8 @@ class Feed
         } else if (isset($url['*'])) {
             $url = trim($url['*']);
         } else {
-            throw new \Exception('Missing feed URL');
+            $this->error("Missing feed URL (id $id)");
+            return false;
         }
 
         return [$result, $url];
@@ -180,7 +187,13 @@ class Feed
      */
     public function readFeed($id, $urlHelper, $viewUrl)
     {
-        list($config, $url, $language) = $this->getFeedConfig($id);
+        if (!$result = $this->getFeedConfig($id)) {
+            throw new \Exception('Error reading feed');
+        }
+
+        $config = $result[0];
+        $url = $result[1];
+
         $type = $config->type;
 
         $cacheKey = $config->toArray();
@@ -230,7 +243,8 @@ class Feed
             } else {
                 // Local file
                 if (!is_file($url)) {
-                    throw new \Exception("File $url could not be found");
+                    $this->error("File $url could not be found (id $id)");
+                    throw new \Exception('Error reading feed');
                 }
                 $channel = Reader::importFile($url);
             }
@@ -346,7 +360,7 @@ class Feed
                         // Remove width & height declarations from style
                         // attributes in div & p elements
                         $dom = new \DOMDocument();
-                        libxml_use_internal_errors(false);
+                        libxml_use_internal_errors(true);
                         $dom->loadHTML(
                             mb_convert_encoding($content, 'HTML-ENTITIES', 'UTF-8')
                         );
