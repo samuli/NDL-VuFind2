@@ -180,7 +180,7 @@ class Primo extends \VuFind\RecordDriver\Primo
     public function getPublicationDates()
     {
         $rec = $this->getSimpleXML();
-        if (isset($rec->addata->date)) {
+        if (isset($rec->facets->creationdate)) {
             return (array)($rec->facets->creationdate);
         }
     }
