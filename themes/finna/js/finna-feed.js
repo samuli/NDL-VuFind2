@@ -183,8 +183,12 @@ finna.feed = (function() {
             }
         })
         .fail(function(response, textStatus, err) {
-            holder.html('<!-- Feed could not be loaded: ' + response.responseJSON.data + ' -->');
-            console.log("Feed '" + id + "' could not be loaded: " + response.responseJSON.data);
+            var err = '<!-- Feed could not be loaded';
+            if (typeof response.responseJSON != 'undefined') {
+                err += ': ' + response.responseJSON.data;
+            }
+            err += ' -->';
+            holder.html(err);
         });
     };
 

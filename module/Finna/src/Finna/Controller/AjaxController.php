@@ -686,7 +686,7 @@ class AjaxController extends \VuFind\Controller\AjaxController
      */
     public function getFeedAjax()
     {
-        if (!$id = $this->params()->fromQuery('id')) {
+        if (null === ($id = $this->params()->fromQuery('id'))) {
             return $this->output('Missing feed id', self::STATUS_ERROR, 400);
         }
 
@@ -697,10 +697,14 @@ class AjaxController extends \VuFind\Controller\AjaxController
 
         $feedService = $this->getServiceLocator()->get('Finna\Feed');
         try {
-            list($channel, $items, $config, $modal)
+            $feed
                 = $feedService->readFeed(
                     $id, $this->url(), $this->getServerUrl('home')
                 );
+            $channel = $feed['channel'];
+            $items = $feed['items'];
+            $config = $feed['config'];
+            $modal = $feed['modal'];
         } catch (\Exception $e) {
             return $this->output($e->getMessage(), self::STATUS_ERROR, 400);
         }
@@ -796,26 +800,29 @@ class AjaxController extends \VuFind\Controller\AjaxController
      */
     public function getContentFeedAjax()
     {
-        if (!$id = $this->params()->fromQuery('id')) {
+        if (null === ($id = $this->params()->fromQuery('id'))) {
             return $this->output('Missing feed id', self::STATUS_ERROR, 400);
         }
-
-        $num = $this->params()->fromQuery('num');
-        if ($num === null) {
-            $num = 0;
-        }
+        $num = $this->params()->fromQuery('num', 0);
 
         $feedService = $this->getServiceLocator()->get('Finna\Feed');
         try {
-            list($channel, $items, $config, $modal)
+            $feed
                 = $feedService->readFeed(
                     $id, $this->url(), $this->getServerUrl('home')
                 );
+            $channel = $feed['channel'];
+            $items = $feed['items'];
+            $config = $feed['config'];
+            $modal = $feed['modal'];
         } catch (\Exception $e) {
             return $this->output($e->getMessage(), self::STATUS_ERROR, 400);
         }
 
-        return $this->output($items[$num], self::STATUS_OK);
+        return $this->output(
+            isset($items[$num]) ? $items[$num] : false,
+            self::STATUS_OK
+        );
     }
 
     /**

@@ -1,17 +1,18 @@
 /*global VuFind*/
 finna.contentFeed = (function() {
-    var loadFeed = function(holder, modal) {
-        var id = holder.data('feed');
-        var num = holder.data('num');
+    var loadFeed = function(container, modal) {
+        var id = container.data('feed');
+        var num = container.data('num');
 
-        var contentHolder = holder.find('.holder');
+        var contentHolder = container.find('.holder');
         // Append spinner
         contentHolder.append('<i class="fa fa-spin fa-spinner"></i>');
         contentHolder.find('.fa-spin').fadeOut(0).delay(1000).fadeIn(100);
 
-        var url = VuFind.path + '/AJAX/JSON?method=getContentFeed&id=' + id + '&num=' + num;
+        var url = VuFind.path + '/AJAX/JSON';
+        var params = {method: 'getContentFeed', id: id, num: num};
 
-        $.getJSON(url)
+        $.getJSON(url, params)
         .done(function(response) {
             if (response.data) {
                 contentHolder.html(response.data.html);
@@ -24,7 +25,12 @@ finna.contentFeed = (function() {
             }
         })
         .fail(function(response, textStatus, err) {
-            contentHolder.html('<!-- Feed could not be loaded: ' + response.responseJSON.data + ' -->');
+            var err = '<!-- Feed could not be loaded';
+            if (typeof response.responseJSON != 'undefined') {
+                err += ': ' + response.responseJSON.data;
+            }
+            err += ' -->';
+            contentHolder.html(err);
         });
 
         $('#modal').one('hidden.bs.modal', function() {

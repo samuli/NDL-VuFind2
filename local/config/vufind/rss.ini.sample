@@ -40,7 +40,7 @@
 ; htmlContentReplace[] = 'replace-2'
 ;
 ; Example: remove links with a specific attribute
-; htmlContentSearch[] = '<a rel="nofollow".*<\/a>'
+; htmlContentSearch[] = '<a rel="nofollow".*?<\/a>'
 ; htmlContentReplace[] = ''
 
 

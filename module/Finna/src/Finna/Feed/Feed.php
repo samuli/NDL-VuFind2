@@ -41,9 +41,7 @@ use Zend\Config\Config,
  */
 class Feed implements \Zend\Log\LoggerAwareInterface
 {
-    use \VuFind\Log\LoggerAwareTrait {
-        logError as error;
-    }
+    use \VuFind\Log\LoggerAwareTrait;
 
     /**
      * Main configuration.
@@ -102,9 +100,9 @@ class Feed implements \Zend\Log\LoggerAwareInterface
     /**
      * Get feed configuration.
      *
-     * Returns an array containing:
-     *   - VuFind\Config Feed configuration
-     *   - string        Feed URL
+     * Returns an array with the keys:
+     *   - 'config' VuFind\Config Feed configuration
+     *   - 'url'    string        Feed URL
      *
      * @param string $id Feed id
      *
@@ -113,18 +111,18 @@ class Feed implements \Zend\Log\LoggerAwareInterface
     protected function getFeedConfig($id)
     {
         if (!isset($this->feedConfig[$id])) {
-            $this->error("Missing configuration (id $id)");
+            $this->logError("Missing configuration (id $id)");
             return false;
         }
 
         $result = $this->feedConfig[$id];
         if (!$result->active) {
-            $this->error("Feed inactive (id $id)");
+            $this->logError("Feed inactive (id $id)");
             return false;
         }
 
         if (empty($result->url)) {
-            $this->error("Missing feed URL (id $id)");
+            $this->logError("Missing feed URL (id $id)");
             return false;
         }
 
@@ -136,11 +134,11 @@ class Feed implements \Zend\Log\LoggerAwareInterface
         } else if (isset($url['*'])) {
             $url = trim($url['*']);
         } else {
-            $this->error("Missing feed URL (id $id)");
+            $this->logError("Missing feed URL (id $id)");
             return false;
         }
 
-        return [$result, $url];
+        return compact('result', 'url');
     }
 
     /**
@@ -173,11 +171,11 @@ class Feed implements \Zend\Log\LoggerAwareInterface
     }
 
     /**
-     * Return feed content and settings in an array containing:
-     *   - Zend\Feed\Reader\Feed\Rss Feed
-     *   - array                     Feed item data
-     *   - VuFind\Config             Feed configuration
-     *   - boolean                   Display feed content in a modal
+     * Return feed content and settings in an array with the keys:
+     *   - 'channel' Zend\Feed\Reader\Feed\Rss Feed
+     *   - 'items'   array                     Feed item data
+     *   - 'config'  VuFind\Config             Feed configuration
+     *   - 'modal'   boolean                   Display feed content in a modal
      *
      * @param string                         $id        Feed id
      * @param Zend\Mvc\Controller\Plugin\Url $urlHelper Url helper
@@ -191,8 +189,8 @@ class Feed implements \Zend\Log\LoggerAwareInterface
             throw new \Exception('Error reading feed');
         }
 
-        $config = $result[0];
-        $url = $result[1];
+        $config = $result['result'];
+        $url = $result['url'];
 
         $type = $config->type;
 
@@ -211,7 +209,6 @@ class Feed implements \Zend\Log\LoggerAwareInterface
         $channel = null;
 
         // Check for cached version
-        $readFromCache = true;
         $cacheDir
             = $this->cacheManager->getCache('feed')->getOptions()->getCacheDir();
 
@@ -230,8 +227,6 @@ class Feed implements \Zend\Log\LoggerAwareInterface
         }
 
         if (!$channel) {
-            $readFromCache = false;
-
             // No cache available, read from source.
             if (preg_match('/^http(s)?:\/\//', $url)) {
                 // Absolute URL
@@ -243,19 +238,16 @@ class Feed implements \Zend\Log\LoggerAwareInterface
             } else {
                 // Local file
                 if (!is_file($url)) {
-                    $this->error("File $url could not be found (id $id)");
+                    $this->logError("File $url could not be found (id $id)");
                     throw new \Exception('Error reading feed');
                 }
                 $channel = Reader::importFile($url);
             }
+            file_put_contents($localFile, $channel->saveXml());
         }
 
         if (!$channel) {
             return false;
-        }
-
-        if (!$readFromCache) {
-            file_put_contents($localFile, $channel->saveXml());
         }
 
         $content = [
@@ -285,25 +277,25 @@ class Feed implements \Zend\Log\LoggerAwareInterface
                 if (!isset($elements[$setting])
                     || $elements[$setting] != 0
                 ) {
-                    $tmp = $item->{$method}();
-                    if (is_object($tmp)) {
-                        $tmp = get_object_vars($tmp);
+                    $value = $item->{$method}();
+                    if (is_object($value)) {
+                        $value = get_object_vars($value);
                     }
 
                     if ($setting == 'image') {
-                        if (!$tmp
-                            || stripos($tmp['type'], 'image') === false
+                        if (!$value
+                            || stripos($value['type'], 'image') === false
                         ) {
                             // Attempt to parse image URL from content
-                            if ($tmp = $this->extractImage($item->getContent())) {
-                                $tmp = ['url' => $tmp];
+                            if ($value = $this->extractImage($item->getContent())) {
+                                $value = ['url' => $value];
                             }
                         }
                     } else if ($setting == 'date') {
-                        if (isset($tmp['date'])) {
-                            $tmp = new \DateTime(($tmp['date']));
+                        if (isset($value['date'])) {
+                            $value = new \DateTime(($value['date']));
                             if ($dateFormat) {
-                                $tmp = $tmp->format($dateFormat);
+                                $value = $value->format($dateFormat);
                             }
                         }
                     } else if ($setting == 'link' && $showFullContentOnSite) {
@@ -311,14 +303,14 @@ class Feed implements \Zend\Log\LoggerAwareInterface
                             'feed-content-page',
                             ['page' => $id, 'element' => $cnt]
                         );
-                        $tmp = $link;
+                        $value = $link;
                     } else {
-                        if (is_string($tmp)) {
-                            $tmp = strip_tags($tmp);
+                        if (is_string($value)) {
+                            $value = strip_tags($value);
                         }
                     }
-                    if ($tmp) {
-                        $data[$setting] = $tmp;
+                    if ($value) {
+                        $data[$setting] = $value;
                     }
                 }
             }
@@ -333,12 +325,10 @@ class Feed implements \Zend\Log\LoggerAwareInterface
             }
 
             $items[] = $data;
-            if ($itemsCnt !== null) {
-                if (--$itemsCnt === 0) {
-                    break;
-                }
-            }
             $cnt++;
+            if ($itemsCnt !== null && $cnt == $itemsCnt) {
+                break;
+            }
         }
 
         if (!empty($xpathContent)) {
@@ -390,7 +380,7 @@ class Feed implements \Zend\Log\LoggerAwareInterface
                         foreach ($searchReplace as $search => $replace) {
                             $pattern = "/$search/";
                             $replaced = preg_replace($pattern, $replace, $content);
-                            if ($replaced) {
+                            if ($replaced !== null) {
                                 $content = $replaced;
                             }
                         }
@@ -399,6 +389,6 @@ class Feed implements \Zend\Log\LoggerAwareInterface
                 }
             }
         }
-        return [$channel, $items, $config, $modal];
+        return compact('channel', 'items', 'config', 'modal');
     }
 }
