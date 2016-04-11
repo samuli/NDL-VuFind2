@@ -701,13 +701,18 @@ class AjaxController extends \VuFind\Controller\AjaxController
                 = $feedService->readFeed(
                     $id, $this->url(), $this->getServerUrl('home')
                 );
-            $channel = $feed['channel'];
-            $items = $feed['items'];
-            $config = $feed['config'];
-            $modal = $feed['modal'];
         } catch (\Exception $e) {
             return $this->output($e->getMessage(), self::STATUS_ERROR, 400);
         }
+
+        if (!$feed) {
+            return $this->output('Error reading feed', self::STATUS_ERROR, 400);
+        }
+
+        $channel = $feed['channel'];
+        $items = $feed['items'];
+        $config = $feed['config'];
+        $modal = $feed['modal'];
 
         $images
             = isset($config->content['image'])
@@ -811,13 +816,18 @@ class AjaxController extends \VuFind\Controller\AjaxController
                 = $feedService->readFeed(
                     $id, $this->url(), $this->getServerUrl('home')
                 );
-            $channel = $feed['channel'];
-            $items = $feed['items'];
-            $config = $feed['config'];
-            $modal = $feed['modal'];
         } catch (\Exception $e) {
             return $this->output($e->getMessage(), self::STATUS_ERROR, 400);
         }
+
+        if (!$feed) {
+            return $this->output('Error reading feed', self::STATUS_ERROR, 400);
+        }
+
+        $channel = $feed['channel'];
+        $items = $feed['items'];
+        $config = $feed['config'];
+        $modal = $feed['modal'];
 
         return $this->output(
             isset($items[$num]) ? $items[$num] : false,
