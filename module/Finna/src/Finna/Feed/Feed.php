@@ -243,7 +243,9 @@ class Feed implements \Zend\Log\LoggerAwareInterface
                 }
                 $channel = Reader::importFile($url);
             }
-            file_put_contents($localFile, $channel->saveXml());
+            if ($channel) {
+                file_put_contents($localFile, $channel->saveXml());
+            }
         }
 
         if (!$channel) {
