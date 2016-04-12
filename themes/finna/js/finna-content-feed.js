@@ -39,7 +39,7 @@ finna.contentFeed = (function() {
     };
 
     var my = {
-        load: loadFeed,
+        loadFeed: loadFeed,
         init: function() {
             loadFeed($('.feed-content'), false);
         }

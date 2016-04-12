@@ -10,7 +10,7 @@
   if ($this->modal) {
      $setupJS = <<<JS
 $(document).ready(function() {
-   finna.contentFeed.load($('#modal .feed-content'), true);
+   finna.contentFeed.loadFeed($('#modal .feed-content'), true);
 });
 JS;
     $this->headScript()->appendScript($setupJS);
