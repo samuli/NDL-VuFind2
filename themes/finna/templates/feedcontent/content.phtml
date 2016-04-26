@@ -19,12 +19,20 @@ JS;
 
 <?=$this->headScript()?>
 <div class="row">
-  <div class="col-xs-12 feed-content" data-feed="<?=$this->escapeHtmlAttr($this->feed)?>" data-num="<?=$this->escapeHtmlAttr($this->element)?>">
+  <div class="col-<?= $this->modal ? 'xs-12' : 'sm-9'?> feed-content" data-feed="<?=$this->escapeHtmlAttr($this->feed)?>" data-num="<?=$this->escapeHtmlAttr($this->element)?>">
   <? if ($this->modal): ?>
+    <div class="date"></div>
     <div class="holder"></div>
   <? else: ?>
     <div class="row">
-      <div class="col-md-10 col-lg-8 holder"></div>
+      <div class="col-sm-3 sidebar">
+        <div><?=$this->translate('content-feed-navigation')?></div>
+        <div class="content-navigation-menu"></div>
+      </div>
+      <div class="col-md-10 col-lg-8">
+        <div class="date"></div>
+        <div class="holder"></div>
+      </div>
     </div>
   <? endif; ?>
   </div>

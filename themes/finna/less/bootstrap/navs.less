@@ -389,8 +389,13 @@
 }
 
 // content-navigation-menu
+.main.template-dir-feedcontent.template-name-content .content-navigation-menu,
 .main.template-dir-content.template-name-content .content-navigation-menu {
     margin: 20px 0px;
+    & a {
+        color: inherit;
+        text-decoration: none;
+    }
     & h2 {
         background: @gray;
         color: #fff;
@@ -427,4 +432,3 @@
         }
     }
 }
-

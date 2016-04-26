@@ -14,14 +14,16 @@ finna.contentFeed = (function() {
 
         $.getJSON(url, params)
         .done(function(response) {
-            if (response.data) {
-                contentHolder.html(response.data.html);
-                var title = response.data.title;
+            if (response.data && typeof response.data.item != 'undefined') {
+                contentHolder.html(response.data.item.html);
+                var title = response.data.item.title;
 
                 if (!modal) {
                     $('.content-header').text(title);
                     document.title = title + ' | ' + document.title;
+                    $('.content-navigation-menu').html(response.data.navigation);
                 }
+                container.find('.date').text(response.data.item.contentDate);
             }
         })
         .fail(function(response, textStatus, err) {
