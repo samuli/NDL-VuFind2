@@ -21,7 +21,13 @@ finna.contentFeed = (function() {
                 if (!modal) {
                     $('.content-header').text(title);
                     document.title = title + ' | ' + document.title;
-                    $('.content-navigation-menu').html(response.data.navigation);
+                    if (typeof response.data.navigation != 'undefined') {
+                        $('.menu-label').show();
+                        $('.content-navigation-menu').html(response.data.navigation);
+                    }
+                }
+                if (typeof response.data.item.contentDate != 'undefined') {
+                    container.find('.date').text(response.data.item.contentDate);
                 }
                 container.find('.date').text(response.data.item.contentDate);
             }

@@ -204,7 +204,7 @@ class Feed implements \Zend\Log\LoggerAwareInterface
         $modal = $config->linkTo == 'modal';
         $contentPage = $config->linkTo == 'content-page';
         $dateFormat = isset($config->dateFormat) ? $config->dateFormat : 'j.n.';
-        $contentDateFormat = isset($config->contentDdateFormat)
+        $contentDateFormat = isset($config->contentDateFormat)
             ? $config->contentDateFormat : 'j.n.Y';
 
         $itemsCnt = isset($config->items) ? $config->items : null;
