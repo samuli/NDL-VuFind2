@@ -84,4 +84,24 @@ trait FinnaRecord
         }
         return $params;
     }
+    
+    /**
+     * Get saved time associated with this record in user lists.
+     *
+     * @param int $list_id ID of list to load tags from (null for all lists)
+     * @param int $user_id ID of user to load tags from (null for all users)
+     *
+     * @return timestamp
+     */
+    public function getListSavedDate($list_id = null, $user_id = null)
+    {
+        $db = $this->getDbTable('UserResource');
+        $data = $db->getSavedData(
+            $this->getUniqueId(), $this->getSourceIdentifier(), $list_id, $user_id
+        );
+        foreach ($data as $current) {
+            return $current->saved;
+        }
+        return null;
+    }
 }
