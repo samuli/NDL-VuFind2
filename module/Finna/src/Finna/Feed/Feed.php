@@ -202,7 +202,11 @@ class Feed implements \Zend\Log\LoggerAwareInterface
             && in_array($config->linkTo, ['modal', 'content-page']);
 
         $modal = $config->linkTo == 'modal';
+        $contentPage = $config->linkTo == 'content-page';
         $dateFormat = isset($config->dateFormat) ? $config->dateFormat : 'j.n.';
+        $contentDateFormat = isset($config->contentDateFormat)
+            ? $config->contentDateFormat : 'j.n.Y';
+
         $itemsCnt = isset($config->items) ? $config->items : null;
         $elements = isset($config->content) ? $config->content : [];
 
@@ -263,6 +267,7 @@ class Feed implements \Zend\Log\LoggerAwareInterface
             'image' => 'getEnclosure',
             'link' => 'getLink',
             'date' => 'getDateCreated',
+            'contentDate' => 'getDateCreated'
         ];
 
         $xpathContent = [
@@ -303,6 +308,13 @@ class Feed implements \Zend\Log\LoggerAwareInterface
                             $value = new \DateTime(($value['date']));
                             if ($dateFormat) {
                                 $value = $value->format($dateFormat);
+                            }
+                        }
+                    } else if ($setting == 'contentDate') {
+                        if (isset($value['date'])) {
+                            $value = new \DateTime(($value['date']));
+                            if ($contentDateFormat) {
+                                $value = $value->format($contentDateFormat);
                             }
                         }
                     } else if ($setting == 'link' && $showFullContentOnSite) {
@@ -372,6 +384,7 @@ class Feed implements \Zend\Log\LoggerAwareInterface
                                 list($field, $val) = explode(':', $prop);
                                 if (stristr($field, 'width') === false
                                     && stristr($field, 'height') === false
+                                    && stristr($field, 'margin') === false
                                 ) {
                                     $styleProperties[] = $prop;
                                 }
@@ -396,6 +409,6 @@ class Feed implements \Zend\Log\LoggerAwareInterface
                 }
             }
         }
-        return compact('channel', 'items', 'config', 'modal');
+        return compact('channel', 'items', 'config', 'modal', 'contentPage');
     }
 }
