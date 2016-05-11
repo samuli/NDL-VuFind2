@@ -386,7 +386,8 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                 $data[$map] = $mapUrl;
             }
 
-            if ($schedules = $this->parseDetails($item)) {
+            $schedules = $this->parseDetails($item);
+            if ($schedules && isset($schedules['openNow'])) {
                 $data['openNow'] = !empty($schedules['openNow']);
             }
 
@@ -500,7 +501,6 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                 'Helpers/organisation-info-schedule.phtml',
                 ['schedules' => $schedules]
             );
-
         }
         if ($currentWeek) {
             $result['openNow'] = $openNow;

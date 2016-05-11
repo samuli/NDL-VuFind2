@@ -108,8 +108,8 @@ finna.organisationInfo = (function() {
         var data = organisationList[id];
         openNow = getField(data, 'openNow');
 
+        holder.find('.is-open').hide();
         if (openNow !== null) {
-            holder.find('.is-open').hide();
             holder.find('.is-open' + (openNow ? '.open' : '.closed')).show();
         }
 
@@ -277,7 +277,7 @@ finna.organisationInfo = (function() {
     };
 
     var getField = function(obj, field, organisationId) {
-        if (typeof obj[field] != 'undefined') {
+        if (field in obj && typeof obj[field] != 'undefined') {
             return obj[field];
         }
         if (organisationId) {
