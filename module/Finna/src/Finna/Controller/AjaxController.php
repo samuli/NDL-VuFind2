@@ -948,8 +948,9 @@ class AjaxController extends \VuFind\Controller\AjaxController
      */
     public function getOrganisationInfoAjax()
     {
-        if (!$consortium = $this->params()->fromQuery('consortium')) {
-            return $this->output('Missing consortium', self::STATUS_ERROR, 400);
+        
+        if (!$parent = $this->params()->fromQuery('parent')) {
+            return $this->output('Missing parent', self::STATUS_ERROR, 400);
         }
 
         $params = $this->params()->fromQuery('params');
@@ -962,10 +963,10 @@ class AjaxController extends \VuFind\Controller\AjaxController
 
         $service = $this->getServiceLocator()->get('Finna\OrganisationInfo');
         try {
-            $result = $service->query($consortium, $params);
+            $result = $service->query($parent, $params);
         } catch (\Exception $e) {
             return $this->output(
-                "Error reading organisation info (consortium $consortium)",
+                "Error reading organisation info (parent $parent)",
                 self::STATUS_ERROR, 400
             );
         }

@@ -5,9 +5,9 @@ finna.organisationInfo = (function() {
     var currentScheduleInfo = null;
     var loading = false;
 
-    var query = function(organisation, queryParams, callback) {
+    var query = function(parentId, queryParams, callback) {
         var url = VuFind.path + '/AJAX/JSON';
-        var params = {method: 'getOrganisationInfo', consortium: organisation, params: queryParams};
+        var params = {method: 'getOrganisationInfo', parent: parentId, params: queryParams};
 
         $.getJSON(url, params)
         .done(function(response) {
@@ -31,15 +31,15 @@ finna.organisationInfo = (function() {
     var loadOrganisationList = function(holder) {
         holder.find('.week-navi.prev-week').fadeTo(0,0);
 
-        var consortium = holder.data('consortium');
-        if (typeof consortium == 'undefined') {
+        var parent = holder.data('parent');
+        if (typeof parent == 'undefined') {
             return;
         }
 
         toggleSpinner(holder, true);
         holder.find('.error,.info-element').hide();
 
-        var response = query(consortium, {action: 'list'}, function(success, response) {
+        var response = query(parent, {action: 'list'}, function(success, response) {
             if (!success) {
                 holder.html('<!-- Organisation info could not be loaded: ' + response + ' -->');
             }
@@ -149,7 +149,6 @@ finna.organisationInfo = (function() {
 
     var loadDetails = function(holder, id, fullDetails, dir) {
         var periodStart = holder.data('period-start');
-        var params = {action: 'details', id: id};
 
         if (fullDetails) {
             details = getCachedDetails(id);
@@ -171,7 +170,7 @@ finna.organisationInfo = (function() {
             params = $.extend(params, {dir: dir});
         }
 
-        query(holder.data('consortium'), params, function(success, obj) {
+        query(holder.data('parent'), params, function(success, obj) {
             if (!success) {
                 holder.find('.error').show();
                 return;
@@ -313,7 +312,9 @@ finna.organisationInfo = (function() {
 
     var my = {
         init: function() {
-            loadOrganisationList($('.organisation-info'));
+            $('.organisation-info').map(function() {
+                loadOrganisationList($(this));
+            });
         }
     };
     return my;

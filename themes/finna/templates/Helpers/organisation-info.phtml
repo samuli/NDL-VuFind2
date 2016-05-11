@@ -1,5 +1,5 @@
 <? $this->headScript()->appendFile("finna-organisation-info.js"); ?>
-<div class="organisation-info" data-consortium="<?=$this->escapeHtmlAttr($this->consortium)?>"<?=isset($this->id) ? (' data-id="' . $this->id . '"') : ''?>>
+<div class="organisation-info" data-parent="<?=$this->escapeHtmlAttr($this->id)?>">
   <div class="row">
     <div class="col-xs-12">
       <h2><?=$this->transEsc('organisation-info-title');?></h2>

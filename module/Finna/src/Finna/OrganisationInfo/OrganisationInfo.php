@@ -96,37 +96,60 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
     /**
      * Perform query.
      *
-     * @param string $consortium Consortium
-     * @param array  $params     Query parameters
+     * @param string $parent Parent organisation
+     * @param array  $params Query parameters
      *
      * @return mixed array of results or false on error.
      */
-    public function query($consortium, $params = null)
+    public function query($parent, $params)
     {
-        if (!isset($this->mainConfig[$consortium])) {
-            $this->logError("Missing configuration (consortium: $consortium)");
+        $id = null;
+        if (isset($params['id'])) {
+            $id = $params['id'];
+        }
+
+
+        if (!isset($this->mainConfig[$parent])) {
+            $this->logError("Missing configuration ($parent)");
             return false;
         }
 
         if (!$this->config) {
             $this->config = array_merge(
                 $this->mainConfig->General->toArray(),
-                $this->mainConfig[$consortium]->toArray()
+                $this->mainConfig[$parent]->toArray()
             );
         }
 
         if (!$this->config['enabled']) {
-            $this->logError("Organisation info disabled (consortium: $consortium)");
+            $this->logError("Organisation info disabled ($parent)");
             return false;
         }
 
         if (!isset($this->config['url'])) {
             $this->logError(
                 "URL missing from organisation info configuration"
-                . "(consortium: $consortium)"
+                . "($parent)"
             );
             return false;
         }
+
+        $parentType = null;
+        if (isset($this->config['consortium'])) {
+            $parentType = 'consortium';
+        } else if (isset($this->config['parent'])) {
+            $parentType = 'parent';
+        }
+
+        if (!$parentType) {
+            $this->logError(
+                "Missing consortium/parent from organisation info configuration"
+                . "($parent)"
+            );
+            return false;
+        }
+
+        $parentId = $this->config[$parentType];
 
         $action = isset($params['action']) ? $params['action'] : 'list';
         $id = null;
@@ -171,10 +194,9 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
         switch ($action) {
 
         case 'list':
-            $url .= '/organisation';
+            $url .= '/library';
             $params = [
-                 'refs' => 'consortium',
-                 'consortium' => $this->config['consortium'],
+                 $parentType => $parentId,
                  'with' => 'schedules',
                  'period.start' => 'today',
                  'period.end' => 'today',
