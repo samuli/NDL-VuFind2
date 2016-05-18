@@ -55,7 +55,7 @@ class Resource extends \VuFind\Db\Table\Resource
     {
         // Apply sorting, if necessary:
         $legalSorts = [
-            'id desc', 'title', 'title desc', 
+            'id desc', 'title', 'title desc',
             'author', 'author desc', 'year', 'year desc'
         ];
         if (!empty($sort) && in_array(strtolower($sort), $legalSorts)) {
