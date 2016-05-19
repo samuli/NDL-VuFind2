@@ -6,8 +6,6 @@
 
   $setupJS = '$(document).ready(function() { finna.organisationInfoPage.init(' . $this->library . ');});';
   $this->headScript()->appendScript($setupJS);
-  $this->mapWidget = 'openlayers';
-//$this->mapWidget = 'google';
 ?>
 <div class="organisation-info-page organisation-page-information-wrapper" data-parent="<?=$this->escapeHtmlAttr($this->id)?>"<?=isset($this->library)? (' data-library="' . $this->escapeHtmlAttr($this->library) . '"') : ''?>>
   <div class="row office-search">

@@ -62,18 +62,25 @@ class OrganisationPage extends \Zend\View\Helper\AbstractHelper
      *
      * @return mixed null|string
      */
-    public function __invoke($id = false)
+    public function __invoke($mapWidget = 'openlayers')
     {
         if (!$this->config->General->enabled) {
             return;
         }
 
-        if (!$id) {
-            if (!isset($this->config->General->organisationPage)) {
-                return;
-            }
-            $id = $this->config->General->organisationPage;
+        if (!isset($this->config->General->organisationPage)) {
+            return;
         }
+        $id = $this->config->General->organisationPage;
+        
+        /*
+        $mapWidget = 'openlayers';
+        if (isset($this->config->General->mapWidget)) {
+            $widget = $this->config->General->mapWidget;
+            if (in_array($widget, ['google', 'openlayers'])) {
+                $mapWidget = $widget;
+            }
+            }*/
 
         if (!isset($this->config[$id])
             || (!isset($this->config[$id]['consortium'])
@@ -82,7 +89,7 @@ class OrganisationPage extends \Zend\View\Helper\AbstractHelper
             return;
         }
         
-        $params = ['id' => $id];
+        $params = ['id' => $id, 'mapWidget' => $mapWidget];
         if (isset($this->config[$id]['default'])) {
             $params['library'] = $this->config[$id]['default'];
         }
