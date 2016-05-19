@@ -28,6 +28,7 @@ finna.organisationInfoPage = (function() {
 
                 infoWidget.organisationListLoaded(response);
                 initMap();
+                $('.office-quick-information').show();
                 initSearch();
                 $("#office-search").attr("placeholder", "Hae palvelupistettä (yhteensä: " + cnt + ")");
                 updateSelectedOrganisation(id);
@@ -60,15 +61,8 @@ finna.organisationInfoPage = (function() {
                 openNow = obj.openNow;
             }
             
-            if (openNow === null) {
-                bubble.find('.schedule').hide();
-            } else {
-                bubble.find('.no-schedule').hide();
-                // TODO
-                bubble.find('.schedule .opens').text('1');
-                bubble.find('.schedule .closes').text('2');
-                //
-                bubble.find('.schedule .open-closed').hide();
+            bubble.find('.schedule .open-closed').hide();
+            if (openNow !== null) {
                 bubble.find('.schedule .open-closed' + (obj.openNow ? '.open' : '.closed')).show();                    
             }
             
@@ -203,9 +197,13 @@ finna.organisationInfoPage = (function() {
         if ('links' in data.details) {
             var links = data.details['links'];
             if (links.length) {
-                var btn = holder.find('.social-button');
-                btn.find('> a').attr('href', links[0]['url']);
-                btn.show();
+                $.each(links, function(ind, obj) {
+                    if (obj.name == 'Facebook') {
+                        var btn = holder.find('.social-button');
+                        btn.find('> a').attr('href', links[0]['url']);
+                        btn.show();
+                    }
+                });
             }
         }
 
@@ -235,6 +233,7 @@ finna.organisationInfoPage = (function() {
             } else {
                 img.fadeTo(300, 1);
             }
+            holder.find('.building-name').text(data.name).show();
         } else {
             img.hide();
         }
@@ -250,10 +249,13 @@ finna.organisationInfoPage = (function() {
             phones.find('> p').html(data.details.phone);
             phones.show();
         }
+        
+        $('.office-information').show();
     };
 
     var updateServices = function(data) {
         if ('allServices' in data.details) {
+            holder.find('.services').show();
             var serviceHolder = holder.find('.service-list').empty();
             $(data.details.allServices).each(function(ind, obj) {
                 var li = $('<li/>');

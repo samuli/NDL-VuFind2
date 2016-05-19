@@ -32,9 +32,9 @@
       <h5 class="name"></h5>
       <strong class="address"></strong>
       <p class="schedule">
-        <span class="opens"></span> - <span class="closes"></span> <span class="open-closed closed"><?=$this->translate('organisation-info-is-closed')?></span><span class="open-closed open"><?=$this->translate('organisation-info-is-open')?></span>
+        <span class="open-closed closed"><?=$this->translate('organisation-info-is-closed')?></span>
+        <span class="open-closed open"><?=$this->translate('organisation-info-is-open')?></span>
       </p>
-      <p class="no-schedule"><?=$this->translate('organisation-info-no-schedule')?></p>
     </div>
   </div>
 
@@ -102,7 +102,7 @@
         </div>
       </div>
 
-      <div class="finna-panel services">
+      <div class="finna-panel services info-element">
         <h4 class="panel-title">
           <a data-toggle="collapse" href="#collapse6"><?=$this->translate('organisation-info-services')?></a>
         </h4>
@@ -119,7 +119,8 @@
         </h4>
         <div id="collapse1" class="panel-collapse collapse in">
           <img class="building-image" src="#" />
-          <p class="building-name"></p><p class="building-year info-element"><?=$this->translate('organisation-info-building-year')?>: <span></span></p>
+          <p class="buildingo-name"></p>
+          <p class="building-year info-element"><?=$this->translate('organisation-info-building-year')?>: <span></span></p>
           <p class="office-description description-long info-element"></p>
         </div>
       </div>

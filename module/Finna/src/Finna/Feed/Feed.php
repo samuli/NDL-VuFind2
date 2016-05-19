@@ -172,10 +172,6 @@ class Feed implements \Zend\Log\LoggerAwareInterface
 
     public function readFeedFromUrl($url, $config, $urlHelper, $viewUrl)
     {
-        error_log("readfromurl");
-        
-        error_log("conf: " . var_export($config, true));
-
         $config = new \Zend\Config\Config($config);
         return $this->processReadFeed($config, $urlHelper, $viewUrl);
     }
@@ -203,9 +199,6 @@ class Feed implements \Zend\Log\LoggerAwareInterface
 
     public function processReadFeed($feedConfig, $urlHelper, $viewUrl)
     {
-        error_log("process: " . var_export($feedConfig, true));
-
-
         $config = $feedConfig['result'];
         $url = $feedConfig['url'];
 

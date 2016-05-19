@@ -5,6 +5,7 @@ finna = $.extend(finna, {
         var service = null;
         var currentScheduleInfo = null;
         var schedulesLoading = false;
+        var organisationList = {};
 
         var loadOrganisationList = function() {
             holder.find('.week-navi.prev-week').fadeTo(0,0);
@@ -26,18 +27,17 @@ finna = $.extend(finna, {
         };
 
         var organisationListLoaded = function(data) {
-            console.log("loaded: %o", data);
-
-            var organisationList = data['list'];
+            var list = data['list'];
             var id = data['id'];
 
             var found = false;
             var menu = holder.find('.organisation');
-            $.each(organisationList, function(ind, obj) {
+            $.each(list, function(ind, obj) {
                 if (id == obj['id']) {
                     found = true;
                 }
                 $('<option/>', {value: obj['id'], text: obj['name']}).appendTo(menu);
+                organisationList[obj['id']] = obj;
             });
 
             if (!found) {
@@ -58,10 +58,7 @@ finna = $.extend(finna, {
         };
         
         var attachWeekNaviListener = function() {
-            console.log("attach");
             holder.find('.week-navi').unbind('click').click(function() {
-                console.log("click");
-
                 if (schedulesLoading) {
                     return;
                 }
@@ -76,9 +73,12 @@ finna = $.extend(finna, {
                 $(this).removeClass('fa-arrow-right fa-arrow-left');
                 $(this).addClass('fa-spinner fa-spin');
                 
-                service.getSchedules(holder.data('target'), parent, id, holder.data('period-start'), dir, false, false, function(response) {
-                    schedulesLoaded(id, response);
-                });
+                service.getSchedules(
+                    holder.data('target'), parent, id, holder.data('period-start'), dir, false, false, 
+                    function(response) {
+                        schedulesLoaded(id, response);
+                    }
+                );
             });
         };
 
@@ -148,15 +148,40 @@ finna = $.extend(finna, {
                 holder.data('week-num', week);
                 holder.find('.week-navi-holder .week-text .num').text(week);
             }
-
             updatePrevBtn(response);
-
+            
             var schedulesHolder = holder.find('.schedules');
             var hasSchedules = 'html' in response;
             if (hasSchedules) {
                 schedulesHolder.find('.content').html(response['html']);
             } else {
-                holder.find('.no-schedules').show();
+                var links = null;
+                var data = organisationList[id];
+                var linkHolder = holder.find('.mobile-schedules');
+                linkHolder.empty();
+
+                if (data.mobile) {
+                    linkHolder.show();
+                    if ('links' in data.details) {
+                        $.each(data.details.links, function(ind, obj) {                            
+                            var link = holder.find('.mobile-schedule-link-template').eq(0).clone();
+                            link.removeClass('hide mobile-schedule-link-template');
+                            link.find('a').attr('href', obj.url).text(obj.name);
+                            link.appendTo(linkHolder);
+                        });
+                        links = true;
+                    }
+                }
+                if (!links) {
+                    holder.find('.no-schedules').show();
+                }
+            }
+
+            if ('schedule-descriptions' in organisationList[id].details) {
+                var infoHolder = holder.find('.schedules-info').empty().show();
+                $.each(organisationList[id].details['schedule-descriptions'], function(ind, obj) {
+                    infoHolder.append($('<p/>').text(obj));
+                });
             }
 
             holder.find('.week-navi-holder').toggle(hasSchedules);
@@ -166,6 +191,8 @@ finna = $.extend(finna, {
         var detailsLoaded = function(id, response) {
             toggleSpinner(false);
 
+
+            /*
             if ('description' in response) {
                 var info = response['description'];
                 if (!currentScheduleInfo || info != currentScheduleInfo) {
@@ -179,7 +206,7 @@ finna = $.extend(finna, {
                 }
             } else {
                 currentScheduleInfo = null;
-            }
+            }*/
 
             if ('periodStart' in response) {
                 holder.data('period-start', response['periodStart']);

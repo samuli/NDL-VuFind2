@@ -57,11 +57,11 @@
             color: #fff;
         }
         & i {
-           padding: 5px;
-           font-size: 1.5em;
+            padding: 5px;
+            font-size: 1.5em;
         }
         & .fa-facebook {
-           background: #3b5998;
+            background: #3b5998;
         }
         & .fa-twitter {
             background: #4099FF;
@@ -72,123 +72,123 @@
     }
 }
 .opening-times-widget {
-  padding-bottom: 20px;
-  & h4 {
-      margin: 0;
-  } 
-  & #opening_times_selection {
-    margin-bottom: 5px;
-    max-width: ~"-webkit-calc(100% - 70px)";
-    max-width: ~"-moz-calc(100% - 70px)";
-    max-width: ~"calc(100% - 70px)";
-  }
-  & .opening-times-library-information {
-    & .library-is-open {
-      float: right;
-      margin-top: 8px;
-      margin-right: 3px;
-    }
-    & .library-is-closed {
-      float: right;
-      margin-top: 8px;
-      margin-right: 3px;
-    }
+    padding-bottom: 20px;
     & h4 {
+        margin: 0;
+    } 
+    & #opening_times_selection {
         margin-bottom: 5px;
-        @media (max-width: @screen-sm-max) {
-            max-width: 400px;
-        }
+        max-width: ~"-webkit-calc(100% - 70px)";
+        max-width: ~"-moz-calc(100% - 70px)";
+        max-width: ~"calc(100% - 70px)";
     }
-    & .opening-times-week {
-        font-size: 1.1em;
-        width: 100%;
-        max-width: 400px;
-        margin-bottom: 20px;
-        & td {
-            padding: 2px 5px;
-            vertical-align: top;
+    & .opening-times-library-information {
+        & .library-is-open {
+            float: right;
+            margin-top: 8px;
+            margin-right: 3px;
         }
-        & td:first-child {
-            padding-left: 5px;
+        & .library-is-closed {
+            float: right;
+            margin-top: 8px;
+            margin-right: 3px;
         }
-        & .time {
-            text-align: right;
+        & h4 {
+            margin-bottom: 5px;
+            @media (max-width: @screen-sm-max) {
+                max-width: 400px;
+            }
         }
-        & .open-times-today {
-            background: @gray-lighter;
-            font-weight: bold;
-        }
-        & .staff {
-            display: block;
-            color: @gray-light;
-        }
-        & .week td {
-            font-weight: bold;
-            & i {
-                font-size: 1.5em;
-                margin-left: 4px;
-                vertical-align: middle;
-                margin-top: -3px;
-                color: @link-color;
-                &:hover {
-                    cursor: pointer;
+        & .opening-times-week {
+            font-size: 1.1em;
+            width: 100%;
+            max-width: 400px;
+            margin-bottom: 20px;
+            & td {
+                padding: 2px 5px;
+                vertical-align: top;
+            }
+            & td:first-child {
+                padding-left: 5px;
+            }
+            & .time {
+                text-align: right;
+            }
+            & .open-times-today {
+                background: @gray-lighter;
+                font-weight: bold;
+            }
+            & .staff {
+                display: block;
+                color: @gray-light;
+            }
+            & .week td {
+                font-weight: bold;
+                & i {
+                    font-size: 1.5em;
+                    margin-left: 4px;
+                    vertical-align: middle;
+                    margin-top: -3px;
+                    color: @link-color;
+                    &:hover {
+                        cursor: pointer;
+                    }
                 }
             }
         }
     }
-  }
-  & .facility-image  {
-      @media(max-width: @screen-sm-max) {
-          float: left;
-          margin-right: 10px;
-          margin-bottom: 10px;
-          width: 100px;
-      }
-  }
-  & .btn-open-widget {
-      background: @link-color;
-      border-radius: 0px;
-      margin-top: 5px;
-      margin-right: 2px;
-      color: @body-bg;
-      font-size: 1.8em;
-      font-weight: normal;
-      padding: 0px;
-      line-height: 35px;
-      height: 35px;
-      width: 35px;
-      @media(max-width: @screen-sm-max) {
-          clear:right;
-          margin-top: 0px;
-          margin-bottom: 5px;
-      }
-      &:hover {
-          background: darken(@link-color, 10%);
-      }
-      & i[class^='fa-'],[class*='fa-'] {
-          font-family: 'FontAwesome';
-      }
-      &.btn-round {
-          border-radius: 50px;
-          background: @gray-mid-light;
-          &:hover {
-              background: @gray-mid-light;
-          }
-      }
-  }
-  & .address {
-    margin-top: 5px;
-    letter-spacing: .3px;
-    @media(max-width: 336px) {
-        clear: both;
+    & .facility-image  {
+        @media(max-width: @screen-sm-max) {
+            float: left;
+            margin-right: 10px;
+            margin-bottom: 10px;
+            width: 100px;
+        }
     }
-  }
-  & .service-options {
-      margin-top: 5px;
-  }
-  & .kirjastohakemisto-link {
-      margin-top: 10px;
-  }
+    & .btn-open-widget {
+        background: @link-color;
+        border-radius: 0px;
+        margin-top: 5px;
+        margin-right: 2px;
+        color: @body-bg;
+        font-size: 1.8em;
+        font-weight: normal;
+        padding: 0px;
+        line-height: 35px;
+        height: 35px;
+        width: 35px;
+        @media(max-width: @screen-sm-max) {
+            clear:right;
+            margin-top: 0px;
+            margin-bottom: 5px;
+        }
+        &:hover {
+            background: darken(@link-color, 10%);
+        }
+        & i[class^='fa-'],[class*='fa-'] {
+            font-family: 'FontAwesome';
+        }
+        &.btn-round {
+            border-radius: 50px;
+            background: @gray-mid-light;
+            &:hover {
+                background: @gray-mid-light;
+            }
+        }
+    }
+    & .address {
+        margin-top: 5px;
+        letter-spacing: .3px;
+        @media(max-width: 336px) {
+            clear: both;
+        }
+    }
+    & .service-options {
+        margin-top: 5px;
+    }
+    & .kirjastohakemisto-link {
+        margin-top: 10px;
+    }
 }
 
 
@@ -234,7 +234,6 @@
                 }
                 &.closed {
                     color: red;
-                    margin-left: 10px;
                     display:inline-block;
                 }
             }
@@ -304,11 +303,16 @@
     & .fa-phone-square, .fa-bus, .fa-clock-o, .fa-desktop {
         font-family: 'FontAwesome';
     }
+    & .organisation-info {
+        margin-top: 10px;
+    }
     & .office-quick-information {
         margin-top: 15px;
         display: none;
         & .office-description {
-            margin-top: 10px;   
+            margin-top: 10px;
+            white-space: nowrap;
+            overflow: hidden;
         }
         & h2 {
             margin:0;
@@ -318,7 +322,7 @@
             margin-right: 10px;
             display: inline-block;
         }
-    
+        
     }
     & .office-search {
         & .searchbox-office {
@@ -326,7 +330,7 @@
             width: 100%;
             border: 1px solid @gray-lighter;
             border-radius: 10px;
-    
+            
             & input {
                 width: ~"-webkit-calc(100% - 40px)";
                 width: ~"-moz-calc(100% - 40px)";

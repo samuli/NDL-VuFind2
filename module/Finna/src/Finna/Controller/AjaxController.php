@@ -703,7 +703,6 @@ class AjaxController extends \VuFind\Controller\AjaxController
 
         $feedService = $this->getServiceLocator()->get('Finna\Feed');
         try {
-            error_log("id: $id, url: $url");
             if (!$url) {
                 $feed
                     = $feedService->readFeed(

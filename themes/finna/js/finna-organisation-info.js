@@ -11,7 +11,6 @@ organisationInfo: function() {
         var url = VuFind.path + '/AJAX/JSON';
         var params = {method: 'getOrganisationInfo', parent: parentId, params: queryParams};
 
-        console.log("query: %o", params);
         $.getJSON(url, params)
         .done(function(response) {
             loading = false;
@@ -98,7 +97,7 @@ organisationInfo: function() {
             details['openNow'] = openNow;
         }
 
-        $(['name', 'email', 'homepage', 'routeUrl', 'mapUrl', 'openToday', 'buildingYear']).each(function(ind, field) {
+        $(['name', 'email', 'homepage', 'routeUrl', 'mapUrl', 'openToday', 'buildingYear', 'schedule-descriptions']).each(function(ind, field) {
             if (val = getField(data, field)) {
                 details[field] = val;
             }
@@ -126,7 +125,6 @@ organisationInfo: function() {
     };
 
     var getSchedules = function(target, parent, id, periodStart, dir, fullDetails, allServices, callback) {
-        console.log("getsch: " + id + ", par: " + parent);
         if (fullDetails) {
             details = getCachedDetails(id);
             if (details && details.periodStart) {

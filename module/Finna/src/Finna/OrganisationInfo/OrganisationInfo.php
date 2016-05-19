@@ -162,8 +162,6 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             $id = $this->config['default'];
         }
 
-        $this->logError("id: $id");
-
         $now = false;
         if (isset($params['periodStart'])) {
             $now = strtotime($params['periodStart']);
@@ -222,7 +220,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             }
 
             $result = ['id' => $id];
-            $result['list'] = $this->parseList($target, $response);
+            $result['list'] = $this->parseList($language, $target, $response);
             $result['weekNum'] = $weekNum;
             
             return $result;
@@ -233,7 +231,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                 return false;
             }
 
-            $url .= "/library/$id";
+            $url .= "/library";
 
             $with = 'schedules';
             if (!empty($params['fullDetails'])) {
@@ -241,10 +239,12 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             }
 
             $params = [
+                'id' => $id,
                 'lang' => $language,
                 'with' => $with,
                 'period.start' => $startDate,
-                'period.end' => $endDate
+                'period.end' => $endDate,
+                'refs' => 'period'
             ];
 
             $response = $this->fetchData($url, $params);
@@ -252,12 +252,32 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                 $this->logError("Error reading organisation list (url: $url)");
                 return false;
             }
-
-            $result = $this->parseDetails($target, $response, $allServices);
+            
+            if (!$response['total']) {
+                return false;
+            }
+            
+            // References
+            $scheduleDescriptions = [];
+            if (isset($response['references']['period'])) {
+                foreach ($response['references']['period'] as $key => $period) {
+                    if (!empty($period['description'][$language])) {
+                        $scheduleDescriptions[] = $period['description'][$language];
+                    }
+                }
+            }
+            
+            // Details
+            $response = $response['items'][0];
+            $result = $this->parseDetails($language, $target, $response, $allServices);
 
             $result['id'] = $id;
             $result['periodStart'] = $startDate;
             $result['weekNum'] = $weekNum;
+
+            if (!empty($scheduleDescriptions)) {
+                $result['schedule-descriptions'] = $scheduleDescriptions;
+            }
 
             return $result;
 
@@ -306,12 +326,8 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
      */
     protected function fetchData($url, $params)
     {
-        //$params['lang'] = 'fi';
         $params['limit'] = 1000;
-
         $url .= '?' . http_build_query($params);
-
-        error_log("fetch: $url");
 
         $cacheDir = $this->cacheManager->getCache('organisation-info')
             ->getOptions()->getCacheDir();
@@ -373,7 +389,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
      *
      * @return array
      */
-    protected function parseList($target, $response)
+    protected function parseList($language, $target, $response)
     {
         $mapUrls = ['routeUrl', 'mapUrl'];
         $mapUrlConf = [];
@@ -398,6 +414,10 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                 'name' => $item['name'],
                 'slug' => $item['slug']
             ];
+
+            if ($item['branch_type'] == 'mobile') {
+                $data['mobile'] = 1;
+            }
 
             $fields = ['homepage', 'email'];
             foreach ($fields as $field) {
@@ -442,7 +462,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                 $data[$map] = $mapUrl;
             }
 
-            $schedules = $this->parseDetails($target, $item);
+            $schedules = $this->parseDetails($language, $target, $item);
             if ($schedules && isset($schedules['openNow'])) {
                 $data['openNow'] = !empty($schedules['openNow']);
             }
@@ -474,9 +494,10 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
      *
      * @return array
      */
-    protected function parseDetails($target, $response, $includeAllServices = false)
+    protected function parseDetails($language, $target, $response, $includeAllServices = false)
     {
         $result = [];
+
         if (!empty($response['extra']['description'])) {
             $result['info'] = $response['extra']['description'];
         }
@@ -525,21 +546,21 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             // Self service times
             if (!empty($day['sections']['selfservice']['times'])) {
                 foreach ($day['sections']['selfservice']['times'] as $time) {
-                    $result = $this->extractDayTime($now, $time, $today, true);
-                    if (!empty($result['openNow'])) {
+                    $res = $this->extractDayTime($now, $time, $today, true);
+                    if (!empty($res['openNow'])) {
                         $openNow = true;
                     }
-                    $times[] = $result['result'];
+                    $times[] = $res['result'];
                 }
             }
 
             // Staff times
             foreach ($day['times'] as $time) {
-                $result = $this->extractDayTime($now, $time, $today, false);
-                if (!empty($result['openNow'])) {
+                $res = $this->extractDayTime($now, $time, $today, false);
+                if (!empty($res['openNow'])) {
                     $openNow = true;
                 }
-                $times[] = $result['result'];
+                $times[] = $res['result'];
             }
 
             if ($today && !empty($times)) {
@@ -557,6 +578,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                 $currentWeek = true;
             }
         }
+
         if (!empty($schedules)) {
             $result['html'] = $this->viewRenderer->partial(
                 'Helpers/organisation-info-schedule.phtml',
@@ -600,10 +622,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
         if (!empty($response['links'])) {
             $links = [];
             foreach ($response['links'] as $link) {
-                if ($link['name'] != 'Facebook') {
-                    continue;
-                }
-                $links[] = ['type' => $link['name'], 'url' => $link['url']];
+                $links[] = ['name' => $link['name'], 'url' => $link['url']];
             }
             $result['links'] = $links;
         }
