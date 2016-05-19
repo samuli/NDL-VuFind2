@@ -170,6 +170,16 @@ class Feed implements \Zend\Log\LoggerAwareInterface
         return $img ? $img->getAttribute('src') : null;
     }
 
+    public function readFeedFromUrl($url, $config, $urlHelper, $viewUrl)
+    {
+        error_log("readfromurl");
+        
+        error_log("conf: " . var_export($config, true));
+
+        $config = new \Zend\Config\Config($config);
+        return $this->processReadFeed($config, $urlHelper, $viewUrl);
+    }
+
     /**
      * Return feed content and settings in an array with the keys:
      *   - 'channel' Zend\Feed\Reader\Feed\Rss Feed
@@ -185,12 +195,19 @@ class Feed implements \Zend\Log\LoggerAwareInterface
      */
     public function readFeed($id, $urlHelper, $viewUrl)
     {
-        if (!$result = $this->getFeedConfig($id)) {
+        if (!$config = $this->getFeedConfig($id)) {
             throw new \Exception('Error reading feed');
         }
+        return $this->processReadFeed($config, $urlHelper, $viewUrl);
+    }
 
-        $config = $result['result'];
-        $url = $result['url'];
+    public function processReadFeed($feedConfig, $urlHelper, $viewUrl)
+    {
+        error_log("process: " . var_export($feedConfig, true));
+
+
+        $config = $feedConfig['result'];
+        $url = $feedConfig['url'];
 
         $type = $config->type;
 
@@ -247,7 +264,7 @@ class Feed implements \Zend\Log\LoggerAwareInterface
             } else {
                 // Local file
                 if (!is_file($url)) {
-                    $this->logError("File $url could not be found (id $id)");
+                    $this->logError("File $url could not be found");
                     throw new \Exception('Error reading feed');
                 }
                 $channel = Reader::importFile($url);

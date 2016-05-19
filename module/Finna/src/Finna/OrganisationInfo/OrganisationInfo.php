@@ -101,7 +101,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
      *
      * @return mixed array of results or false on error.
      */
-    public function query($parent, $params)
+    public function query($parent, $params, $language)
     {
         $id = null;
         if (isset($params['id'])) {
@@ -134,6 +134,11 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             return false;
         }
 
+        $target = isset($params['target']) ? $params['target'] : 'widget';
+        $action = isset($params['action']) ? $params['action'] : 'list';
+        $search = ($action == 'search' && !empty($params['query'])) 
+            ? $params['query'] : null;
+
         $parentType = null;
         if (isset($this->config['consortium'])) {
             $parentType = 'consortium';
@@ -150,15 +155,14 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
         }
 
         $parentId = $this->config[$parentType];
-
-        $action = isset($params['action']) ? $params['action'] : 'list';
         $id = null;
         if (isset($params['id'])) {
             $id = $params['id'];
         } else if (isset($this->config['default'])) {
             $id = $this->config['default'];
         }
-        $url = $this->config['url'];
+
+        $this->logError("id: $id");
 
         $now = false;
         if (isset($params['periodStart'])) {
@@ -187,24 +191,43 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             $startDate = strtotime("{$dir} Week", $startDate);
             $endDate = strtotime("{$dir} Week", $endDate);
         }
+        
+        $allServices = !empty($params['allServices']);
+
         $weekNum = date('W', $startDate);
         $startDate = date('Y-m-d', $startDate);
         $endDate = date('Y-m-d', $endDate);
 
-        switch ($action) {
+        $url = $this->config['url'];
 
-        case 'list':
+
+        if ($action == 'list') {
             $url .= '/library';
             $params = [
-                 $parentType => $parentId,
-                 'with' => 'schedules',
-                 'period.start' => 'today',
-                 'period.end' => 'today',
-                 'limit' => 1000
+                'lang' => $language,
+                $parentType => $parentId,
+                'with' => 'schedules',
+                'period.start' => 'today',
+                'period.end' => 'today'
             ];
-            break;
+            
+            if ($search) {
+                $params['name'] = $search;
+            }
 
-        case 'details':
+            $response = $this->fetchData($url, $params);
+            if (!$response) {
+                $this->logError("Error reading organisation list (url: $url)");
+                return false;
+            }
+
+            $result = ['id' => $id];
+            $result['list'] = $this->parseList($target, $response);
+            $result['weekNum'] = $weekNum;
+            
+            return $result;
+
+        } else if ($action == 'details') {
             if (!$id) {
                 $this->logError("Missing id");
                 return false;
@@ -218,54 +241,60 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             }
 
             $params = [
+                'lang' => $language,
                 'with' => $with,
                 'period.start' => $startDate,
                 'period.end' => $endDate
             ];
-            break;
 
-        default:
-            $this->logError("Unknown action: $action");
-            return false;
-        }
-
-        $params['lang'] = 'fi';
-        $url .= '?' . http_build_query($params);
-
-        $response = $this->fetchData($url);
-        if (!$response) {
-            $this->logError("Error reading organisation info (url: $url)");
-            return false;
-        }
-
-        $response = json_decode($response, true);
-        $jsonError = json_last_error();
-        if ($jsonError !== JSON_ERROR_NONE) {
-            $this->logError("Error decoding JSON: $jsonError (url: $url)");
-            return false;
-        }
-
-        $result = [];
-
-        switch ($action) {
-
-        case 'list':
-            $result = [];
-            if ($id) {
-                $result['id'] = $id;
+            $response = $this->fetchData($url, $params);
+            if (!$response) {
+                $this->logError("Error reading organisation list (url: $url)");
+                return false;
             }
-            $result['list'] = $this->parseList($response);
-            $result['weekNum'] = $weekNum;
-            break;
 
-        case 'details':
-            $result = $this->parseDetails($response);
+            $result = $this->parseDetails($target, $response, $allServices);
+
+            $result['id'] = $id;
             $result['periodStart'] = $startDate;
             $result['weekNum'] = $weekNum;
-            break;
-        }
 
-        return $result;
+            return $result;
+
+        } else if ($action == 'search') {
+            $url .= '/library';
+            $params = [
+                'lang' => $language,
+                $parentType => $parentId,
+                'with' => 'schedules',
+                'period.start' => 'today',
+                'period.end' => 'today',
+                'sort' => 'name'
+            ];
+            
+            if ($search) {
+                $params['name'] = $search;
+            }
+
+            $response = $this->fetchData($url, $params);
+            if (!$response) {
+                $this->logError("Error reading organisation list (url: $url)");
+                return false;
+            }
+            
+            $result = [];
+            foreach ($response['items'] as $item) {
+                $result[] = [
+                    'id' => $item['id'],
+                    'name' => $item['name'],
+                ];
+            }
+
+            return $result;
+        }
+        
+        $this->logError("Unknown action: $action");
+        return false;
     }
 
     /**
@@ -275,8 +304,15 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
      *
      * @return mixed result or false on error.
      */
-    protected function fetchData($url)
+    protected function fetchData($url, $params)
     {
+        //$params['lang'] = 'fi';
+        $params['limit'] = 1000;
+
+        $url .= '?' . http_build_query($params);
+
+        error_log("fetch: $url");
+
         $cacheDir = $this->cacheManager->getCache('organisation-info')
             ->getOptions()->getCacheDir();
 
@@ -315,6 +351,18 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             $response = $result->getBody();
             file_put_contents($localFile, $response);
         }
+
+        if (!$response) {
+            return false;
+        }
+
+        $response = json_decode($response, true);
+        $jsonError = json_last_error();
+        if ($jsonError !== JSON_ERROR_NONE) {
+            $this->logError("Error decoding JSON: $jsonError (url: $url)");
+            return false;
+        }
+
         return $response;
     }
 
@@ -325,7 +373,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
      *
      * @return array
      */
-    protected function parseList($response)
+    protected function parseList($target, $response)
     {
         $mapUrls = ['routeUrl', 'mapUrl'];
         $mapUrlConf = [];
@@ -359,9 +407,17 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             }
 
             $address = [];
-            foreach (['street', 'zip', 'city'] as $addressField) {
+            foreach (['street', 'zip', 'city', 'coordinates'] as $addressField) {
                 if (!empty($item['address'][$addressField])) {
                     $address[$addressField] = $item['address'][$addressField];
+                    if ($addressField == 'coordinates') {
+                        $address[$addressField]['lat'] 
+                            = (float)$address[$addressField]['lat'];
+                        $address[$addressField]['lon'] 
+                            = (float)$address[$addressField]['lon'];
+                    }
+
+
                 }
             }
             if (!empty($address)) {
@@ -386,7 +442,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                 $data[$map] = $mapUrl;
             }
 
-            $schedules = $this->parseDetails($item);
+            $schedules = $this->parseDetails($target, $item);
             if ($schedules && isset($schedules['openNow'])) {
                 $data['openNow'] = !empty($schedules['openNow']);
             }
@@ -418,7 +474,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
      *
      * @return array
      */
-    protected function parseDetails($response)
+    protected function parseDetails($target, $response, $includeAllServices = false)
     {
         $result = [];
         if (!empty($response['extra']['description'])) {
@@ -434,6 +490,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
         ];
 
         $openNow = false;
+        $openToday = false;
         $currentWeek = false;
         foreach ($response['schedules'] as $day) {
             if (!isset($day['times'])
@@ -485,6 +542,10 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                 $times[] = $result['result'];
             }
 
+            if ($today && !empty($times)) {
+                $openToday = $times;
+            }
+
             $schedules[] = [
                'date' => $dayTime,
                'closed' => $day['closed'],
@@ -504,7 +565,9 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
         }
         if ($currentWeek) {
             $result['openNow'] = $openNow;
+            $result['openToday'] = $openToday;
         }
+
         $result['currentWeek'] = $currentWeek;
 
         if (!empty($response['phone_numbers'])) {
@@ -513,9 +576,13 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                 $phones[]
                     = ['name' => $phone['name'], 'number' => $phone['number']];
             }
-            $result['phone'] = $this->viewRenderer->partial(
-                'Helpers/organisation-info-phone.phtml', ['phones' => $phones]
-            );
+            try {
+                $result['phone'] = $this->viewRenderer->partial(
+                    "Helpers/organisation-info-phone-{$target}.phtml", ['phones' => $phones]
+                );
+            } catch (\Exception $e) {
+                $this->logError($e->getmessage());
+            }
         }
 
         if (!empty($response['pictures'])) {
@@ -529,6 +596,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             }
         }
 
+
         if (!empty($response['links'])) {
             $links = [];
             foreach ($response['links'] as $link) {
@@ -540,22 +608,55 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             $result['links'] = $links;
         }
 
-        if (!empty($response['services']) && !empty($this->config['services'])) {
+        if (!empty($response['services']) 
+            && ($includeAllServices || !empty($this->config['services']))
+        ) {
             $servicesMap = $this->config['services'];
-            $services = [];
+            $services = $allServices = [];
             foreach ($response['services'] as $service) {
                 if (in_array($service['id'], array_keys($servicesMap))) {
                     $services[] = $servicesMap[$service['id']];
                 }
+                if ($includeAllServices) {
+                    $data = [$service['name']];
+                    if (!empty($service['short_description'])) {
+                        $data[] = $service['short_description'];
+                    }
+                    $allServices[] = $data;
+                }
             }
             if (!empty($services)) {
                 $result['services'] = $services;
+            }
+            if (!empty($allServices)) {
+                $result['allServices'] = $allServices;
             }
         }
 
         if (!empty($response['extra']['description'])) {
             $result['description']
                 = html_entity_decode($response['extra']['description']);
+        }
+
+        if (!empty($response['extra']['building']['construction_year'])) {
+            if ($year = $response['extra']['building']['construction_year']) {
+                $result['buildingYear'] = $year;
+            }
+        }
+
+        if (!empty($response['extra']['data'])) {
+            $rssLinks = [];
+            foreach ($response['extra']['data'] as $link) {
+                if (in_array($link['id'], ['news', 'events'])) {
+                    $rssLinks[] = [
+                       'id' => $link['id'], 
+                       'url' => $link['value']
+                    ];
+                }
+            }
+            if (!empty($rssLinks)) {
+                $result['rss'] = $rssLinks;
+            }
         }
 
         return $result;

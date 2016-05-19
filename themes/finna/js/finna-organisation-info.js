@@ -1,5 +1,7 @@
 /*global VuFind*/
-finna.organisationInfo = (function() {
+finna = $.extend(finna, {
+organisationInfo: function() {
+//finna.organisationInfo = (function() {
     var organisationList = {};
     var currentWeekNum = null;
     var currentScheduleInfo = null;
@@ -9,6 +11,7 @@ finna.organisationInfo = (function() {
         var url = VuFind.path + '/AJAX/JSON';
         var params = {method: 'getOrganisationInfo', parent: parentId, params: queryParams};
 
+        console.log("query: %o", params);
         $.getJSON(url, params)
         .done(function(response) {
             loading = false;
@@ -28,104 +31,79 @@ finna.organisationInfo = (function() {
         });
     };
 
-    var loadOrganisationList = function(holder) {
-        holder.find('.week-navi.prev-week').fadeTo(0,0);
 
-        var parent = holder.data('parent');
+    var search = function (term, parent, callback) {
         if (typeof parent == 'undefined') {
             return;
         }
 
-        toggleSpinner(holder, true);
-        holder.find('.error,.info-element').hide();
-
-        var response = query(parent, {action: 'list'}, function(success, response) {
+        var response = query(parent, {action: 'search', query: term}, function(success, response) {
             if (!success) {
-                holder.html('<!-- Organisation info could not be loaded: ' + response + ' -->');
-            }
-            listLoaded(holder, response);
-        });
-    };
-
-    var listLoaded = function(holder, data) {
-        var id = getField(data, 'id');
-
-        var list = getField(data, 'list');
-        $.each(list, function(ind, obj) {
-            organisationList[obj.id] = obj;
-        });
-
-
-        var found = false;
-        var menu = holder.find('.organisation');
-        $.each(list, function(ind, obj) {
-            if (id == obj['id']) {
-                found = true;
-            }
-            $('<option/>', {value: obj['id'], text: obj['name']}).appendTo(menu);
-        });
-
-        if (!found) {
-            id = menu.find('option').eq(0).val();
-        }
-        menu.val(id);
-        menu.on('change', function() {
-            showDetails(holder, $(this).val(), $(this).find('option:selected').text());
-        });
-
-        var organisation = holder.find('.organisation option:selected');
-        showDetails(holder, organisation.val(), organisation.text());
-
-        toggleSpinner(holder, false);
-        holder.find('.content').removeClass('hide');
-
-        attachWeekNaviListener(holder);
-    };
-
-    var attachWeekNaviListener = function(holder) {
-        holder.find('.week-navi').unbind('click').click(function() {
-            if (loading) {
+                callback(false);
                 return;
             }
-            loading = true;
-            holder.find('.week-text .num').text(currentWeekNum + parseInt($(this).data('dir')));
-            $(this).attr('data-classes', $(this).attr('class'));
-            $(this).removeClass('fa-arrow-right fa-arrow-left');
-            $(this).addClass('fa-spinner fa-spin');
+            callback($.map(response, function(obj) {
+                return {
+                    label: obj.name,
+                    value: obj.id
+                }
+            }));
+        });              
+    };
+ 
+    var getOrganisations = function(target, parent, callback) {
+        if (typeof parent == 'undefined') {
+            return;
+        }
 
-            loadDetails(
-                holder,
-                holder.find('.organisation').val(),
-                false, $(this).data('dir')
-            );
+        if (parent in organisationList) {
+            callback(organisationList[parent]);
+        }
+
+        var me = self;
+        var response = query(parent, {action: 'list', target: target}, function(success, response) {
+            if (!success) {
+                callback(false);
+                return;
+            }
+            var id = getField(response, 'id');
+            var list = getField(response, 'list');
+
+            $.each(list, function(ind, obj) {
+                organisationList[obj.id] = obj;
+            });
+
+            console.log("org: %o", organisationList);
+            callback(response);
         });
     };
 
-    var showDetails = function(holder, id, name) {
-        holder.find('.error,.info-element').hide();
-        holder.find('.is-open').hide();
+    var getInfo = function(id) {
+        if (!(id in organisationList)) {
+            return false;
+        }
+        return organisationList[id];
+    };
+
+    var getDetails = function(id) {
+        if (!(id in organisationList)) {
+            return false;
+        }
 
         var data = organisationList[id];
+        var details = {};
+
         openNow = getField(data, 'openNow');
-
-        holder.find('.is-open').hide();
         if (openNow !== null) {
-            holder.find('.is-open' + (openNow ? '.open' : '.closed')).show();
+            details['openNow'] = openNow;
         }
 
-        if (email = getField(data, 'email')) {
-            holder.find('.email').attr('href', 'mailto:' + email).show();
-        }
-
-        if (homepage = getField(data, 'homepage')) {
-            $('a.details').attr('href', homepage);
-            $('.details-link').show();
-        }
-
-        if (routeUrl = getField(data, 'routeUrl')) {
-            holder.find('.route').attr('href', routeUrl).show();
-        }
-
+        $(['name', 'email', 'homepage', 'routeUrl', 'mapUrl', 'openToday', 'buildingYear']).each(function(ind, field) {
+            if (val = getField(data, field)) {
+                details[field] = val;
+            }
+        });
+        
         if (mapUrl = getField(data, 'mapUrl')) {
             var address = '';
             if (street = getField(data.address, 'street')) {
@@ -138,31 +116,33 @@ finna.organisationInfo = (function() {
                 address += ' ' + city;
             }
 
-            var map = holder.find('.map');
-            map.find('> a').attr('href', mapUrl);
-            map.find('.map-address').text(address);
-            map.show();
+            details['address'] = address;
         }
 
-        loadDetails(holder, id, true);
+        if (cached = getCachedDetails(id)) {
+            details = $.extend(details, {details: cached});
+        }
+        return details;
     };
 
-    var loadDetails = function(holder, id, fullDetails, dir) {
-        var periodStart = holder.data('period-start');
-
+    var getSchedules = function(target, parent, id, periodStart, dir, fullDetails, allServices, callback) {
+        console.log("getsch: " + id + ", par: " + parent);
         if (fullDetails) {
             details = getCachedDetails(id);
             if (details && details.periodStart) {
                 if (details.periodStart == periodStart) {
-                    detailsLoaded(holder, id, details, false);
+                    callback(details);
                     return;
                 }
             }
         }
 
-        var schedulesHolder = holder.find('.schedules');
+        var params = {
+            target: target, action: 'details', id: id, 
+            fullDetails: fullDetails ? 1 : 0, 
+            allServices: allServices ? 1 : 0
+        };
 
-        var params = {action: 'details', id: id, fullDetails: fullDetails ? 1 : 0};
         if (periodStart) {
             params = $.extend(params, {periodStart: periodStart});
         }
@@ -170,110 +150,24 @@ finna.organisationInfo = (function() {
             params = $.extend(params, {dir: dir});
         }
 
-        query(holder.data('parent'), params, function(success, obj) {
+        query(parent, params, function(success, obj) {
             if (!success) {
-                holder.find('.error').show();
+                callback(false);
                 return;
             }
-            detailsLoaded(holder, id, obj, fullDetails);
-        });
-    };
-
-    var detailsLoaded = function(holder, id, response, cache) {
-        if (cache) {
-            cacheDetails(id, response);
-        }
-
-        toggleSpinner(holder, false);
-
-        holder.find('.week-navi-holder .week-navi').each(function() {
-            if (classes = $(this).data('classes')) {
-                $(this).attr('class', classes);
+            if (fullDetails) {
+                cacheDetails(id, obj);
             }
-        });
-
-        var schedulesHolder = holder.find('.schedules');
-        if (html = getField(response, 'html')) {
-            schedulesHolder.find('.content').html(html);
-        } else {
-            holder.find('.no-schedules').show();
-        }
-
-        holder.find('.week-navi-holder').toggle(html != null);
-
-        schedulesHolder.stop(true, false).fadeTo(200, 1);
-
-        if (info = getField(response, 'description')) {
-            if (!currentScheduleInfo || info != currentScheduleInfo) {
-                currentScheduleInfo = info;
-                holder.find('.schedules-info .truncate-field, .more-link, .less-link').remove();
-                var infoHolder = holder.find('.schedules-info');
-                var truncateField = $('<div/>').addClass("truncate-field").attr('data-rows', 5).attr('data-row-height', 20);
-                $('<div/>').html(info).appendTo(truncateField);
-                infoHolder.show().append(truncateField);
-            }
-        } else {
-            currentScheduleInfo = null;
-        }
-
-        if (periodStart = getField(response, 'periodStart')) {
-            holder.data('period-start', periodStart);
-        }
-
-        if (weekNum = getField(response, 'weekNum')) {
-            currentWeekNum = parseInt(weekNum);
-            updateCurrentWeek(holder);
-        }
-
-        var prevBtn = holder.find('.week-navi.prev-week');
-        if (currentWeek = getField(response, 'currentWeek')) {
-            prevBtn.unbind('click').fadeTo(200, 0);
-        } else {
-            prevBtn.fadeTo(200, 1);
-            attachWeekNaviListener(holder);
-        }
-
-        if (phone = getField(response, 'phone', id)) {
-            holder.find('.phone').attr('data-original-title', phone).show();
-        }
-
-        var links = getField(response, 'links', id);
-        if (links && links.length) {
-            holder.find('.facebook').attr('href', links[0]['url']).show();
-        }
-
-        var img = holder.find('.facility-image');
-        if (pictures = getField(response, 'pictures', id)) {
-            var src = pictures[0].url;
-            img.show();
-            if (img.attr('src') != src) {
-                img.fadeTo(0, 0);
-                img.on('load', function () {
-                    $(this).stop(true, true).fadeTo(300, 1);
+            var result = {};
+            $(['html', 'periodStart', 'weekNum', 'currentWeek', 'phone', 'links', 'facility-image', 'services', 'pictures', 'rss'])
+                .each(function(ind, field) {
+                    if (val = getField(obj, field, id)) {
+                        result[field] = val;
+                    }
                 });
-                img.attr('src', src).attr('alt', name);
-                img.closest('.info-element').show();
-            } else {
-                img.fadeTo(300, 1);
-            }
-        } else {
-            img.hide();
-        }
-
-        if (services = getField(response, 'services', id)) {
-            $.each(services, function(ind, obj) {
-                holder.find('.services .service-' + obj).show();
-            });
-        }
-
-        finna.layout.initTruncate(holder);
-    };
-
-    var updateCurrentWeek = function(holder) {
-        if (currentWeekNum) {
-            holder.attr('data-week-num', currentWeekNum);
-            holder.find('.week-navi-holder .week-text .num').text(currentWeekNum);
-        }
+            
+            callback(result);
+        });
     };
 
     var getField = function(obj, field, organisationId) {
@@ -301,22 +195,14 @@ finna.organisationInfo = (function() {
         organisationList[id]['details'] = details;
     };
 
-    var toggleSpinner = function(holder, mode) {
-        var spinner = holder.find('.loader');
-        if (mode) {
-            spinner.fadeIn();
-        } else {
-            spinner.hide();
-        }
-    };
-
     var my = {
-        init: function() {
-            $('.organisation-info').map(function() {
-                loadOrganisationList($(this));
-            });
-        }
+        getOrganisations: getOrganisations,
+        getInfo: getInfo,
+        getDetails: getDetails,
+        getSchedules: getSchedules,
+        search: search,
     };
     return my;
-
-})(finna);
+}
+});
+//)(finna);
