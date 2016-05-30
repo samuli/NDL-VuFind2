@@ -30,26 +30,6 @@ organisationInfo: function() {
         });
     };
 
-
-    var search = function (term, parent, callback) {
-        if (typeof parent == 'undefined') {
-            return;
-        }
-
-        var response = query(parent, {action: 'search', query: term}, function(success, response) {
-            if (!success) {
-                callback(false);
-                return;
-            }
-            callback($.map(response, function(obj) {
-                return {
-                    label: obj.name,
-                    value: obj.id
-                }
-            }));
-        });              
-    };
- 
     var getOrganisations = function(target, parent, callback) {
         if (typeof parent == 'undefined') {
             return;
@@ -106,10 +86,10 @@ organisationInfo: function() {
         if (mapUrl = getField(data, 'mapUrl')) {
             var address = '';
             if (street = getField(data.address, 'street')) {
-                address += street + ', ';
+                address += street;
             }
-            if (zip = getField(data.address, 'zip')) {
-                address += zip;
+            if (zipcode = getField(data.address, 'zipcode')) {
+                address += ', ' + zipcode;
             }
             if (city = getField(data.address, 'city')) {
                 address += ' ' + city;
@@ -197,8 +177,7 @@ organisationInfo: function() {
         getOrganisations: getOrganisations,
         getInfo: getInfo,
         getDetails: getDetails,
-        getSchedules: getSchedules,
-        search: search,
+        getSchedules: getSchedules
     };
     return my;
 }

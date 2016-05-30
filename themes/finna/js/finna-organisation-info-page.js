@@ -51,9 +51,10 @@ finna.organisationInfoPage = (function() {
             if ('street' in obj.address) {
                 address += obj.address.street;
             }
-            if ('zip' in obj.address) {
-                address += obj.address.zip;
+            if ('zipcode' in obj.address) {
+                address += (', ' + obj.address.zipcode);
             }                
+
             bubble.find('.address').text(address);
             
             var openNow = null;
@@ -102,15 +103,23 @@ finna.organisationInfoPage = (function() {
     var initSearch = function() {
         $('#office-search').autocomplete({
             source: function (request, response) {
-                service.search(request.term, parent, function(result) {
-                    response(result);
+                var term = request.term.toLowerCase();
+                var result = [];
+                $.each(organisationList, function(id, obj) {
+                    if (obj.name.toLowerCase().indexOf(term) !== -1) {
+                        result.push({value: id, label: obj.name});
+                    }
                 });
+                result = result.sort(function(a,b) {
+                    return a.label > b.label ? 1 : -1;
+                });
+                response(result);
             },
 
             select: function(event, ui) {
                 $('#office-search').val(ui.item.label);
                 window.location.hash = ui.item.value;
-                return false; // Prevent the widget from inserting the value.
+                return false;
             },
             focus: function (event, ui) {
                 if ($(window).width() < 768) {
@@ -118,7 +127,7 @@ finna.organisationInfoPage = (function() {
                         scrollTop: $('#office-search').offset().top - 5
                     }, 100);
                 }
-                return false; // Prevent the default focus behavior.
+                return false;
             },
             open: function(event, ui) {
                 $('#office-search').off('menufocus hover mouseover mouseenter');
@@ -150,18 +159,28 @@ finna.organisationInfoPage = (function() {
     var updateSelectedOrganisation = function(id) {
         holder.find('.error, .info-element').hide();
         infoWidget.showDetails(id, '', true);
+        $('#office-search').val('');
 
+        var notification = holder.find('.office-search-notifications .notification');
         if (id in organisationList) {
             var data = organisationList[id];
             if ('address' in data && 'coordinates' in data.address) {
-                $('#office-search').val('');
                 map.selectMarker(id);
-                return;
+                notification.hide();
+            } else {
+                map.hideMarker();
+                map.reset();
+                notification.show().delay(2000).fadeOut(500);
             }
+            return;
         }
     };
 
-    var updateGeneralInfo = function(data) {
+    var updateGeneralInfo = function(data, rssAvailable) {
+        var contactHolder = holder.find('.contact-details-' + (rssAvailable ? 'rss' : 'no-rss'));
+        contactHolder.show();
+        finna.feed.init(contactHolder);
+
         holder.find('.office-quick-information .service-title').text(data.name);
         if ('address' in data) {
             holder.find('.office-links.address').html(data.address);
@@ -269,6 +288,7 @@ finna.organisationInfoPage = (function() {
     };
 
     var updateRSSFeeds = function(data) {
+        var rssAvailable = false;
         if ('rss' in data.details) {
             $(data.details.rss).each(function(ind, obj) {
                 var url = obj['url'];
@@ -283,8 +303,10 @@ finna.organisationInfoPage = (function() {
                     .closest('.rss-container').show();
 
                 finna.feed.init(holder);
+                rssAvailable = true;
             });
         }
+        return rssAvailable;
     };
 
     var getService = function() {
@@ -338,9 +360,9 @@ finna.organisationInfoPage = (function() {
             var widgetHolder = holder.find('.organisation-info');
             widgetHolder.on('detailsLoaded', function(ev, id) {
                 var info = service.getDetails(id);
-                updateGeneralInfo(info);
                 updateServices(info);
-                updateRSSFeeds(info);
+                var rssAvailable = updateRSSFeeds(info);
+                updateGeneralInfo(info, rssAvailable);
             });
 
             infoWidget.init(widgetHolder, service);

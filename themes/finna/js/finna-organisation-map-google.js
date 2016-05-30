@@ -1,21 +1,24 @@
 finna = $.extend(finna, {
     organisationMap: function() {
+        var zoomLevel = {far: 11, close: 13};
         var holder = null;
         var imgPath = null;
+        var defaultId = null;
         var map = null;
         var mapMarkers = {};
         var selectedMarker = null;
+        var infoWindow = null;
 
         var draw = function(organisations) {
             var options = {
-                zoom: 8,
+                zoom: zoomLevel.far,
                 mapTypeId: google.maps.MapTypeId.ROADMAP
             };
             map = new google.maps.Map(holder, options);
 
             addMyLocationButton();
 
-            var info = new google.maps.InfoWindow();
+            infoWindow = new google.maps.InfoWindow();
             var me = $(this);
 
             // Map points
@@ -38,8 +41,8 @@ finna = $.extend(finna, {
                     marker.tooltipContent = marker.tooltipTitle;
                     google.maps.event.addListener(marker, 'click', function() {
                         me.trigger('marker-click', obj.id);
-                        info.setContent(marker.content);
-                        info.open(map, marker);
+                        infoWindow.setContent(marker.content);
+                        infoWindow.open(map, marker);
                         map.setZoom(13);
                         map.panTo(marker.position);
                     });
@@ -58,13 +61,19 @@ finna = $.extend(finna, {
                         me.trigger('marker-mouseout');
                     });
                     google.maps.event.addListener(marker, 'infoWindowClose', function () {
-                        info.close(map, marker);
-                        map.setZoom(11);
+                        infoWindow.close(map, marker);
+                        map.setZoom(zoomLevel.far);
                     });
 
                     mapMarkers[obj.id] = marker;
                 }
             });
+        };
+
+        var reset = function() {
+            var marker = mapMarkers[defaultId];
+            map.setZoom(zoomLevel.far);
+            map.panTo(marker.position);
         };
 
         var resize = function() {
@@ -79,8 +88,11 @@ finna = $.extend(finna, {
                     marker = null;
                 }
             }
-            if (!marker && selectedMarker) {
-                hideMarker();
+            
+            if (!marker) {
+                if (selectedMarker) {
+                    hideMarker();
+                }
                 return;
             }
             google.maps.event.trigger(marker, 'click');
@@ -123,7 +135,7 @@ finna = $.extend(finna, {
                         var point = new google.maps.LatLng(crd.latitude, crd.longitude);
                         marker.setPosition(point);
                         map.setCenter(point);
-                        map.setZoom(13);
+                        map.setZoom(zoomLevel.close);
                         btn.find('.img').toggleClass("my-location", true);
                     }, function() {}, options);
                 } else {
@@ -146,13 +158,15 @@ finna = $.extend(finna, {
             );
         };
 
-        var init = function(mapHolder, path) {
+        var init = function(mapHolder, path, id) {
             holder = mapHolder;
             imgPath = path;
+            defaultId = id;
         };
         
         var my = {
             hideMarker: hideMarker,
+            reset: reset,
             resize: resize,
             selectMarker: selectMarker,
             setLegend: setLegend,

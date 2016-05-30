@@ -1,21 +1,24 @@
 finna = $.extend(finna, {
     organisationMap: function() {
+        var zoomLevel = {far: 10, close: 14};
         var holder = null;
         var imgPath = null;
         var map = null;
+        var view = null;
         var mapMarkers = {};
         var selectedMarker = null;
         var infoInterval = null;
         var defaultId = null;
+        var infoWindow = null;
+        var organisations = null;
 
-        var draw = function(organisations) {
+        var draw = function(organisationList) {
             var me = $(this);
+            organisations = organisationList;
 
             var coordinates = organisations[defaultId].address.coordinates;
-            var view = new ol.View({
-                zoom: 10,
-                center: latLonToCoord(coordinates.lat, coordinates.lon)
-            });
+            view = new ol.View();
+            reset();
 
             map = new ol.Map({
                 target: $(holder).attr('id'),
@@ -26,8 +29,8 @@ finna = $.extend(finna, {
                 view: view
             });
 
-            var info = new ol.Overlay.Popup();
-            map.addOverlay(info);
+            infoWindow = new ol.Overlay.Popup();
+            map.addOverlay(infoWindow);
 
             addMyLocationButton(map, $(this), holder);
 
@@ -43,16 +46,16 @@ finna = $.extend(finna, {
                         .data('id', obj.id).data('lat', point.lat).data('lon', point.lon);
                     
                     el.on("click", function() {
-                        info.hide();
+                        infoWindow.hide();
 
                         me.trigger('marker-click', obj.id);
                         var coord = latLonToCoord($(this).data('lat'), $(this).data('lon'));
-                        view.setZoom(13);
+                        view.setZoom(zoomLevel.close);
                         view.setCenter(coord);
 
                         clearInterval(infoInterval);
                         infoInterval = setTimeout(function() {
-                            info.show(coord, infoWindowContent);
+                            infoWindow.show(coord, infoWindowContent);
                         }, 100);
                     });
 
@@ -80,6 +83,12 @@ finna = $.extend(finna, {
             });
 
         };
+        
+        var reset = function() {
+            var coordinates = organisations[defaultId].address.coordinates;
+            view.setCenter(latLonToCoord(coordinates.lat, coordinates.lon));
+            view.setZoom(zoomLevel.far);
+        };
 
         var resize = function() {
             map.updateSize();
@@ -102,9 +111,7 @@ finna = $.extend(finna, {
         };
 
         var hideMarker = function() {
-            if (!selectedMarker) {
-                return;
-            }
+            infoWindow.hide();
         };
 
         var setLegend = function(legend) {
@@ -115,38 +122,30 @@ finna = $.extend(finna, {
         };
 
         var addMyLocationButton = function(map, me, mapHolder) {
-            var view = map.getView();
-            var btn = $(".my-location-btn").removeClass('hide');
+            if (navigator.geolocation) {
+                var view = map.getView();
+                var btn = $(".my-location-btn").removeClass('hide');
 
-            var geolocation = new ol.Geolocation({
-                projection: view.getProjection()
-            });
-            
-            geolocation.on('change', function(ev) {
-                var pos = geolocation.getPosition();
-                view.setCenter(pos);
-                view.setZoom(14);
+                btn.on('click', function() {
+                    navigator.geolocation.getCurrentPosition(function(pos) {
+                        var coord = latLonToCoord(pos.coords.latitude, pos.coords.longitude);
+                        view.setZoom(zoomLevel.close);
+                        view.setCenter(coord);
+                        
+                        $('.my-location-marker').not('.template').remove();
+                        var el = $('.my-location-marker.template').clone().removeClass('hide template');
+                        map.addOverlay(new ol.Overlay({
+                            position: map.getView().getCenter(),
+                            element: el
+                        }));
+                    });
+                });
                 
-                $('.my-location-marker').not('.template').remove();
-                var el = $('.my-location-marker.template').clone().removeClass('hide template');
-                map.addOverlay(new ol.Overlay({
-                    position: map.getView().getCenter(),
-                    element: el
-                }));
-                geolocation.setTracking(false);
-            });
-
-            geolocation.on('error', function(evt) {
-            });
-
-            btn.on('click', function() {
-                geolocation.setTracking(true);
-            });
-
-            var control = new ol.control.Control({
-                element: btn[0]
-            });
-            map.addControl(control);
+                var control = new ol.control.Control({
+                    element: btn[0]
+                });
+                map.addControl(control);
+            }
         };
 
         var latLonToCoord = function(lat, lon) {
@@ -161,6 +160,7 @@ finna = $.extend(finna, {
         
         var my = {
             hideMarker: hideMarker,
+            reset: reset,
             resize: resize,
             selectMarker: selectMarker,
             setLegend: setLegend,

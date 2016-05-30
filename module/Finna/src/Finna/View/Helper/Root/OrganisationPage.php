@@ -73,14 +73,14 @@ class OrganisationPage extends \Zend\View\Helper\AbstractHelper
         }
         $id = $this->config->General->organisationPage;
         
-        /*
+        
         $mapWidget = 'openlayers';
         if (isset($this->config->General->mapWidget)) {
             $widget = $this->config->General->mapWidget;
             if (in_array($widget, ['google', 'openlayers'])) {
                 $mapWidget = $widget;
             }
-            }*/
+        }
 
         if (!isset($this->config[$id])
             || (!isset($this->config[$id]['consortium'])

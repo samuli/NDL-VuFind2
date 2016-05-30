@@ -427,7 +427,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             }
 
             $address = [];
-            foreach (['street', 'zip', 'city', 'coordinates'] as $addressField) {
+            foreach (['street', 'zipcode', 'city', 'coordinates'] as $addressField) {
                 if (!empty($item['address'][$addressField])) {
                     $address[$addressField] = $item['address'][$addressField];
                     if ($addressField == 'coordinates') {
@@ -436,10 +436,9 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                         $address[$addressField]['lon'] 
                             = (float)$address[$addressField]['lon'];
                     }
-
-
                 }
             }
+
             if (!empty($address)) {
                 $data['address'] = $address;
             }

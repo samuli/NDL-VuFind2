@@ -13,7 +13,7 @@
       <form class="form-inline searchbox-office office-search-notifications">
         <input id="office-search" type="text" placeholder="" />
         <button class="btn btn-primary btn-office-search"><i class="fa fa-arrow-down"></i></button>
-        <div class="notification"><?=$this->transEsc('not_on_map');?></div>
+        <div class="notification"><?=$this->transEsc('organisation-info-location-not-available');?></div>
       </form>
       <div class="autocomplete-container"></div>
     </div>
@@ -58,7 +58,7 @@
       </div>
       <?
         if ($googleMap) {
-          $this->headScript()->appendFile("vendor/googlemaps.js");
+          $this->headScript()->appendFile("https://maps.googleapis.com/maps/api/js?v=3.exp");
           $this->headScript()->appendFile("finna-organisation-map-google.js");
         } else {
           $this->headLink()->appendStylesheet("vendor/ol.css");
@@ -123,27 +123,11 @@
         </div>
       </div>
 
-      <div class="finna-panel contact-details">
-        <h4 class="panel-title">
-          <a data-toggle="collapse" href="#collapse4"><?=$this->translate('organisation-info-contact')?></a>
-        </h4>
-        <div id="collapse4" class="panel-collapse collapse in">
-          <div class="email-contact info-element">
-            <strong><?=$this->translate('organisation-info-email')?></strong>
-            <p><i class="fa fa-envelope"></i> <a href="#" class="email" itemprop="email"><span class="email"></span></a></p>
-          </div>
-          <div class="address-contact info-element">
-            <strong><?=$this->translate('organisation-info-address')?></strong>
-            <p></p>
-          </div>
-          <div class="phone-numbers info-element">
-            <strong><?=$this->translate('organisation-info-phone-numbers')?></strong>
-            <p></p>
-          </div>
-        </div>
+      <div class="finna-panel contact-details contact-details-rss info-element">
+        <?=$this->partial('Helpers/organisation-info-contacts', ['id' => 4])?>
       </div>
-
     </div>
+    
     <div class="col-sm-4">
       <div class="finna-panel news-feed-container rss-container info-element">
         <h4 class="panel-title">
@@ -160,6 +144,9 @@
         <div id="collapse8" class="panel-collapse collapse in">
           <div class="feed-container events-feed info-element"></div>
         </div>
+      </div>
+      <div class="finna-panel contact-details contact-details-no-rss info-element">
+        <?=$this->partial('Helpers/organisation-info-contacts', ['id' => 5])?>
       </div>
     </div>
   </div>
