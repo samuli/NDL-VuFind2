@@ -38,6 +38,11 @@
   </div>
   <div class="col-sm-9 col-md-10 record-information">
     <h1 property="name" class="record-title"><?=$this->escapeHtml($this->driver->getShortTitle())?><? if ($subtitle = $this->driver->getSubtitle()): ?>&nbsp;: <?=$this->escapeHtml($subtitle) ?><? endif; ?></h1>
+    <? if ($results = $this->driver->getAlternativeTitles()): ?>
+      <div class="recordAltTitles record-alt-titles">
+        <?=implode('<br/>', array_map(array($this, 'escapeHtml'), $results))?>
+      </div>
+    <? endif; ?>
     <? if ($uniformTitles = $this->driver->tryMethod('getUniformTitles')): ?>
       <div class="record-uniform-titles">
         <? foreach ($uniformTitles as $uniformTitle): ?>
@@ -136,16 +141,21 @@
       <? endif; ?>
       <? $publications = $this->driver->getPublicationDetails(); if (!empty($publications)): ?>
           <span class="recordPublications">
-            <? foreach ($publications as $field): ?>
+            <? $publicationDate = ''; ?>
+            <? foreach ($publications as $index => $field): ?>
+              <?=$index > 0 ? ' ; ' : '' ?>
               <span property="publisher" typeof="Organization">
               <? $pubName = $field->getName(); if (!empty($pubName)): ?>
                 <span property="name"><?=$this->escapeHtml($pubName)?></span>
               <? endif; ?>
               </span>
               <? $pubDate = $field->getDate(); if (!empty($pubDate)): ?>
-                <span property="publicationDate"><?=$this->escapeHtml($pubDate)?></span>
+                <? $publicationDate = $pubDate; ?>
               <? endif; ?>
             <? endforeach; ?>
+            <? if (!empty($publicationDate)): ?>
+              <span property="publicationDate"><?=$this->escapeHtml($publicationDate)?></span>
+            <? endif; ?>
           </span>
       <? endif; ?>
 
@@ -154,12 +164,6 @@
           <span property="bookEdition"><?=$this->escapeHtml($edition)?></span>
         </span>
       <? endif; ?>
-    </div>
-
-    <div class="description recordSummary">
-      <span id="description_text" data-id="<?=$this->escapeHtmlAttr($this->driver->getUniqueID())?>">
-        <i class="fa fa-spinner fa-spin"></i>
-      </span>
     </div>
 
     <? if ($this->userlist()->getMode() !== 'disabled'): ?>
@@ -218,14 +222,28 @@
         <? endforeach; ?>
       <? endif; ?>
 
+      <? if ($result = $this->driver->getCountry()): ?>
+        <tr class="record-country">
+          <th><?=$this->transEsc('Country') ?>: </th>
+          <td><?=$this->escapeHtml($result) ?></td>
+        </tr>
+      <? endif; ?>
+
+      <? if ($result = $this->driver->getType()): ?>
+        <tr class="record-type">
+          <th><?=$this->transEsc('Type') ?>: </th>
+          <td><?=$this->escapeHtml($result) ?></td>
+        </tr>
+      <? endif; ?>
+
       <? if (($results = $this->driver->getPresenters()) && (!empty($results['presenters']) || !empty($results['details']))): ?>
       <tr class="recordPresenters">
-        <th><?=$this->transEsc('Presenters')?>:</th>
+        <th><?=$this->transEsc('Actors')?>:</th>
         <td property="author">
           <div class="truncate-field">
           <? if (!empty($results['presenters'])): ?>
             <? foreach($results['presenters'] as $index => $author): ?>
-              <?=($index > 0 ? '; ' : '')?><a href="<?=$this->record($this->driver)->getLink('author', $author['name'])?>"><?=$this->escapeHtml($author['name'])?></a><? if (!empty($author['date'])): ?><span class="author-date">, <?=$this->escapeHtml($author['date']) ?></span><? endif; ?><? if (!empty($author['role'])): ?><span class="author-role">, <?=mb_strtolower($this->transEsc('CreatorRoles::' . $author['role']), 'UTF-8') ?></span><? endif; ?>
+              <?=($index > 0 ? '<br/> ' : '')?><a href="<?=$this->record($this->driver)->getLink('author', $author['name'])?>"><?=$this->escapeHtml($author['name'])?></a><? if (!empty($author['roleName'])): ?><span class="author-rolename">, <?=$this->escapeHtml($author['roleName']) ?></span><? endif; ?><? if ($author['uncredited']): ?> (<?=$this->transEsc('uncredited') ?>)<? endif; ?>
             <? endforeach; ?>
           <? endif; ?>
           <? if (!empty($results['details'])): ?>
@@ -239,11 +257,17 @@
       </tr>
       <? endif; ?>
 
-      <? $altTitles = $this->driver->tryMethod('getAlternativeTitles'); if (!empty($altTitles)): ?>
-        <tr class="recordAltTitles">
-          <th><?=$this->transEsc('Other Titles')?>: </th>
-          <td><? foreach ($altTitles as $altTitle): ?><?=$this->escapeHtml($altTitle); ?><br /><? endforeach; ?></td>
-        </tr>
+      <? if (($results = $this->driver->getAssistants())): ?>
+      <tr class="record-assistants">
+        <th><?=$this->transEsc('Assistants')?>:</th>
+        <td property="author">
+          <div class="truncate-field">
+            <? foreach($results as $index => $author): ?>
+              <?=($index > 0 ? ', ' : '')?><?=$this->escapeHtml($author['name'])?></a><? if (!empty($author['roleName'])): ?><span class="author-rolename">, <?=$this->escapeHtml($author['roleName']) ?></span><? endif; ?><? if (!empty($author['uncredited']) && $author['uncredited']): ?> (<?=$this->transEsc('uncredited') ?>)<? endif; ?>
+            <? endforeach; ?>
+          </div>
+        </td>
+      </tr>
       <? endif; ?>
 
       <? if ($physicalDescriptions = $this->driver->getPhysicalDescriptions()): ?>
@@ -272,17 +296,34 @@
       <? endif; ?>
 
       <? $notes = $this->driver->getGeneralNotes(); if (!empty($notes)): ?>
-      <? $contentDisplayed = true; ?>
-      <tr class="recordDescription">
-        <th><?=$this->transEsc('Item Description')?>: </th>
-        <td>
-          <? foreach ($notes as $field): ?>
-          <?=$this->escapeHtml($field)?><br/>
-          <? endforeach; ?>
+        <? $contentDisplayed = true; ?>
+        <tr class="recordDescription">
+          <th><?=$this->transEsc('Item Description')?>: </th>
+          <td>
+            <? foreach ($notes as $field): ?>
+              <?=$this->escapeHtml($field)?><br/>
+            <? endforeach; ?>
           </td>
         </tr>
       <? endif; ?>
 
+      <? if ($result = $this->driver->getDescription()): ?>
+        <? $contentDisplayed = true; ?>
+        <tr class="recordDescription">
+          <th><?=$this->transEsc('Description') ?>: </th>
+          <td><?=$result // intentionally left unescaped due to embedded HTML ?></td>
+        </tr>
+      <? endif; ?>
+
+      <? if ($result = $this->driver->getMusicInfo()): ?>
+        <? $contentDisplayed = true; ?>
+        <tr class="record-music">
+          <th><?=$this->transEsc('Music') ?>: </th>
+          <td><?=$result // intentionally left unescaped due to embedded HTML ?></td>
+        </tr>
+      <? endif; ?>
+
+      <? /*
       <? $publications = $this->driver->getPublicationDetails(); if (!empty($publications)): ?>
           <tr class="recordPublications">
             <th><?=$this->transEsc('Publisher')?>: </th>
@@ -303,6 +344,7 @@
             </td>
           </tr>
       <? endif; ?>
+      */ ?>
 
       <? $projectedDate = $this->driver->tryMethod('getProjectedPublicationDate'); if (!empty($projectedDate)): ?>
         <tr class="coreProjectedPublicationDate">
@@ -400,6 +442,17 @@
       </tr>
       <? endif; ?>
 
+      <? if ($result = $this->driver->getFunders()): ?>
+        <tr class="record-funders">
+          <th><?=$this->transEsc('Funders') ?>: </th>
+          <td>
+            <? foreach ($result as $index => $item): ?>
+              <?=$index > 0 ? ' ; ' : '' ?><?=$this->escapeHtml($item['name']) ?><? if (!empty($item['amount'])): ?>, <?=$this->escapeHtml($item['amount']) ?><? endif; ?>
+            <? endforeach; ?>
+          </td>
+        </tr>
+      <? endif; ?>
+
       <? if ($results = $this->driver->getTitleStatement()): ?>
         <tr class="recordTitleStatement">
           <th><?=$this->transEsc('Additional Information') ?>:</th>
@@ -489,6 +542,29 @@
               <?=$this->escapeHtml($field)?><br/>
             <? endforeach; ?>
           </td>
+        </tr>
+      <? endif; ?>
+
+      <? if ($result = $this->driver->getColor()): ?>
+        <? $colorSystem = $this->driver->getColorSystem(); ?>
+        <tr class="record-color">
+          <th><?=$this->transEsc('Color') ?>: </th>
+          <td><?=$this->escapeHtml($result) ?><? if ($colorSystem): ?>, <?=$this->escapeHtml($colorSystem) ?><? endif; ?></td>
+        </tr>
+      <? endif; ?>
+
+      <? if ($result = $this->driver->getSound()): ?>
+        <? $soundSystem = $this->driver->getSoundSystem(); ?>
+        <tr class="record-sound">
+          <th><?=$this->transEsc('Sound') ?>: </th>
+          <td><?=$this->escapeHtml($result) ?><? if ($soundSystem): ?>, <?=$this->escapeHtml($soundSystem) ?><? endif; ?></td>
+        </tr>
+      <? endif; ?>
+
+      <? if ($result = $this->driver->getAspectRatio()): ?>
+        <tr class="record-aspect-ratio">
+          <th><?=$this->transEsc('Aspect Ratio') ?>: </th>
+          <td><?=$this->escapeHtml($result) ?></td>
         </tr>
       <? endif; ?>
 
@@ -642,6 +718,20 @@
                 <?=$field['Content']?><br/>
               <? endforeach; ?>
             <? endforeach; ?>
+          </td>
+        </tr>
+      <? endif; ?>
+
+      <? if ($results = $this->driver->getDistributors()): ?>
+        <? $contentDisplayed = true; ?>
+        <tr class="record-distributors">
+          <th><?=$this->transEsc('Distributors')?>: </th>
+          <td>
+            <div class="truncate-field">
+              <? foreach($results as $index => $distributor): ?>
+                <?=($index > 0 ? '<br/>' : '')?><?=$this->escapeHtml($distributor['name'])?><? if (!empty($distributor['date'])): ?><span class="distributor-date">, <?=$this->escapeHtml($distributor['date']) ?></span><? endif; ?><? if (!empty($distributor['method'])): ?><span class="distribution-method">, <?=$this->escapeHtml($distributor['method']) ?></span><? endif; ?>
+              <? endforeach; ?>
+            </div>
           </td>
         </tr>
       <? endif; ?>
