@@ -28,11 +28,27 @@
   <div class="map-bubble-template hide">
     <div class="map-bubble">
       <h5 class="name"></h5>
+<!--
+
       <strong class="address"></strong>
-      <p class="schedule">
-        <span class="open-closed closed"><?=$this->translate('organisation-info-is-closed')?></span>
-        <span class="open-closed open"><?=$this->translate('organisation-info-is-open')?></span>
-      </p>
+      -->
+      <table class="opening-times-week">
+        <tbody>
+          <tr class="template hide">
+            <td>
+              <ul>
+                <li>
+                  <span class="day"></span>
+                  <span class="time">
+                    <span class="opens"></span> - <span class="closes"></span>
+                  </span>
+                  <span class="time closed-today hide"><?=$this->translate('organisation-info-is-closed')?></span>
+                </li>
+              </ul>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
   </div>
 
@@ -42,7 +58,7 @@
       <div id="<?=$googleMap ? 'gmap_canvas' : 'openlayers-canvas'?>" class="map-widget">
         <i class="fa fa-spinner fa-spin" style="position:absolute;top: 48%; left: 48%; text-align: center;"></i>
       </div>
-      <div id="marker-tooltip"></div>
+      <div id="marker-tooltip" class="hide"></div>
       <div id="legend" class="map-legend-template">
         <div><img class="open" src="<?=$this->imageLink('map-marker-green.png')?>"/><?=$this->transEsc('organisation-info-is-open')?></div>
         <div><img class="closed" src="<?=$this->imageLink('map-marker-red.png')?>"/><?=$this->transEsc('organisation-info-is-closed')?></div>

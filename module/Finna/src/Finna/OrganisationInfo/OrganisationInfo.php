@@ -78,6 +78,13 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
     protected $http;
 
     /**
+     * HTTP service
+     *
+     * @var VuFind\Http
+     */
+    protected $translator;
+
+    /**
      * Constructor.
      *
      * @param Zend\Config\Config             $config       Configuration
@@ -85,12 +92,13 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
      * @param VuFind\Http                    $http         HTTP service
      * @param Zend\View\Renderer\PhpRenderer $viewRenderer View renderer
      */
-    public function __construct($config, $cacheManager, $http, $viewRenderer)
+    public function __construct($config, $cacheManager, $http, $viewRenderer, $translator)
     {
         $this->mainConfig = $config;
         $this->cacheManager = $cacheManager;
         $this->viewRenderer = $viewRenderer;
         $this->http = $http;
+        $this->translator = $translator;
     }
 
     /**
@@ -136,8 +144,6 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
 
         $target = isset($params['target']) ? $params['target'] : 'widget';
         $action = isset($params['action']) ? $params['action'] : 'list';
-        $search = ($action == 'search' && !empty($params['query'])) 
-            ? $params['query'] : null;
 
         $parentType = null;
         if (isset($this->config['consortium'])) {
@@ -205,14 +211,10 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                 'lang' => $language,
                 $parentType => $parentId,
                 'with' => 'schedules',
-                'period.start' => 'today',
-                'period.end' => 'today'
+                'period.start' => $startDate,
+                'period.end' => $endDate,
             ];
             
-            if ($search) {
-                $params['name'] = $search;
-            }
-
             $response = $this->fetchData($url, $params);
             if (!$response) {
                 $this->logError("Error reading organisation list (url: $url)");
@@ -280,37 +282,6 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             }
 
             return $result;
-
-        } else if ($action == 'search') {
-            $url .= '/library';
-            $params = [
-                'lang' => $language,
-                $parentType => $parentId,
-                'with' => 'schedules',
-                'period.start' => 'today',
-                'period.end' => 'today',
-                'sort' => 'name'
-            ];
-            
-            if ($search) {
-                $params['name'] = $search;
-            }
-
-            $response = $this->fetchData($url, $params);
-            if (!$response) {
-                $this->logError("Error reading organisation list (url: $url)");
-                return false;
-            }
-            
-            $result = [];
-            foreach ($response['items'] as $item) {
-                $result[] = [
-                    'id' => $item['id'],
-                    'name' => $item['name'],
-                ];
-            }
-
-            return $result;
         }
         
         $this->logError("Unknown action: $action");
@@ -328,6 +299,8 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
     {
         $params['limit'] = 1000;
         $url .= '?' . http_build_query($params);
+        
+        error_log($url);
 
         $cacheDir = $this->cacheManager->getCache('organisation-info')
             ->getOptions()->getCacheDir();
@@ -365,7 +338,9 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             }
 
             $response = $result->getBody();
-            file_put_contents($localFile, $response);
+            if ($maxAge) {
+                file_put_contents($localFile, $response);
+            }
         }
 
         if (!$response) {
@@ -461,10 +436,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                 $data[$map] = $mapUrl;
             }
 
-            $schedules = $this->parseDetails($language, $target, $item);
-            if ($schedules && isset($schedules['openNow'])) {
-                $data['openNow'] = !empty($schedules['openNow']);
-            }
+            $data['openTimes'] = $this->parseSchedules($item['schedules']);
 
             $result[] = $data;
         }
@@ -493,103 +465,15 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
      *
      * @return array
      */
-    protected function parseDetails($language, $target, $response, $includeAllServices = false)
-    {
+    protected function parseDetails(
+        $language, $target, $response, $includeAllServices = false
+    ) {
         $result = [];
 
+        $result['openTimes'] = $this->parseSchedules($response['schedules']);
         if (!empty($response['extra']['description'])) {
             $result['info'] = $response['extra']['description'];
         }
-
-        $schedules = [];
-        $periodStart = null;
-
-        $dayNames = [
-            'monday', 'tuesday', 'wednesday', 'thursday',
-            'friday', 'saturday', 'sunday'
-        ];
-
-        $openNow = false;
-        $openToday = false;
-        $currentWeek = false;
-        foreach ($response['schedules'] as $day) {
-            if (!isset($day['times'])
-                && !isset($day['sections']['selfservice']['times'])
-            ) {
-                continue;
-            }
-            if (!$periodStart) {
-                $periodStart = $day['date'];
-            }
-
-            $now = new \DateTime();
-            $now->setTime(0, 0, 0);
-
-            $date = new \DateTime($day['date']);
-            $date->setTime(0, 0, 0);
-
-            $today = $now == $date;
-
-            $dayTime = strtotime($day['date']);
-            if ($dayTime === false) {
-                $this->logError("Error parsing date: " . $day['date']);
-                continue;
-            }
-
-            $weekDay = date('N', $dayTime);
-            $weekDayName = $dayNames[($day['day']) - 1];
-
-            $times = [];
-            $now = time();
-
-            // Self service times
-            if (!empty($day['sections']['selfservice']['times'])) {
-                foreach ($day['sections']['selfservice']['times'] as $time) {
-                    $res = $this->extractDayTime($now, $time, $today, true);
-                    if (!empty($res['openNow'])) {
-                        $openNow = true;
-                    }
-                    $times[] = $res['result'];
-                }
-            }
-
-            // Staff times
-            foreach ($day['times'] as $time) {
-                $res = $this->extractDayTime($now, $time, $today, false);
-                if (!empty($res['openNow'])) {
-                    $openNow = true;
-                }
-                $times[] = $res['result'];
-            }
-
-            if ($today && !empty($times)) {
-                $openToday = $times;
-            }
-
-            $schedules[] = [
-               'date' => $dayTime,
-               'closed' => $day['closed'],
-               'times' => $times,
-               'today' => $today,
-               'dayName' => $weekDayName,
-            ];
-            if ($today) {
-                $currentWeek = true;
-            }
-        }
-
-        if (!empty($schedules)) {
-            $result['html'] = $this->viewRenderer->partial(
-                'Helpers/organisation-info-schedule.phtml',
-                ['schedules' => $schedules]
-            );
-        }
-        if ($currentWeek) {
-            $result['openNow'] = $openNow;
-            $result['openToday'] = $openToday;
-        }
-
-        $result['currentWeek'] = $currentWeek;
 
         if (!empty($response['phone_numbers'])) {
             $phones = [];
@@ -680,6 +564,124 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
         return $result;
     }
 
+    protected function parseSchedules($data)
+    {
+        $schedules = [];
+        $periodStart = null;
+
+        $dayNames = [
+            'monday', 'tuesday', 'wednesday', 'thursday',
+            'friday', 'saturday', 'sunday'
+        ];
+
+        $openNow = false;
+        $openToday = false;
+        $currentWeek = false;
+        foreach ($data as $day) {
+            if (!isset($day['times'])
+                && !isset($day['sections']['selfservice']['times'])
+            ) {
+                continue;
+            }
+            if (!$periodStart) {
+                $periodStart = $day['date'];
+            }
+
+            $now = new \DateTime();
+            $now->setTime(0, 0, 0);
+
+            $date = new \DateTime($day['date']);
+            $date->setTime(0, 0, 0);
+
+            $today = $now == $date;
+
+            $dayTime = strtotime($day['date']);
+            if ($dayTime === false) {
+                $this->logError("Error parsing date: " . $day['date']);
+                continue;
+            }
+
+            $weekDay = date('N', $dayTime);
+            $weekDayName = $this->translator->translate(
+                'day-name-short-' . $dayNames[($day['day']) - 1]
+            );
+
+            $times = [];
+            $now = time();
+            $closed = isset($day['sections']['selfservice']['closed']) ? true : false;
+
+            // Self service times
+            $info = isset($day['sections']['selfservice']['info'])
+                ? $day['sections']['selfservice']['info'] : null;
+
+            if (!empty($day['sections']['selfservice']['times'])) {
+                foreach ($day['sections']['selfservice']['times'] as $time) {
+                    $res = $this->extractDayTime($now, $time, $today, true);
+                    if (!empty($res['openNow'])) {
+                        $openNow = true;
+                    }
+                    if ($info) {
+                        $res['result']['info'] = $info;
+                    }
+                    $times[] = $res['result'];
+                }
+            }
+
+            // Staff times
+            $info = isset($day['info'])
+                ? $day['info'] : null;
+
+            foreach ($day['times'] as $time) {
+                $res = $this->extractDayTime($now, $time, $today, false);
+                if (!empty($res['openNow'])) {
+                    $openNow = true;
+                }
+                if (!empty($info)) {
+                    //$res['result']['info'] = $info;
+                }
+
+                $times[] = $res['result'];
+            }
+
+            if ($today && !empty($times)) {
+                $openToday = $times;
+            }
+
+            $scheduleData = [
+               'date' => date('d.m', $dayTime),
+               'times' => $times,
+               'day' => $weekDayName,
+            ];
+
+            if ($day['closed'] && !$closed) {
+                $closed = true;
+            }
+
+            $closed = false;
+            if (!empty($day['sections']['selfservice']['closed'])) {
+                $closed = true;
+            } else if ($day['closed']) {
+                $closed = true;
+            }
+
+            if ($closed) {
+                $scheduleData['closed'] = $closed;
+            }
+
+            if ($today) {
+                $scheduleData['today'] = true;
+            }
+
+            $schedules[] = $scheduleData;
+
+            if ($today) {
+                $currentWeek = true;
+            }
+        }
+
+        return compact('schedules', 'openNow', 'openToday', 'currentWeek');
+    }
+
     /**
      * Augment a schedule (pair of opens/closes times) object.
      *
@@ -697,6 +699,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
         $result = [
            'opens' => $opens, 'closes' => $closes, 'selfservice' => $selfService
         ];
+        
         $openNow = false;
 
         if ($today) {

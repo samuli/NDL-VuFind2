@@ -62,7 +62,7 @@ class OrganisationPage extends \Zend\View\Helper\AbstractHelper
      *
      * @return mixed null|string
      */
-    public function __invoke($mapWidget = 'openlayers')
+    public function __invoke($id = null)
     {
         if (!$this->config->General->enabled) {
             return;
@@ -71,8 +71,9 @@ class OrganisationPage extends \Zend\View\Helper\AbstractHelper
         if (!isset($this->config->General->organisationPage)) {
             return;
         }
-        $id = $this->config->General->organisationPage;
-        
+        if (!$id) {
+            $id = $this->config->General->organisationPage;
+        }
         
         $mapWidget = 'openlayers';
         if (isset($this->config->General->mapWidget)) {

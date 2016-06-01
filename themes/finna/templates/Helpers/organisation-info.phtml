@@ -29,7 +29,31 @@
           <i class="fa fa-arrow-right next-week week-navi" data-dir="+1"></i>
         </div>
         <div class="loader"><i class="fa fa-spin fa-spinner"></i></div>
-        <div class="content"></div>
+        <div class="content">
+          <table class="opening-times-week">
+            <tbody>
+              <tr class="template hide">
+                <td class="date"></td>
+                <td>
+                  <ul>
+                    <li>
+                      <span class="day">
+                        <span class="name"></span><span class="info"></span>
+                      </span>
+                      <span class="day staff hide">
+                        <span class="name"><?= $this->translate('organisation-info-schedule-staff');?></span><span class="info hide"></span>
+                      </span>
+                      <span class="time">
+                        <span class="opens"></span> - <span class="closes"></span>
+                      </span>
+                      <span class="time closed-today hide"><?=$this->translate('organisation-info-is-closed')?></span>
+                    </li>
+                  </ul>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
         <div class="no-schedules info-element"><?=$this->translate('organisation-info-no-schedule')?></div>
         <div class="mobile-schedule-link-template hide"><a href="#"></a></div>
         <div class="mobile-schedules info-element"></div>

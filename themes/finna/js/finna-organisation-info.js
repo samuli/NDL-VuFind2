@@ -77,7 +77,9 @@ organisationInfo: function() {
             details['openNow'] = openNow;
         }
 
-        $(['name', 'email', 'homepage', 'routeUrl', 'mapUrl', 'openToday', 'buildingYear', 'schedule-descriptions']).each(function(ind, field) {
+        $(['name', 'email', 'homepage', 'routeUrl', 'mapUrl', 'openToday', 
+           'buildingYear', 'openTimes', 'schedule-descriptions']
+         ).each(function(ind, field) {
             if (val = getField(data, field)) {
                 details[field] = val;
             }
@@ -137,8 +139,9 @@ organisationInfo: function() {
                 cacheDetails(id, obj);
             }
             var result = {};
-            $(['html', 'periodStart', 'weekNum', 'currentWeek', 'phone', 'links', 'facility-image', 'services', 'pictures', 'rss'])
-                .each(function(ind, field) {
+            $(['openTimes', 'periodStart', 'weekNum', 'currentWeek', 'phone', 
+               'links', 'facility-image', 'services', 'pictures', 'rss']
+             ).each(function(ind, field) {
                     if (val = getField(obj, field, id)) {
                         result[field] = val;
                     }

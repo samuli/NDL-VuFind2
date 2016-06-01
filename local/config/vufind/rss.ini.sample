@@ -149,3 +149,6 @@ content[text] = 0
 content[image] = 0
 linkTarget  = "_blank"
 
+[organisation-info-news]
+
+[organisation-info-events]

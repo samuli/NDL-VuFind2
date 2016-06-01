@@ -111,6 +111,10 @@
             & td:first-child {
                 padding-left: 5px;
             }
+            & .info {
+                color: @gray-light;
+                font-size: 0.9em;
+            }
             & .time {
                 text-align: right;
             }
@@ -224,17 +228,40 @@
                 }
             }
         }
-        .map-bubble {
-            & .open-closed {
-                font-weight:bold;
-                text-align:right;
 
-                &.open {
-                    color: green;
+        & .ol-popup {
+            padding-top: 4px;
+            padding-bottom: 5px;
+            & .ol-popup-closer {
+                font-size: 110%;
+            }
+        }
+
+        .map-bubble {
+            & .open {
+                color: green;
+                font-weight: bold;
+            }
+            & .closed {
+                color: red;
+                font-weight: bold;
+            }
+            & ul {
+                margin-bottom: 0;
+            }
+            & tr {
+                line-height: 1.2em;
+                &.today {
+                    font-weight: bold;
                 }
-                &.closed {
-                    color: red;
-                    display:inline-block;
+            }
+            & table {
+                width: 100%;
+            }
+            & .opening-times-week {
+                margin-top: 5px;
+                & .time {
+                    float: right;
                 }
             }
         }
@@ -280,7 +307,7 @@
 
         &.openlayers {
             & #legend {
-                right: -4px;
+                right: 11px;
                 bottom: 111px;
                 position: absolute;
             }

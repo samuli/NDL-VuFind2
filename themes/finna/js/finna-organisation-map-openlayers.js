@@ -4,6 +4,7 @@ finna = $.extend(finna, {
         var holder = null;
         var imgPath = null;
         var map = null;
+        var legend = null;
         var view = null;
         var mapMarkers = {};
         var selectedMarker = null;
@@ -19,6 +20,11 @@ finna = $.extend(finna, {
             var coordinates = organisations[defaultId].address.coordinates;
             view = new ol.View();
             reset();
+
+
+            if (legend) {
+                map.addControl(legend);
+            }
 
             map = new ol.Map({
                 target: $(holder).attr('id'),
@@ -49,7 +55,19 @@ finna = $.extend(finna, {
                         infoWindow.hide();
 
                         me.trigger('marker-click', obj.id);
+
                         var coord = latLonToCoord($(this).data('lat'), $(this).data('lon'));
+                        /*
+                        var point = map.getPixelFromCoordinate(coord);
+                        
+
+                        
+                        var coord2 = map.getCoordinateFromPixel([point[0], point[1]-14.0]);
+
+                        console.log("coord: %o", coord);
+                        console.log("point: %o", point);
+                        console.log("coord2: %o", coord2);
+*/
                         view.setZoom(zoomLevel.close);
                         view.setCenter(coord);
 
@@ -81,7 +99,6 @@ finna = $.extend(finna, {
                     mapMarkers[obj.id] = el;
                 }
             });
-
         };
         
         var reset = function() {
@@ -118,7 +135,7 @@ finna = $.extend(finna, {
             var control = new ol.control.Control({
                 element: legend[0]
             });
-            map.addControl(control);
+            legend = control;
         };
 
         var addMyLocationButton = function(map, me, mapHolder) {

@@ -6,7 +6,7 @@ finna = $.extend(finna, {
         var currentScheduleInfo = null;
         var schedulesLoading = false;
         var organisationList = {};
-
+        
         var loadOrganisationList = function() {
             holder.find('.week-navi.prev-week').fadeTo(0,0);
 
@@ -54,6 +54,9 @@ finna = $.extend(finna, {
             toggleSpinner(false);
             holder.find('.content').removeClass('hide');
 
+            var week = parseInt(data['weekNum']);
+            updateWeekNum(week);
+
             attachWeekNaviListener();
         };
         
@@ -94,9 +97,10 @@ finna = $.extend(finna, {
 
             holder.data('id', id);
 
-            holder.find('.is-open').hide();
-            if ('openNow' in data) {
-                holder.find('.is-open' + (data['openNow'] ? '.open' : '.closed')).show();
+            if ('openTimes' in data && 'openNow' in data.openTimes 
+                && 'schedules' in data.openTimes && data.openTimes.schedules.length
+            ) {
+                holder.find('.is-open' + (data.openTimes.openNow ? '.open' : '.closed')).show();
             }
 
             if ('email' in data) {
@@ -104,8 +108,8 @@ finna = $.extend(finna, {
             }
 
             if ('homepage' in data) {
-                $('a.details').attr('href', data['homepage']);
-                $('.details-link').show();
+                holder.find('a.details').attr('href', data['homepage']);
+                holder.find('.details-link').show();
             }
 
             if ('routeUrl' in data) {
@@ -124,10 +128,28 @@ finna = $.extend(finna, {
                 holder.data('period-start'), null, true, allServices, 
                 function(response) {
                     detailsLoaded(id, response);
-                    schedulesLoaded(id, response);
+                    schedulesLoaded(id, data);
                     holder.trigger('detailsLoaded', id);
                 }
             );
+        };
+
+        var getScheduleTableRow = function(today, date, day, info) {
+            var schedulesHolder = holder.find('.schedules');
+            var scheduleTable = schedulesHolder.find('table');
+            var tr = scheduleTable.find('tr:first-child').clone();
+            tr.removeClass('template hide');
+            if (today) {
+                tr.addClass('today');
+            }
+            tr.find('.date').text(date);
+            tr.find('.day').not('.staff').find('.name').text(day);
+
+            if (info !== null) {
+                tr.find('.info').removeClass('hide').text(' (' + info + ')');
+            }
+
+            return tr;
         };
 
         var schedulesLoaded = function(id, response) {
@@ -145,15 +167,51 @@ finna = $.extend(finna, {
 
             if ('weekNum' in response) {
                 var week = parseInt(response['weekNum']);
-                holder.data('week-num', week);
-                holder.find('.week-navi-holder .week-text .num').text(week);
+                updateWeekNum(week);
             }
             updatePrevBtn(response);
             
             var schedulesHolder = holder.find('.schedules');
-            var hasSchedules = 'html' in response;
+            var scheduleTable = schedulesHolder.find('table');
+            scheduleTable.hide();
+
+            var hasSchedules 
+                = 'openTimes' in response && 'schedules' in response.openTimes 
+                && response.openTimes.schedules.length > 0;
+
             if (hasSchedules) {
-                schedulesHolder.find('.content').html(response['html']);
+                var schedules = response.openTimes.schedules;
+                scheduleTable.show();
+
+                scheduleTable.find('tr').not('.template').remove();
+                $.each(schedules, function(ind, obj) {
+                    var today = 'today' in obj;
+                    if (!('closed' in obj)) {
+                        var cnt = 0;
+                        $.each(obj['times'], function(ind, time) {
+                            var date = cnt == 0 ? obj['date'] : '';
+                            var day = cnt == 0 ? obj['day'] : 'staff';
+                            var info = 'info' in time ? time.info : null;
+                            var tr = getScheduleTableRow(today, date, obj['day'], info);
+                            tr.find('.opens').text(time['opens']);
+                            tr.find('.closes').text(time['closes']);                        
+
+                            if (cnt > 0 && !time['selfservice']) {
+                                tr.find('.day').hide();
+                                tr.find('.day.staff').show().removeClass('hide');
+                            }
+
+                            scheduleTable.find('tbody').append(tr);
+                            cnt++;
+                        });
+                    } else {
+                        var info = 'info' in obj ? obj.info : null;
+                        var tr = getScheduleTableRow(today, obj['date'], obj['day'], info);
+                        scheduleTable.find('tbody').append(tr);
+                        tr.find('.time').hide();
+                        tr.find('.time.closed-today').show().removeClass('hide');
+                    }
+                });
             } else {
                 var links = null;
                 var data = organisationList[id];
@@ -177,36 +235,12 @@ finna = $.extend(finna, {
                 }
             }
 
-            if ('schedule-descriptions' in organisationList[id].details) {
-                var infoHolder = holder.find('.schedules-info').empty().show();
-                $.each(organisationList[id].details['schedule-descriptions'], function(ind, obj) {
-                    infoHolder.append($('<p/>').text(obj));
-                });
-            }
-
             holder.find('.week-navi-holder').toggle(hasSchedules);
             schedulesHolder.stop(true, false).fadeTo(200, 1);
         };
 
         var detailsLoaded = function(id, response) {
             toggleSpinner(false);
-
-
-            /*
-            if ('description' in response) {
-                var info = response['description'];
-                if (!currentScheduleInfo || info != currentScheduleInfo) {
-                    currentScheduleInfo = info;
-                    holder.find('.schedules-info .truncate-field, .more-link, .less-link').remove();
-                    var infoHolder = holder.find('.schedules-info');
-                    var truncateField 
-                        = $('<div/>').addClass("truncate-field").attr('data-rows', 5).attr('data-row-height', 20);
-                    $('<div/>').html(info).appendTo(truncateField);
-                    infoHolder.show().append(truncateField);
-                }
-            } else {
-                currentScheduleInfo = null;
-            }*/
 
             if ('periodStart' in response) {
                 holder.data('period-start', response['periodStart']);
@@ -254,12 +288,20 @@ finna = $.extend(finna, {
 
         var updatePrevBtn = function(response) {
             var prevBtn = holder.find('.week-navi.prev-week');
-            if ('currentWeek' in response) {
+            if ('openTimes' in response 
+                && 'currentWeek' in response.openTimes 
+                && response.openTimes.currentWeek
+            ) {
                 prevBtn.unbind('click').fadeTo(200, 0);
             } else {
                 prevBtn.fadeTo(200, 1);
                 attachWeekNaviListener();
             }
+        };
+
+        var updateWeekNum = function(week) {
+            holder.data('week-num', week);
+            holder.find('.week-navi-holder .week-text .num').text(week);
         };
 
         var toggleSpinner = function(mode) {
