@@ -82,7 +82,7 @@ ol.Overlay.Popup.prototype.panIntoView_ = function(coord) {
 
     var popSize = {
             width: this.getElement().clientWidth + 20,
-            height: this.getElement().clientHeight + 20
+            height: this.getElement().clientHeight + 20 + 40
         },
         mapSize = this.getMap().getSize();
 

@@ -35,7 +35,7 @@ finna = $.extend(finna, {
                 view: view
             });
 
-            infoWindow = new ol.Overlay.Popup();
+            infoWindow = new ol.Overlay.Popup({panMapIfOutOfView: true});
             map.addOverlay(infoWindow);
 
             addMyLocationButton(map, $(this), holder);
@@ -57,24 +57,18 @@ finna = $.extend(finna, {
                         me.trigger('marker-click', obj.id);
 
                         var coord = latLonToCoord($(this).data('lat'), $(this).data('lon'));
-                        /*
-                        var point = map.getPixelFromCoordinate(coord);
+                        var coord2 = latLonToCoord($(this).data('lat'), $(this).data('lon'));
                         
-
+                        if (view.getZoom() != zoomLevel.close) {
+                            view.setZoom(zoomLevel.close);
+                            view.setCenter(coord);
+                        }
                         
-                        var coord2 = map.getCoordinateFromPixel([point[0], point[1]-14.0]);
-
-                        console.log("coord: %o", coord);
-                        console.log("point: %o", point);
-                        console.log("coord2: %o", coord2);
-*/
-                        view.setZoom(zoomLevel.close);
-                        view.setCenter(coord);
-
                         clearInterval(infoInterval);
                         infoInterval = setTimeout(function() {
                             infoWindow.show(coord, infoWindowContent);
-                        }, 100);
+                        }, 10);
+
                     });
 
                     el.on('mouseover', function(ev) {
