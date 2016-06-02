@@ -687,7 +687,9 @@ class AjaxController extends \VuFind\Controller\AjaxController
      */
     public function getFeedAjax()
     {
-        if (null === ($id = $this->params()->fromQuery('id'))) {
+        $id = $this->params()->fromQuery('id');
+
+        if (!$id) {
             return $this->output('Missing feed id', self::STATUS_ERROR, 400);
         }
 
@@ -710,6 +712,55 @@ class AjaxController extends \VuFind\Controller\AjaxController
             return $this->output('Error reading feed', self::STATUS_ERROR, 400);
         }
 
+        return $this->output($this->formatFeed($config, $feed), self::STATUS_OK);
+    }
+
+    /**
+     * Return feed content and settings in JSON format.
+     *
+     * @return mixed
+     */
+    public function getOrganisationPageFeedAjax()
+    {
+        $id = $this->params()->fromQuery('id');
+        $url = $this->params()->fromQuery('url');
+
+        if (!$url || !$id) {
+            return $this->output('Missing feed URL or id', self::STATUS_ERROR, 400);
+        }
+
+        $feedService = $this->getServiceLocator()->get('Finna\Feed');
+        try {
+            $config = $this->getServiceLocator()->get('VuFind\Config')->get('rss-organisation-page');
+            $feedConfig = ['url' => urldecode($url)];
+            
+            if (isset($config[$id])) {
+                $feedConfig['result'] = $config[$id]->toArray();
+            } else {
+                $feedConfig['result'] = ['type' => 'list', 'items' => 5];
+            }
+            $feedConfig['result']['type'] = 'list';
+            $feedConfig['result']['active'] = 1;
+            
+            $feed
+                = $feedService->readFeedFromUrl(
+                    urldecode($url),
+                    $feedConfig,
+                    $this->url(), $this->getServerUrl('home')
+                );          
+        } catch (\Exception $e) {
+            return $this->output($e->getMessage(), self::STATUS_ERROR, 400);
+        }
+
+        if (!$feed) {
+            return $this->output('Error reading feed', self::STATUS_ERROR, 400);
+        }
+
+        return $this->output($this->formatFeed($config, $feed), self::STATUS_OK);
+    }
+    
+    protected function formatFeed($config, $feed)
+    {
         $channel = $feed['channel'];
         $items = $feed['items'];
         $config = $feed['config'];
@@ -794,8 +845,7 @@ class AjaxController extends \VuFind\Controller\AjaxController
             }
         }
 
-        $res = ['html' => $html, 'settings' => $settings];
-        return $this->output($res, self::STATUS_OK);
+        return ['html' => $html, 'settings' => $settings];
     }
 
     /**
@@ -948,24 +998,45 @@ class AjaxController extends \VuFind\Controller\AjaxController
      */
     public function getOrganisationInfoAjax()
     {
-        if (!$consortium = $this->params()->fromQuery('consortium')) {
-            return $this->output('Missing consortium', self::STATUS_ERROR, 400);
+        if (!$parent = $this->params()->fromQuery('parent')) {
+            return $this->output('Missing parent', self::STATUS_ERROR, 400);
         }
 
         $params = $this->params()->fromQuery('params');
         $session = new SessionContainer('OrganisationInfo');
-        if (isset($params['id'])) {
-            $session->id = $params['id'];
-        } else if (isset($session->id)) {
-            $params['id'] = $session->id;
+        $action = $params['action'];
+
+        $key = $parent;
+        if ($action == 'details') {
+            if (!isset($params['id'])) {
+                return $this->output('Missing id', self::STATUS_ERROR, 400);
+            }
+            if (isset($params['id'])) {
+                $id = $params['id'];
+                $session[$key]= $params['id'];
+            }
+        }
+        if (!isset($params['id']) && isset($session[$key])) {
+            $params['id'] = $session[$key];
+        }
+
+
+        $lang = $this->getServiceLocator()->get('VuFind\Translator')->getLocale();
+        $map = ['en-gb' => 'en'];
+        
+        if (isset($map[$lang])) {
+            $lang = $map[$lang];
+        }
+        if (!in_array($lang, ['fi', 'sv', 'en'])) {
+            $lang = 'fi';
         }
 
         $service = $this->getServiceLocator()->get('Finna\OrganisationInfo');
         try {
-            $result = $service->query($consortium, $params);
+            $result = $service->query($parent, $params, $lang);
         } catch (\Exception $e) {
             return $this->output(
-                "Error reading organisation info (consortium $consortium)",
+                "Error reading organisation info (parent $parent)",
                 self::STATUS_ERROR, 400
             );
         }

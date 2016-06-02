@@ -1,6 +1,6 @@
 <?php
 /**
- * Organisation info component view helper
+ * Organisation page component view helper
  *
  * PHP version 5
  *
@@ -28,7 +28,7 @@
 namespace Finna\View\Helper\Root;
 
 /**
- * Organisation info component view helper
+ * Organisation page component view helper
  *
  * @category VuFind
  * @package  View_Helpers
@@ -36,7 +36,7 @@ namespace Finna\View\Helper\Root;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org   Main Site
  */
-class OrganisationInfo extends \Zend\View\Helper\AbstractHelper
+class OrganisationPage extends \Zend\View\Helper\AbstractHelper
 {
     /**
      * Configuration
@@ -56,32 +56,47 @@ class OrganisationInfo extends \Zend\View\Helper\AbstractHelper
     }
 
     /**
-     * Returns HTML for embedding a organisation info.
+     * Returns HTML for embedding organisation page
      *
-     * @param string  $id            Organisation Id
-     * @param boolean $init          Init widget at page load
-     * @param boolan  $onlySchedules Organisation Id
+     * @param string $id Organisation Id
      *
      * @return mixed null|string
      */
-    public function __invoke($id, $params = false)
+    public function __invoke($id = null)
     {
-        if (!$this->config->General->enabled
-            || !isset($this->config[$id])
+        if (!$this->config->General->enabled) {
+            return;
+        }
+
+        if (!isset($this->config->General->organisationPage)) {
+            return;
+        }
+        if (!$id) {
+            $id = $this->config->General->organisationPage;
+        }
+        
+        $mapWidget = 'openlayers';
+        if (isset($this->config->General->mapWidget)) {
+            $widget = $this->config->General->mapWidget;
+            if (in_array($widget, ['google', 'openlayers'])) {
+                $mapWidget = $widget;
+            }
+        }
+
+        if (!isset($this->config[$id])
             || (!isset($this->config[$id]['consortium'])
             && !isset($this->config[$id]['parent']))
         ) {
             return;
         }
         
+        $params = ['id' => $id, 'mapWidget' => $mapWidget];
+        if (isset($this->config[$id]['default'])) {
+            $params['library'] = $this->config[$id]['default'];
+        }
+
         return $this->getView()->render(
-            'Helpers/organisation-info.phtml', [
-               'id' => $id, 
-               'init' => isset($params['init']) 
-                  ? $params['init'] : true,
-               'target' => isset($params['target']) 
-                  ? $params['target'] : 'widget'
-            ]
+            'Helpers/organisation-page.phtml', $params
         );
     }
 }

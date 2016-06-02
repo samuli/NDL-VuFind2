@@ -1,0 +1,168 @@
+<?
+  $this->headScript()->appendFile("vendor/jquery-ui.min.js");
+  $this->headScript()->appendFile("finna-organisation-info.js");
+  $this->headScript()->appendFile("finna-organisation-info-widget.js");
+  $this->headScript()->appendFile("finna-organisation-info-page.js");
+
+  $setupJS = '$(document).ready(function() { finna.organisationInfoPage.init(' . $this->library . ');});';
+  $this->headScript()->appendScript($setupJS);
+
+  $this->jsTranslations()->addStrings(['organisationInfoAutocomplete' => 'organisation-info-autocomplete']);
+?>
+<div class="organisation-info-page organisation-page-information-wrapper" data-parent="<?=$this->escapeHtmlAttr($this->id)?>"<?=isset($this->library)? (' data-library="' . $this->escapeHtmlAttr($this->library) . '"') : ''?>>
+  <div class="row office-search">
+    <div class="col-sm-6 col-md-5">
+      <form class="form-inline searchbox-office office-search-notifications">
+        <input id="office-search" type="text" placeholder="" />
+        <button class="btn btn-primary btn-office-search"><i class="fa fa-arrow-down"></i></button>
+        <div class="notification"><?=$this->transEsc('organisation-info-location-not-available');?></div>
+      </form>
+      <div class="autocomplete-container"></div>
+    </div>
+    <div class="col-sm-6 col-md-7 text-right">
+      <div>
+      </div>
+      <div class="map-control-buttons">
+        <i class="fa fa-map-marker marker open"></i><?=$this->transEsc('organisation-info-is-open')?>
+        <i class="fa fa-map-marker marker closed"></i><?=$this->transEsc('organisation-info-is-closed')?>
+        <i class="fa fa-map-marker marker no-schedule"></i><?=$this->transEsc('organisation-info-no-schedule')?>
+        <span class="expand expand-map"><i class="fa fa-expand"></i> <?=$this->translate('organisation-info-map-expand')?></span>
+        <span class="collapse contract-map" style="display: none"> <i class="fa fa-condense"></i><?=$this->translate('organisation-info-map-collapse')?></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="map-bubble-template hide">
+    <div class="map-bubble">
+      <h5 class="name"></h5>
+      <table class="opening-times-week">
+        <tbody>
+          <tr class="template hide">
+            <td>
+              <ul>
+                <li>
+                  <span class="day"></span>
+                  <span class="time">
+                    <span class="opens"></span> - <span class="closes"></span>
+                  </span>
+                  <span class="time closed-today hide"><?=$this->translate('organisation-info-is-closed')?></span>
+                </li>
+              </ul>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="row office map <?=$this->escapeHtmlAttr($this->mapWidget)?>">
+    <div class="col-xs-12">
+      <? $googleMap = $this->mapWidget == 'google'; ?>
+      <div id="<?=$googleMap ? 'gmap_canvas' : 'openlayers-canvas'?>" class="map-widget">
+        <i class="fa fa-spinner fa-spin" style="position:absolute;top: 48%; left: 48%; text-align: center;"></i>
+      </div>
+      <div id="marker-tooltip" class="hide"></div>
+      <div class="my-location-btn hide">
+        <button title="<?=$this->escapeHtmlAttr('organisation-info-my-location')?>">
+          <div class="img"></div>
+        </button>
+      </div>
+      <div class="my-location-marker template hide">
+        <img src="<?=$this->imageLink('own-location.png')?>"/>
+      </div>
+      <?
+        if ($googleMap) {
+          $this->headScript()->appendFile("https://maps.googleapis.com/maps/api/js?v=3.exp");
+          $this->headScript()->appendFile("finna-organisation-map-google.js");
+        } else {
+          $this->headLink()->appendStylesheet("vendor/ol.css");
+          $this->headLink()->appendStylesheet("vendor/ol3-popup.css");
+
+          $this->headScript()->appendFile("vendor/ol.js");
+          $this->headScript()->appendFile("vendor/ol3-popup.js");
+          $this->headScript()->appendFile("finna-organisation-map-openlayers.js");
+        }
+      ?>
+    </div>
+  </div>
+  <div class="row office-quick-information">
+    <div class="col-xs-12 col-sm-7">
+      <h2 class="service-title"></h2>
+      <p><span class="office-links address"></span> <a href="#" class="office-links route info-element"><i class="fa fa-bus"></i> <?=$this->translate('organisation-info-route')?></a> <a href="" class="office-links reserve-computer info-element"><i class="fa fa-desktop"></i> <?=$this->translate('organisation-info-reserve-computer')?></a> <span class="office-links office-website info-element"><a href="#" target="_blank"><i class="fa fa-home"></i> <?=$this->translate('organisation-info-homepage')?></a><span></p>
+      <p class="office-links email info-element"><i class="fa fa-envelope"></i> <span class="email"></span></p>
+    </div>
+    <div class="col-xs-12 col-sm-4">
+      <h2 class="open-or-closed">
+        <span class="library-is-open info-element"><?=$this->translate('organisation-info-is-open')?></span>
+        <span class="library-is-closed info-element"><?=$this->translate('organisation-info-is-closed')?></span>
+      </h2>
+      <p class="time-open info-element">
+        <i class="fa fa-clock-o"></i> <?=$this->translate('organisation-info-open-today')?> <span class="opens"></span> - <span class="closes"></span>
+      </p>
+    </div>
+    <div class="col-xs-12 col-sm-1"><div class="social-button info-element"><a href="#" target="_blank"><i class="fa fa-facebook"></i></a></div></div>
+    <div class="col-xs-12"><p class="office-description info-element"></p></div>
+  </div>
+
+  <div class="row office-information">
+    <div class="col-sm-4 opening-times-widget col-sm-push-4">
+      <div class="finna-panel opening-times-library-information">
+        <h4 class="panel-title">
+          <a data-toggle="collapse" href="#collapse2"><?=$this->translate('organisation-info-schedules')?></a>
+        </h4>
+        <div id="collapse2" class="panel-collapse collapse in">
+          <?=$this->organisationInfo($this->id, ['init' => false, 'target' => 'page'])?>
+        </div>
+      </div>
+
+      <div class="finna-panel services info-element">
+        <h4 class="panel-title">
+          <a data-toggle="collapse" href="#collapse6"><?=$this->translate('organisation-info-services')?></a>
+        </h4>
+        <div id="collapse6" class="panel-collapse collapse in">
+          <ul class="service-list">
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-4 col-sm-pull-4">
+      <div class="finna-panel introduction">
+        <h4 class="panel-title">
+          <a data-toggle="collapse" href="#collapse1"><?=$this->translate('organisation-info-general')?></a>
+        </h4>
+        <div id="collapse1" class="panel-collapse collapse in">
+          <img class="building-image" src="#" />
+          <p class="buildingo-name"></p>
+          <p class="building-year info-element"><?=$this->translate('organisation-info-building-year')?>: <span></span></p>
+          <p class="office-description description-long info-element"></p>
+        </div>
+      </div>
+
+      <div class="finna-panel contact-details contact-details-rss info-element">
+        <?=$this->partial('Helpers/organisation-info-contacts', ['id' => 4])?>
+      </div>
+    </div>
+    
+    <div class="col-sm-4">
+      <div class="finna-panel news-feed-container rss-container info-element">
+        <h4 class="panel-title">
+          <a data-toggle="collapse" href="#collapse7"><?=$this->translate('organisation-info-rss-news')?></a>
+        </h4>
+        <div id="collapse7" class="panel-collapse collapse in">
+          <div class="feed-container news-feed info-element"></div>
+        </div>
+      </div>
+      <div class="finna-panel events-feed-container rss-container info-element">
+        <h4 class="panel-title">
+          <a data-toggle="collapse" href="#collapse8"><?=$this->translate('organisation-info-rss-events')?></a>
+        </h4>
+        <div id="collapse8" class="panel-collapse collapse in">
+          <div class="feed-container events-feed info-element"></div>
+        </div>
+      </div>
+      <div class="finna-panel contact-details contact-details-no-rss info-element">
+        <?=$this->partial('Helpers/organisation-info-contacts', ['id' => 5])?>
+      </div>
+    </div>
+  </div>
+</div>

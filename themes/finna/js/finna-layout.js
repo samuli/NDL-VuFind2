@@ -645,6 +645,14 @@ finna.layout = (function() {
       }
     };
 
+    var initOrganisationInfoWidgets = function() {
+        $('.organisation-info[data-init="1"]').map(function() {
+            var service = finna.organisationInfo();
+            var widget = finna.organisationInfoWidget();
+            widget.init($(this), service);
+            widget.loadOrganisationList();
+        });
+    };
 
     var my = {
         isTouchDevice: isTouchDevice,
@@ -681,6 +689,7 @@ finna.layout = (function() {
             initIpadCheck();
             initLoginRedirect();
             initLoadMasonry();
+            initOrganisationInfoWidgets();
         }
     };
 
