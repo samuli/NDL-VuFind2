@@ -1,6 +1,6 @@
 finna = $.extend(finna, {
     organisationMap: function() {
-        var zoomLevel = {far: 10, close: 14};
+        var zoomLevel = {far: 10, close: 35};
         var holder = null;
         var imgPath = null;
         var map = null;
@@ -17,7 +17,11 @@ finna = $.extend(finna, {
             organisations = organisationList;
 
             var coordinates = organisations[defaultId].address.coordinates;
-            view = new ol.View();
+            view = new ol.View({
+                zoom: 1, 
+                zoomFactor: 1.35, 
+                minZoom:15
+            });
             reset();
 
 
@@ -56,8 +60,8 @@ finna = $.extend(finna, {
                         
                         if (view.getZoom() != zoomLevel.close) {
                             view.setZoom(zoomLevel.close);
-                            view.setCenter(coord);
                         }
+                        view.setCenter(coord);
                         
                         clearInterval(infoInterval);
                         infoInterval = setTimeout(function() {

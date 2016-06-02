@@ -6,7 +6,6 @@ finna.organisationInfoPage = (function() {
     var service = null;
     var infoWidget = null;
     var organisationList = {};
-    //var organisationListResponse = null;
     var map = null;
     var mapHolder = null;
 
@@ -31,7 +30,7 @@ finna.organisationInfoPage = (function() {
                 $('.office-quick-information').show();
                 initSearch();
                 $("#office-search").attr("placeholder", "Hae palvelupistettä (yhteensä: " + cnt + ")");
-                updateSelectedOrganisation(id, true);
+                updateSelectedOrganisation(id);
                 updateURL = true;
             }        
         });
@@ -122,6 +121,7 @@ finna.organisationInfoPage = (function() {
     };
     
     var initSearch = function() {
+        
         $('#office-search').autocomplete({
             source: function (request, response) {
                 var term = request.term.toLowerCase();
@@ -142,6 +142,7 @@ finna.organisationInfoPage = (function() {
                 window.location.hash = ui.item.value;
                 return false;
             },
+            
             focus: function (event, ui) {
                 if ($(window).width() < 768) {
                     $('html, body').animate({
@@ -156,9 +157,11 @@ finna.organisationInfoPage = (function() {
             minLength: 0,
             delay: 100,
             appendTo: ".autocomplete-container",
-            autoFocus: true,
+            autoFocus: false,
+            autoSelect: false            
         });
-
+        
+        
         // show list of
         $("#office-search").on('click', function() {
             $('#office-search').autocomplete("search", $(this).val());
@@ -177,18 +180,16 @@ finna.organisationInfoPage = (function() {
         $('#marker-tooltip').hide();
     };
 
-    var updateSelectedOrganisation = function(id, selectMarker) {
+    var updateSelectedOrganisation = function(id) {
         holder.find('.error, .info-element').hide();
         infoWidget.showDetails(id, '', true);
         $('#office-search').val('');
-
+                
         var notification = holder.find('.office-search-notifications .notification');
         if (id in organisationList) {
             var data = organisationList[id];
             if ('address' in data && 'coordinates' in data.address) {
-                //if (selectMarker) {
                 map.selectMarker(id);
-                //}
                 notification.hide();
             } else {
                 map.hideMarker();
@@ -405,7 +406,7 @@ finna.organisationInfoPage = (function() {
 
             window.onhashchange = function() {
                 if (id = getOrganisationFromURL()) {
-                    updateSelectedOrganisation(id, false);
+                    updateSelectedOrganisation(id);
                 }
 
                 // Blur so that mobile keyboard is closed

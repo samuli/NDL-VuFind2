@@ -42,8 +42,8 @@
     }
     & .marker {
         font-size: 1.5em;
-        margin-left: 5px;
-        margin-right: 10px;
+        margin-left: 8px;
+        margin-right: 5px;
         &.open {
             color: #68c043;
         }
@@ -54,8 +54,12 @@
             color: #535353;
         }
     }
-    & .expand {
-        margin-left: 10px;
+    & .expand-map, .contract-map {
+        font-size: 1.2em;
+        & i {
+            margin-left: 20px;
+            margin-right: 5px;
+        }
     }
 }
 .library-is-open {
@@ -252,7 +256,7 @@
             padding-top: 4px;
             padding-bottom: 5px;
             & .ol-popup-closer {
-                font-size: 110%;
+                font-size: 120%;
             }
         }
 
@@ -333,9 +337,12 @@
             .ol-zoom {
                 position: absolute;
                 right: 6px;
-                left: initial;
+                left: auto;
                 bottom: 35px;
-                top: initial;
+                top: auto;
+                width: 26px;
+                height: 46px;
+                display: block;
             }
             & .my-location-btn {
                 position: absolute;
