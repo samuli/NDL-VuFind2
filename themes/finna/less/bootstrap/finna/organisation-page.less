@@ -32,11 +32,30 @@
     margin-bottom: -1px;   
 }
 .map-control-buttons {
-    color: @link-color;
     margin-top: 25px;
     font-size: 1.2em;
-    &:hover {
-        cursor: pointer;    
+    & span {
+         color: @link-color;
+         &:hover {
+             cursor: pointer;    
+         }
+    }
+    & .marker {
+        font-size: 1.5em;
+        margin-left: 5px;
+        margin-right: 10px;
+        &.open {
+            color: #68c043;
+        }
+        &.closed {
+            color: #c33b00;
+        }
+        &.no-schedule {
+            color: #535353;
+        }
+    }
+    & .expand {
+        margin-left: 10px;
     }
 }
 .library-is-open {

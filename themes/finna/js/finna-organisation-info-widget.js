@@ -127,8 +127,8 @@ finna = $.extend(finna, {
                 holder.data('target'), parent, id, 
                 holder.data('period-start'), null, true, allServices, 
                 function(response) {
+                    schedulesLoaded(id, response);
                     detailsLoaded(id, response);
-                    schedulesLoaded(id, data);
                     holder.trigger('detailsLoaded', id);
                 }
             );
@@ -174,6 +174,7 @@ finna = $.extend(finna, {
             var schedulesHolder = holder.find('.schedules');
             var scheduleTable = schedulesHolder.find('table');
             scheduleTable.hide();
+
 
             var hasSchedules 
                 = 'openTimes' in response && 'schedules' in response.openTimes 
@@ -281,6 +282,15 @@ finna = $.extend(finna, {
                 $.each(response['services'], function(ind, obj) {
                     holder.find('.services .service-' + obj).show();
                 });
+            }
+
+            var infoHolder = $('.schedules-info');
+            infoHolder.empty();
+            if ('schedule-descriptions' in response) {
+                $.each(response['schedule-descriptions'], function(ind, obj) {
+                    $('<p/>').text(obj).appendTo(infoHolder);
+                });
+                infoHolder.show();
             }
 
             finna.layout.initTruncate(holder);

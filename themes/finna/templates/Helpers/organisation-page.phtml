@@ -18,9 +18,14 @@
       <div class="autocomplete-container"></div>
     </div>
     <div class="col-sm-6 col-md-7 text-right">
+      <div>
+      </div>
       <div class="map-control-buttons">
-        <span class="expand-map">Suurenna kartta</span>
-        <span class="contract-map" style="display: none">Pienennä kartta</span>
+        <i class="fa fa-map-marker marker open"></i><?=$this->transEsc('organisation-info-is-open')?>
+        <i class="fa fa-map-marker marker closed"></i><?=$this->transEsc('organisation-info-is-closed')?>
+        <i class="fa fa-map-marker marker no-schedule"></i><?=$this->transEsc('organisation-info-no-schedule')?>
+        <span class="expand expand-map">Suurenna kartta</span>
+        <span class="expand contract-map" style="display: none">Pienennä kartta</span>
       </div>
     </div>
   </div>
@@ -28,10 +33,6 @@
   <div class="map-bubble-template hide">
     <div class="map-bubble">
       <h5 class="name"></h5>
-<!--
-
-      <strong class="address"></strong>
-      -->
       <table class="opening-times-week">
         <tbody>
           <tr class="template hide">
@@ -59,11 +60,6 @@
         <i class="fa fa-spinner fa-spin" style="position:absolute;top: 48%; left: 48%; text-align: center;"></i>
       </div>
       <div id="marker-tooltip" class="hide"></div>
-      <div id="legend" class="map-legend-template">
-        <div><img class="open" src="<?=$this->imageLink('map-marker-green.png')?>"/><?=$this->transEsc('organisation-info-is-open')?></div>
-        <div><img class="closed" src="<?=$this->imageLink('map-marker-red.png')?>"/><?=$this->transEsc('organisation-info-is-closed')?></div>
-        <div><img class="no-schedule" src="<?=$this->imageLink('map-marker-black.png')?>"/><?=$this->transEsc('organisation-info-no-schedule')?></div>
-      </div>
       <div class="my-location-btn hide">
         <button title="<?=$this->escapeHtmlAttr('organisation-info-my-location')?>">
           <div class="img"></div>
@@ -78,9 +74,10 @@
           $this->headScript()->appendFile("finna-organisation-map-google.js");
         } else {
           $this->headLink()->appendStylesheet("vendor/ol.css");
+          $this->headLink()->appendStylesheet("vendor/ol3-popup.css");
+
           $this->headScript()->appendFile("vendor/ol.js");
           $this->headScript()->appendFile("vendor/ol3-popup.js");
-          $this->headLink()->appendStylesheet("vendor/ol3-popup.css");
           $this->headScript()->appendFile("finna-organisation-map-openlayers.js");
         }
       ?>

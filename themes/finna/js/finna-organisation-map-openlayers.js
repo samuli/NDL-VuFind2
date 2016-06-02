@@ -4,7 +4,6 @@ finna = $.extend(finna, {
         var holder = null;
         var imgPath = null;
         var map = null;
-        var legend = null;
         var view = null;
         var mapMarkers = {};
         var selectedMarker = null;
@@ -21,10 +20,6 @@ finna = $.extend(finna, {
             view = new ol.View();
             reset();
 
-
-            if (legend) {
-                map.addControl(legend);
-            }
 
             map = new ol.Map({
                 target: $(holder).attr('id'),
@@ -125,13 +120,6 @@ finna = $.extend(finna, {
             infoWindow.hide();
         };
 
-        var setLegend = function(legend) {
-            var control = new ol.control.Control({
-                element: legend[0]
-            });
-            legend = control;
-        };
-
         var addMyLocationButton = function(map, me, mapHolder) {
             if (navigator.geolocation) {
                 var view = map.getView();
@@ -174,7 +162,6 @@ finna = $.extend(finna, {
             reset: reset,
             resize: resize,
             selectMarker: selectMarker,
-            setLegend: setLegend,
             init: init,
             draw: draw
         };

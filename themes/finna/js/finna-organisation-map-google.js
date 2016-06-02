@@ -106,10 +106,6 @@ finna = $.extend(finna, {
             google.maps.event.trigger(selectedMarker, 'infoWindowClose');
         };
 
-        var setLegend = function(legend) {
-            map.controls[google.maps.ControlPosition.RIGHT_BOTTOM].push(legend[0]);
-        };
-
         var addMyLocationButton = function() {
             var marker = new google.maps.Marker({
                 map: map,
@@ -169,7 +165,6 @@ finna = $.extend(finna, {
             reset: reset,
             resize: resize,
             selectMarker: selectMarker,
-            setLegend: setLegend,
             init: init,
             draw: draw
         };

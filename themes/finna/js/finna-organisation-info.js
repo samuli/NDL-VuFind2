@@ -1,7 +1,6 @@
 /*global VuFind*/
 finna = $.extend(finna, {
 organisationInfo: function() {
-//finna.organisationInfo = (function() {
     var organisationList = {};
     var currentWeekNum = null;
     var currentScheduleInfo = null;
@@ -50,6 +49,10 @@ organisationInfo: function() {
 
             $.each(list, function(ind, obj) {
                 organisationList[obj.id] = obj;
+                organisationList[obj.id]['details'] = {};
+                if ('openTimes' in obj) {
+                    cacheSchedules(obj.id, obj['openTimes']);
+                }
             });
 
             console.log("org: %o", organisationList);
@@ -135,9 +138,14 @@ organisationInfo: function() {
                 callback(false);
                 return;
             }
+
             if (fullDetails) {
                 cacheDetails(id, obj);
             }
+            if ('openTimes' in obj) {
+                cacheSchedules(id, obj['openTimes']);
+            }
+            
             var result = {};
             $(['openTimes', 'periodStart', 'weekNum', 'currentWeek', 'phone', 
                'links', 'facility-image', 'services', 'pictures', 'rss']
@@ -146,7 +154,7 @@ organisationInfo: function() {
                         result[field] = val;
                     }
                 });
-            
+
             callback(result);
         });
     };
@@ -173,9 +181,17 @@ organisationInfo: function() {
     };
 
     var cacheDetails = function(id, details) {
+        if (!('openTimes' in details) && 'openTimes' in organisationList[id]) {
+            details['openTimes'] = organisationList[id]['openTimes'];
+        }  
         organisationList[id]['details'] = details;
     };
 
+    var cacheSchedules = function(id, schedules) {
+        organisationList[id]['openTimes'] = schedules;
+        organisationList[id]['details']['openTimes'] = schedules;
+    };
+    
     var my = {
         getOrganisations: getOrganisations,
         getInfo: getInfo,
@@ -185,4 +201,3 @@ organisationInfo: function() {
     return my;
 }
 });
-//)(finna);

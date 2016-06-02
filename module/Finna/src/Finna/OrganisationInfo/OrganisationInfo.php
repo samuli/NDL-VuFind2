@@ -78,9 +78,9 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
     protected $http;
 
     /**
-     * HTTP service
+     * Translator
      *
-     * @var VuFind\Http
+     * @var VuFind\Tranlator
      */
     protected $translator;
 
@@ -91,9 +91,11 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
      * @param VuFind\CacheManager            $cacheManager Cache manager
      * @param VuFind\Http                    $http         HTTP service
      * @param Zend\View\Renderer\PhpRenderer $viewRenderer View renderer
+     * @param VuFind\Translator              $translator   Translator
      */
-    public function __construct($config, $cacheManager, $http, $viewRenderer, $translator)
-    {
+    public function __construct(
+        $config, $cacheManager, $http, $viewRenderer, $translator
+    ) {
         $this->mainConfig = $config;
         $this->cacheManager = $cacheManager;
         $this->viewRenderer = $viewRenderer;
@@ -104,8 +106,9 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
     /**
      * Perform query.
      *
-     * @param string $parent Parent organisation
-     * @param array  $params Query parameters
+     * @param string $parent   Parent organisation
+     * @param array  $params   Query parameters
+     * @param string $language User language 
      *
      * @return mixed array of results or false on error.
      */
@@ -115,7 +118,6 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
         if (isset($params['id'])) {
             $id = $params['id'];
         }
-
 
         if (!isset($this->mainConfig[$parent])) {
             $this->logError("Missing configuration ($parent)");
@@ -188,10 +190,11 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
         $endDate = $weekDay == 7
             ? $now : strtotime('next sunday', $now);
 
-        if ($action == 'details'
-            && isset($params['dir']) && in_array($params['dir'], ['1', '-1'])
-        ) {
-            $dir = $params['dir'];
+        $schedules = $action == 'list' || !empty($params['periodStart']);
+
+        if ($action == 'details') {
+            $dir = isset($params['dir']) && in_array($params['dir'], ['1', '-1'])
+                ? $params['dir'] : 0;
             $startDate = strtotime("{$dir} Week", $startDate);
             $endDate = strtotime("{$dir} Week", $endDate);
         }
@@ -206,6 +209,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
 
 
         if ($action == 'list') {
+            // Organisation list with schedules for the current week
             $url .= '/library';
             $params = [
                 'lang' => $language,
@@ -235,9 +239,9 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
 
             $url .= "/library";
 
-            $with = 'schedules';
+            $with = $schedules ? 'schedules,' : '';
             if (!empty($params['fullDetails'])) {
-                $with .= ',extra,phone_numbers,pictures,links,services';
+                $with .= 'extra,phone_numbers,pictures,links,services';
             }
 
             $params = [
@@ -271,7 +275,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             
             // Details
             $response = $response['items'][0];
-            $result = $this->parseDetails($language, $target, $response, $allServices);
+            $result = $this->parseDetails($language, $target, $response, $schedules, $allServices);
 
             $result['id'] = $id;
             $result['periodStart'] = $startDate;
@@ -291,7 +295,8 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
     /**
      * Fetch data from cache or external API.
      *
-     * @param string $url URL
+     * @param string $url    URL
+     * @param array  $params Query parameters
      *
      * @return mixed result or false on error.
      */
@@ -360,7 +365,9 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
     /**
      * Parse organisation list.
      *
-     * @param object $response JSON-object
+     * @param string  $language User language
+     * @param string  $target   page|widge
+     * @param object $response  JSON-object
      *
      * @return array
      */
@@ -461,18 +468,23 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
     /**
      * Parse organisation details.
      *
-     * @param object $response JSON-object
+     * @param string  $language           User language
+     * @param string  $target             page|widge
+     * @param object  $response           JSON-object
+     * @param boolean $includeAllServices Include services in the response?
      *
      * @return array
      */
     protected function parseDetails(
-        $language, $target, $response, $includeAllServices = false
+        $language, $target, $response, $schedules, $includeAllServices = false
     ) {
         $result = [];
-
-        $result['openTimes'] = $this->parseSchedules($response['schedules']);
-        if (!empty($response['extra']['description'])) {
-            $result['info'] = $response['extra']['description'];
+        
+        if ($schedules) {
+            $result['openTimes'] = $this->parseSchedules($response['schedules']);
+            if (!empty($response['extra']['description'])) {
+                $result['info'] = $response['extra']['description'];
+            }
         }
 
         if (!empty($response['phone_numbers'])) {
@@ -564,6 +576,13 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
         return $result;
     }
 
+    /**
+     * Parse schedules
+     *
+     * @param object  $data JSON data
+     *
+     * @return array
+     */
     protected function parseSchedules($data)
     {
         $schedules = [];

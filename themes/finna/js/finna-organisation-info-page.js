@@ -117,11 +117,6 @@ finna.organisationInfoPage = (function() {
             $('.expand-map').show();
         });
 
-        var legend = $('#legend');
-        map.setLegend(legend);
-        legend.removeClass('hide');
-
-
         // hide spinner when markers are loaded and find information
         mapHolder.find('.fa-spinner').hide(); // TODO: tarvitaanko?
     };
