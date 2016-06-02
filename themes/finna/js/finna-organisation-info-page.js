@@ -31,7 +31,7 @@ finna.organisationInfoPage = (function() {
                 $('.office-quick-information').show();
                 initSearch();
                 $("#office-search").attr("placeholder", "Hae palvelupistettä (yhteensä: " + cnt + ")");
-                updateSelectedOrganisation(id);
+                updateSelectedOrganisation(id, true);
                 updateURL = true;
             }        
         });
@@ -177,7 +177,7 @@ finna.organisationInfoPage = (function() {
         $('#marker-tooltip').hide();
     };
 
-    var updateSelectedOrganisation = function(id) {
+    var updateSelectedOrganisation = function(id, selectMarker) {
         holder.find('.error, .info-element').hide();
         infoWidget.showDetails(id, '', true);
         $('#office-search').val('');
@@ -186,7 +186,9 @@ finna.organisationInfoPage = (function() {
         if (id in organisationList) {
             var data = organisationList[id];
             if ('address' in data && 'coordinates' in data.address) {
+                //if (selectMarker) {
                 map.selectMarker(id);
+                //}
                 notification.hide();
             } else {
                 map.hideMarker();
@@ -403,7 +405,7 @@ finna.organisationInfoPage = (function() {
 
             window.onhashchange = function() {
                 if (id = getOrganisationFromURL()) {
-                    updateSelectedOrganisation(id);
+                    updateSelectedOrganisation(id, false);
                 }
 
                 // Blur so that mobile keyboard is closed

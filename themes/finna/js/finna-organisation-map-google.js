@@ -8,6 +8,9 @@ finna = $.extend(finna, {
         var mapMarkers = {};
         var selectedMarker = null;
         var infoWindow = null;
+        var infoInterval = null;
+        var centerMap = false;
+        var mapInited = false;
 
         var draw = function(organisations) {
             var options = {
@@ -16,7 +19,6 @@ finna = $.extend(finna, {
             };
             map = new google.maps.Map(holder, options);
 
-            addMyLocationButton();
 
             infoWindow = new google.maps.InfoWindow();
             var me = $(this);
@@ -41,10 +43,23 @@ finna = $.extend(finna, {
                     marker.tooltipContent = marker.tooltipTitle;
                     google.maps.event.addListener(marker, 'click', function() {
                         me.trigger('marker-click', obj.id);
+                        
                         infoWindow.setContent(marker.content);
-                        infoWindow.open(map, marker);
-                        map.setZoom(13);
-                        map.panTo(marker.position);
+
+                        if (!mapInited) {
+                            setTimeout(function() {
+                                infoWindow.open(map, marker);
+                            }, 1000);
+                        } else {
+                            infoWindow.open(map, marker);
+                        }
+                        
+                        if ((!mapInited || centerMap) || map.getZoom() != zoomLevel.close || centerMap) {
+                            map.setZoom(zoomLevel.close);
+                            map.panTo(marker.position);
+                        }
+                        mapInited = true;
+                        centerMap = false;
                     });
                     
                     google.maps.event.addListener(marker, 'mouseover', function() {
@@ -68,6 +83,7 @@ finna = $.extend(finna, {
                     mapMarkers[obj.id] = marker;
                 }
             });
+            addMyLocationButton();
         };
 
         var reset = function() {
@@ -95,6 +111,7 @@ finna = $.extend(finna, {
                 }
                 return;
             }
+            centerMap = true;
             google.maps.event.trigger(marker, 'click');
             selectedMarker = marker;
         };
