@@ -129,29 +129,58 @@
             width: 100%;
             max-width: 400px;
             margin-bottom: 20px;
-            & .info {
-                color: @gray-light;
-                font-size: 0.9em;
-            }
             & div.cell {
                 display: inline-block;
+                vertical-align: top;
             }
-            & .day-container .time-row {
-                .date {
-                    width: 12%;
-                }
-                .description {
-                    width: 50%;
-                }
-                &:first-of-type .name-staff {
-                    display: none;
+            & .day-container {
+                margin-bottom: 1px;
+                padding: 2px 0px;
+                & .time-row {
+                    width: 100%;
+                    line-height: 1.26em;
+                    &.staff {
+                        margin-top: 1px;
+                        font-size: .94em;
+                        &:last-child {
+                            margin-bottom: 5px;  
+                        }
+                    }
+                    .date {
+                        width: 16%;
+                    }
+                    .description {
+                        width: 45%;
+                        & .info {
+                            margin-left: 5px;
+                        }
+                        & .name-staff {
+                            color: @gray-light;
+                        }
+                    }
+                    .time-container {
+                        width: 34%;
+                        text-align: right;
+                        & .time-template {
+                            margin-right: 0px;
+                            & .period:after {
+                                content:',';   
+                            }
+                            &:last-child .period:after {
+                                content:'';   
+                            }
+                        }
+                    }
+                    &:first-of-type .name-staff {
+                        display: none;
+                    }
                 }
             }
             & .open-times-today {
                 background: @gray-lighter;
                 font-weight: bold;
             }
-            & .staff {
+            & .name.staff {
                 color: @gray-light;
             }
             & .week td {
@@ -232,7 +261,7 @@
     .map {
         & .map-widget {
             height: 320px;
-            width:auto;
+            width: 100%;
             &.expand {
                 height: 600px;
             }
@@ -344,13 +373,11 @@
                 position: absolute;
             }
             .ol-zoom {
-                position: absolute;
-                right: 6px;
-                left: auto;
-                bottom: 35px;
+                position: absolute;                
                 top: auto;
-                width: 26px;
-                height: 46px;
+                left: auto;
+                bottom: 40px;
+                right: 7px;
                 display: block;
             }
             & .my-location-btn {
@@ -364,6 +391,9 @@
 
     & .fa-phone-square, .fa-bus, .fa-clock-o, .fa-desktop {
         font-family: 'FontAwesome';
+    }
+    .mobile-schedules.info-element {
+        font-size: 1.2em;   
     }
     & .organisation-info {
         margin-top: 10px;
