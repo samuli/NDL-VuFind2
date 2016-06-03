@@ -126,26 +126,30 @@
             width: 100%;
             max-width: 400px;
             margin-bottom: 20px;
-            & td {
-                padding: 2px 5px;
-                vertical-align: top;
-            }
-            & td:first-child {
-                padding-left: 5px;
-            }
             & .info {
                 color: @gray-light;
                 font-size: 0.9em;
             }
-            & .time {
-                text-align: right;
+            & div.cell {
+                display: inline-block;
+            }
+            & .day-container .time-row {
+                .date {
+                    width: 12%;
+                }
+                .description {
+                    width: 50%;
+                }
+                &:first-of-type .name-staff {
+                    display: none;
+                }
             }
             & .open-times-today {
                 background: @gray-lighter;
                 font-weight: bold;
             }
             & .staff {
-                display: block;
+//                display: block;
                 color: @gray-light;
             }
             & .week td {

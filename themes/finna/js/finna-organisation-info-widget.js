@@ -137,7 +137,7 @@ finna = $.extend(finna, {
         var getScheduleTableRow = function(today, date, day, info) {
             var schedulesHolder = holder.find('.schedules');
             var scheduleTable = schedulesHolder.find('table');
-            var tr = scheduleTable.find('tr:first-child').clone();
+            var tr = scheduleTable.find('div:first-child').clone();
             tr.removeClass('template hide');
             if (today) {
                 tr.addClass('today');
@@ -171,10 +171,9 @@ finna = $.extend(finna, {
             }
             updatePrevBtn(response);
             
-            var schedulesHolder = holder.find('.schedules');
-            var scheduleTable = schedulesHolder.find('table');
-            scheduleTable.hide();
-
+            var schedulesHolder = holder.find('.schedules .opening-times-week');
+            schedulesHolder.find('> div').not('.template').remove();
+            
             var data = organisationList[id];
             var hasSchedules 
                 = 'openTimes' in response && 'schedules' in response.openTimes 
@@ -182,48 +181,78 @@ finna = $.extend(finna, {
 
             if (hasSchedules) {
                 var schedules = response.openTimes.schedules;
-                scheduleTable.show();
 
-                scheduleTable.find('tr').not('.template').remove();
+                var dayRowTpl = $('.day-container.template').clone().removeClass('template hide');
+                var timeRowTpl = $('.time-row.template').not('.staff').clone().removeClass('template hide');
+
+                var dayRow = dayRowTpl.clone();
                 $.each(schedules, function(ind, obj) {
                     var today = 'today' in obj;
+                    var dayCnt = 0;
+                    var cnt = 0;
+
+                    dayRow.toggleClass('today', today);
+
                     if (!('closed' in obj)) {
-                        var cnt = 0;
-                        var currentType = false;
+                        var currentSelfservice = null;
                         var currentDate = null;
+
+                        var currentTimeRow = null;
                         $.each(obj['times'], function(ind, time) {
-                            var date = cnt == 0 ? obj['date'] : '';
-                            var day = cnt == 0 ? obj['day'] : 'staff';
+                            var selfservice = time['selfservice'];
+                            var date = dayCnt == 0 ? obj['date'] : '';
+                            var day = dayCnt == 0 ? obj['day'] : '';
                             var info = 'info' in time ? time.info : null;
-                            var tr = getScheduleTableRow(today, date, obj['day'], info);
-                            tr.find('.opens').text(time['opens']);
-                            tr.find('.closes').text(time['closes']);                        
 
-                            if (cnt > 0 && !time['selfservice']) {
-                                tr.find('.day').hide();
-                                if (time['selfservice'] != currentType) {
-                                    tr.find('.day.staff').show().removeClass('hide');
-                                }
-                                tr.addClass('staff-row');
+                            if (currentDate != obj['date']) {
+                                dayCnt = 0;
                             }
-                            if (time['selfservice'] == currentType && currentDate != null && date != currentDate) {
-                                tr.find('.name').hide();
-                                tr.find('.info').hide();
-                            }
-                            currentType = time['selfservice'];
-                            currentDate = date;
 
-                            scheduleTable.find('tbody').append(tr);
+                            var timeOpens = formatTime(time['opens']);
+                            var timeCloses = formatTime(time['closes']);
+
+                            if (currentSelfservice == null || selfservice != currentSelfservice) {
+                                var timeRow = timeRowTpl.clone();
+                                timeRow.find('.date').text(date);
+                                timeRow.find('.name').text(day);
+                                timeRow.find('.info').text(info);
+                            
+                                timeRow.find('.opens').text(timeOpens);
+                                timeRow.find('.closes').text(timeCloses);                        
+
+                                timeRow.toggleClass('staff', !selfservice);
+                                
+                                dayRow.append(timeRow);
+                                currentTimeRow = timeRow;
+                            } else {
+                                var timePeriod = currentTimeRow.find('.time-template').eq(0).clone();
+                                timePeriod.find('.opens').text(', ' + timeOpens);
+                                timePeriod.find('.closes').text(timeCloses);                        
+                                currentTimeRow.find('.time-container').append(timePeriod);
+                            }
+
+                            currentSelfservice = selfservice;
+                            currentDate = obj['date'];
+
                             cnt++;
+                            dayCnt++;
                         });
                     } else {
                         var info = 'info' in obj ? obj.info : null;
-                        var tr = getScheduleTableRow(today, obj['date'], obj['day'], info);
-                        scheduleTable.find('tbody').append(tr);
-                        tr.find('.time').hide();
-                        tr.find('.time.closed-today').show().removeClass('hide');
-                        tr.addClass('closed-today-row');
+                        var timeRow = timeRowTpl.clone();
+                        timeRow.find('.date').text(obj['date']);
+                        timeRow.find('.name').text(obj['day']);
+                        timeRow.find('.info').text(obj['info']);
+                        timeRow.find('.period, .name-staff').hide();
+                        timeRow.find('.closed-today').removeClass('hide');
+                        dayRow.append(timeRow);
+                        
+                        dayRow.toggleClass('is-closed', true);
                     }
+                    
+                    dayCnt = 0;
+                    schedulesHolder.append(dayRow);
+                    dayRow = dayRowTpl.clone();
                 });
             } else {
                 var links = null;
@@ -250,7 +279,6 @@ finna = $.extend(finna, {
 
             var infoHolder = $('.schedules-info');
             infoHolder.empty();
-            console.log("data: %o", data);
 
             if ('schedule-descriptions' in response) {
                 $.each(response['schedule-descriptions'], function(ind, obj) {
@@ -262,6 +290,14 @@ finna = $.extend(finna, {
 
             holder.find('.week-navi-holder').toggle(hasSchedules);
             schedulesHolder.stop(true, false).fadeTo(200, 1);
+        };
+        
+        var formatTime = function(time) {
+            var parts = time.split(':');
+            if (parts[1] == '00') {
+                return parts[0];
+            }
+            return time;
         };
 
         var detailsLoaded = function(id, response) {
