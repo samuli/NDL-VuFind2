@@ -686,7 +686,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
 
             // Staff times
             foreach ($day['times'] as $time) {
-                $res = $this->extractDayTime($now, $time, $today, false);
+                $res = $this->extractDayTime($now, $time, $today);
                 if (!empty($res['openNow'])) {
                     $openNow = true;
                 }
@@ -747,13 +747,16 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
      *
      * @return array
      */
-    protected function extractDayTime($now, $time, $today, $selfService)
+    protected function extractDayTime($now, $time, $today, $selfService = false)
     {
         $opens = $this->formatTime($time['opens']);
         $closes = $this->formatTime($time['closes']);
         $result = [
-           'opens' => $opens, 'closes' => $closes, 'selfservice' => $selfService
+           'opens' => $opens, 'closes' => $closes
         ];
+        if ($selfService) {
+            $result['selfservice'] = true;
+        }
         
         $openNow = false;
 
