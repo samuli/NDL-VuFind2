@@ -32,7 +32,10 @@
     margin-bottom: -1px;   
 }
 .map-control-buttons {
-    margin-top: 25px;
+    margin-top: 5px;
+    @media (min-width: @screen-sm-min) {
+        margin-top: 25px;
+    }
     & span {
          color: @link-color;
          &:hover {
@@ -149,7 +152,6 @@
                 font-weight: bold;
             }
             & .staff {
-//                display: block;
                 color: @gray-light;
             }
             & .week td {
@@ -452,7 +454,6 @@
             }
             & img {
                 margin-bottom: 5px;
-                margin-top: 3px;
             }
             & .office-description {
                 font-weight: normal;
@@ -536,7 +537,7 @@
             padding-bottom: 0;
         }
         & .email-contact, .address-contact, .phone-numbers {
-            margin-bottom: 15px;
+            margin-bottom: 12px;
             & > strong {
                 text-transform: uppercase;
             }
@@ -547,7 +548,7 @@
             }
         }
         & .service-list li {
-            margin-bottom: 12px;
+            margin-bottom: 10px;
             & > strong {
                 text-transform: uppercase;   
             }

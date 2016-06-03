@@ -157,8 +157,7 @@ finna.organisationInfoPage = (function() {
             minLength: 0,
             delay: 100,
             appendTo: ".autocomplete-container",
-            autoFocus: false,
-            autoSelect: false            
+            autoFocus: true
         });
         
         
