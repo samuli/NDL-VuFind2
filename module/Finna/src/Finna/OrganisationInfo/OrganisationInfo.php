@@ -701,7 +701,6 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                 
                 $times[] = $res['result'];
             }
-
             if ($today && !empty($times)) {
                 $openToday = $times;
             }
@@ -712,12 +711,9 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                'day' => $weekDayName,
             ];
             
-            $closed = false;
-            if (isset($day['sections']['selfservice']['closed'])) {
-                $closed = $day['sections']['selfservice']['closed'];
-            } else if ($day['closed']) {
-                $closed = true;
-            }
+            $closed = $day['closed'] 
+                && (!isset($day['sections']['selfservice']['closed']) 
+                    || $day['sections']['selfservice']['closed']);
 
             if ($closed) {
                 $scheduleData['closed'] = $closed;
