@@ -200,7 +200,7 @@ finna = $.extend(finna, {
                         var selfserviceAvail = false;
                         var currentTimeRow = null;
                         $.each(obj['times'], function(ind, time) {
-                            var selfservice = time['selfservice'];
+                            var selfservice = time['selfservice'] ? true : false;
                             selfserviceAvail = selfserviceAvail || 'selfservice' in time;
 
                             var date = dayCnt == 0 ? obj['date'] : '';
@@ -235,8 +235,6 @@ finna = $.extend(finna, {
                                 timePeriod.find('.closes').text(timeCloses);                        
                                 currentTimeRow.find('.time-container').append(timePeriod);
                             }
-
-                            dayRow.find
 
                             currentSelfservice = selfservice;
                             currentDate = obj['date'];
