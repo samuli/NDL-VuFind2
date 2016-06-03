@@ -198,10 +198,12 @@ finna = $.extend(finna, {
                         var currentDate = null;
 
                         var selfserviceAvail = false;
+                        var staffAvail = false;
                         var currentTimeRow = null;
                         $.each(obj['times'], function(ind, time) {
                             var selfservice = time['selfservice'] ? true : false;
                             selfserviceAvail = selfserviceAvail || 'selfservice' in time;
+                            staffAvail = staffAvail || !selfservice;
 
                             var date = dayCnt == 0 ? obj['date'] : '';
                             var day = dayCnt == 0 ? obj['day'] : '';
@@ -226,7 +228,9 @@ finna = $.extend(finna, {
                                 if (selfserviceAvail && selfservice != currentSelfservice) {
                                     timeRow.toggleClass('staff', !selfservice);
                                 }
-
+                                if ('selfserviceOnly' in time) {
+                                    timeRow.find('.selfservice-only').removeClass('hide');
+                                }
                                 dayRow.append(timeRow);
                                 currentTimeRow = timeRow;
                             } else {

@@ -663,11 +663,13 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
 
             $times = [];
             $now = time();
-            $closed = isset($day['sections']['selfservice']['closed']) ? true : false;
+            $closed 
+                = isset($day['sections']['selfservice']['closed']) ? true : false;
 
             $info = isset($day['info'])
                 ? $day['info'] : null;
 
+            $staffTimes = $selfserviceTimes = [];
             // Self service times
             if (!empty($day['sections']['selfservice']['times'])) {
                 foreach ($day['sections']['selfservice']['times'] as $time) {
@@ -675,7 +677,9 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                     if (!empty($res['openNow'])) {
                         $openNow = true;
                     }
-                    
+                    if (empty($day['times'])) {
+                        $res['result']['selfserviceOnly'] = true;
+                    }
                     if (!empty($info)) {
                         $res['result']['info'] = $info;
                         $info = null;
@@ -694,7 +698,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                     $res['result']['info'] = $info;
                     $info = null;
                 }
-
+                
                 $times[] = $res['result'];
             }
 
@@ -707,14 +711,10 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                'times' => $times,
                'day' => $weekDayName,
             ];
-
-            if ($day['closed'] && !$closed) {
-                $closed = true;
-            }
-
+            
             $closed = false;
-            if (!empty($day['sections']['selfservice']['closed'])) {
-                $closed = true;
+            if (isset($day['sections']['selfservice']['closed'])) {
+                $closed = $day['sections']['selfservice']['closed'];
             } else if ($day['closed']) {
                 $closed = true;
             }
