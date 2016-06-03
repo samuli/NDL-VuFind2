@@ -197,9 +197,12 @@ finna = $.extend(finna, {
                         var currentSelfservice = null;
                         var currentDate = null;
 
+                        var selfserviceAvail = false;
                         var currentTimeRow = null;
                         $.each(obj['times'], function(ind, time) {
                             var selfservice = time['selfservice'];
+                            selfserviceAvail = selfserviceAvail || selfservice;
+                            console.log("self: %o", selfservice);
                             var date = dayCnt == 0 ? obj['date'] : '';
                             var day = dayCnt == 0 ? obj['day'] : '';
                             var info = 'info' in time ? time.info : null;
@@ -208,8 +211,8 @@ finna = $.extend(finna, {
                                 dayCnt = 0;
                             }
 
-                            var timeOpens = formatTime(time['opens']);
-                            var timeCloses = formatTime(time['closes']);
+                            var timeOpens = time['opens'];
+                            var timeCloses = time['closes'];
 
                             if (currentSelfservice == null || selfservice != currentSelfservice) {
                                 var timeRow = timeRowTpl.clone();
@@ -220,16 +223,20 @@ finna = $.extend(finna, {
                                 timeRow.find('.opens').text(timeOpens);
                                 timeRow.find('.closes').text(timeCloses);                        
 
-                                timeRow.toggleClass('staff', !selfservice);
-                                
+                                if (selfservice != currentSelfservice) {
+                                    timeRow.toggleClass('staff', !selfservice);
+                                }
+
                                 dayRow.append(timeRow);
                                 currentTimeRow = timeRow;
                             } else {
                                 var timePeriod = currentTimeRow.find('.time-template').eq(0).clone();
-                                timePeriod.find('.opens').text(', ' + timeOpens);
+                                timePeriod.find('.opens').text(timeOpens);
                                 timePeriod.find('.closes').text(timeCloses);                        
                                 currentTimeRow.find('.time-container').append(timePeriod);
                             }
+
+                            dayRow.find
 
                             currentSelfservice = selfservice;
                             currentDate = obj['date'];
@@ -291,14 +298,6 @@ finna = $.extend(finna, {
             schedulesHolder.stop(true, false).fadeTo(200, 1);
         };
         
-        var formatTime = function(time) {
-            var parts = time.split(':');
-            if (parts[1] == '00') {
-                return parts[0];
-            }
-            return time;
-        };
-
         var detailsLoaded = function(id, response) {
             toggleSpinner(false);
 

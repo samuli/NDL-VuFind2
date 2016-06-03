@@ -144,6 +144,10 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             return false;
         }
 
+        if (isset($this->mainConfig['General']['language'])) {
+            $language = $this->mainConfig['General']['language'];
+        }
+
         $target = isset($params['target']) ? $params['target'] : 'widget';
         $action = isset($params['action']) ? $params['action'] : 'list';
 
@@ -699,7 +703,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             }
 
             $scheduleData = [
-               'date' => date('d.m', $dayTime),
+               'date' => date('j.n.', $dayTime),
                'times' => $times,
                'day' => $weekDayName,
             ];
@@ -745,8 +749,8 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
      */
     protected function extractDayTime($now, $time, $today, $selfService)
     {
-        $opens = $time['opens'];
-        $closes = $time['closes'];
+        $opens = $this->formatTime($time['opens']);
+        $closes = $this->formatTime($time['closes']);
         $result = [
            'opens' => $opens, 'closes' => $closes, 'selfservice' => $selfService
         ];
@@ -762,5 +766,18 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             }
         }
         return compact('result', 'openNow');
+    }
+
+    protected function formatTime($time)
+    {
+        $parts = explode(':', $time);
+        
+        if (substr($parts[0], 0, 1) == '0') {
+            $parts[0] = substr($parts[0], 1);
+        }
+        if ($parts[1] == '00') {
+            return $parts[0];
+        }
+        return $parts[0] . ':' . $parts[1];
     }
 }
