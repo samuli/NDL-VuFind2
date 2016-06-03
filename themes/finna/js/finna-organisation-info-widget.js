@@ -280,13 +280,12 @@ finna = $.extend(finna, {
             var infoHolder = $('.schedules-info');
             infoHolder.empty();
 
-            if ('schedule-descriptions' in response) {
-                $.each(response['schedule-descriptions'], function(ind, obj) {
+            if ('schedule-descriptions' in data) {
+                $.each(data['schedule-descriptions'], function(ind, obj) {
                     $('<p/>').text(obj).appendTo(infoHolder);
                 });
                 infoHolder.show();
             }
-
 
             holder.find('.week-navi-holder').toggle(hasSchedules);
             schedulesHolder.stop(true, false).fadeTo(200, 1);

@@ -231,27 +231,28 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             $result['weekNum'] = $weekNum;
 
             // References
-            $scheduleDescriptions = [];
-            //error_log(var_export($response, true));
-            /*
             if (isset($response['references']['period'])) {
+                $scheduleDescriptions = [];
                 foreach ($response['references']['period'] as $key => $period) {
                     $id = $period['organisation'];
-                    /
-                    if (
                     if (!empty($period['description'][$language])) {
-                        $id = $period['organisation'];
-                        $result['list'][$id]['openTimes']['schedule-description'] 
+                        if (!isset($scheduleDescriptions[$id])) {
+                            $scheduleDescriptions[$id] = [];
+                        }
+                        $scheduleDescriptions[$id][] 
                             = $period['description'][$language];
-                            //$scheduleDescriptions[] = $period['description'][$language];
                     }
                 }
-                }*/
-            /*
-            if (!empty($scheduleDescriptions)) {
-                $result['schedule-descriptions'] = $scheduleDescriptions;
-                }*/
-            
+                foreach ($scheduleDescriptions as $id => $descriptions) {
+                    foreach ($result['list'] as &$item) {
+                        if ($item['id'] == $id) {
+                            $item['schedule-descriptions'] = array_unique($descriptions);
+                            continue;
+                        }
+                    }
+                }
+            }
+
             return $result;
 
         } else if ($action == 'details') {
