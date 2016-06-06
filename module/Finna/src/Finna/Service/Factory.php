@@ -152,7 +152,8 @@ class Factory extends \VuFind\Service\Factory
             $config = $sm->get('VuFind\Config')->get('organisationInfo'),
             $sm->get('VuFind\CacheManager'),
             $sm->get('VuFind\Http'),
-            $sm->get('viewmanager')->getRenderer()
+            $sm->get('viewmanager')->getRenderer(),
+            $sm->get('VuFind\Translator')
         );
     }
 

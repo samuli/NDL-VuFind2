@@ -1,6 +1,6 @@
 <?php
 /**
- * Service for querying Kirjastohakemisto library database.
+ * Service for querying Kirjastohakemisto database.
  * See: https://api.kirjastot.fi/
  *
  * PHP version 5
@@ -30,7 +30,8 @@ namespace Finna\OrganisationInfo;
 use Zend\Config\Config;
 
 /**
- * Service for querying Kirjastohakemisto library database.
+ * Service for querying Kirjastohakemisto database.
+ * See: https://api.kirjastot.fi/
  *
  * @category VuFind
  * @package  Content
@@ -78,64 +79,102 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
     protected $http;
 
     /**
+     * Translator
+     *
+     * @var VuFind\Tranlator
+     */
+    protected $translator;
+
+    /**
      * Constructor.
      *
      * @param Zend\Config\Config             $config       Configuration
      * @param VuFind\CacheManager            $cacheManager Cache manager
      * @param VuFind\Http                    $http         HTTP service
      * @param Zend\View\Renderer\PhpRenderer $viewRenderer View renderer
+     * @param VuFind\Translator              $translator   Translator
      */
-    public function __construct($config, $cacheManager, $http, $viewRenderer)
-    {
+    public function __construct(
+        $config, $cacheManager, $http, $viewRenderer, $translator
+    ) {
         $this->mainConfig = $config;
         $this->cacheManager = $cacheManager;
         $this->viewRenderer = $viewRenderer;
         $this->http = $http;
+        $this->translator = $translator;
     }
 
     /**
      * Perform query.
      *
-     * @param string $consortium Consortium
-     * @param array  $params     Query parameters
+     * @param string $parent   Parent organisation
+     * @param array  $params   Query parameters
+     * @param string $language User language 
      *
      * @return mixed array of results or false on error.
      */
-    public function query($consortium, $params = null)
+    public function query($parent, $params, $language)
     {
-        if (!isset($this->mainConfig[$consortium])) {
-            $this->logError("Missing configuration (consortium: $consortium)");
+        $id = null;
+        if (isset($params['id'])) {
+            $id = $params['id'];
+        }
+
+        if (!isset($this->mainConfig[$parent])) {
+            $this->logError("Missing configuration ($parent)");
             return false;
         }
 
         if (!$this->config) {
             $this->config = array_merge(
                 $this->mainConfig->General->toArray(),
-                $this->mainConfig[$consortium]->toArray()
+                $this->mainConfig[$parent]->toArray()
             );
         }
 
         if (!$this->config['enabled']) {
-            $this->logError("Organisation info disabled (consortium: $consortium)");
+            $this->logError("Organisation info disabled ($parent)");
             return false;
         }
 
         if (!isset($this->config['url'])) {
             $this->logError(
                 "URL missing from organisation info configuration"
-                . "(consortium: $consortium)"
+                . "($parent)"
             );
             return false;
         }
 
+        if (isset($this->mainConfig['General']['language'])) {
+            // overrride user language
+            $language = $this->mainConfig['General']['language'];
+        }
+
+        $target = isset($params['target']) ? $params['target'] : 'widget';
         $action = isset($params['action']) ? $params['action'] : 'list';
+
+        $parentType = null;
+        if (isset($this->config['consortium'])) {
+            $parentType = 'consortium';
+        } else if (isset($this->config['parent'])) {
+            $parentType = 'parent';
+        }
+
+        if (!$parentType) {
+            $this->logError(
+                "Missing consortium/parent from organisation info configuration"
+                . "($parent)"
+            );
+            return false;
+        }
+
+        $parentId = $this->config[$parentType];
         $id = null;
         if (isset($params['id'])) {
             $id = $params['id'];
         } else if (isset($this->config['default'])) {
             $id = $this->config['default'];
         }
-        $url = $this->config['url'];
 
         $now = false;
         if (isset($params['periodStart'])) {
@@ -157,104 +196,133 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
         $endDate = $weekDay == 7
             ? $now : strtotime('next sunday', $now);
 
-        if ($action == 'details'
-            && isset($params['dir']) && in_array($params['dir'], ['1', '-1'])
-        ) {
-            $dir = $params['dir'];
+        $schedules = $action == 'list' || !empty($params['periodStart']);
+
+        if ($action == 'details') {
+            $dir = isset($params['dir']) && in_array($params['dir'], ['1', '-1'])
+                ? $params['dir'] : 0;
             $startDate = strtotime("{$dir} Week", $startDate);
             $endDate = strtotime("{$dir} Week", $endDate);
         }
+        
+        $allServices = !empty($params['allServices']);
+
         $weekNum = date('W', $startDate);
         $startDate = date('Y-m-d', $startDate);
         $endDate = date('Y-m-d', $endDate);
 
-        switch ($action) {
+        $url = $this->config['url'];
 
-        case 'list':
-            $url .= '/organisation';
+        if ($action == 'list') {
+            // Organisation list with schedules for the current week
+            $url .= '/library';
             $params = [
-                 'refs' => 'consortium',
-                 'consortium' => $this->config['consortium'],
-                 'with' => 'schedules',
-                 'period.start' => 'today',
-                 'period.end' => 'today',
-                 'limit' => 1000
+                'lang' => $language,
+                $parentType => $parentId,
+                'with' => 'schedules',
+                'period.start' => $startDate,
+                'period.end' => $endDate,
+                'refs' => 'period'
             ];
-            break;
+            
+            $response = $this->fetchData($url, $params);
+            if (!$response) {
+                $this->logError("Error reading organisation list (url: $url)");
+                return false;
+            }
 
-        case 'details':
+            $result = ['id' => $id];
+            $result['list'] = $this->parseList($language, $target, $response);
+            $result['weekNum'] = $weekNum;
+
+            // References
+            if (isset($response['references']['period'])) {
+                $scheduleDescriptions = [];
+                foreach ($response['references']['period'] as $key => $period) {
+                    $id = $period['organisation'];
+                    if (!empty($period['description'][$language])) {
+                        if (!isset($scheduleDescriptions[$id])) {
+                            $scheduleDescriptions[$id] = [];
+                        }
+                        $scheduleDescriptions[$id][]
+                            = $period['description'][$language];
+                    }
+                }
+                foreach ($scheduleDescriptions as $id => $descriptions) {
+                    foreach ($result['list'] as &$item) {
+                        if ($item['id'] == $id) {
+                            $item['schedule-descriptions']
+                                = array_unique($descriptions);
+                            continue;
+                        }
+                    }
+                }
+            }
+
+            return $result;
+
+        } else if ($action == 'details') {
             if (!$id) {
                 $this->logError("Missing id");
                 return false;
             }
 
-            $url .= "/library/$id";
+            $url .= "/library";
 
-            $with = 'schedules';
+            $with = $schedules ? 'schedules,' : '';
             if (!empty($params['fullDetails'])) {
-                $with .= ',extra,phone_numbers,pictures,links,services';
+                $with .= 'extra,phone_numbers,pictures,links,services';
             }
 
             $params = [
+                'id' => $id,
+                'lang' => $language,
                 'with' => $with,
                 'period.start' => $startDate,
-                'period.end' => $endDate
+                'period.end' => $endDate,
+                'refs' => 'period'
             ];
-            break;
 
-        default:
-            $this->logError("Unknown action: $action");
-            return false;
-        }
-
-        $params['lang'] = 'fi';
-        $url .= '?' . http_build_query($params);
-
-        $response = $this->fetchData($url);
-        if (!$response) {
-            $this->logError("Error reading organisation info (url: $url)");
-            return false;
-        }
-
-        $response = json_decode($response, true);
-        $jsonError = json_last_error();
-        if ($jsonError !== JSON_ERROR_NONE) {
-            $this->logError("Error decoding JSON: $jsonError (url: $url)");
-            return false;
-        }
-
-        $result = [];
-
-        switch ($action) {
-
-        case 'list':
-            $result = [];
-            if ($id) {
-                $result['id'] = $id;
+            $response = $this->fetchData($url, $params);
+            if (!$response) {
+                $this->logError("Error reading organisation list (url: $url)");
+                return false;
             }
-            $result['list'] = $this->parseList($response);
-            $result['weekNum'] = $weekNum;
-            break;
 
-        case 'details':
-            $result = $this->parseDetails($response);
+            if (!$response['total']) {
+                return false;
+            }
+
+            // Details
+            $response = $response['items'][0];
+            $result = $this->parseDetails(
+                $language, $target, $response, $schedules, $allServices
+            );
+
+            $result['id'] = $id;
             $result['periodStart'] = $startDate;
             $result['weekNum'] = $weekNum;
-            break;
+
+            return $result;
         }
 
-        return $result;
+        $this->logError("Unknown action: $action");
+        return false;
     }
 
     /**
      * Fetch data from cache or external API.
      *
-     * @param string $url URL
+     * @param string $url    URL
+     * @param array  $params Query parameters
      *
      * @return mixed result or false on error.
      */
-    protected function fetchData($url)
+    protected function fetchData($url, $params)
     {
+        $params['limit'] = 1000;
+        $url .= '?' . http_build_query($params);
+
         $cacheDir = $this->cacheManager->getCache('organisation-info')
             ->getOptions()->getCacheDir();
 
@@ -291,19 +359,35 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             }
 
             $response = $result->getBody();
-            file_put_contents($localFile, $response);
+            if ($maxAge) {
+                file_put_contents($localFile, $response);
+            }
         }
+
+        if (!$response) {
+            return false;
+        }
+
+        $response = json_decode($response, true);
+        $jsonError = json_last_error();
+        if ($jsonError !== JSON_ERROR_NONE) {
+            $this->logError("Error decoding JSON: $jsonError (url: $url)");
+            return false;
+        }
+
         return $response;
     }
 
     /**
      * Parse organisation list.
      *
+     * @param string $language User language
+     * @param string $target   page|widge
      * @param object $response JSON-object
      *
      * @return array
      */
-    protected function parseList($response)
+    protected function parseList($language, $target, $response)
     {
         $mapUrls = ['routeUrl', 'mapUrl'];
         $mapUrlConf = [];
@@ -323,11 +407,19 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
 
         $result = [];
         foreach ($response['items'] as $item) {
+            if (empty($item['name'])) {
+                continue;
+            }
+
             $data = [
                 'id' => $item['id'],
                 'name' => $item['name'],
                 'slug' => $item['slug']
             ];
+
+            if ($item['branch_type'] == 'mobile') {
+                $data['mobile'] = 1;
+            }
 
             $fields = ['homepage', 'email'];
             foreach ($fields as $field) {
@@ -337,11 +429,18 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             }
 
             $address = [];
-            foreach (['street', 'zip', 'city'] as $addressField) {
+            foreach (['street', 'zipcode', 'city', 'coordinates'] as $addressField) {
                 if (!empty($item['address'][$addressField])) {
                     $address[$addressField] = $item['address'][$addressField];
+                    if ($addressField == 'coordinates') {
+                        $address[$addressField]['lat']
+                            = (float)$address[$addressField]['lat'];
+                        $address[$addressField]['lon']
+                            = (float)$address[$addressField]['lon'];
+                    }
                 }
             }
+
             if (!empty($address)) {
                 $data['address'] = $address;
             }
@@ -364,9 +463,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                 $data[$map] = $mapUrl;
             }
 
-            if ($schedules = $this->parseDetails($item)) {
-                $data['openNow'] = !empty($schedules['openNow']);
-            }
+            $data['openTimes'] = $this->parseSchedules($item['schedules']);
 
             $result[] = $data;
         }
@@ -391,17 +488,124 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
     /**
      * Parse organisation details.
      *
-     * @param object $response JSON-object
+     * @param string  $language           User language
+     * @param string  $target             page|widge
+     * @param object  $response           JSON-object
+     * @param boolean $schedules          Include schedules in the response?
+     * @param boolean $includeAllServices Include services in the response?
      *
      * @return array
      */
-    protected function parseDetails($response)
-    {
+    protected function parseDetails(
+        $language, $target, $response, $schedules, $includeAllServices = false
+    ) {
         $result = [];
-        if (!empty($response['extra']['description'])) {
-            $result['info'] = $response['extra']['description'];
+
+        if ($schedules) {
+            $result['openTimes'] = $this->parseSchedules($response['schedules']);
+            if (!empty($response['extra']['description'])) {
+                $result['info'] = $response['extra']['description'];
+            }
         }
 
+        if (!empty($response['phone_numbers'])) {
+            $phones = [];
+            foreach ($response['phone_numbers'] as $phone) {
+                $phones[]
+                    = ['name' => $phone['name'], 'number' => $phone['number']];
+            }
+            try {
+                $result['phone'] = $this->viewRenderer->partial(
+                    "Helpers/organisation-info-phone-{$target}.phtml",
+                    ['phones' => $phones]
+                );
+            } catch (\Exception $e) {
+                $this->logError($e->getmessage());
+            }
+        }
+
+        if (!empty($response['pictures'])) {
+            $pics = [];
+            foreach ($response['pictures'] as $pic) {
+                $picResult = ['url' => $pic['files']['medium']];
+                $pics[] = $picResult;
+            }
+            if (!empty($pics)) {
+                $result['pictures'] = $pics;
+            }
+        }
+
+        if (!empty($response['links'])) {
+            $links = [];
+            foreach ($response['links'] as $link) {
+                $links[] = ['name' => $link['name'], 'url' => $link['url']];
+            }
+            $result['links'] = $links;
+        }
+
+        if (!empty($response['services'])
+            && ($includeAllServices || !empty($this->config['services']))
+        ) {
+            $servicesMap = $this->config['services'];
+            $services = $allServices = [];
+            foreach ($response['services'] as $service) {
+                if (in_array($service['id'], array_keys($servicesMap))) {
+                    $services[] = $servicesMap[$service['id']];
+                }
+                if ($includeAllServices) {
+                    $data = [$service['name']];
+                    if (!empty($service['short_description'])) {
+                        $data[] = $service['short_description'];
+                    }
+                    $allServices[] = $data;
+                }
+            }
+            if (!empty($services)) {
+                $result['services'] = $services;
+            }
+            if (!empty($allServices)) {
+                $result['allServices'] = $allServices;
+            }
+        }
+
+        if (!empty($response['extra']['description'])) {
+            $result['description']
+                = html_entity_decode($response['extra']['description']);
+        }
+
+        if (!empty($response['extra']['building']['construction_year'])) {
+            if ($year = $response['extra']['building']['construction_year']) {
+                $result['buildingYear'] = $year;
+            }
+        }
+
+        if (!empty($response['extra']['data'])) {
+            $rssLinks = [];
+            foreach ($response['extra']['data'] as $link) {
+                if (in_array($link['id'], ['news', 'events'])) {
+                    $rssLinks[] = [
+                       'id' => $link['id'],
+                       'url' => $link['value']
+                    ];
+                }
+            }
+            if (!empty($rssLinks)) {
+                $result['rss'] = $rssLinks;
+            }
+        }
+
+        return $result;
+    }
+
+    /**
+     * Parse schedules
+     *
+     * @param object $data JSON data
+     *
+     * @return array
+     */
+    protected function parseSchedules($data)
+    {
         $schedules = [];
         $periodStart = null;
 
@@ -411,8 +615,9 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
         ];
 
         $openNow = false;
+        $openToday = false;
         $currentWeek = false;
-        foreach ($response['schedules'] as $day) {
+        foreach ($data as $day) {
             if (!isset($day['times'])
                 && !isset($day['sections']['selfservice']['times'])
             ) {
@@ -437,106 +642,80 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             }
 
             $weekDay = date('N', $dayTime);
-            $weekDayName = $dayNames[($day['day']) - 1];
+            $weekDayName = $this->translator->translate(
+                'day-name-short-' . $dayNames[($day['day']) - 1]
+            );
 
             $times = [];
             $now = time();
+            $closed
+                = isset($day['sections']['selfservice']['closed']) ? true : false;
 
+            $info = isset($day['info'])
+                ? $day['info'] : null;
+
+            $staffTimes = $selfserviceTimes = [];
             // Self service times
             if (!empty($day['sections']['selfservice']['times'])) {
                 foreach ($day['sections']['selfservice']['times'] as $time) {
-                    $result = $this->extractDayTime($now, $time, $today, true);
-                    if (!empty($result['openNow'])) {
+                    $res = $this->extractDayTime($now, $time, $today, true);
+                    if (!empty($res['openNow'])) {
                         $openNow = true;
                     }
-                    $times[] = $result['result'];
+                    if (empty($day['times'])) {
+                        $res['result']['selfserviceOnly'] = true;
+                    }
+                    if (!empty($info)) {
+                        $res['result']['info'] = $info;
+                        $info = null;
+                    }
+                    $times[] = $res['result'];
                 }
             }
 
             // Staff times
             foreach ($day['times'] as $time) {
-                $result = $this->extractDayTime($now, $time, $today, false);
-                if (!empty($result['openNow'])) {
+                $res = $this->extractDayTime($now, $time, $today);
+                if (!empty($res['openNow'])) {
                     $openNow = true;
                 }
-                $times[] = $result['result'];
+                if (!empty($info)) {
+                    $res['result']['info'] = $info;
+                    $info = null;
+                }
+                
+                $times[] = $res['result'];
+            }
+            if ($today && !empty($times)) {
+                $openToday = $times;
             }
 
-            $schedules[] = [
-               'date' => $dayTime,
-               'closed' => $day['closed'],
+            $scheduleData = [
+               'date' => date('j.n.', $dayTime),
                'times' => $times,
-               'today' => $today,
-               'dayName' => $weekDayName,
+               'day' => $weekDayName,
             ];
+            
+            $closed = $day['closed']
+                && (!isset($day['sections']['selfservice']['closed'])
+                    || $day['sections']['selfservice']['closed']);
+
+            if ($closed) {
+                $scheduleData['closed'] = $closed;
+            }
+
+            if ($today) {
+                $scheduleData['today'] = true;
+            }
+
+            $schedules[] = $scheduleData;
+
             if ($today) {
                 $currentWeek = true;
             }
         }
-        if (!empty($schedules)) {
-            $result['html'] = $this->viewRenderer->partial(
-                'Helpers/organisation-info-schedule.phtml',
-                ['schedules' => $schedules]
-            );
 
-        }
-        if ($currentWeek) {
-            $result['openNow'] = $openNow;
-        }
-        $result['currentWeek'] = $currentWeek;
-
-        if (!empty($response['phone_numbers'])) {
-            $phones = [];
-            foreach ($response['phone_numbers'] as $phone) {
-                $phones[]
-                    = ['name' => $phone['name'], 'number' => $phone['number']];
-            }
-            $result['phone'] = $this->viewRenderer->partial(
-                'Helpers/organisation-info-phone.phtml', ['phones' => $phones]
-            );
-        }
-
-        if (!empty($response['pictures'])) {
-            $pics = [];
-            foreach ($response['pictures'] as $pic) {
-                $picResult = ['url' => $pic['files']['medium']];
-                $pics[] = $picResult;
-            }
-            if (!empty($pics)) {
-                $result['pictures'] = $pics;
-            }
-        }
-
-        if (!empty($response['links'])) {
-            $links = [];
-            foreach ($response['links'] as $link) {
-                if ($link['name'] != 'Facebook') {
-                    continue;
-                }
-                $links[] = ['type' => $link['name'], 'url' => $link['url']];
-            }
-            $result['links'] = $links;
-        }
-
-        if (!empty($response['services']) && !empty($this->config['services'])) {
-            $servicesMap = $this->config['services'];
-            $services = [];
-            foreach ($response['services'] as $service) {
-                if (in_array($service['id'], array_keys($servicesMap))) {
-                    $services[] = $servicesMap[$service['id']];
-                }
-            }
-            if (!empty($services)) {
-                $result['services'] = $services;
-            }
-        }
-
-        if (!empty($response['extra']['description'])) {
-            $result['description']
-                = html_entity_decode($response['extra']['description']);
-        }
-
-        return $result;
+        return compact('schedules', 'openNow', 'openToday', 'currentWeek');
     }
 
     /**
@@ -549,13 +728,17 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
      *
      * @return array
      */
-    protected function extractDayTime($now, $time, $today, $selfService)
+    protected function extractDayTime($now, $time, $today, $selfService = false)
     {
-        $opens = $time['opens'];
-        $closes = $time['closes'];
+        $opens = $this->formatTime($time['opens']);
+        $closes = $this->formatTime($time['closes']);
         $result = [
-           'opens' => $opens, 'closes' => $closes, 'selfservice' => $selfService
+           'opens' => $opens, 'closes' => $closes
         ];
+        if ($selfService) {
+            $result['selfservice'] = true;
+        }
+        
         $openNow = false;
 
         if ($today) {
@@ -567,5 +750,24 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             }
         }
         return compact('result', 'openNow');
+    }
+
+    /**
+     * Format time string.
+     *
+     * @param string $time Time
+     *
+     * @return string
+     */
+    protected function formatTime($time)
+    {
+        $parts = explode(':', $time);
+        if (substr($parts[0], 0, 1) == '0') {
+            $parts[0] = substr($parts[0], 1);
+        }
+        if ($parts[1] == '00') {
+            return $parts[0];
+        }
+        return $parts[0] . ':' . $parts[1];
     }
 }

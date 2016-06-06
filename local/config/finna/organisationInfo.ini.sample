@@ -1,26 +1,58 @@
-; Organisation info component (see: https://api.kirjastot.fi)
-;    Embed to a template file:  <?=$this->organisationInfo('<consortium>')?>
+; Configuration for Kirjastohakemisto (https://api.kirjastot.fi) widgets (organisation page, opening times).
+;
+; Embed organisation page widget to a template:
+;    <?=$this->organisationPage('<id>')?>
+; Embed opening times widget to a template:
+;    <?=$this->organisationInfo('<id>')?>
+;
+; Leave out <id> to use the configured default organisation:
+;    <?=$this->organisationPage()?>
+;    <?=$this->organisationInfo()?>
 
 [General]
 enabled = 0
 
+; Map widget (google|openlayers)
+mapWidget = openlayers
+
+; Default organisation id for widgets
+defaultOrganisation = vaski
+
+// Option for overriding user language.
+// Language is Kirjastohakemisto 'lang' attribute compatible (en, fi, ru, se, sv)
+;language = fi
+
 ; How long content is cached locally in minutes.
 ; Set this to false or comment out to disable caching.
-cachetime = 10
+cachetime = 5
 
+; Kirjastohakemisto API URL
 url = "https://api.kirjastot.fi/v3"
 
+; Google API key.
+;googleAPIKey = 'KEY'
+
+; URL template for route information links
 routeUrl = "http://www.matka.fi/fi/?keya=&keyb={street},%20{city}"
+; URL template for map links
 mapUrl = "http://maps.google.com/?q={street}%20{city}"
 
+; Serfice mapping (only for opening times widget)
 services[55290] = "wifi"
 services[55318] = "wifi"
 services[55342] = "print"
 services[55266] = "print"
 services[55322] = "print"
 
+; List of configured organisations. Each section consists
+
 [vaski]
 consortium = 2115
-
-; Default organisation
 default = 85141
+
+[hulib]
+parent = 86029
+default = 86353
+
+[samk]
+parent = 86263
