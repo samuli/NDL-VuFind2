@@ -44,7 +44,8 @@ services[55342] = "print"
 services[55266] = "print"
 services[55322] = "print"
 
-; List of configured organisations. Each section consists
+; List of configured organisations with Kirjastohakemisto id (consortium or parent)
+; and default id to show when no location is selected.
 
 [vaski]
 consortium = 2115
@@ -53,6 +54,3 @@ default = 85141
 [hulib]
 parent = 86029
 default = 86353
-
-[samk]
-parent = 86263
