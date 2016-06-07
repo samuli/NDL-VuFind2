@@ -63,25 +63,32 @@ finna.feed = (function() {
 
     var loadFeed = function(holder) {
         var id = holder.data('feed');
-        var feedUrl = holder.data('url');
-
-        if (typeof id == 'undefined' && typeof feedUrl == 'undefined') {
+        if (typeof id == 'undefined') {
             return;
         }
+        processLoadFeed(holder, {method: 'getFeed', id: id});
+    };
+
+    var loadFeedFromUrl = function(holder) {
+        var feedUrl = holder.data('url');
+        var id = holder.data('feed');
+
+        if (typeof feedUrl == 'undefined' || typeof id == 'undefined') {
+            return;
+        }
+        processLoadFeed(
+            holder, {method: 'getOrganisationPageFeed', url: feedUrl, id: id}
+        );
+    };
+
+    var processLoadFeed = function(holder, params) {
+        params['touch-device'] = (finna.layout.isTouchDevice() ? 1 : 0);
+
+        var url = VuFind.path + '/AJAX/JSON?' + $.param(params);
 
         // Append spinner
         holder.append('<i class="fa fa-spin fa-spinner hide"></i>');
         holder.find('.fa-spin').delay(1000).fadeIn();
-
-        var url = VuFind.path + '/AJAX/JSON?id=' + id + '&method=';
-
-        if (!feedUrl) {
-            url += 'getFeed';
-        } else {
-            url += 'getOrganisationPageFeed&url=' + encodeURIComponent(feedUrl);
-        }
- 
-        url += '&touch-device=' + (finna.layout.isTouchDevice() ? 1 : 0);
 
         $.getJSON(url)
         .done(function(response) {
@@ -243,13 +250,14 @@ finna.feed = (function() {
     };
 
     var initComponents = function() {
-        $('.feed-container').each(function() {
+        $('.feed-container[data-init!="0"]').each(function() {
             loadFeed($(this));
         });
     };
 
 
     var my = {
+        loadFeedFromUrl: loadFeedFromUrl,
         init: function() {
             initComponents();
         }

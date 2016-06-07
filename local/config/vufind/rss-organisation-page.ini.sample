@@ -1,0 +1,11 @@
+[Parent_Config]
+relative_path = ../finna/rss-organisation-page.ini
+
+[organisation-info-news]
+items = 5
+content[image] = 0
+content[text] = 0
+content[date] = 1
+
+[organisation-info-events]
+items = 5

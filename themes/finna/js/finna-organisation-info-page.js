@@ -324,13 +324,14 @@ finna.organisationInfoPage = (function() {
                 if (id != 'news' && id != 'events') {
                     return false;
                 }
-                holder.find('.feed-container.' + id + '-feed')
+                var feedHolder = holder.find('.feed-container.' + id + '-feed');
+                feedHolder
                     .empty().show()
                     .data('url', encodeURIComponent(obj['url']))
                     .data('feed', 'organisation-info-' + encodeURIComponent(id))
                     .closest('.rss-container').show();
 
-                finna.feed.init(holder);
+                finna.feed.loadFeedFromUrl(feedHolder);
                 rssAvailable = true;
             });
         }

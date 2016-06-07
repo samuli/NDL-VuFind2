@@ -37,7 +37,7 @@ routeUrl = "http://www.matka.fi/fi/?keya=&keyb={street},%20{city}"
 ; URL template for map links
 mapUrl = "http://maps.google.com/?q={street}%20{city}"
 
-; Serfice mapping (only for opening times widget)
+; Service mapping (only for opening times widget)
 services[55290] = "wifi"
 services[55318] = "wifi"
 services[55342] = "print"
