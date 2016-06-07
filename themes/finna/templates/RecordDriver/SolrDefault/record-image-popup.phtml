@@ -15,8 +15,8 @@ $numOfImages = $this->record($this->driver)->getNumOfRecordImages('large');
     <div class="content">
       <h3 class="title"><?= $this->escapeHtml($this->driver->getTitle()) ?></h3>
       <div class="author-and-dates">
-        <p>
         <? if ($recordType != 'lido'): ?>
+          <p>
           <? if ($author = $this->driver->getPrimaryAuthor()): ?>
             <?= $this->escapeHtml($author) ?>
             <? endif; ?>
@@ -27,6 +27,7 @@ $numOfImages = $this->record($this->driver)->getNumOfRecordImages('large');
             <?= $this->escapeHtml($date) ?>
             <? endforeach ?>
           <? endif; ?>
+          </p>
         <? else: ?>
             <? if ($results = $this->driver->getNonPresenterAuthors()): ?>
               <div class="truncate-field">
@@ -42,7 +43,6 @@ $numOfImages = $this->record($this->driver)->getNumOfRecordImages('large');
               </div>
             <? endif; ?>
         <? endif; ?>
-        </p>
       </div>
       <? $results = $this->driver->getInstitutions(); ?>
       <? if (count($results)): ?>
