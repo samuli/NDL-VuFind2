@@ -150,4 +150,14 @@ $numOfImages = $this->record($this->driver)->getNumOfRecordImages('large');
     </div>
     <div style="clear: both;"></div>
   </div>
+  <?
+    // NOTE: Piwik js-script must be inserted inside an element (not at the template root).
+    // Otherwise Magnific popup close button gets appended to the script tag which causes a js-error...
+  ?>
+  <?=
+  $this->piwik([
+    'lightbox' => true, 'record' => $this->driver, 'action' => 'image',
+    'recordUrl' => $this->recordLink()->getUrl($this->driver)
+  ]);
+  ?>
 </div>

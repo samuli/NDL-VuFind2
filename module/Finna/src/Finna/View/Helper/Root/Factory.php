@@ -435,6 +435,8 @@ class Factory extends \VuFind\View\Helper\Root\Factory
      */
     public static function getPiwik(ServiceManager $sm)
     {
+        $request = $sm->getServiceLocator()->get('Request');
+        $router = $sm->getServiceLocator()->get('Router');
         $config = $sm->getServiceLocator()->get('VuFind\Config')->get('config');
         $url = isset($config->Piwik->url) ? $config->Piwik->url : false;
         $siteId = isset($config->Piwik->site_id) ? $config->Piwik->site_id : 1;
@@ -442,7 +444,7 @@ class Factory extends \VuFind\View\Helper\Root\Factory
             ? $config->Piwik->custom_variables
             : false;
         $translator = $sm->getServiceLocator()->get('VuFind\Translator');
-        return new Piwik($url, $siteId, $customVars, $translator);
+        return new Piwik($router, $request, $url, $siteId, $customVars, $translator);
     }
 
     /**

@@ -63,9 +63,10 @@ class Piwik extends \VuFind\View\Helper\Root\Piwik
      * in custom variables
      * @param \VuFind\Translator $translator Translator
      */
-    public function __construct($url, $siteId, $customVars, $translator)
-    {
-        parent::__construct($url, $siteId, $customVars);
+    public function __construct(
+        $router, $request, $url, $siteId, $customVars, $translator
+    ) {
+        parent::__construct($router, $request, $url, $siteId, $customVars);
         $this->translator = $translator;
     }
 
@@ -76,9 +77,12 @@ class Piwik extends \VuFind\View\Helper\Root\Piwik
      *
      * @return string
      */
-    public function __invoke($results = null)
+    public function __invoke($params = null)
     {
-        $this->results = $results;
+        if (isset($params['results'])) {
+            $this->results = $params['results'];
+            unset($params['results']);
+        }
 
         $viewModel = $this->getView()->plugin('view_model');
         if ($current = $viewModel->getCurrent()) {
@@ -90,7 +94,17 @@ class Piwik extends \VuFind\View\Helper\Root\Piwik
             }
         }
 
-        return parent::__invoke();
+        return parent::__invoke($params);
+    }
+
+    protected function getCustomUrl() {
+        // Prettify image popup page URL (AJAX/JSON?method=... > /record/<id>/Image
+        if ($this->calledFromImagePopup()
+            && !empty($this->params['recordUrl'])
+        ) {
+            return $this->params['recordUrl'] . '/Image';
+        }
+        return parent::getCustomUrl();
     }
 
     /**
@@ -227,6 +241,32 @@ class Piwik extends \VuFind\View\Helper\Root\Piwik
         $vars['FacetTypes'] = implode("\t", $facetTypes);
 
         return $vars;
+    }
+
+    /**
+     * Get Custom Variables for lightbox actions
+     *
+     * @return array Associative array of custom variables
+     */
+    protected function getLightboxCustomVars()
+    {
+        // Custom vars for image popup
+        if ($this->calledFromImagePopup()) {
+            $customVars = $this->getRecordPageCustomVars($this->params['record']);
+            $lightboxCustomVars = [];
+            foreach ($customVars as $key => $val) {
+                $lightboxCustomVars["Lightbox{$key}"] = $val;
+            }
+            return $lightboxCustomVars;
+        }
+        return [];
+    }
+
+    protected function calledFromImagePopup()
+    {
+        return isset($this->params['action'])
+            && $this->params['action'] == 'image'
+            && isset($this->params['record']);
     }
 
     /**
