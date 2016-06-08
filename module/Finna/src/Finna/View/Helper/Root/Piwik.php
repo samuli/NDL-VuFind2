@@ -97,7 +97,13 @@ class Piwik extends \VuFind\View\Helper\Root\Piwik
         return parent::__invoke($params);
     }
 
-    protected function getCustomUrl() {
+    /**
+     * Get the custom URL of the Tracking Code
+     *
+     * @return string URL
+     */
+    protected function getCustomUrl()
+    {
         // Prettify image popup page URL (AJAX/JSON?method=... > /record/<id>/Image
         if ($this->calledFromImagePopup()
             && !empty($this->params['recordUrl'])
