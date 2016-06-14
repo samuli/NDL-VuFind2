@@ -627,6 +627,7 @@ class AjaxController extends \VuFind\Controller\AjaxController
      */
     public function getDescriptionAjax()
     {
+        $this->disableSessionWrites();  // avoid session write timing bug
         if (!$id = $this->params()->fromQuery('id')) {
             return $this->output('', self::STATUS_ERROR, 400);
         }
@@ -687,6 +688,7 @@ class AjaxController extends \VuFind\Controller\AjaxController
      */
     public function getFeedAjax()
     {
+        $this->disableSessionWrites();  // avoid session write timing bug
         if (null === ($id = $this->params()->fromQuery('id'))) {
             return $this->output('Missing feed id', self::STATUS_ERROR, 400);
         }
@@ -866,6 +868,7 @@ class AjaxController extends \VuFind\Controller\AjaxController
      */
     public function getContentFeedAjax()
     {
+        $this->disableSessionWrites();  // avoid session write timing bug
         if (null === ($id = $this->params()->fromQuery('id'))) {
             return $this->output('Missing feed id', self::STATUS_ERROR, 400);
         }
@@ -1008,8 +1011,9 @@ class AjaxController extends \VuFind\Controller\AjaxController
      */
     public function getOrganisationInfoAjax()
     {
-        if (null === ($parent = $this->params()->fromQuery('parent'))) {
-            return $this->output('Missing parent', self::STATUS_ERROR, 400);
+        $this->disableSessionWrites();  // avoid session write timing bug
+        if (!$consortium = $this->params()->fromQuery('consortium')) {
+            return $this->output('Missing consortium', self::STATUS_ERROR, 400);
         }
 
         $params = $this->params()->fromQuery('params');
@@ -1061,6 +1065,7 @@ class AjaxController extends \VuFind\Controller\AjaxController
      */
     public function getSearchTabsRecommendationsAjax()
     {
+        $this->disableSessionWrites();  // avoid session write timing bug
         $config = $this->getServiceLocator()->get('VuFind\Config')->get('config');
         if (empty($config->SearchTabsRecommendations->recommendations)) {
             return $this->output('', self::STATUS_OK);
@@ -1174,6 +1179,7 @@ class AjaxController extends \VuFind\Controller\AjaxController
      */
     public function getSideFacetsAjax()
     {
+        $this->disableSessionWrites();  // avoid session write timing bug
         // Send both GET and POST variables to search class:
         $request = $this->getRequest()->getQuery()->toArray()
             + $this->getRequest()->getPost()->toArray();
@@ -1201,6 +1207,8 @@ class AjaxController extends \VuFind\Controller\AjaxController
         $results = $runner->run($request, 'Solr', $setupCallback);
 
         if ($results instanceof \VuFind\Search\EmptySet\Results) {
+            $this->setLogger($this->getServiceLocator()->get('VuFind\Logger'));
+            $this->logError('Solr faceting request failed');
             return $this->output('', self::STATUS_ERROR, 500);
         }
 
@@ -1384,6 +1392,7 @@ class AjaxController extends \VuFind\Controller\AjaxController
      */
     public function metalibLinksAjax()
     {
+        $this->disableSessionWrites();  // avoid session write timing bug
         $config = $this->getServiceLocator()->get('VuFind\Config')->get('MetaLib');
         if (!isset($config->General->enabled) || !$config->General->enabled) {
             throw new \Exception('MetaLib is not enabled');
@@ -1453,6 +1462,7 @@ class AjaxController extends \VuFind\Controller\AjaxController
      */
     public function getPiwikPopularSearchesAjax()
     {
+        $this->disableSessionWrites();  // avoid session write timing bug
         $this->setLogger($this->getServiceLocator()->get('VuFind\Logger'));
         $config = $this->getServiceLocator()->get('VuFind\Config')->get('config');
 

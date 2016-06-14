@@ -465,9 +465,11 @@ class SearchController extends \VuFind\Controller\SearchController
             }
             if ($query) {
                 $results = $this->trySearch($runner, $query);
-            } else {
-                $results = $this->trySearch($runner, ['id' => 'null']);
             }
+        }
+
+        if ($results === false) {
+            $results = $this->trySearch($runner, ['id' => 'notfound'], true);
         }
 
         return $results;
@@ -476,13 +478,16 @@ class SearchController extends \VuFind\Controller\SearchController
     /**
      * Try a search and return results if found
      *
-     * @param \VuFind\Search\SearchRunner $runner Search runner
-     * @param array                       $params Search params
+     * @param \VuFind\Search\SearchRunner $runner             Search runner
+     * @param array                       $params             Search params
+     * @param bool                        $returnEmptyResults Whether to return empty
+     * results object instead of boolean false
      *
-     * @return bool|array Results object if records found, otherwise false
+     * @return bool|\VuFind\Search\Base\Results
      */
-    protected function trySearch(\VuFind\Search\SearchRunner $runner, $params)
-    {
+    protected function trySearch(\VuFind\Search\SearchRunner $runner, $params,
+        $returnEmptyResults = false
+    ) {
         $mapFunc = function ($val) {
             return addcslashes($val, '"');
         };
@@ -505,7 +510,7 @@ class SearchController extends \VuFind\Controller\SearchController
         }
 
         $results = $runner->run($query);
-        if ($results->getResultTotal() > 0) {
+        if ($results->getResultTotal() > 0 || $returnEmptyResults) {
             return $results;
         }
         return false;

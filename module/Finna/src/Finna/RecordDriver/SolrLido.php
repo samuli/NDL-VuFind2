@@ -293,9 +293,9 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
                 }
             }
 
+            $places = [];
             $place = isset($node->eventPlace->displayPlace)
                 ? (string)$node->eventPlace->displayPlace : '';
-            $places = [];
             if (!$place) {
                 if (isset($node->eventPlace->place->namePlaceSet)) {
                     $eventPlace = [];
@@ -306,7 +306,9 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
                                 ? trim((string)$namePlaceSet->appellationValue) : '';
                         }
                     }
-                    $places[] = implode(', ', $eventPlace);
+                    if ($eventPlace) {
+                        $places[] = implode(', ', $eventPlace);
+                    }
                 }
                 if (isset($node->eventPlace->place->partOfPlace)) {
                     foreach ($node->eventPlace->place->partOfPlace as $partOfPlace) {
@@ -320,7 +322,9 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
                             }
                             $partOfPlace = $partOfPlace->partOfPlace;
                         }
-                        $places[] = implode(', ', $partOfPlaceName);
+                        if ($partOfPlaceName) {
+                            $places[] = implode(', ', $partOfPlaceName);
+                        }
                     }
                 }
             } else {
@@ -329,9 +333,12 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
             $actors = [];
             if (isset($node->eventActor)) {
                 foreach ($node->eventActor as $actor) {
-                    $appellationValue = $actor->actorInRole->actor->nameActorSet
-                        ->appellationValue;
-                    if (isset($appellationValue) && trim($appellationValue) != '') {
+                    $appellationValue = isset(
+                        $actor->actorInRole->actor->nameActorSet->appellationValue
+                    ) ? trim(
+                        $actor->actorInRole->actor->nameActorSet->appellationValue
+                    ) : '';
+                    if ($appellationValue !== '') {
                         $role = isset($actor->actorInRole->roleActor->term)
                             ? $actor->actorInRole->roleActor->term : '';
                         $actors[] = [
@@ -753,26 +760,14 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
      */
     protected function getDateRange($event)
     {
-        if (!isset($this->fields["{$event}_sdaterange"])) {
+        $key = "{$event}_daterange";
+        if (!isset($this->fields[$key])) {
             return null;
         }
-        $range = explode(' ', $this->fields["{$event}_sdaterange"], 2);
-        if (!$range) {
-            return null;
+        if (preg_match('/\[(\d{4}).* TO (\d{4})/', $this->fields[$key], $matches)) {
+            return [$matches[1], $matches[2] == '9999' ? null : $matches[2]];
         }
-        $range[0] *= 86400;
-        $range[1] *= 86400;
-        $startDate = new \DateTime("@{$range[0]}");
-        $endDate = new \DateTime("@{$range[1]}");
-        if ($startDate->format('m') == 1 && $startDate->format('d') == 1
-            && $endDate->format('m') == 12 && $endDate->format('d') == 31
-        ) {
-            return [$startDate->format('Y'), $endDate->format('Y')];
-        }
-        return [
-            $this->dateConverter->convertToDisplayDate('U', $range[0]),
-            $this->dateConverter->convertToDisplayDate('U', $range[1])
-        ];
+        return null;
     }
 
     /**
