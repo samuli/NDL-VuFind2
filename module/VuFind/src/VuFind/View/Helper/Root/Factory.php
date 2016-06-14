@@ -228,15 +228,15 @@ class Factory
      */
     public static function getPiwik(ServiceManager $sm)
     {
-        $request = $sm->getServiceLocator()->get('Request');
-        $router = $sm->getServiceLocator()->get('Router');
         $config = $sm->getServiceLocator()->get('VuFind\Config')->get('config');
         $url = isset($config->Piwik->url) ? $config->Piwik->url : false;
         $siteId = isset($config->Piwik->site_id) ? $config->Piwik->site_id : 1;
         $customVars = isset($config->Piwik->custom_variables)
             ? $config->Piwik->custom_variables
             : false;
-        return new Piwik($router, $request, $url, $siteId, $customVars);
+        $request = $sm->getServiceLocator()->get('Request');
+        $router = $sm->getServiceLocator()->get('Router');
+        return new Piwik($url, $siteId, $customVars, $router, $request);
     }
 
     /**

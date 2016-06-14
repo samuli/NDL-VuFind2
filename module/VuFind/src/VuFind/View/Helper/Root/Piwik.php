@@ -90,24 +90,24 @@ class Piwik extends \Zend\View\Helper\AbstractHelper
     /**
      * Constructor
      *
-     * @param Zend\Mvc\Router\Http\RouteMatch  $router     Request
-     * @param Zend\Http\PhpEnvironment\Request $request    Request
      * @param string|bool                      $url        Piwik address
      * (false if disabled)
      * @param int                              $siteId     Piwik site ID
      * @param bool                             $customVars Whether to track
      * additional information in custom variables
+     * @param Zend\Mvc\Router\Http\RouteMatch  $router     Request
+     * @param Zend\Http\PhpEnvironment\Request $request    Request
      */
-    public function __construct($router, $request, $url, $siteId, $customVars)
+    public function __construct($url, $siteId, $customVars, $router, $request)
     {
-        $this->router = $router;
-        $this->request = $request;
         $this->url = $url;
         if ($url && substr($url, -1) != '/') {
             $this->url .= '/';
         }
         $this->siteId = $siteId;
         $this->customVars = $customVars;
+        $this->router = $router;
+        $this->request = $request;
     }
 
     /**
