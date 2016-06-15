@@ -1012,8 +1012,8 @@ class AjaxController extends \VuFind\Controller\AjaxController
     public function getOrganisationInfoAjax()
     {
         $this->disableSessionWrites();  // avoid session write timing bug
-        if (!$consortium = $this->params()->fromQuery('consortium')) {
-            return $this->output('Missing consortium', self::STATUS_ERROR, 400);
+        if (null === ($parent = $this->params()->fromQuery('parent'))) {
+            return $this->output('Missing parent', self::STATUS_ERROR, 400);
         }
 
         $params = $this->params()->fromQuery('params');
