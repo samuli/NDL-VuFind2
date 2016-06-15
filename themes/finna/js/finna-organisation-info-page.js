@@ -226,11 +226,15 @@ finna.organisationInfoPage = (function() {
             holder.find('.office-links.route').attr('href', data['routeUrl']).show();
         }
 
+        if ('slogan' in data.details) {
+            holder.find('.office-description.slogan').text(data.details.slogan).show();
+        }
+
         var longDesc = holder.find('.office-description.description-long');
         if ('description' in data.details) {
             longDesc.html(data.details.description).show();
         }
-        
+
         if ('links' in data.details) {
             var links = data.details['links'];
             if (links.length) {

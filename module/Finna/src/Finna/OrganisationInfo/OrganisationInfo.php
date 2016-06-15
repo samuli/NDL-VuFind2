@@ -503,9 +503,6 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
 
         if ($schedules) {
             $result['openTimes'] = $this->parseSchedules($response['schedules']);
-            if (!empty($response['extra']['description'])) {
-                $result['info'] = $response['extra']['description'];
-            }
         }
 
         if (!empty($response['phone_numbers'])) {
@@ -571,6 +568,11 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
         if (!empty($response['extra']['description'])) {
             $result['description']
                 = html_entity_decode($response['extra']['description']);
+        }
+
+        if (!empty($response['extra']['slogan'])) {
+            $result['slogan']
+                = html_entity_decode($response['extra']['slogan']);
         }
 
         if (!empty($response['extra']['building']['construction_year'])) {
