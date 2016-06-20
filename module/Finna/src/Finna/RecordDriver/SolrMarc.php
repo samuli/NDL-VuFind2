@@ -615,6 +615,15 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
      */
     public function getManufacturer()
     {
+        // First check for manufacturer in field 264
+        foreach ($this->getMarcRecord()->getFields('264') as $field) {
+            if ($field->getIndicator(2) != 3) {
+                continue;
+            }
+            $result = $this->getSubfieldArray($field, ['a', 'b', 'c']);
+            return $result ? $result[0] : '';
+        }
+        // Use 260 if 264 for manufacturer not found
         return $this->getFirstFieldValue('260', ['e', 'f', 'g']);
     }
 
@@ -637,9 +646,12 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
                         continue;
                     }
 
-                    $role = $this->getSubfieldArray($field, ['4', 'e'], false);
+                    $role = $field->getSubfield('4');
+                    if (empty($role)) {
+                        $role = $field->getSubfield('e');
+                    }
                     $role = empty($role)
-                        ? '' : mb_strtolower($role[0], 'UTF-8');
+                        ? '' : mb_strtolower($role->getData(), 'UTF-8');
                     if ($role
                         && isset($this->mainConfig->Record->presenter_roles)
                         && in_array(
@@ -731,9 +743,12 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
                         continue;
                     }
 
-                    $role = $this->getSubfieldArray($field, ['4', 'e'], false);
+                    $role = $field->getSubfield('4');
+                    if (empty($role)) {
+                        $role = $field->getSubfield('e');
+                    }
                     $role = empty($role)
-                        ? '' : mb_strtolower($role[0], 'UTF-8');
+                        ? '' : mb_strtolower($role->getData(), 'UTF-8');
                     if (!$role
                         || !isset($this->mainConfig->Record->presenter_roles)
                         || !in_array(
@@ -974,7 +989,10 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
                             // identifier if it's not used as the link description
                             if ($field == '856' && $subfield != '3') {
                                 $part = $url->getSubfield('3');
-                                $part = $part ? $part->getData() : '';
+                                $part = $part
+                                    ? $this->stripTrailingPunctuation(
+                                        $part->getData()
+                                    ) : '';
                             }
                             $desc = $desc->getData();
                         } else {
