@@ -178,13 +178,28 @@ class Factory extends \VuFind\View\Helper\Root\Factory
      *
      * @param ServiceManager $sm Service manager.
      *
-     * @return OrganisationInfo
+     * @return OrganisationPage
      */
     public static function getOrganisationPage(ServiceManager $sm)
     {
         $config = $sm->getServiceLocator()->get('VuFind\Config')
             ->get('organisationInfo');
         return new OrganisationPage($config);
+    }
+
+    /**
+     * Construct the organisation page link helper.
+     *
+     * @param ServiceManager $sm Service manager.
+     *
+     * @return OrganisationPageLink
+     */
+    public static function getOrganisationPageLink(ServiceManager $sm)
+    {
+        $config = $sm->getServiceLocator()->get('VuFind\Config')
+            ->get('organisationInfo');
+        $url = $sm->get('url');
+        return new OrganisationPageLink($config, $url);
     }
 
     /**

@@ -27,6 +27,7 @@ return array(
             'organisationsList'
                 => 'Finna\View\Helper\Root\Factory::getOrganisationsList',
             'organisationPage' => 'Finna\View\Helper\Root\Factory::getOrganisationPage',
+            'organisationPageLink' => 'Finna\View\Helper\Root\Factory::getOrganisationPageLink',
             'personaAuth' => 'Finna\View\Helper\Root\Factory::getPersonaAuth',
             'piwik' => 'Finna\View\Helper\Root\Factory::getPiwik',
             'primo' => 'Finna\View\Helper\Root\Factory::getPrimo',
