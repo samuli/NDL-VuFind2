@@ -291,7 +291,8 @@ finna = $.extend(finna, {
 
             if ('schedule-descriptions' in data) {
                 $.each(data['schedule-descriptions'], function(ind, obj) {
-                    $('<p/>').text(obj).appendTo(infoHolder);
+                    obj = obj.replace(/(?:\r\n|\r|\n)/g, '<br />');
+                    $('<p/>').html(obj).appendTo(infoHolder);
                 });
                 infoHolder.show();
             }

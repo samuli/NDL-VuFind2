@@ -74,8 +74,6 @@ class OrganisationInfo extends \Zend\View\Helper\AbstractHelper
 
         if (!$this->config->General->enabled
             || !isset($this->config[$id])
-            || (!isset($this->config[$id]['consortium'])
-            && !isset($this->config[$id]['parent']))
         ) {
             return;
         }

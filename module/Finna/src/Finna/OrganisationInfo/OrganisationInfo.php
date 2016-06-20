@@ -153,28 +153,14 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
         $target = isset($params['target']) ? $params['target'] : 'widget';
         $action = isset($params['action']) ? $params['action'] : 'list';
 
-        $parentType = null;
-        if (isset($this->config['consortium'])) {
-            $parentType = 'consortium';
-        } else if (isset($this->config['parent'])) {
-            $parentType = 'parent';
-        }
-
-        if (!$parentType) {
-            $this->logError(
-                "Missing consortium/parent from organisation info configuration"
-                . "($parent)"
-            );
-            return false;
-        }
-
-        $parentId = $this->config[$parentType];
         $id = null;
         if (isset($params['id'])) {
             $id = $params['id'];
         } else if (isset($this->config['default'])) {
             $id = $this->config['default'];
         }
+        $consortium
+            = isset($params['consortium']) ? $params['consortium'] : null;
 
         $now = false;
         if (isset($params['periodStart'])) {
@@ -213,18 +199,35 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
 
         $url = $this->config['url'];
 
-        if ($action == 'list') {
-            // Organisation list with schedules for the current week
+        if ($action == 'consortium') {
+            // Consortium info for a Finna-organisation
+            $url .= '/consortium';
+            $params = [
+                'finna:id' => $parent,
+                'lang' => $language
+            ];
+            $response = $this->fetchData($url, $params);
+            if (!$response
+                || !$response['total'] || !isset($response['items'][0]['id'])
+            ) {
+                $this->logError("Error reading consortium info (url: $url)");
+                return false;
+            }
+            $consortium = $response['items'][0]['id'];
+
+            $url = $this->config['url'];
+
+            // Organisation list for a consortium with schedules for the current week
             $url .= '/library';
             $params = [
                 'lang' => $language,
-                $parentType => $parentId,
+                'consortium' => $consortium,
                 'with' => 'schedules',
                 'period.start' => $startDate,
                 'period.end' => $endDate,
                 'refs' => 'period'
             ];
-            
+
             $response = $this->fetchData($url, $params);
             if (!$response) {
                 $this->logError("Error reading organisation list (url: $url)");
@@ -322,7 +325,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
     {
         $params['limit'] = 1000;
         $url .= '?' . http_build_query($params);
-
+        
         $cacheDir = $this->cacheManager->getCache('organisation-info')
             ->getOptions()->getCacheDir();
 

@@ -39,7 +39,7 @@ organisationInfo: function() {
         }
 
         var me = self;
-        var response = query(parent, {action: 'list', target: target}, function(success, response) {
+        var response = query(parent, {action: 'consortium', target: target}, function(success, response) {
             if (!success) {
                 callback(false);
                 return;

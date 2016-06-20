@@ -1,4 +1,5 @@
-; Configuration for Kirjastohakemisto (https://api.kirjastot.fi) widgets (organisation page, opening times).
+; Configuration for Kirjastohakemisto (https://api.kirjastot.fi) widgets
+; (organisation page, opening times).
 ;
 ; Embed organisation page widget to a template:
 ;    <?=$this->organisationPage('<id>')?>
@@ -19,7 +20,8 @@ mapWidget = openlayers
 defaultOrganisation = vaski
 
 // Option for overriding user language.
-// Language is Kirjastohakemisto 'lang' attribute compatible (en, fi, ru, se, sv)
+// Language is Kirjastohakemisto 'lang' attribute compatible
+; (en, fi, ru, se, sv)
 ;language = fi
 
 ; How long content is cached locally in minutes.
@@ -29,7 +31,7 @@ cachetime = 5
 ; Kirjastohakemisto API URL
 url = "https://api.kirjastot.fi/v3"
 
-; Google API key.
+; Google API key. Only used with Google Maps widget.
 ;googleAPIKey = 'KEY'
 
 ; URL template for route information links
@@ -44,13 +46,19 @@ services[55342] = "print"
 services[55266] = "print"
 services[55322] = "print"
 
-; List of configured organisations with Kirjastohakemisto id (consortium or parent)
-; and default id to show when no location is selected.
+
+; List of configured organisations.
+;
+; Section name is the top-level code from the index field 'building',
+; without leading '0/' and trailing '/'. For example, configuration for
+; the organisation with the building code '0/Vaski/' is inserted to a
+; section named 'Vaski'. The same code has to be saved to Kirjastohakemisto
+; consortium field 'Finna ID'.
+;
+; The section supports the following options:
+; - 'default' Kirjastohakemisto id of the default library that is shown
+;             when organisation page is opened.
 
 [vaski]
-consortium = 2115
 default = 85141
 
-[hulib]
-parent = 86029
-default = 86353
