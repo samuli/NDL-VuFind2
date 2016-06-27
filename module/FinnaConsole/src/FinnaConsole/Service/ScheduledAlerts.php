@@ -231,9 +231,8 @@ class ScheduledAlerts extends AbstractService
 
             if ($hostCnt == 4 && $institution == 'www') {
                 // www.[organisation].finna.fi
-                array_shift($host);
-                $institution = $host[0];
-            } else if ($hostCnt == 2 || ($hostCnt == 3 && $institution == 'www')) {
+                $institution = $host[1];
+            } elseif ($hostCnt == 2 || ($hostCnt == 3 && $institution == 'www')) {
                 // finna.fi and www.finna.fi
                 $institution = 'national';
             }
