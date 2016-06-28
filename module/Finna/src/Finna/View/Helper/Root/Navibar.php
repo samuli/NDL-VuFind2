@@ -308,8 +308,6 @@ class Navibar extends \Zend\View\Helper\AbstractHelper
                 $result[] = $item;
             }
         }
-
-        // Order menu and menu
         $this->menuItems = $this->sortMenuItems($result, $sortData);
     }
 
@@ -370,7 +368,7 @@ class Navibar extends \Zend\View\Helper\AbstractHelper
     /**
      * Sort menu items
      *
-     * @param array $items Items
+     * @param array $items Menu items
      * @param array $order Ordering
      *
      * @return array Sorted items
@@ -419,8 +417,8 @@ class Navibar extends \Zend\View\Helper\AbstractHelper
     /**
      * Get menu item index
      *
-     * @param array  $items Items
-     * @param string $id    Item id
+     * @param array  $items Menu items
+     * @param string $id    Menu item id
      *
      * @return mixed null|int
      */
@@ -439,7 +437,7 @@ class Navibar extends \Zend\View\Helper\AbstractHelper
     /**
      * Move menu item
      *
-     * @param array $items Items
+     * @param array $items Menu items
      * @param int   $from  From (index)
      * @param int   $to    To (index)
      *
