@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * Copyright (C) The National Library of Finland 2014.
+ * Copyright (C) The National Library of Finland 2014-2016.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -57,26 +57,31 @@ class Piwik extends \VuFind\View\Helper\Root\Piwik
     /**
      * Constructor
      *
-     * @param string|bool        $url        Piwik address (false if disabled)
-     * @param int                $siteId     Piwik site ID
-     * @param bool               $customVars Whether to track additional information
-     * in custom variables
-     * @param \VuFind\Translator $translator Translator
+     * @param string|bool                      $url        Piwik address
+     * (false if disabled)
+     * @param int                              $siteId     Piwik site ID
+     * @param bool                             $customVars Whether to track
+     * additional information in custom variables
+     * @param Zend\Mvc\Router\Http\RouteMatch  $router     Request
+     * @param Zend\Http\PhpEnvironment\Request $request    Request
+     * @param \VuFind\Translator               $translator Translator
      */
-    public function __construct($url, $siteId, $customVars, $translator)
-    {
-        parent::__construct($url, $siteId, $customVars);
+    public function __construct($url, $siteId, $customVars, $router, $request,
+        $translator
+    ) {
+        parent::__construct($url, $siteId, $customVars, $router, $request);
         $this->translator = $translator;
     }
 
     /**
      * Returns Piwik code (if active) or empty string if not.
      *
+     * @param array                         $params  Parameters
      * @param \Finna\Search\MetaLib\Results $results MetaLib search results
      *
      * @return string
      */
-    public function __invoke($results = null)
+    public function __invoke($params = null, $results = null)
     {
         $this->results = $results;
 
@@ -90,7 +95,7 @@ class Piwik extends \VuFind\View\Helper\Root\Piwik
             }
         }
 
-        return parent::__invoke();
+        return parent::__invoke($params);
     }
 
     /**
@@ -137,9 +142,11 @@ class Piwik extends \VuFind\View\Helper\Root\Piwik
         } else {
             $format = $formats = $recordDriver->tryMethod('getFormats');
             if (is_array($formats)) {
-                $format = isset($formats[1]) ? $formats[1] : $formats[0];
+                $format = end($formats);
+                if (false === $format) {
+                    $format = '';
+                }
             }
-            $format = urldecode($format);
             $format = rtrim($format, '/');
             $format = preg_replace('/^\d\//', '', $format);
             $vars['RecordFormat'] = $format;
