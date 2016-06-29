@@ -444,6 +444,8 @@ class Factory extends \VuFind\View\Helper\Root\Factory
         $request = $sm->getServiceLocator()->get('Request');
         $router = $sm->getServiceLocator()->get('Router');
         $translator = $sm->getServiceLocator()->get('VuFind\Translator');
+        $request = $sm->getServiceLocator()->get('Request');
+        $router = $sm->getServiceLocator()->get('Router');
         return new Piwik($url, $siteId, $customVars, $router, $request, $translator);
     }
 
