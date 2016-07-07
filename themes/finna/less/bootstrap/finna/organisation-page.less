@@ -196,7 +196,25 @@
 @finna-panel-header-background: @gray-light;
 @finna-panel-header-color: @body-bg;
 
-.main.template-dir-content.template-name-content {
+.main.template-dir-content.template-name-content .organisation-info-page {
+    & .consortium-info {
+        margin-bottom: 20px;
+        & .consotrium-logo img {
+            width: 100%;
+        }
+        &.no-logo .description {
+            padding-left: 0;
+        }
+        & .organisation-list {
+            margin-top: 20px;
+        }
+    }
+    & .consortium-notification {
+        background-color: @gray-lighter;
+        padding: 10px;
+        font-weight: bold;
+        margin-bottom: 10px;
+    }
     .map {
         & .map-widget {
             height: 320px;

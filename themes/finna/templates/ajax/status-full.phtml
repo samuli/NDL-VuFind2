@@ -278,10 +278,5 @@ if ($this->holdingsSettings()->showSearchResultsTitleHold()) {
     <a href="<?=$holdingsLink;?>"><?=$this->transEsc('See all holdings')?></a>
   </div>
 <? endif; ?>
-<? if ($organisationPageLink = $this->organisationPageLink($driver)): ?>
-  <div class="map-link">
-    <a href="<?=$organisationPageLink?>"><i class="fa fa-map-marker"></i> <?=$this->translate('view-on-map')?></a>
-  </div>
-<? endif ?>
 </div>
 <!-- END of: finna - ajax/status-full.phtml -->

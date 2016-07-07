@@ -18,6 +18,7 @@ var finna = (function() {
                 'metalibLinks',
                 'myList',
                 'openUrl',
+                'organisationList',
                 'persona',
                 'primoAdvSearch',
                 'record',

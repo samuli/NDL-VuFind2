@@ -13,7 +13,8 @@ finna = $.extend(finna, {
         var organisations = null;
         var initialZoom = true;
 
-        var draw = function(organisationList) {
+        var draw = function(organisationList, id) {
+            defaultId = id;
             var me = $(this);
             organisations = organisationList;
 
@@ -67,6 +68,7 @@ finna = $.extend(finna, {
                         
                         clearInterval(infoInterval);
                         infoInterval = setTimeout(function() {
+                            // TODO delay error
                             infoWindow.show(coord, infoWindowContent);
                         }, 10);
 
@@ -157,10 +159,9 @@ finna = $.extend(finna, {
             return ol.proj.transform([lon, lat], 'EPSG:4326', 'EPSG:3857');
         };
         
-        var init = function(mapHolder, path, id) {
+        var init = function(mapHolder, path) {
             holder = mapHolder;
             imgPath = path;
-            defaultId = id;
         };
         
         var my = {

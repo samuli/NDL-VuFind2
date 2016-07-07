@@ -16,9 +16,7 @@ finna.organisationInfoPage = (function() {
         }
 
         service.getOrganisations('page', parent, function(response) {
-            if (response === false) {
-                
-            } else {
+            if (response) {
                 var cnt = 0;
                 $.each(response['list'], function(ind, obj) {
                     organisationList[obj.id] = obj;
@@ -26,13 +24,20 @@ finna.organisationInfoPage = (function() {
                 });
 
                 infoWidget.organisationListLoaded(response);
-                initMap();
-                $('.office-quick-information').show();
-                initSearch();
-                $("#office-search").attr("placeholder", VuFind.translate('organisationInfoAutocomplete').replace('%%count%%', cnt));
-                updateSelectedOrganisation(id);
+                if (cnt > 0) {
+                    initMap();
+                    $('.office-quick-information').show();
+                    initSearch();
+                    $("#office-search").attr("placeholder", VuFind.translate('organisationInfoAutocomplete').replace('%%count%%', cnt));
+                    updateSelectedOrganisation(id);
+                }
+
+                updateConsortiumNotification(response);
+                if (holder.data('consortium-info')) {
+                    updateConsortiumInfo(response);
+                }
                 updateURL = true;
-            }        
+            }
         });
     };
 
@@ -98,9 +103,8 @@ finna.organisationInfoPage = (function() {
             obj['map'] = {info: bubble.html(), icon: markerIcon};
         });
 
-
-        map.draw(organisationList);
-
+        var defaultId = Object.keys(organisationList)[0];
+        map.draw(organisationList, defaultId);
 
         // Expand map
         $('.expand-map').click (function() {
@@ -179,7 +183,67 @@ finna.organisationInfoPage = (function() {
         $('#marker-tooltip').hide();
     };
 
+    var updateConsortiumNotification = function(data) {
+        if ('consortium' in data) {
+            if ('finna' in data.consortium
+                && 'notification' in data.consortium.finna
+               ) {
+                   holder.find('.consortium-notification')
+                       .html(data.consortium.finna.notification).removeClass('hide');
+               }
+        }
+    };
+
+    var updateConsortiumInfo = function(data) {
+        var info = holder.find('.consortium-info');
+
+        // Info
+        if ('consortium' in data) {
+            /*
+            if ('finna' in data.consortium
+                && 'notification' in data.consortium.finna
+               ) {
+                   holder.find('.consortium-notification')
+                       .html(data.consortium.finna.notification).removeClass('hide');
+               }
+*/
+            var name = getField(data.consortium, 'name');
+            if (name) {
+                info.find('.name').text(name).removeClass('hide');
+            }
+            var desc = getField(data.consortium, 'description');
+            if (desc) {
+                info.find('.description').html(desc).removeClass('hide');
+            }
+            if ('logo' in data.consortium) {
+                var logo = getField(data.consortium.logo, 'medium');
+                $('<img/>').attr('src', logo).appendTo(info.find('.consortium-logo').removeClass('hide'));
+            } else {
+                info.addClass('no-logo');
+            }
+        }
+
+        // Organisation list
+        var listHolder = info.find('.organisation-list');
+        var ul = listHolder.find('ul');
+        $.each(organisationList, function(id, obj) {
+            var name = obj.name;
+            var li = $('<li/>');
+            var homepage = getField(obj, 'homepage');
+            if (homepage) {
+                $('<a/>').attr('href', homepage).text(name).appendTo(li);
+            } else {
+                li.text(name);
+            }
+            li.appendTo(ul);
+        });
+        listHolder.addClass('truncate-field');
+        finna.layout.initTruncate(listHolder.parent());
+    };
+
     var updateSelectedOrganisation = function(id) {
+        console.log("org: %o", organisationList);
+
         holder.find('.error, .info-element').hide();
         infoWidget.showDetails(id, '', true);
         $('#office-search').val('');
@@ -354,11 +418,11 @@ finna.organisationInfoPage = (function() {
     };
 
     var my = {
-        init: function(defaultId) {
+        init: function() {
             var imgPath = VuFind.path + '/themes/finna/images/';
             mapHolder = $('.map-widget');
             map = finna.organisationMap();
-            map.init(mapHolder[0], imgPath, defaultId);
+            map.init(mapHolder[0], imgPath);
 
             $(map).on('marker-click', function(ev, id) { 
                 if (updateURL) {
@@ -416,6 +480,13 @@ finna.organisationInfoPage = (function() {
             loadOrganisationList(library);
         }
     };
+
+    var getField = function(obj, field) {
+        if (field in obj && typeof obj[field] != 'undefined') {
+            return obj[field];
+        }
+    };
+
     return my;
 
 })(finna);

@@ -646,6 +646,41 @@ finna.layout = (function() {
       }
     };
 
+    var initOrganisationPageLinks = function() {
+        $('.organisation-page-link').not('.done').map(function() {
+            $(this).one('inview', function() {
+                var holder = $(this);
+                var organisation = $(this).data('organisation');
+                var format = $(this).data('format');
+                getOrganisationPageLink(organisation, format, function(response) {
+                    holder.toggleClass('done', true);
+                    if (response) {
+                        var data = response[organisation];
+                        if (format == 'link') {
+                            holder.wrap($('<a/>').attr('href', data));
+                        } else {
+                            holder.html(data);
+                        }
+                    }
+                });
+            });
+        });
+    };
+
+    var getOrganisationPageLink = function(organisation, format, callback) {
+        var url = VuFind.path + '/AJAX/JSON?method=getOrganisationInfo';
+        url += '&params[action]=lookup&format=link&parent=' + organisation;
+        if (format) {
+            url += '&format=' + format;
+        }
+        $.getJSON(url)
+            .done(function(response) {
+                callback(response.data.items);
+            })
+            .fail(function() {
+            });
+        return callback(false);
+    };
 
     var initOrganisationInfoWidgets = function() {
         $('.organisation-info[data-init="1"]').map(function() {
@@ -657,6 +692,7 @@ finna.layout = (function() {
     };
 
     var my = {
+        getOrganisationPageLink: getOrganisationPageLink,
         isTouchDevice: isTouchDevice,
         initTruncate: initTruncate,
         initLocationService: initLocationService,
@@ -692,6 +728,7 @@ finna.layout = (function() {
             initLoginRedirect();
             initLoadMasonry();
             initOrganisationInfoWidgets();
+            initOrganisationPageLinks();
         }
     };
 

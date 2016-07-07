@@ -188,21 +188,6 @@ class Factory extends \VuFind\View\Helper\Root\Factory
     }
 
     /**
-     * Construct the organisation page link helper.
-     *
-     * @param ServiceManager $sm Service manager.
-     *
-     * @return OrganisationPageLink
-     */
-    public static function getOrganisationPageLink(ServiceManager $sm)
-    {
-        $config = $sm->getServiceLocator()->get('VuFind\Config')
-            ->get('organisationInfo');
-        $url = $sm->get('url');
-        return new OrganisationPageLink($config, $url);
-    }
-
-    /**
      * Construct the Record helper.
      *
      * @param ServiceManager $sm Service manager.
@@ -517,8 +502,10 @@ class Factory extends \VuFind\View\Helper\Root\Factory
         $cache = $locator->get('VuFind\CacheManager')->getCache('object');
         $facetHelper = $locator->get('VuFind\HierarchicalFacetHelper');
         $resultsManager = $locator->get('VuFind\SearchResultsPluginManager');
-
-        return new OrganisationsList($cache, $facetHelper, $resultsManager);
+        $organisationInfo = $locator->get('Finna\OrganisationInfo');
+        return new OrganisationsList(
+            $cache, $facetHelper, $resultsManager, $organisationInfo
+        );
     }
 
     /**

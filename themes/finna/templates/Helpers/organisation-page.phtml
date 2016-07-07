@@ -4,12 +4,26 @@
   $this->headScript()->appendFile("finna-organisation-info-widget.js");
   $this->headScript()->appendFile("finna-organisation-info-page.js");
 
-  $setupJS = '$(document).ready(function() { finna.organisationInfoPage.init(' . $this->library . ');});';
+  $setupJS = '$(document).ready(function() { finna.organisationInfoPage.init();});';
   $this->headScript()->appendScript($setupJS);
 
   $this->jsTranslations()->addStrings(['organisationInfoAutocomplete' => 'organisation-info-autocomplete']);
 ?>
-<div class="organisation-info-page organisation-page-information-wrapper" data-parent="<?=$this->escapeHtmlAttr($this->id)?>"<?=isset($this->library)? (' data-library="' . $this->escapeHtmlAttr($this->library) . '"') : ''?>>
+<div class="organisation-info-page organisation-page-information-wrapper" data-parent="<?=$this->escapeHtmlAttr($this->id)?>"<?=isset($this->library)? (' data-library="' . $this->escapeHtmlAttr($this->library) . '"') : ''?> data-consortium-info="<?=$this->consortiumInfo ? '1' : '0'?>">
+  <? if ($this->consortiumInfo): ?>
+  <div class="consortium-info col-xs-12">
+    <div class="row">
+      <div><h1 class="name hide"></h1></div>
+      <div class="col-sm-6 col-md-4 consortium-logo hide"></div>
+      <div class="col-sm-6 col-md-8 description hide"></div>
+    </div>
+    <div class="organisation-list" data-rows="8">
+      <ul>
+      </ul>
+    </div>
+  </div>
+  <? endif; ?>
+  <div class="col-xs-12 consortium-notification hide"></div>
   <div class="row office-search">
     <div class="col-sm-6 col-md-5">
       <form class="form-inline searchbox-office office-search-notifications">

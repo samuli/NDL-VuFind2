@@ -13,8 +13,12 @@
 [General]
 enabled = 0
 
+; Show consortium info on organisation page
+consortiumInfo = 0
+
 ; Map widget (google|openlayers)
 mapWidget = openlayers
+
 
 ; Default organisation id for widgets
 defaultOrganisation = vaski

@@ -64,18 +64,16 @@ class OrganisationInfo extends \Zend\View\Helper\AbstractHelper
      */
     public function __invoke($params = false)
     {
+        if (!$this->config->General->enabled) {
+            return;
+        }
+
         $id = isset($params['id']) ? $params['id'] : null;
         if (!$id) {
             if (!isset($this->config->General->defaultOrganisation)) {
                 return;
             }
             $id = $this->config->General->defaultOrganisation;
-        }
-
-        if (!$this->config->General->enabled
-            || !isset($this->config[$id])
-        ) {
-            return;
         }
 
         return $this->getView()->render(

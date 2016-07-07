@@ -966,7 +966,7 @@ class AjaxController extends \VuFind\Controller\AjaxController
 
         $service = $this->getServiceLocator()->get('Finna\OrganisationInfo');
         try {
-            $result = $service->query($parent, $params, $lang);
+            $response = $service->query($parent, $params, $lang);
         } catch (\Exception $e) {
             return $this->output(
                 "Error reading organisation info (parent $parent)",
@@ -974,6 +974,31 @@ class AjaxController extends \VuFind\Controller\AjaxController
             );
         }
 
+        if ($action == 'lookup') {
+            if ($response) {
+                error_log(var_export($response, true));
+                $url = $this->url()->fromRoute('content-page', ['page' => 'organisation']);
+                $result = ['success' => true];
+                $format = $this->params()->fromQuery('format');
+
+                $result['items'] = [];
+                foreach ($response as $res) {
+                    $data = "{$url}?" . http_build_query(['id' => $res]);
+                    if ($format == 'link') {
+                        $data = $this->getViewRenderer()->partial(
+                            'Helpers/organisation-page-link.phtml',
+                            ['url' => $data, 'label' => 'organisation-info-link']
+                        );
+                    }
+                    $result['items'][$res] = $data;
+                }
+                $result['success'] = true;
+            } else {
+                $result = ['success' => false];
+            }
+        } else {
+            $result = $response;
+        }
         $this->outputMode = 'json';
         return $this->output($result, self::STATUS_OK);
     }

@@ -85,12 +85,12 @@ class OrganisationPage extends \Zend\View\Helper\AbstractHelper
         $googleAPIKey = isset($this->config->General->googleAPIKey)
             ? $this->config->General->googleAPIKey : null;
 
-        if (!isset($this->config[$id])) {
-            return;
-        }
+        $consortiumInfo = isset($this->config->General->consortiumInfo)
+            ? $this->config->General->consortiumInfo : false;
 
         $params = [
             'id' => $id,
+            'consortiumInfo' => $consortiumInfo,
             'mapWidget' => $mapWidget,
             'googleAPIKey' => $googleAPIKey
         ];

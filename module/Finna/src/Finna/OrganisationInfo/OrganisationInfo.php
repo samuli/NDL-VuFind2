@@ -51,13 +51,6 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
     protected $config = null;
 
     /**
-     * Configuration.
-     *
-     * @var Zend\Config\Config
-     */
-    protected $mainConfig = null;
-
-    /**
      * Cache manager
      *
      * @var VuFind\CacheManager
@@ -97,11 +90,24 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
     public function __construct(
         $config, $cacheManager, $http, $viewRenderer, $translator
     ) {
-        $this->mainConfig = $config;
+        $this->config = $config;
         $this->cacheManager = $cacheManager;
         $this->viewRenderer = $viewRenderer;
         $this->http = $http;
         $this->translator = $translator;
+    }
+
+    public function getOrganisationInfoId($building)
+    {
+        if (is_array($building)) {
+            $building = $building[0];
+        }
+
+        if (preg_match('/^0\/([a-zA-z0-9]*)\/$/', $building, $matches)) {
+            // strip leading '0/' and trailing '/' from top-level building code
+            return $matches[1];
+        }
+        return null;
     }
 
     /**
@@ -120,24 +126,12 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             $id = $params['id'];
         }
 
-        if (!isset($this->mainConfig[$parent])) {
-            $this->logError("Missing configuration ($parent)");
-            return false;
-        }
-
-        if (!$this->config) {
-            $this->config = array_merge(
-                $this->mainConfig->General->toArray(),
-                $this->mainConfig[$parent]->toArray()
-            );
-        }
-
-        if (!$this->config['enabled']) {
+        if (!$this->config->General->enabled) {
             $this->logError("Organisation info disabled ($parent)");
             return false;
         }
 
-        if (!isset($this->config['url'])) {
+        if (!isset($this->config->General->url)) {
             $this->logError(
                 "URL missing from organisation info configuration"
                 . "($parent)"
@@ -145,9 +139,14 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             return false;
         }
 
-        if (isset($this->mainConfig['General']['language'])) {
+        if (empty($parent)) {
+            $this->logError("Missing parent");
+            return false;
+        }
+
+        if (isset($this->config->General->language)) {
             // overrride user language
-            $language = $this->mainConfig['General']['language'];
+            $language = $this->config->General->language;
         }
 
         $target = isset($params['target']) ? $params['target'] : 'widget';
@@ -156,8 +155,8 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
         $id = null;
         if (isset($params['id'])) {
             $id = $params['id'];
-        } else if (isset($this->config['default'])) {
-            $id = $this->config['default'];
+            //} else if (isset($this->config['default'])) {
+            //$id = $this->config['default'];
         }
         $consortium
             = isset($params['consortium']) ? $params['consortium'] : null;
@@ -197,14 +196,47 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
         $startDate = date('Y-m-d', $startDate);
         $endDate = date('Y-m-d', $endDate);
 
-        $url = $this->config['url'];
-
-        if ($action == 'consortium') {
-            // Consortium info for a Finna-organisation
+        $url = $this->config->General->url;
+        if ($action == 'lookup') {
+            // Check if consortium is found in Kirjastohakemisto
+            $parents = explode(',', $parent);
             $url .= '/consortium';
             $params = [
                 'finna:id' => $parent,
                 'lang' => $language
+            ];
+            if (count($parents) > 1) {
+                $params['with'] = 'finna';
+            }
+
+            $response = $this->fetchData($url, $params);
+            if (!$response
+            ) {
+                $this->logError("Lookup error (url: $url)");
+                return false;
+            }
+            error_log(var_export($response, true));
+
+            if ($response['total'] == 0) {
+                return false;
+            }
+
+            if (count($parents) == 1) {
+                return $parents;
+            } else {
+                $result = [];
+                foreach ($response['items'] as $item) {
+                    $result[] = $item['finna']['finna_id'];
+                }
+                return $result;
+            }
+        } elseif ($action == 'consortium') {
+            // Consortium info for a Finna-organisation
+            $url .= '/consortium';
+            $params = [
+                'finna:id' => $parent,
+                'lang' => $language,
+                'with' => 'finna'
             ];
             $response = $this->fetchData($url, $params);
             if (!$response
@@ -213,15 +245,35 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                 $this->logError("Error reading consortium info (url: $url)");
                 return false;
             }
-            $consortium = $response['items'][0]['id'];
+            $response = $response['items'][0];
+            $consortiumId = $response['id'];
 
-            $url = $this->config['url'];
+            $consortium = [];
+            foreach (['name', 'logo', 'description', 'homepage'] as $field) {
+                if (!empty($response[$field])) {
+                    $consortium[$field] = $response[$field];
+                }
+            }
+            if (isset($response['finna'])) {
+                $finna = [];
+                foreach ($response['finna'] as $field => $val) {
+                    if (!empty($val)) {
+                        $finna[$field] = $val;
+                    }
+                }
+                if (!empty($finna)) {
+                    $consortium['finna'] = $finna;
+                }
+            }
+            $consortium['id'] = $consortiumId;
+
+            $url = $this->config->General->url;
 
             // Organisation list for a consortium with schedules for the current week
             $url .= '/library';
             $params = [
                 'lang' => $language,
-                'consortium' => $consortium,
+                'consortium' => $consortiumId,
                 'with' => 'schedules',
                 'period.start' => $startDate,
                 'period.end' => $endDate,
@@ -234,7 +286,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                 return false;
             }
 
-            $result = ['id' => $id];
+            $result = ['id' => $id, 'consortium' => $consortium];
             $result['list'] = $this->parseList($language, $target, $response);
             $result['weekNum'] = $weekNum;
 
@@ -325,13 +377,15 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
     {
         $params['limit'] = 1000;
         $url .= '?' . http_build_query($params);
-        
+
+        error_log($url);
+
         $cacheDir = $this->cacheManager->getCache('organisation-info')
             ->getOptions()->getCacheDir();
 
         $localFile = "$cacheDir/" . md5($url) . '.json';
-        $maxAge = isset($this->config['cachetime'])
-            ? $this->config['cachetime'] : 10;
+        $maxAge = isset($this->config->General->cachetime)
+            ? $this->config->General->cachetime : 10;
 
         $response = false;
         if ($maxAge) {
@@ -395,14 +449,12 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
         $mapUrls = ['routeUrl', 'mapUrl'];
         $mapUrlConf = [];
         foreach ($mapUrls as $url) {
-            if (isset($this->config[$url])) {
-                $base = $this->config[$url];
-                if (preg_match_all('/{([^}]*)}/', $base, $matches)) {
-                    $params = $matches[1];
-                }
+            if (isset($this->config->General[$url])) {
+                $base = $this->config->General[$url];
                 $conf = ['base' => $base];
-                if ($params) {
-                    $conf['params'] = $params;
+
+                if (preg_match_all('/{([^}]*)}/', $base, $matches)) {
+                    $conf['params'] = $matches[1];
                 }
                 $mapUrlConf[$url] = $conf;
             }
@@ -544,9 +596,9 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
         }
 
         if (!empty($response['services'])
-            && ($includeAllServices || !empty($this->config['services']))
+            && ($includeAllServices || !empty($this->config->General->services))
         ) {
-            $servicesMap = $this->config['services'];
+            $servicesMap = $this->config->General->services;
             $services = $allServices = [];
             foreach ($response['services'] as $service) {
                 if (in_array($service['id'], array_keys($servicesMap))) {

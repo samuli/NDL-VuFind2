@@ -1,6 +1,7 @@
 /*global VuFind*/
 finna = $.extend(finna, {
 organisationInfo: function() {
+    var consortium = null;
     var organisationList = {};
     var currentWeekNum = null;
     var currentScheduleInfo = null;
@@ -44,9 +45,9 @@ organisationInfo: function() {
                 callback(false);
                 return;
             }
-            var id = getField(response, 'id');
-            var list = getField(response, 'list');
+            consortium = getField(response, 'consortium');
 
+            var list = getField(response, 'list');
             $.each(list, function(ind, obj) {
                 organisationList[obj.id] = obj;
                 organisationList[obj.id]['details'] = {};
@@ -54,8 +55,6 @@ organisationInfo: function() {
                     cacheSchedules(obj.id, obj['openTimes']);
                 }
             });
-
-            console.log("org: %o", organisationList);
             callback(response);
         });
     };

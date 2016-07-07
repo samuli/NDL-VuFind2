@@ -127,9 +127,11 @@ finna = $.extend(finna, {
                 holder.data('target'), parent, id, 
                 holder.data('period-start'), null, true, allServices, 
                 function(response) {
-                    schedulesLoaded(id, response);
-                    detailsLoaded(id, response);
-                    holder.trigger('detailsLoaded', id);
+                    if (response) {
+                        schedulesLoaded(id, response);
+                        detailsLoaded(id, response);
+                        holder.trigger('detailsLoaded', id);
+                    }
                 }
             );
         };
