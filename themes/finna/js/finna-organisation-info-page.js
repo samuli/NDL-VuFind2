@@ -20,7 +20,9 @@ finna.organisationInfoPage = (function() {
                 var cnt = 0;
                 $.each(response['list'], function(ind, obj) {
                     organisationList[obj.id] = obj;
-                    cnt++;
+                    if (obj.type == 'library' || obj.type == 'other') {
+                        cnt++;
+                    }
                 });
 
                 infoWidget.organisationListLoaded(response);
