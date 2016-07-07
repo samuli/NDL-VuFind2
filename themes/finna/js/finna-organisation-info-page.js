@@ -131,7 +131,9 @@ finna.organisationInfoPage = (function() {
                 var term = request.term.toLowerCase();
                 var result = [];
                 $.each(organisationList, function(id, obj) {
-                    if (obj.name.toLowerCase().indexOf(term) !== -1) {
+                    if ((obj.type == 'library' || obj.type == 'other')
+                        && obj.name.toLowerCase().indexOf(term) !== -1
+                    ) {
                         result.push({value: id, label: obj.name});
                     }
                 });
@@ -196,27 +198,23 @@ finna.organisationInfoPage = (function() {
 
     var updateConsortiumInfo = function(data) {
         var info = holder.find('.consortium-info');
+        var logo = consortiumHomepage = consortiumHomepageLabel = null;
 
         // Info
         if ('consortium' in data) {
-            /*
-            if ('finna' in data.consortium
-                && 'notification' in data.consortium.finna
-               ) {
-                   holder.find('.consortium-notification')
-                       .html(data.consortium.finna.notification).removeClass('hide');
-               }
-*/
             var name = getField(data.consortium, 'name');
+            var desc = getField(data.consortium, 'description');
+            consortiumHomepage = getField(data.consortium, 'homepage');
+            consortiumHomepageLabel = getField(data.consortium, 'homepageLabel');
+
             if (name) {
                 info.find('.name').text(name).removeClass('hide');
             }
-            var desc = getField(data.consortium, 'description');
             if (desc) {
                 info.find('.description').html(desc).removeClass('hide');
             }
             if ('logo' in data.consortium) {
-                var logo = getField(data.consortium.logo, 'medium');
+                logo = getField(data.consortium.logo, 'medium');
                 $('<img/>').attr('src', logo).appendTo(info.find('.consortium-logo').removeClass('hide'));
             } else {
                 info.addClass('no-logo');
@@ -226,19 +224,36 @@ finna.organisationInfoPage = (function() {
         // Organisation list
         var listHolder = info.find('.organisation-list');
         var ul = listHolder.find('ul');
-        $.each(organisationList, function(id, obj) {
-            var name = obj.name;
+        if (consortiumHomepage) {
             var li = $('<li/>');
-            var homepage = getField(obj, 'homepage');
-            if (homepage) {
-                $('<a/>').attr('href', homepage).text(name).appendTo(li);
-            } else {
-                li.text(name);
-            }
+            var label = consortiumHomepageLabel ? consortiumHomepageLabel : consortiumHomepage;
+            $('<a/>').attr('href', consortiumHomepage).text(label).appendTo(li);
             li.appendTo(ul);
+        }
+
+        var list = false;
+        $.each(organisationList, function(id, obj) {
+            if (obj.type == 'facility') {
+                var name = obj.name;
+                if ('shortName' in obj) {
+                    name = obj.shortName;
+                }
+                var li = $('<li/>');
+                var homepage = getField(obj, 'homepage');
+                if (homepage) {
+                    list = true;
+                    $('<a/>').attr('href', homepage).text(name).appendTo(li);
+                    li.appendTo(ul);
+                }
+            }
         });
-        listHolder.addClass('truncate-field');
-        finna.layout.initTruncate(listHolder.parent());
+
+        if (desc || consortiumHomepage || list) {
+            listHolder.addClass('truncate-field');
+            finna.layout.initTruncate(listHolder.parent());
+        } else {
+            info.remove();
+        }
     };
 
     var updateSelectedOrganisation = function(id) {

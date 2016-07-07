@@ -250,8 +250,16 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
 
             $consortium = [];
             foreach (['name', 'logo', 'description', 'homepage'] as $field) {
-                if (!empty($response[$field])) {
-                    $consortium[$field] = $response[$field];
+                $val = $response[$field];
+                if (!empty($val)) {
+                    $consortium[$field] = $val;
+                    if ($field == 'homepage') {
+                        $parts = parse_url($val);
+                        if (isset($parts['host'])) {
+                            $val = $parts['host'];
+                            $consortium['homepageLabel'] = $val;
+                        }
+                    }
                 }
             }
             if (isset($response['finna'])) {
@@ -270,7 +278,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             $url = $this->config->General->url;
 
             // Organisation list for a consortium with schedules for the current week
-            $url .= '/library';
+            $url .= '/organisation';
             $params = [
                 'lang' => $language,
                 'consortium' => $consortiumId,
@@ -469,7 +477,9 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             $data = [
                 'id' => $item['id'],
                 'name' => $item['name'],
-                'slug' => $item['slug']
+                'shortName' => $item['short_name'],
+                'slug' => $item['slug'],
+                'type' => $item['type']
             ];
 
             if ($item['branch_type'] == 'mobile') {
