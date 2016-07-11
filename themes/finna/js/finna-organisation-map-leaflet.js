@@ -62,7 +62,7 @@ finna = $.extend(finna, {
             var LeafIcon = L.Icon.extend({
                 options: {
                     iconSize:     [21, 35],
-                    iconAnchor:   [22, 94],
+                    iconAnchor:   [10, 35],
                     popupAnchor:  [-10, -86],
                     labelAnchor: [-5, -86]
                 }
