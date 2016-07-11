@@ -85,21 +85,11 @@
         <img src="<?=$this->imageLink('own-location.png')?>"/>
       </div>
       <?
-        if ($googleMap) {
-          $mapUrl = 'https://maps.googleapis.com/maps/api/js?v=3.exp';
-          if ($this->googleAPIKey) {
-             $mapUrl .= '&key=' . $this->escapeHtmlAttr($this->googleAPIKey);
-          }
-          $this->headScript()->appendFile($mapUrl);
-          $this->headScript()->appendFile('finna-organisation-map-google.js');
-        } else {
-          $this->headLink()->appendStylesheet('vendor/ol.css');
-          $this->headLink()->appendStylesheet('vendor/ol3-popup.css');
-
-          $this->headScript()->appendFile('vendor/ol.js');
-          $this->headScript()->appendFile('vendor/ol3-popup.js');
-          $this->headScript()->appendFile('finna-organisation-map-openlayers.js');
-        }
+        $this->headLink()->appendStylesheet('http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css');
+        $this->headScript()->appendFile('http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js');
+        $this->headScript()->appendFile('vendor/leaflet-providers.js');
+        $this->headScript()->appendFile('vendor/leaflet-label.js');
+        $this->headScript()->appendFile('finna-organisation-map-leaflet.js');
       ?>
     </div>
   </div>

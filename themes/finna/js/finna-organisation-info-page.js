@@ -452,14 +452,15 @@ finna.organisationInfoPage = (function() {
                 hideMapMarker();
             });
 
-            $(map).on('marker-mouseover', function(ev, data) { 
+            $(map).on('marker-mouseover', function(ev, data) {
+                console.log("mouseover: %o", data);
                 var tooltip = $('#marker-tooltip');
                 var name = organisationList[data.id].name;
                 tooltip.removeClass('hide').html(name).css({
                     'left': data.x,
-                    'top': data.y - 65
+                    'top': data.y - 35
                 });
-                tooltip.css({'margin-left': -(tooltip.outerWidth())/2 + 10}).show();
+                tooltip.css({'margin-left': -(tooltip.outerWidth())/2 + 20}).show();
             });
 
             $(map).on('my-location', function(ev, mode) { 
