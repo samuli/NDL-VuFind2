@@ -453,7 +453,6 @@ finna.organisationInfoPage = (function() {
             });
 
             $(map).on('marker-mouseover', function(ev, data) {
-                console.log("mouseover: %o", data);
                 var tooltip = $('#marker-tooltip');
                 var name = organisationList[data.id].name;
                 tooltip.removeClass('hide').html(name).css({

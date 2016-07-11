@@ -56,6 +56,12 @@ finna = $.extend(finna, {
 
             map = L.map($(holder).attr('id')).setView([51.505, -0.09], 13);
             L.tileLayer.provider(mapProvider, mapConf).addTo(map);
+            
+            map.on('popupopen', function(e) {
+                var px = map.project(e.popup._latlng); 
+                px.y -= e.popup._container.clientHeight/2;
+                map.panTo(map.unproject(px),{animate: true});
+            });
 
             //addMyLocationButton(map, $(this), holder);
 
@@ -63,7 +69,7 @@ finna = $.extend(finna, {
                 options: {
                     iconSize:     [21, 35],
                     iconAnchor:   [10, 35],
-                    popupAnchor:  [-10, -86],
+                    popupAnchor:  [0, -36],
                     labelAnchor: [-5, -86]
                 }
             });
@@ -77,7 +83,10 @@ finna = $.extend(finna, {
                     var infoWindowContent = obj['map']['info'];
                     var point = obj.address.coordinates;
 
-                    var marker = L.marker([point.lat, point.lon], {icon: markerIcon}).addTo(map);
+                    var marker = L.marker(
+                        [point.lat, point.lon], 
+                        {icon: markerIcon}
+                    ).addTo(map);
                     marker.on('mouseover', function(ev) {
                         var holderOffset = $(holder).offset();
                         var offset = $(ev.originalEvent.target).offset();
@@ -95,6 +104,7 @@ finna = $.extend(finna, {
 
                     marker.on('click', function(ev) {
                         me.trigger('marker-click', obj.id);
+                        map.setView(ev.latlng, zoomLevel.close, {animate: false});
                     });
 
                     marker
