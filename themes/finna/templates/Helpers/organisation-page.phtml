@@ -1,15 +1,28 @@
 <?
+  $this->headLink()->appendStylesheet('vendor/leaflet.css');
+  $this->headScript()->appendFile('vendor/leaflet.js');
+  $this->headLink()->appendStylesheet('vendor/leaflet-locatecontrol.css');
+  $this->headScript()->appendFile('vendor/leaflet-locatecontrol.js');
   $this->headScript()->appendFile("vendor/jquery-ui.min.js");
+
   $this->headScript()->appendFile("finna-organisation-info.js");
   $this->headScript()->appendFile("finna-organisation-info-widget.js");
   $this->headScript()->appendFile("finna-organisation-info-page.js");
+  $this->headScript()->appendFile('finna-organisation-map-leaflet.js');
 
   $setupJS = '$(document).ready(function() { finna.organisationInfoPage.init();});';
   $this->headScript()->appendScript($setupJS);
 
   $this->jsTranslations()->addStrings(['organisationInfoAutocomplete' => 'organisation-info-autocomplete']);
 ?>
-<div class="organisation-info-page organisation-page-information-wrapper" data-parent="<?=$this->escapeHtmlAttr($this->id)?>"<?=isset($this->library)? (' data-library="' . $this->escapeHtmlAttr($this->library) . '"') : ''?> data-consortium-info="<?=$this->consortiumInfo ? '1' : '0'?>">
+<div class="organisation-info-page organisation-page-information-wrapper">
+  <div class="config">
+    <? foreach (['id', 'library', 'mapTileUrl', 'attribution', 'consortiumInfo'] as $param): ?>
+    <? if (isset($this->{$param})): ?>
+    <input type="hidden" name="<?=$param?>" value="<?=$this->escapeHtmlAttr($this->{$param})?>"></input>
+    <? endif; ?>
+    <? endforeach; ?>
+  </div>  
   <? if ($template = $this->content()->findTemplateForLng("content/Additions/organisation-page")): ?>
   <div class="col-xs-12">
     <?=$this->render('content/Additions/organisation-page.phtml')?>
@@ -76,26 +89,10 @@
 
   <div class="row office map <?=$this->escapeHtmlAttr($this->mapWidget)?>">
     <div class="col-xs-11 col-sm-12">
-      <? $googleMap = $this->mapWidget == 'google'; ?>
-      <div id="<?=$googleMap ? 'gmap_canvas' : 'openlayers-canvas'?>" class="map-widget">
+      <div id="openlayers-canvas" class="map-widget">
         <i class="fa fa-spinner fa-spin" style="position:absolute;top: 48%; left: 48%; text-align: center;"></i>
       </div>
       <div id="marker-tooltip" class="hide"></div>
-      <div class="my-location-btn hide">
-        <button title="<?=$this->escapeHtmlAttr('organisation-info-my-location')?>">
-          <div class="img"></div>
-        </button>
-      </div>
-      <div class="my-location-marker template hide">
-        <img src="<?=$this->imageLink('own-location.png')?>"/>
-      </div>
-      <?
-        $this->headLink()->appendStylesheet('http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css');
-        $this->headScript()->appendFile('http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js');
-        $this->headScript()->appendFile('vendor/leaflet-providers.js');
-        $this->headScript()->appendFile('vendor/leaflet-label.js');
-        $this->headScript()->appendFile('finna-organisation-map-leaflet.js');
-      ?>
     </div>
   </div>
   <div class="row office-quick-information hide">

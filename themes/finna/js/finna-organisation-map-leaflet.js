@@ -11,6 +11,8 @@ finna = $.extend(finna, {
     organisationMap: function() {
         var zoomLevel = {initial: 27, far: 5, close: 15};
         var holder = null;
+        var mapTileUrl = null;
+        var attribution = null;
         var imgPath = null;
         var map = null;
         var view = null;
@@ -23,36 +25,6 @@ finna = $.extend(finna, {
         var organisations = null;
         var initialZoom = true;
 
-
-        L.TileLayer.Provider.providers.DigiTransit = {
-            url: '//api.digitransit.fi/map/v1/{id}/{z}/{x}/{y}.png',
-            options: {
-                maxZoom: 19,
-                attribution:
-                '&copy; <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-            }
-        };
-
-        var mapConf = {
-            OpenStreetMap: {},
-            MapBox: {
-                id: 'examples.map-zr0njcqy',
-                accessToken: 'pk.eyJ1Ijoic2FtdWxpc2lsbGFucGFhIiwiYSI6ImNpcWhucTBxMDAwOG5oeG5od2w1NnljaTQifQ.BhPSzbFYIksrEEZxp2hSBA'
-            },
-            'DigiTransit': {
-                id: 'hsl-map',
-                tileSize: 512,
-                zoomOffset: -1
-            }
-        };
-        
-        var mapProvider = getQueryParam('map'); //'DigiTransit'; //'MapBox'; //OpenStreetMap';
-        if (mapProvider == 'map') {
-            mapProvider = 'DigiTransit';
-        }
-        mapConf = mapConf[mapProvider];
-
-        var attribution = 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
         var draw = function(organisationList, id) {
             defaultId = id;
             var me = $(this);
@@ -60,24 +32,29 @@ finna = $.extend(finna, {
 
             map = L.map($(holder).attr('id'), {
                 minZoom: zoomLevel.far,
-                maxZoom: zoomLevel.close + 5.0,
+                maxZoom: 18,
                 zoomDelta: 0.1,
                 zoomSnap: 0.1
             });
-            L.tileLayer.provider(mapProvider, mapConf).addTo(map);
 
+            L.tileLayer(mapTileUrl, {
+                attribution: attribution,
+                tileSize: 512,
+                zoomOffset: -1
+            }).addTo(map);
+            
             // Center popup
             map.on('popupopen', function(e) {
                 var px = map.project(e.popup._latlng); 
                 px.y -= e.popup._container.clientHeight/2;
-                map.panTo(map.unproject(px),{animate: true});
+                map.panTo(map.unproject(px), {animate: false});
             });
             
             map.on('popupclose', function(e) {
-//                reset();
+                selectedMarker = null;
             });
            
-            //addMyLocationButton(map, $(this), holder);
+            L.control.locate().addTo(map);
 
             var LeafIcon = L.Icon.extend({
                 options: {
@@ -154,48 +131,33 @@ finna = $.extend(finna, {
             if (id in mapMarkers) {
                 marker = mapMarkers[id];
             }
-            if (!marker && selectedMarker) {
-                hideMarker();
-                return;
+            if (selectedMarker) {
+                if (selectedMarker == marker) {
+                    return;
+                } else if (!marker) {
+                    hideMarker();
+                    return;
+                }
             }
+            if (map.getZoom() != zoomLevel.close) {
+                map.setView(marker.getLatLng(), zoomLevel.close, {animate: false});
+            }
+
             marker.openPopup();
             selectedMarker = marker;
         };
 
         var hideMarker = function() {
-            selectedMarker.closePopup();
-        };
-
-        var addMyLocationButton = function(map, me, mapHolder) {
-            if (navigator.geolocation) {
-                var view = map.getView();
-                var btn = $(".my-location-btn").removeClass('hide');
-
-                btn.on('click', function() {
-                    navigator.geolocation.getCurrentPosition(function(pos) {
-                        var coord = latLonToCoord(pos.coords.latitude, pos.coords.longitude);
-                        view.setZoom(zoomLevel.close);
-                        view.setCenter(coord);
-                        
-                        $('.my-location-marker').not('.template').remove();
-                        var el = $('.my-location-marker.template').clone().removeClass('hide template');
-                        map.addOverlay(new ol.Overlay({
-                            position: map.getView().getCenter(),
-                            element: el
-                        }));
-                    });
-                });
-                
-                var control = new ol.control.Control({
-                    element: btn[0]
-                });
-                map.addControl(control);
+            if (selectedMarker) {
+                selectedMarker.closePopup();
             }
         };
 
-        var init = function(mapHolder, path) {
-            holder = mapHolder;
-            imgPath = path;
+        var init = function(_holder, _imgPath, _mapTileUrl, _attribution) {
+            holder = _holder;
+            imgPath = _imgPath;
+            mapTileUrl = _mapTileUrl;
+            attribution = _attribution;
         };
         
         var my = {

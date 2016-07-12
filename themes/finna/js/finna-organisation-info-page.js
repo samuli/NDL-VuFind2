@@ -8,13 +8,9 @@ finna.organisationInfoPage = (function() {
     var organisationList = {};
     var map = null;
     var mapHolder = null;
+    var consortiumInfo = false;
 
     var loadOrganisationList = function(id) {
-        parent = holder.data('parent');
-        if (typeof parent == 'undefined') {
-            return;
-        }
-
         service.getOrganisations('page', parent, function(response) {
             if (response) {
                 var cnt = 0;
@@ -31,11 +27,13 @@ finna.organisationInfoPage = (function() {
                     $('.office-quick-information').show();
                     initSearch();
                     $("#office-search").attr("placeholder", VuFind.translate('organisationInfoAutocomplete').replace('%%count%%', cnt));
-                    //updateSelectedOrganisation(id);
+                    if (typeof id != 'undefined') {
+                        updateSelectedOrganisation(id);
+                    }
                 }
 
                 updateConsortiumNotification(response);
-                if (holder.data('consortium-info')) {
+                if (consortiumInfo) {
                     updateConsortiumInfo(response);
                 }
                 updateURL = true;
@@ -127,7 +125,6 @@ finna.organisationInfoPage = (function() {
     };
     
     var initSearch = function() {
-        
         $('#office-search').autocomplete({
             source: function (request, response) {
                 var term = request.term.toLowerCase();
@@ -437,10 +434,25 @@ finna.organisationInfoPage = (function() {
 
     var my = {
         init: function() {
+            holder = $('.organisation-info-page');
+
+            var conf = holder.find('.config');
+
+            var library = conf.find('input[name="library"]').val();
+            var mapTileUrl = conf.find('input[name="mapTileUrl"]').val();
+            var attribution = conf.find('input[name="attribution"]').val();
+            consortiumInfo = conf.find('input[name="consortiumInfo"]').val();
+            parent = conf.find('input[name="id"]').val();
+            
+            if (typeof parent == 'undefined') {
+                return;
+            }
+
             var imgPath = VuFind.path + '/themes/finna/images/';
+
             mapHolder = $('.map-widget');
             map = finna.organisationMap();
-            map.init(mapHolder[0], imgPath);
+            map.init(mapHolder[0], imgPath, mapTileUrl, attribution);
 
             $(map).on('marker-click', function(ev, id) { 
                 if (updateURL) {
@@ -468,7 +480,6 @@ finna.organisationInfoPage = (function() {
             });
 
             service = finna.organisationInfo();
-            holder = $('.organisation-info-page');
 
             infoWidget = finna.organisationInfoWidget();
             
@@ -491,7 +502,6 @@ finna.organisationInfoPage = (function() {
                 $('#office-search').blur();
             }
 
-            var library = holder.data('library');
             if (hash = getOrganisationFromURL()) {
                 library = hash;
             }

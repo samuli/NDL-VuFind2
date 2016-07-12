@@ -65,7 +65,11 @@ class OrganisationPage extends \Zend\View\Helper\AbstractHelper
     public function __invoke($id = null)
     {
         if (!$this->config->General->enabled) {
-            return;
+            throw(new \Exception('Organisation page is disabled'));
+        } 
+
+        if (!$this->config->General->mapTileUrl) {
+            throw(new \Exception('mapTileUrl not defined'));
         }
 
         if (!$id) {
@@ -75,15 +79,8 @@ class OrganisationPage extends \Zend\View\Helper\AbstractHelper
             $id = $this->config->General->defaultOrganisation;
         }
 
-        $mapWidget = 'openlayers';
-        if (isset($this->config->General->mapWidget)) {
-            $widget = $this->config->General->mapWidget;
-            if (in_array($widget, ['google', 'openlayers'])) {
-                $mapWidget = $widget;
-            }
-        }
-        $googleAPIKey = isset($this->config->General->googleAPIKey)
-            ? $this->config->General->googleAPIKey : null;
+        $mapTileUrl = $this->config->General->mapTileUrl;
+        $attribution = $this->config->General->attribution;
 
         $consortiumInfo = isset($this->config->General->consortiumInfo)
             ? $this->config->General->consortiumInfo : false;
@@ -91,12 +88,9 @@ class OrganisationPage extends \Zend\View\Helper\AbstractHelper
         $params = [
             'id' => $id,
             'consortiumInfo' => $consortiumInfo,
-            'mapWidget' => $mapWidget,
-            'googleAPIKey' => $googleAPIKey
+            'mapTileUrl' => $mapTileUrl,
+            'attribution' => $attribution
         ];
-        if (isset($this->config[$id]['default'])) {
-            $params['library'] = $this->config[$id]['default'];
-        }
 
         return $this->getView()->render(
             'Helpers/organisation-page.phtml', $params
