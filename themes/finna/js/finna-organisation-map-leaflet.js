@@ -102,7 +102,7 @@ finna = $.extend(finna, {
                     });
 
                     marker
-                        .bindPopup(infoWindowContent, {closeButton: false})
+                        .bindPopup(infoWindowContent)
                         .addTo(map);
 
                     mapMarkers[obj.id] = marker;
