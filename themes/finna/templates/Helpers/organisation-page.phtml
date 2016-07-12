@@ -1,4 +1,6 @@
 <?
+  $this->headScript()->appendScript('L_PREFER_CANVAS = true;');
+
   $this->headLink()->appendStylesheet('vendor/leaflet.css');
   $this->headScript()->appendFile('vendor/leaflet.js');
   $this->headLink()->appendStylesheet('vendor/leaflet-locatecontrol.css');
