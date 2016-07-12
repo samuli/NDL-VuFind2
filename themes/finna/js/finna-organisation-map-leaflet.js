@@ -59,7 +59,6 @@ finna = $.extend(finna, {
             organisations = organisationList;
 
             map = L.map($(holder).attr('id'), {
-                closePopupOnClick: false,
                 minZoom: zoomLevel.far,
                 maxZoom: zoomLevel.close + 5.0,
                 zoomDelta: 0.1,
@@ -126,7 +125,7 @@ finna = $.extend(finna, {
                     });
 
                     marker
-                        .bindPopup(infoWindowContent)
+                        .bindPopup(infoWindowContent, {closeButton: false})
                         .addTo(map);
 
                     mapMarkers[obj.id] = marker;

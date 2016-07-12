@@ -10,6 +10,11 @@
   $this->jsTranslations()->addStrings(['organisationInfoAutocomplete' => 'organisation-info-autocomplete']);
 ?>
 <div class="organisation-info-page organisation-page-information-wrapper" data-parent="<?=$this->escapeHtmlAttr($this->id)?>"<?=isset($this->library)? (' data-library="' . $this->escapeHtmlAttr($this->library) . '"') : ''?> data-consortium-info="<?=$this->consortiumInfo ? '1' : '0'?>">
+  <? if ($template = $this->content()->findTemplateForLng("content/Additions/organisation-page")): ?>
+  <div class="col-xs-12">
+    <?=$this->render('content/Additions/organisation-page.phtml')?>
+  </div>
+  <? endif; ?>
   <? if ($this->consortiumInfo): ?>
   <div class="consortium-info col-xs-12">
     <div class="row">
