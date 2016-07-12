@@ -46,6 +46,9 @@ finna = $.extend(finna, {
         };
         
         var mapProvider = getQueryParam('map'); //'DigiTransit'; //'MapBox'; //OpenStreetMap';
+        if (mapProvider == 'map') {
+            mapProvider = 'DigiTransit';
+        }
         mapConf = mapConf[mapProvider];
 
         var attribution = 'Map data © <a href="http://openstreetmap.org">OpenStreetMap</a> contributors';
