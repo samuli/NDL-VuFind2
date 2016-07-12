@@ -31,7 +31,7 @@ finna.organisationInfoPage = (function() {
                     $('.office-quick-information').show();
                     initSearch();
                     $("#office-search").attr("placeholder", VuFind.translate('organisationInfoAutocomplete').replace('%%count%%', cnt));
-                    updateSelectedOrganisation(id);
+                    //updateSelectedOrganisation(id);
                 }
 
                 updateConsortiumNotification(response);
@@ -216,7 +216,7 @@ finna.organisationInfoPage = (function() {
                 info.find('.description').html(desc).removeClass('hide');
             }
             if ('logo' in data.consortium) {
-                logo = getField(data.consortium.logo, 'medium');
+                logo = getField(data.consortium.logo, 'small');
                 $('<img/>').attr('src', logo).appendTo(info.find('.consortium-logo').removeClass('hide'));
             } else {
                 info.addClass('no-logo');
@@ -281,6 +281,7 @@ finna.organisationInfoPage = (function() {
     };
 
     var updateGeneralInfo = function(data, rssAvailable) {
+        holder.find('.office-quick-information').toggleClass('hide', false);
         var contactHolder = holder.find('.contact-details-' + (rssAvailable ? 'rss' : 'no-rss'));
         contactHolder.show();
         finna.feed.init(contactHolder);

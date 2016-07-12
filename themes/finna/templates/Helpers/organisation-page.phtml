@@ -14,7 +14,7 @@
   <div class="consortium-info col-xs-12">
     <div class="row">
       <div><h1 class="name hide"></h1></div>
-      <div class="col-sm-6 col-md-4 consortium-logo hide"></div>
+      <div class="col-sm-6 col-md-3 consortium-logo hide"></div>
       <div class="col-sm-6 col-md-8 description hide"></div>
     </div>
     <div class="organisation-list" data-rows="8">
@@ -70,7 +70,7 @@
   </div>
 
   <div class="row office map <?=$this->escapeHtmlAttr($this->mapWidget)?>">
-    <div class="col-xs-12">
+    <div class="col-xs-11 col-sm-12">
       <? $googleMap = $this->mapWidget == 'google'; ?>
       <div id="<?=$googleMap ? 'gmap_canvas' : 'openlayers-canvas'?>" class="map-widget">
         <i class="fa fa-spinner fa-spin" style="position:absolute;top: 48%; left: 48%; text-align: center;"></i>
@@ -93,7 +93,7 @@
       ?>
     </div>
   </div>
-  <div class="row office-quick-information">
+  <div class="row office-quick-information hide">
     <div class="col-xs-12 col-sm-7">
       <h2 class="service-title"></h2>
       <p><span class="office-links address"></span> <a href="#" class="office-links route info-element"><i class="fa fa-bus"></i> <?=$this->translate('organisation-info-route')?></a> <a href="" class="office-links reserve-computer info-element"><i class="fa fa-desktop"></i> <?=$this->translate('organisation-info-reserve-computer')?></a> <span class="office-links office-website info-element"><a href="#" target="_blank"><i class="fa fa-home"></i> <?=$this->translate('organisation-info-homepage')?></a><span></p>

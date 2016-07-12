@@ -9,12 +9,13 @@ function getQueryParam(param) {
 
 finna = $.extend(finna, {
     organisationMap: function() {
-        var zoomLevel = {initial: 27, far: 10, close: 17};
+        var zoomLevel = {initial: 27, far: 5, close: 15};
         var holder = null;
         var imgPath = null;
         var map = null;
         var view = null;
         var mapMarkers = {};
+        var markers = [];
         var selectedMarker = null;
         var infoInterval = null;
         var defaultId = null;
@@ -57,15 +58,26 @@ finna = $.extend(finna, {
             var me = $(this);
             organisations = organisationList;
 
-            map = L.map($(holder).attr('id')).setView([51.505, -0.09], 13);
+            map = L.map($(holder).attr('id'), {
+                closePopupOnClick: false,
+                minZoom: zoomLevel.far,
+                maxZoom: zoomLevel.close + 5.0,
+                zoomDelta: 0.1,
+                zoomSnap: 0.1
+            });
             L.tileLayer.provider(mapProvider, mapConf).addTo(map);
-            
+
+            // Center popup
             map.on('popupopen', function(e) {
                 var px = map.project(e.popup._latlng); 
                 px.y -= e.popup._container.clientHeight/2;
                 map.panTo(map.unproject(px),{animate: true});
             });
-
+            
+            map.on('popupclose', function(e) {
+//                reset();
+            });
+           
             //addMyLocationButton(map, $(this), holder);
 
             var LeafIcon = L.Icon.extend({
@@ -91,6 +103,9 @@ finna = $.extend(finna, {
                         {icon: markerIcon}
                     ).addTo(map);
                     marker.on('mouseover', function(ev) {
+                        if (marker == selectedMarker) {
+                            return;
+                        }
                         var holderOffset = $(holder).offset();
                         var offset = $(ev.originalEvent.target).offset();
                         var x = offset.left - holderOffset.left;
@@ -112,44 +127,44 @@ finna = $.extend(finna, {
 
                     marker
                         .bindPopup(infoWindowContent)
-                        .openPopup()
                         .addTo(map);
 
                     mapMarkers[obj.id] = marker;
+                    markers.push(marker);
                 }
             });
+
+            reset();
         };
         
         var reset = function() {
-            var coordinates = organisations[defaultId].address.coordinates;
-            view.setCenter(latLonToCoord(coordinates.lat, coordinates.lon));
-            view.setZoom(zoomLevel.far);
+            group = new L.featureGroup(markers);
+            var bounds = group.getBounds();
+            // Fit markers to screen
+            map.fitBounds(bounds, {zoom: {animate: true}});
+
+            selectedMarker = null;
         };
 
         var resize = function() {
-            map.updateSize();
+            map.invalidateSize(true);
         };
 
         var selectMarker = function(id) {
-            return;
-
             var marker = null;
             if (id in mapMarkers) {
                 marker = mapMarkers[id];
-                if (!marker.data('lat')) {
-                    marker = null;
-                }
             }
             if (!marker && selectedMarker) {
                 hideMarker();
                 return;
             }
-            marker.trigger('click');
+            marker.openPopup();
             selectedMarker = marker;
         };
 
         var hideMarker = function() {
-            infoWindow.hide();
+            selectedMarker.closePopup();
         };
 
         var addMyLocationButton = function(map, me, mapHolder) {
@@ -179,10 +194,6 @@ finna = $.extend(finna, {
             }
         };
 
-        var latLonToCoord = function(lat, lon) {
-            return ol.proj.transform([lon, lat], 'EPSG:4326', 'EPSG:3857');
-        };
-        
         var init = function(mapHolder, path) {
             holder = mapHolder;
             imgPath = path;
