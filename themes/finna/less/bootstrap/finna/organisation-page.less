@@ -551,6 +551,124 @@
             }
         }
     }
+    .consortium-navigation {
+        min-height: 45px;
+        & .affix {
+            position: relative;   
+        }
+        @media (min-width: @screen-sm-min) {
+            & .affix {
+                position: fixed;
+                top: 0;
+                z-index: 1000;
+                background: #fff;
+                height: 40px;
+                width: 100%;
+            
+            }
+        }
+        
+        & .consortium-navigation-list {
+            clear: both;
+            margin-bottom: 20px;
+            & li { 
+                float: left;
+                margin-right: 5px;
+                padding: 7px;
+                background: @gray-light;
+                color: #fff;
+                &:hover {
+                   cursor: pointer;   
+                }
+            }
+        }
+        
+    }
+    & .consortium-info {
+        & h1 {
+            margin-top: 0;   
+        }
+        @media (max-width: @screen-xs-max) {
+            & .consortium-logo {
+                max-width: 300px;
+                margin-bottom: 10px;
+            }
+        }
+    }
+    & .consortium-usage-rights {
+        & .usage-rights-text {
+            margin-bottom: 10px;   
+        }
+        & .sidebar {
+            & h4 {
+                padding: 12px 15px;
+            }
+            & .list-group-item {
+                margin-bottom: 0px;
+                padding: 2px 15px;
+                &:first-child {
+                    padding-top: 15px;   
+                }
+                &:last-child {
+                    padding-bottom: 15px;   
+                }
+            }
+        }
+        @media (max-width: @screen-xs-max) {
+            & .sidebar {
+                & h4 {
+                    background: none;
+                    color: @gray;
+                    padding: 0;
+                    font-size: 1.2em;
+                    margin-top: 10px;
+                }
+                & .list-group-item {
+                    background: none;
+                    padding: 0px;
+                    margin-right: 10px;
+                    &:first-child {
+                        padding-top: 5px;   
+                    }
+                }
+            }
+        }
+        & .gauge-meter {
+            margin-top: 10px;   
+            & #finna-coverage-gauge {
+                float: left;
+                @media (min-width: @screen-sm-min) {
+                    margin-left: -20px;
+                }
+            }
+            & .gauge-value {
+                margin-top: 20px;
+                position: absolute;
+                margin-left: -52px;
+                font-weight: bold;
+            }
+            & .gauge-label {
+                margin-top: 20px;
+                position: absolute;
+            }
+        }
+        & .searchbox-consortium.searchForm {
+            margin-top: 15px;
+            & input {
+                width: ~"-webkit-calc(100% - 40px)";
+                width: ~"-moz-calc(100% - 40px)";
+                width: ~"calc(100% - 40px)";
+                float: left;
+                border-radius: 10px;
+                border-color: @gray-lighter;
+            }
+            & button {
+                margin-left: -10px;
+                border-top-left-radius: 0px;
+                border-bottom-left-radius: 0px;
+            }
+        }
+    }
 }
 .ui-autocomplete {
     background: #fff;
