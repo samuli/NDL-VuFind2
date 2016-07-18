@@ -6,6 +6,9 @@
   $this->headScript()->appendFile("vendor/jquery-ui.min.js");
 
   $this->headScript()->appendFile("finna-organisation-info.js");
+  if ($this->consortiumInfo) {
+    $this->headScript()->appendFile("finna-organisation-info-page-consortium.js");
+  }
   $this->headScript()->appendFile("finna-organisation-info-widget.js");
   $this->headScript()->appendFile("finna-organisation-info-page.js");
   $this->headScript()->appendFile('finna-organisation-map-leaflet.js');
@@ -16,6 +19,10 @@
   $this->jsTranslations()->addStrings(['organisationInfoAutocomplete' => 'organisation-info-autocomplete']);
 ?>
 <div class="organisation-info-page organisation-page-information-wrapper">
+  <div class="loader">
+    <i class="fa fa-spinner fa-spin" style="text-align: center;"></i>
+  </div>
+  
   <div class="config">
     <? foreach (['id', 'library', 'mapTileUrl', 'attribution', 'consortiumInfo'] as $param): ?>
     <? if (isset($this->{$param})): ?>
@@ -25,15 +32,16 @@
   </div>
 
   <? if ($this->consortiumInfo): ?>
-    <div class="consortium-navigation">
-      <div class="row">
-        <ul class="consortium-navigation-list col-xs-12" data-spy="affix" data-offset-top="310">
-          <li class="scroll"><?=$this->transEsc('consortium-name')?></li>
-          <li class="scroll"><?=$this->transEsc('consortium-usage-rights')?></li>
-          <li class="scroll"><?=$this->transEsc('consortium-service-point')?></li>
-        </ul>
-      </div>
+  <? $building = "0/{$this->id}/"; ?>
+  <div class="consortium-navigation hide">
+    <div class="row">
+      <ul class="consortium-navigation-list col-xs-12" data-spy="affix" data-offset-top="310">
+        <li class="scroll building hide"><?=$this->transEsc($building)?></li>
+        <li class="scroll usage hide"><?=$this->transEsc('organisation-info-navi-usage')?></li>
+        <li class="scroll service hide"><?=$this->transEsc('organisation-info-navi-service')?></li>
+      </ul>
     </div>
+  </div>
   <? endif; ?>
 
   <? if ($template = $this->content()->findTemplateForLng("content/Additions/organisation-page")): ?>
@@ -43,58 +51,51 @@
   <? endif; ?>
 
   <? if ($this->consortiumInfo): ?>
-  <div class="consortium-info" id="consortium-info-section">
+  <div class="consortium-info hide navi-section" id="consortium-info-section">
     <div class="row">
       <div class="col-xs-12"><h1 class="name hide"></h1></div>
       <div class="col-sm-4 col-md-3 consortium-logo hide"></div>
       <div class="col-sm-8 col-md-8 description hide"></div>
     </div>
-    <div class="organisation-list" data-rows="2">
-        <!--
-          fetch these items without link and add more link if more than 2 rows of locations
-        -->
-        <p>Kirjasto 1, kirjasto 2, kirjasto 3, paikkakunta x</p>
-    </div>
+    <div class="homepage hide"></div>
+    <div class="organisation-list" data-rows="1"><ul></ul></div>
   </div>
-  <div class="consortium-usage-rights" id="consortium-usage-rights-section">
+  <div class="consortium-usage-rights hide navi-section" id="consortium-usage-rights-section">
     <div class="row">
-      <div class="col-xs-12"><h3><?=$this->transEsc('consortium-usage-rights')?></h3></div>
+      <div class="col-xs-12 hide usage-rights-heading"><h3><?=$this->transEsc('organisation-info-navi-usage')?></h3></div>
       <div class="col-xs-12 col-sm-9">
-        <div class="usage-rights-text">
-          <p>Kuka tahansa voi lainata useimpien yliopisto- ja ammattikorkeakoulukirjastojen aineistoja. Lainausoikeuden hankkiminen uuteen kirjastoon ei aina edellytä edes uuden kirjastokortin hankintaa, koska joissakin tapauksissa lainausoikeus voidaan lisätä olemassaolevaan kirjastokorttiin. Lainausoikeuksia myönnetään yleensä kirjastojen palvelupisteissä.</p>
-        </div>
+        <div class="usage-rights-text"></div>
         <div class="row">
           <div class="col-xs-12 col-sm-8 col-md-7 col-lg-6">
-            <form class="searchbox-consortium searchForm">
-              <input class="searchForm_lookfor form-control search-query" placeholder="Hae organisaation aineistoista..." />
-              <button type="submit" class="btn btn-primary"><i class="fa fa-search" aria-hidden="true"></i> <span class="sr-only">Hae</span></button>
+            <form class="searchbox-consortium searchForm" action="<?=$this->url('search-results')?>">
+              <input class="searchForm_lookfor form-control search-query" placeholder="<?=$this->transEsc('organisation-info-search')?>" />
+              <input type="hidden" name="filter[]" value="<?=$this->escapeHtmlAttr("{$this->buildingFacetOperator}building:\"{$building}\"")?>" />
+              <button type="submit" class="btn btn-primary"><i class="fa fa-search" aria-hidden="true"></i> <span class="sr-only"><?=$this->translate('Search from collection')?></span></button>
             </form>
           </div>
-          <div class="gauge-meter col-xs-12 col-sm-4 col-md-5 col-lg-6">
-            <canvas width="75" height="60" id="finna-coverage-gauge"></canvas>
-            <span class="gauge-value">90 %</span>
-            <span class="gauge-label">Aineistosta Finnassa</span>
+          <div class="gauge-meter col-xs-12 col-sm-4 col-md-5 col-lg-6 hide">
+            <canvas width="75" height="60" class="finna-coverage-gauge"></canvas>
+            <span class="gauge-value"><span class="val"></span> %</span>
+            <span class="gauge-label"><?=$this->translate('organisation-info-coverage')?></span>
           </div>
         </div>
       </div>
-      <div class="col-sm-3 sidebar">
+      <div class="col-sm-3 sidebar links hide">
         <h4>Lue lisää</h4>
         <ul class="list-group">
-          <li class="list-group-item"><a href="http://www.fi">Yhteystiedot</a></li>
-          <li class="list-group-item"><a href="http://www.fi">Flickr</a></li>
-          <li class="list-group-item"><a href="http://www.fi">Karanot-tietokanta</a></li>
+          <li class="list-group-item template"><a href="#"></a></li>
         </ul>
       </div>
     </div>
   </div>
   <? endif; ?>
 
-  <div class="col-xs-12 consortium-notification hide"></div>
 
-  <div class="row office-search" id="consortium-service-point-section">
+  <div class="office-search navi-section" id="consortium-service-point-section">
     <? if ($this->consortiumInfo): ?>
-    <h3 class="col-xs-12"><?=$this->transEsc('consortium-service-point')?></h3>
+    <div><h3 class="col-xs-12"><?=$this->transEsc('organisation-info-navi-service')?></h3></div>
     <? endif; ?>
+    <div class="consortium-notification hide"></div>
     <div class="col-sm-6 col-md-5">
       <form class="form-inline searchbox-office office-search-notifications">
         <input id="office-search" type="text" placeholder="" />
@@ -141,9 +142,7 @@
 
   <div class="row office map <?=$this->escapeHtmlAttr($this->mapWidget)?>">
     <div class="col-xs-11 col-sm-12">
-      <div id="openlayers-canvas" class="map-widget">
-        <i class="fa fa-spinner fa-spin" style="position:absolute;top: 48%; left: 48%; text-align: center;"></i>
-      </div>
+      <div id="openlayers-canvas" class="map-widget"></div>
       <div id="marker-tooltip" class="hide"></div>
     </div>
   </div>
@@ -194,7 +193,7 @@
         </h4>
         <div id="collapse1" class="panel-collapse collapse in">
           <img class="building-image" src="#" />
-          <p class="buildingo-name"></p>
+          <p class="building-name"></p>
           <p class="building-year info-element"><?=$this->translate('organisation-info-building-year')?>: <span></span></p>
           <p class="office-description description-long info-element"></p>
         </div>
@@ -228,31 +227,3 @@
     </div>
   </div>
 </div>
-
-<script>
-var elementScroll = $("[id*=consortium-]");
-$( ".consortium-navigation-list .scroll" ).each(function( index ) {
-    $(this).click(function() {
-        $('html, body').animate({
-            scrollTop: $(elementScroll[index]).offset().top-40
-        }, 200);
-    });
-});
-
-
-var opts = {
-  lines: 0, // The number of lines to draw
-  angle: 0.1, // The length of each line
-  lineWidth: .09, // The line thickness
-  limitMax: 'true',   // If true, the pointer will not go past the end of the gauge
-  colorStart: '#00A2B5',   // Colors
-  colorStop: '#00A2B5',    // just experiment with them
-  strokeColor: '#e5e5e5',   // to see which ones work best for you
-  generateGradient: true
-};
-var target = document.getElementById('finna-coverage-gauge'); // your canvas element
-var gauge = new Donut(target).setOptions(opts); // create sexy gauge!
-gauge.maxValue = 100; // set max gauge value
-gauge.animationSpeed = 10; // set animation speed (32 is default value)
-gauge.set(90); // set actual value
-</script>

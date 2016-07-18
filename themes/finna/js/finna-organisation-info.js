@@ -159,8 +159,8 @@ organisationInfo: function() {
     };
 
     var getField = function(obj, field, organisationId) {
-        if (field in obj && typeof obj[field] != 'undefined') {
-            return obj[field];
+        if (res = finna.common.getField(obj, field)) {
+            return res;
         }
         if (organisationId) {
             if (cache = getCachedDetails(organisationId)) {

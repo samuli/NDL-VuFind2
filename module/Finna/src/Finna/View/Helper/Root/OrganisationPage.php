@@ -46,13 +46,22 @@ class OrganisationPage extends \Zend\View\Helper\AbstractHelper
     protected $config;
 
     /**
+     * Building facet operator (AND, OR)
+     *
+     * @var string
+     */
+    protected $buildingFacetOperator;
+
+    /**
      * Constructor
      *
-     * @param Zend\Config\Config $config Configuration
+     * @param Zend\Config\Config $config                Configuration
+     * @param string             $buildingFacetOperator Building facet operator
      */
-    public function __construct(\Zend\Config\Config $config)
+    public function __construct(\Zend\Config\Config $config, $buildingFacetOperator)
     {
         $this->config = $config;
+        $this->buildingFacetOperator = $buildingFacetOperator;
     }
 
     /**
@@ -87,6 +96,7 @@ class OrganisationPage extends \Zend\View\Helper\AbstractHelper
 
         $params = [
             'id' => $id,
+            'buildingFacetOperator' => $this->buildingFacetOperator,
             'consortiumInfo' => $consortiumInfo,
             'mapTileUrl' => $mapTileUrl,
             'attribution' => $attribution

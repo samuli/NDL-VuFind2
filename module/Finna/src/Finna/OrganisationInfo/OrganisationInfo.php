@@ -249,7 +249,9 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             $consortiumId = $response['id'];
 
             $consortium = [];
-            foreach (['name', 'logo', 'description', 'homepage'] as $field) {
+            foreach (
+                ['name', 'logo', 'description', 'homepage'] as $field
+            ) {
                 $val = $response[$field];
                 if (!empty($val)) {
                     $consortium[$field] = $val;
@@ -269,6 +271,16 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                         $finna[$field] = $val;
                     }
                 }
+                
+                // fake data
+                $finna['usage_perc'] = rand()/getrandmax();
+
+                $finna['links'] = [
+                    ['name' => 'Yhteystiedot', 'value' => 'http://www.finna.fi'],
+                    ['name' => 'Flickr', 'value' => 'http://www.finna.fi'],
+                    ['name' => 'Karanot-tietokanta', 'value' => 'http://www.finna.fi']
+                ];
+
                 if (!empty($finna)) {
                     $consortium['finna'] = $finna;
                 }
