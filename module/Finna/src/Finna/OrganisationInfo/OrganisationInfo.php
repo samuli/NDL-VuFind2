@@ -304,45 +304,47 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             $consortiumId = $response['id'];
 
             $consortium = [];
-            foreach (
-                ['name', 'description', 'homepage'] as $field
-            ) {
-                $val = $this->getField($response, $field);
-                if (!empty($val)) {
-                    $consortium[$field] = $val;
-                    if ($field == 'homepage') {
-                        $parts = parse_url($val);
-                        if (isset($parts['host'])) {
-                            $val = $parts['host'];
-                            $consortium['homepageLabel'] = $val;
+            if ($target == 'page') {
+                foreach (
+                    ['name', 'description', 'homepage'] as $field
+                ) {
+                    $val = $this->getField($response, $field);
+                    if (!empty($val)) {
+                        $consortium[$field] = $val;
+                        if ($field == 'homepage') {
+                            $parts = parse_url($val);
+                            if (isset($parts['host'])) {
+                                $val = $parts['host'];
+                                $consortium['homepageLabel'] = $val;
+                            }
                         }
                     }
                 }
-            }
-            if (!empty($response['logo'])) {
-                $consortium['logo'] = $response['logo'];
-            }
-
-            if (isset($response['finna'])) {
-                $finna = [];
-                foreach (['usage_info', 'notification'] as $field) {
-                    $val = $this->getField($response['finna'], $field);
-                    if (!empty($val)) {
-                        $finna[$field] = $val;
-                    }
+                if (!empty($response['logo'])) {
+                    $consortium['logo'] = $response['logo'];
                 }
                 
-                // fake data
-                $finna['usage_perc'] = rand()/getrandmax();
-
-                $finna['links'] = [
-                    ['name' => 'Yhteystiedot', 'value' => 'http://www.finna.fi'],
-                    ['name' => 'Flickr', 'value' => 'http://www.finna.fi'],
-                    ['name' => 'Karanot-tietokanta', 'value' => 'http://www.finna.fi']
-                ];
-
-                if (!empty($finna)) {
-                    $consortium['finna'] = $finna;
+                if (isset($response['finna'])) {
+                    $finna = [];
+                    foreach (['usage_info', 'notification'] as $field) {
+                        $val = $this->getField($response['finna'], $field);
+                        if (!empty($val)) {
+                            $finna[$field] = $val;
+                        }
+                    }
+                    
+                    // fake data
+                    $finna['usage_perc'] = rand()/getrandmax();
+                    
+                    $finna['links'] = [
+                        ['name' => 'Yhteystiedot', 'value' => 'http://www.finna.fi'],
+                        ['name' => 'Flickr', 'value' => 'http://www.finna.fi'],
+                        ['name' => 'Karanot-tietokanta', 'value' => 'http://www.finna.fi']
+                    ];
+                    
+                    if (!empty($finna)) {
+                        $consortium['finna'] = $finna;
+                    }
                 }
             }
             $consortium['id'] = $consortiumId;
