@@ -1,16 +1,39 @@
 [General]
 enabled = 0
-language = fi
+
+
+; Language settings.
+; Language codes are given in Kirjastohakemisto format (fi, sv, en...)
+
+; Language version used for translated strings. 
+; If defined, this overrides the current user language.
+; language = fi
+
+; Fallback language version to use when no translation has been defined for the current language.
+fallbackLanguage = 'fi'
+
+; Language versions with translations.
+languages[] = fi
+languages[] = sv
+languages[] = en
+
+
+; Show consortium info
 consortiumInfo = 0
 
-; Default organisation id for widgets
+; Default organisation (Kirjastohakemisto finna_id)
 defaultOrganisation = vaski
 
 ; How long content is cached locally in minutes.
 ; Set this to false or comment out to disable caching.
 cachetime = 0
 
+; Kirjastohakemisto API URL
 url = "https://api.kirjastot.fi/v3"
+
+; URL pattern for route and map
+routeUrl = "http://www.matka.fi/fi/?keya=&keyb={street},%20{city}"
+mapUrl = "http://maps.google.com/?q={street}%20{city}"
 
 ; OpenStreetMap
 ;mapTileUrl = 'http://tile.openstreetmap.org/{z}/{x}/{y}.png'
@@ -20,14 +43,8 @@ mapTileUrl = 'https://api.digitransit.fi/map/v1/hsl-map/{z}/{x}/{y}.png'
 
 attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
 
-
-routeUrl = "http://www.matka.fi/fi/?keya=&keyb={street},%20{city}"
-mapUrl = "http://maps.google.com/?q={street}%20{city}"
-
-services[55290] = "wifi"
-services[55318] = "wifi"
-services[55342] = "print"
-services[55266] = "print"
-services[55322] = "print"
+; List of services displayed in the opening times widget
+services[wifi] = "55871,55519,55621,55377,55696,55328,55799,55339,55620,55318,55376,55575,55290,55584,55717,55304"
+services[print] = "55355,55752,55856,55848,55628,55805,55375,55549,55342,55327,55332,55333,55749"
 
 

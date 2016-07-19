@@ -152,7 +152,7 @@ finna = $.extend(finna, {
                 holder.find('.consortium-navigation-list .scroll').each(function(ind) {
                     $(this).click(function() {
                         $('html, body').animate({
-                            scrollTop: $(sections[ind]).offset().top-40
+                            scrollTop: $(sections[ind]).offset().top-45
                         }, 200);
                     });
                 });

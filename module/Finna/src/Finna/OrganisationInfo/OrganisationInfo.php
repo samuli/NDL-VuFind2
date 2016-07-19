@@ -79,6 +79,20 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
     protected $translator;
 
     /**
+     * Language version
+     *
+     * @var string
+     */
+    protected $language;
+
+    /**
+     * Fallback language version
+     *
+     * @var string
+     */
+    protected $fallbackLanguage;
+
+    /**
      * Constructor.
      *
      * @param Zend\Config\Config             $config       Configuration
@@ -95,8 +109,54 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
         $this->viewRenderer = $viewRenderer;
         $this->http = $http;
         $this->translator = $translator;
+
+        $allLanguages = isset($config->General->languages)
+            ? $config->General->languages->toArray() : [];
+
+        $language = isset($config->General->language)
+            ? $config->General->language
+            : $this->translator->getLocale();
+
+        $this->language = $this->validateLanguage($language, $allLanguages);
+
+        if (isset($config->General->fallbackLanguage)) {
+            $fallback = $config->General->fallbackLanguage;
+            $fallback = $this->validateLanguage($fallback, $allLanguages);
+            if ($fallback != $this->language) {
+                $this->fallbackLanguage = $fallback;                
+            }
+        }
     }
 
+    /**
+     * Validate language version.
+     *
+     * @param string $language     Language version
+     * @param array  $allLanguages List of valid languages.
+     *
+     * @return string Language version
+     */
+    protected function validateLanguage($language, $allLanguages)
+    {
+        $map = ['en-gb' => 'en'];
+        if (isset($map[$language])) {
+            $language = $map[$language];
+        }
+
+        if (!in_array($language, $allLanguages)) {
+            $language = 'fi';
+        }
+
+        return $language;
+    }
+
+    /**
+     * Convert building code to Kirjastohakemisto finna_id
+     *
+     * @param string|array $building Building
+     *
+     * @return string ID
+     */
     public function getOrganisationInfoId($building)
     {
         if (is_array($building)) {
@@ -115,11 +175,10 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
      *
      * @param string $parent   Parent organisation
      * @param array  $params   Query parameters
-     * @param string $language User language 
      *
      * @return mixed array of results or false on error.
      */
-    public function query($parent, $params, $language)
+    public function query($parent, $params)
     {
         $id = null;
         if (isset($params['id'])) {
@@ -144,19 +203,12 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             return false;
         }
 
-        if (isset($this->config->General->language)) {
-            // overrride user language
-            $language = $this->config->General->language;
-        }
-
         $target = isset($params['target']) ? $params['target'] : 'widget';
         $action = isset($params['action']) ? $params['action'] : 'list';
 
         $id = null;
         if (isset($params['id'])) {
             $id = $params['id'];
-            //} else if (isset($this->config['default'])) {
-            //$id = $this->config['default'];
         }
         $consortium
             = isset($params['consortium']) ? $params['consortium'] : null;
@@ -203,7 +255,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             $url .= '/consortium';
             $params = [
                 'finna:id' => $parent,
-                'lang' => $language
+                'lang' => $this->language
             ];
             if (count($parents) > 1) {
                 $params['with'] = 'finna';
@@ -235,9 +287,12 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             $url .= '/consortium';
             $params = [
                 'finna:id' => $parent,
-                'lang' => $language,
                 'with' => 'finna'
             ];
+            if (!$this->fallbackLanguage) {
+                $params['lang'] = $this->language;
+            }
+
             $response = $this->fetchData($url, $params);
             if (!$response
                 || !$response['total'] || !isset($response['items'][0]['id'])
@@ -250,9 +305,9 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
 
             $consortium = [];
             foreach (
-                ['name', 'logo', 'description', 'homepage'] as $field
+                ['name', 'description', 'homepage'] as $field
             ) {
-                $val = $response[$field];
+                $val = $this->getField($response, $field);
                 if (!empty($val)) {
                     $consortium[$field] = $val;
                     if ($field == 'homepage') {
@@ -264,9 +319,14 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                     }
                 }
             }
+            if (!empty($response['logo'])) {
+                $consortium['logo'] = $response['logo'];
+            }
+
             if (isset($response['finna'])) {
                 $finna = [];
-                foreach ($response['finna'] as $field => $val) {
+                foreach (['usage_info', 'notification'] as $field) {
+                    $val = $this->getField($response['finna'], $field);
                     if (!empty($val)) {
                         $finna[$field] = $val;
                     }
@@ -292,13 +352,15 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             // Organisation list for a consortium with schedules for the current week
             $url .= '/organisation';
             $params = [
-                'lang' => $language,
                 'consortium' => $consortiumId,
                 'with' => 'schedules',
                 'period.start' => $startDate,
                 'period.end' => $endDate,
                 'refs' => 'period'
             ];
+            if (!$this->fallbackLanguage) {
+                $params['lang'] = $this->language;
+            }
 
             $response = $this->fetchData($url, $params);
             if (!$response) {
@@ -307,7 +369,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             }
 
             $result = ['id' => $id, 'consortium' => $consortium];
-            $result['list'] = $this->parseList($language, $target, $response);
+            $result['list'] = $this->parseList($target, $response);
             $result['weekNum'] = $weekNum;
 
             // References
@@ -315,12 +377,12 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                 $scheduleDescriptions = [];
                 foreach ($response['references']['period'] as $key => $period) {
                     $id = $period['organisation'];
-                    if (!empty($period['description'][$language])) {
+                    $scheduleDesc = $this->getField($period, 'description');
+                    if (!empty($scheduleDesc)) {
                         if (!isset($scheduleDescriptions[$id])) {
                             $scheduleDescriptions[$id] = [];
                         }
-                        $scheduleDescriptions[$id][]
-                            = $period['description'][$language];
+                        $scheduleDescriptions[$id][] = $scheduleDesc;
                     }
                 }
                 foreach ($scheduleDescriptions as $id => $descriptions) {
@@ -351,12 +413,14 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
 
             $params = [
                 'id' => $id,
-                'lang' => $language,
                 'with' => $with,
                 'period.start' => $startDate,
                 'period.end' => $endDate,
                 'refs' => 'period'
             ];
+            if (!$this->fallbackLanguage) {
+                $params['lang'] = $this->language;
+            }
 
             $response = $this->fetchData($url, $params);
             if (!$response) {
@@ -371,7 +435,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             // Details
             $response = $response['items'][0];
             $result = $this->parseDetails(
-                $language, $target, $response, $schedules, $allServices
+                $target, $response, $schedules, $allServices
             );
 
             $result['id'] = $id;
@@ -458,13 +522,12 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
     /**
      * Parse organisation list.
      *
-     * @param string $language User language
      * @param string $target   page|widge
      * @param object $response JSON-object
      *
      * @return array
      */
-    protected function parseList($language, $target, $response)
+    protected function parseList($target, $response)
     {
         $mapUrls = ['routeUrl', 'mapUrl'];
         $mapUrlConf = [];
@@ -482,14 +545,15 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
 
         $result = [];
         foreach ($response['items'] as $item) {
-            if (empty($item['name'])) {
+            $name = $this->getField($item, 'name');
+            if (empty($name)) {
                 continue;
             }
 
             $data = [
                 'id' => $item['id'],
-                'name' => $item['name'],
-                'shortName' => $item['short_name'],
+                'name' => $name,
+                'shortName' => $this->getField($item, 'short_name'),
                 'slug' => $item['slug'],
                 'type' => $item['type']
             ];
@@ -500,35 +564,41 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
 
             $fields = ['homepage', 'email'];
             foreach ($fields as $field) {
-                if (!empty($item[$field])) {
-                    $data[$field] = $item[$field];
+                if ($val = $this->getField($item, $field)) {
+                    $data[$field] = $val;
                 }
             }
 
-            $address = [];
-            foreach (['street', 'zipcode', 'city', 'coordinates'] as $addressField) {
-                if (!empty($item['address'][$addressField])) {
-                    $address[$addressField] = $item['address'][$addressField];
-                    if ($addressField == 'coordinates') {
-                        $address[$addressField]['lat']
-                            = (float)$address[$addressField]['lat'];
-                        $address[$addressField]['lon']
-                            = (float)$address[$addressField]['lon'];
-                    }
+            if (!empty($item['address'])) {
+                $address = [];
+                foreach (['street', 'zipcode', 'city'] as $addressField) {
+                    $address[$addressField] 
+                        = $this->getField($item['address'], $addressField);
+                }
+                if (!empty($item['address']['coordinates'])) {
+                    $coordinates = $item['address']['coordinates'];
+                    $coordinates['lat'] = isset($coordinates['lat'])
+                        ? (float)$coordinates['lat'] : null;
+                    $coordinates['lon'] = isset($coordinates['lon'])
+                        ? (float)$coordinates['lon'] : null;
+
+                    $address['coordinates'] = $coordinates;
+                }
+                if (!empty($address)) {
+                    $data['address'] = $address;
                 }
             }
 
-            if (!empty($address)) {
-                $data['address'] = $address;
-            }
-
-            foreach ($mapUrlConf as $map => $mapConf) {
-                $mapUrl = $mapConf['base'];
-                if (!empty($mapConf['params'])) {
-                    $replace = [];
-                    foreach ($mapConf['params'] as $param) {
-                        if (!empty($item['address'][$param])) {
-                            $replace[$param] = $item['address'][$param];
+            if (!empty($item['address'])) {
+                foreach ($mapUrlConf as $map => $mapConf) {
+                    $mapUrl = $mapConf['base'];
+                    if (!empty($mapConf['params'])) {
+                        $replace = [];
+                        foreach ($mapConf['params'] as $param) {
+                            $val = $this->getField($item['address'], $param, 'fi');
+                            if (!empty($val)) {
+                                $replace[$param] = $val;
+                            }
                         }
                     }
                     foreach ($replace as $param => $val) {
@@ -536,8 +606,8 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                             '{' . $param . '}', rawurlencode($val), $mapUrl
                         );
                     }
+                    $data[$map] = $mapUrl;
                 }
-                $data[$map] = $mapUrl;
             }
 
             $data['openTimes'] = $this->parseSchedules($item['schedules']);
@@ -565,7 +635,6 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
     /**
      * Parse organisation details.
      *
-     * @param string  $language           User language
      * @param string  $target             page|widge
      * @param object  $response           JSON-object
      * @param boolean $schedules          Include schedules in the response?
@@ -574,7 +643,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
      * @return array
      */
     protected function parseDetails(
-        $language, $target, $response, $schedules, $includeAllServices = false
+        $target, $response, $schedules, $includeAllServices = false
     ) {
         $result = [];
 
@@ -585,8 +654,11 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
         if (!empty($response['phone_numbers'])) {
             $phones = [];
             foreach ($response['phone_numbers'] as $phone) {
-                $phones[]
-                    = ['name' => $phone['name'], 'number' => $phone['number']];
+                $name = $this->getField($phone, 'name');
+                if ($name) {
+                    $phones[]
+                        = ['name' => $name, 'number' => $phone['number']];
+                }
             }
             try {
                 $result['phone'] = $this->viewRenderer->partial(
@@ -612,7 +684,11 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
         if (!empty($response['links'])) {
             $links = [];
             foreach ($response['links'] as $link) {
-                $links[] = ['name' => $link['name'], 'url' => $link['url']];
+                $name = $this->getField($link, 'name');
+                $url = $this->getField($link, 'url');
+                if ($name && $url) {
+                    $links[] = ['name' => $name, 'url' => $url];
+                }
             }
             $result['links'] = $links;
         }
@@ -620,16 +696,24 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
         if (!empty($response['services'])
             && ($includeAllServices || !empty($this->config->General->services))
         ) {
-            $servicesMap = $this->config->General->services;
+            $servicesMap = [];
+            foreach ($this->config->General->services->toArray() as $key => $ids) {
+                $servicesMap[$key] = explode(',', $ids);
+            }
+            error_log("services: " . var_export($response['services'], true) . ", all: " . var_export($servicesMap, true));
+
             $services = $allServices = [];
             foreach ($response['services'] as $service) {
-                if (in_array($service['id'], array_keys($servicesMap))) {
-                    $services[] = $servicesMap[$service['id']];
+                foreach ($servicesMap as $key => $ids) {
+                    if (in_array($service['id'], $ids)) {
+                        $services[] = $key;
+                    }
                 }
                 if ($includeAllServices) {
-                    $data = [$service['name']];
-                    if (!empty($service['short_description'])) {
-                        $data[] = $service['short_description'];
+                    $data = [$this->getField($service, 'name')];
+                    $desc = $this->getField($service, 'short_description');
+                    if ($desc) {
+                        $data[] = $desc;
                     }
                     $allServices[] = $data;
                 }
@@ -642,14 +726,17 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             }
         }
 
-        if (!empty($response['extra']['description'])) {
+        $extra = $response['extra'];
+        $desc = $this->getField($extra, 'description');
+        if (!empty($desc)) {
             $result['description']
-                = html_entity_decode($response['extra']['description']);
+                = html_entity_decode($desc);
         }
 
-        if (!empty($response['extra']['slogan'])) {
+        $slogan = $this->getField($extra, 'slogan');
+        if (!empty($slogan)) {
             $result['slogan']
-                = html_entity_decode($response['extra']['slogan']);
+                = html_entity_decode($slogan);
         }
 
         if (!empty($response['extra']['building']['construction_year'])) {
@@ -730,8 +817,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             $closed
                 = isset($day['sections']['selfservice']['closed']) ? true : false;
 
-            $info = isset($day['info'])
-                ? $day['info'] : null;
+            $info = $this->getField($day, 'info');
 
             $staffTimes = $selfserviceTimes = [];
             // Self service times
@@ -849,4 +935,41 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
         }
         return $parts[0] . ':' . $parts[1];
     }
+
+    /**
+     * Return object field.
+     *
+     * @param array  $obj      Object
+     * @param string $field    Field
+     * @param string $language Language version. If not defined, 
+     * the configured language versions is used.
+     *
+     * @return mixed
+     */
+    protected function getField($obj, $field, $language = false)
+    {
+        if (!isset($obj[$field])) {
+            return null;
+        }
+
+        $data = $obj[$field];
+
+        if (!is_array($data)) {
+            return $data;
+        }
+
+        if ($language && !empty($data[$language])) {
+            return $data[$language];
+        }
+        
+        if (!empty($data[$this->language])) {
+            return $data[$this->language];
+        }
+
+        if ($this->fallbackLanguage && !empty($data[$this->fallbackLanguage])) {
+            return $data[$this->fallbackLanguage];
+        }
+
+        return null;
+    }    
 }

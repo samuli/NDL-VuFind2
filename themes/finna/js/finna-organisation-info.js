@@ -87,20 +87,18 @@ organisationInfo: function() {
             }
         });
         
-        if (mapUrl = getField(data, 'mapUrl')) {
-            var address = '';
-            if (street = getField(data.address, 'street')) {
-                address += street;
-            }
-            if (zipcode = getField(data.address, 'zipcode')) {
-                address += ', ' + zipcode;
-            }
-            if (city = getField(data.address, 'city')) {
-                address += ' ' + city;
-            }
-
-            details['address'] = address;
+        var address = '';
+        if (street = getField(data.address, 'street')) {
+            address += street;
         }
+        if (zipcode = getField(data.address, 'zipcode')) {
+            address += ', ' + zipcode;
+        }
+        if (city = getField(data.address, 'city')) {
+            address += ' ' + city;
+        }
+        
+        details['address'] = address;
 
         if (cached = getCachedDetails(id)) {
             details = $.extend(details, {details: cached});

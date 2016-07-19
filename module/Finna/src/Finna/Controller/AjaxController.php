@@ -966,7 +966,7 @@ class AjaxController extends \VuFind\Controller\AjaxController
 
         $service = $this->getServiceLocator()->get('Finna\OrganisationInfo');
         try {
-            $response = $service->query($parent, $params, $lang);
+            $response = $service->query($parent, $params);
         } catch (\Exception $e) {
             return $this->output(
                 "Error reading organisation info (parent $parent)",
