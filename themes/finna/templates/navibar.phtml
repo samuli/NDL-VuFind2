@@ -17,7 +17,6 @@
         <ul role="presentation" class="dropdown-menu">
           <? foreach ($val['items'] as $itemKey => $itemVal): ?>
           <? if (!($itemUrl = $this->navibar()->getMenuItemUrl($itemVal))) { continue; } ?>
-          <? if ((0 !== strncmp($itemVal['url'], 'combined-', 9) || $this->combined()->isAvailable()) && (0 !== strncmp($itemVal['url'], 'metalib-', 8) || $this->metalib()->isAvailable()) && (0 !== strncmp($itemVal['url'], 'primo-', 6) || $this->primo()->isAvailable())): ?>
           <li role="menuitem">
             <a<?= isset($itemVal['target']) ? ' target="' . $this->escapeHtmlAttr($itemVal['target']) . '"' : ''?> href="<?=$itemUrl?>">
               <div><?= $this->transEsc($itemVal['label']) ?></div>
@@ -26,7 +25,6 @@
               <? endif; ?>
             </a>
           </li>
-          <? endif; ?>
           <? endforeach; ?>
         </ul>
       </li>

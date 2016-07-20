@@ -46,6 +46,13 @@ class Navibar extends \Zend\View\Helper\AbstractHelper
     protected $browseHelper;
 
     /**
+     * Combined results view helper
+     *
+     * @var Zend\View\Helper\Combined
+     */
+    protected $combinedHelper;
+
+    /**
      * MetaLib view helper
      *
      * @var Zend\View\Helper\Url
@@ -134,6 +141,7 @@ class Navibar extends \Zend\View\Helper\AbstractHelper
     {
         if (!$this->menuItems || $lng != $this->language) {
             $this->browseHelper = $this->getView()->plugin('browse');
+            $this->combinedHelper = $this->getView()->plugin('combined');
             $this->metaLibHelper = $this->getView()->plugin('metalib');
             $this->primoHelper = $this->getView()->plugin('primo');
             $this->urlHelper = $this->getView()->plugin('url');
@@ -279,27 +287,8 @@ class Navibar extends \Zend\View\Helper\AbstractHelper
                     $parseUrl($action)
                 );
 
-                if ($option['route']) {
-                    if (strpos('metalib-', $option['url']) === 0) {
-                        if (!$this->metaLibHelper->isAvailable()) {
-                            continue;
-                        }
-                    }
-                    if (strpos('primo-', $option['url']) === 0) {
-                        if (!$this->primoHelper->isAvailable()) {
-                            continue;
-                        }
-                    }
-                    if ($option['url'] === 'browse-database'
-                        && !$this->browseHelper->isAvailable('Database')
-                    ) {
-                        continue;
-                    }
-                    if ($option['url'] === 'browse-journal'
-                        && !$this->browseHelper->isAvailable('Journal')
-                    ) {
-                        continue;
-                    }
+                if (!$this->enableMenuItem($option)) {
+                    continue;
                 }
 
                 $desc = 'menu_' . $itemKey . '_desc';
@@ -318,6 +307,39 @@ class Navibar extends \Zend\View\Helper\AbstractHelper
         $this->menuItems = $this->sortMenuItems($result, $sortData);
     }
 
+    /**
+     * Check if menu item may be enabled.
+     *
+     * @param array $item Menu item configuration
+     *
+     * @return boolean
+     */
+    protected function enableMenuItem($item)
+    {
+        if (empty($item['route'])) {
+            return true;
+        }
+
+        $url = $item['url'];
+
+        if (strpos($url, 'combined-') === 0) {
+            return $this->combinedHelper->isAvailable();
+        }
+        if (strpos($url, 'metalib-') === 0) {
+            return $this->metaLibHelper->isAvailable();
+        }
+        if (strpos($url, 'primo-') === 0) {
+            return $this->primoHelper->isAvailable();
+        }
+        if ($url === 'browse-database') {
+            return $this->browseHelper->isAvailable('Database');
+        }
+        if ($url === 'browse-journal') {
+            return $this->browseHelper->isAvailable('Journal');
+        }
+
+        return true;
+    }
     /**
      * Separate menu data from menu order data (__[menu]_sort__ sections).
      *
