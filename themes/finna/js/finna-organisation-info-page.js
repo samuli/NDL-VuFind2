@@ -9,9 +9,12 @@ finna.organisationInfoPage = (function() {
     var map = null;
     var mapHolder = null;
     var consortiumInfo = false;
+    var consortium = false;
 
     var loadOrganisationList = function(id) {
         service.getOrganisations('page', parent, function(response) {
+            holder.toggleClass('loading', false);
+
             if (response) {
                 var cnt = 0;
                 $.each(response['list'], function(ind, obj) {
@@ -30,15 +33,31 @@ finna.organisationInfoPage = (function() {
                     if (typeof id != 'undefined') {
                         updateSelectedOrganisation(id);
                     }
+                } else {
+                    holder.find('.office-search').hide();
                 }
 
                 updateConsortiumNotification(response);
                 if (consortiumInfo) {
-                    updateConsortiumInfo(response);
+                    if (cnt > 0) {
+                        consortium.enableConsortiumNaviItem('service');
+                    }
+                    consortium.updateConsortiumInfo(response, organisationList);
+                    consortium.initConsortiumNavi();
                 }
+
                 updateURL = true;
+            } else {
+                err();
             }
         });
+    };
+
+    var err = function() {
+        $('<div/>')
+            .addClass('alert alert-danger')
+            .text(VuFind.translate('error_occurred'))
+            .appendTo(holder.empty());
     };
 
     var initMap = function() {
@@ -51,16 +70,6 @@ finna.organisationInfoPage = (function() {
             // Map data (info bubble, icon)
             var bubble = $('.map-bubble-template').clone();
             bubble.find('.name').text(obj.name);
-            var address = "";
-            if ('street' in obj.address) {
-                address += obj.address.street;
-            }
-            if ('zipcode' in obj.address) {
-                address += (', ' + obj.address.zipcode);
-            }                
-
-            bubble.find('.address').text(address);
-            
             var openNow = null;
             if ('openTimes' in obj && 'openNow' in obj['openTimes']) {
                 openNow = obj.openTimes.openNow;
@@ -119,9 +128,6 @@ finna.organisationInfoPage = (function() {
             $(this).hide();
             $('.expand-map').show();
         });
-
-        // hide spinner when markers are loaded and find information
-        mapHolder.find('.fa-spinner').hide(); // TODO: tarvitaanko?
     };
     
     var initSearch = function() {
@@ -184,6 +190,7 @@ finna.organisationInfoPage = (function() {
         $('#marker-tooltip').hide();
     };
 
+    
     var updateConsortiumNotification = function(data) {
         if ('consortium' in data) {
             if ('finna' in data.consortium
@@ -192,66 +199,6 @@ finna.organisationInfoPage = (function() {
                    holder.find('.consortium-notification')
                        .html(data.consortium.finna.notification).removeClass('hide');
                }
-        }
-    };
-
-    var updateConsortiumInfo = function(data) {
-        var info = holder.find('.consortium-info');
-        var logo = consortiumHomepage = consortiumHomepageLabel = null;
-
-        // Info
-        if ('consortium' in data) {
-            var name = getField(data.consortium, 'name');
-            var desc = getField(data.consortium, 'description');
-            consortiumHomepage = getField(data.consortium, 'homepage');
-            consortiumHomepageLabel = getField(data.consortium, 'homepageLabel');
-
-            if (name) {
-                info.find('.name').text(name).removeClass('hide');
-            }
-            if (desc) {
-                info.find('.description').html(desc).removeClass('hide');
-            }
-            if ('logo' in data.consortium) {
-                logo = getField(data.consortium.logo, 'small');
-                $('<img/>').attr('src', logo).appendTo(info.find('.consortium-logo').removeClass('hide'));
-            } else {
-                info.addClass('no-logo');
-            }
-        }
-
-        // Organisation list
-        var listHolder = info.find('.organisation-list');
-        var ul = listHolder.find('ul');
-        if (consortiumHomepage) {
-            var li = $('<li/>');
-            var label = consortiumHomepageLabel ? consortiumHomepageLabel : consortiumHomepage;
-            $('<a/>').attr('href', consortiumHomepage).text(label).appendTo(li);
-            li.appendTo(ul);
-        }
-
-        var list = false;
-        $.each(organisationList, function(id, obj) {
-            if (obj.type == 'facility') {
-                var name = obj.name;
-                if ('shortName' in obj) {
-                    name = obj.shortName;
-                }
-                var li = $('<li/>');
-                var homepage = getField(obj, 'homepage');
-                if (homepage) {
-                    list = true;
-                    $('<a/>').attr('href', homepage).text(name).appendTo(li);
-                    li.appendTo(ul);
-                }
-            }
-        });
-
-        if (desc || consortiumHomepage || list) {
-            listHolder.addClass('truncate-field');
-            finna.layout.initTruncate(listHolder.parent());
-        } else {
-            info.remove();
         }
     };
 
@@ -435,13 +382,14 @@ finna.organisationInfoPage = (function() {
     var my = {
         init: function() {
             holder = $('.organisation-info-page');
+            holder.toggleClass('loading', true);
 
             var conf = holder.find('.config');
 
             var library = conf.find('input[name="library"]').val();
             var mapTileUrl = conf.find('input[name="mapTileUrl"]').val();
             var attribution = conf.find('input[name="attribution"]').val();
-            consortiumInfo = conf.find('input[name="consortiumInfo"]').val();
+            consortiumInfo = conf.find('input[name="consortiumInfo"]').val() == 1;
             parent = conf.find('input[name="id"]').val();
             
             if (typeof parent == 'undefined') {
@@ -493,6 +441,12 @@ finna.organisationInfoPage = (function() {
 
             infoWidget.init(widgetHolder, service);
 
+            if (consortiumInfo) {
+                consortium = new finna.organisationInfoPageConsortium();
+                consortium.init(holder);
+            }
+            
+
             window.onhashchange = function() {
                 if (id = getOrganisationFromURL()) {
                     updateSelectedOrganisation(id);
@@ -500,7 +454,7 @@ finna.organisationInfoPage = (function() {
 
                 // Blur so that mobile keyboard is closed
                 $('#office-search').blur();
-            }
+            };
 
             if (hash = getOrganisationFromURL()) {
                 library = hash;
@@ -509,11 +463,6 @@ finna.organisationInfoPage = (function() {
         }
     };
 
-    var getField = function(obj, field) {
-        if (field in obj && typeof obj[field] != 'undefined') {
-            return obj[field];
-        }
-    };
 
     return my;
 

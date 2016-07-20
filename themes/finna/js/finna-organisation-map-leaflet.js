@@ -45,6 +45,8 @@ finna = $.extend(finna, {
             
             // Center popup
             map.on('popupopen', function(e) {
+                map.setZoom(zoomLevel.close, {animate: false});
+
                 var px = map.project(e.popup._latlng); 
                 px.y -= e.popup._container.clientHeight/2;
                 map.panTo(map.unproject(px), {animate: false});
@@ -98,11 +100,10 @@ finna = $.extend(finna, {
 
                     marker.on('click', function(ev) {
                         me.trigger('marker-click', obj.id);
-                        map.setView(ev.latlng, zoomLevel.close, {animate: false});
                     });
 
                     marker
-                        .bindPopup(infoWindowContent)
+                        .bindPopup(infoWindowContent, {zoomAnimation: false, autoPan: false})
                         .addTo(map);
 
                     mapMarkers[obj.id] = marker;
@@ -138,9 +139,6 @@ finna = $.extend(finna, {
                     hideMarker();
                     return;
                 }
-            }
-            if (map.getZoom() != zoomLevel.close) {
-                map.setView(marker.getLatLng(), zoomLevel.close, {animate: false});
             }
 
             marker.openPopup();

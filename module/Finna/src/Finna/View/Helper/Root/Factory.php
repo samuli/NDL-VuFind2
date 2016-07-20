@@ -181,10 +181,26 @@ class Factory extends \VuFind\View\Helper\Root\Factory
      * @return OrganisationPage
      */
     public static function getOrganisationPage(ServiceManager $sm)
-    {
+    {        
+        $facetConfig = $sm->getServiceLocator()->get('VuFind\Config')
+            ->get('facets');
+        
+        $buildingOperator = 'AND';
+        if (isset($facetConfig->Results_Settings->orFacets)) {
+            $orFacets = array_map(
+                'trim', explode(',', $facetConfig->Results_Settings->orFacets)
+            );
+            if (!empty($orFacets[0]) 
+                && ($orFacets[0] == '*' || in_array('building', $orFacets))
+            ) {
+                $buildingOperator = 'OR';
+            }
+        }
+        
         $config = $sm->getServiceLocator()->get('VuFind\Config')
             ->get('organisationInfo');
-        return new OrganisationPage($config);
+
+        return new OrganisationPage($config, $buildingOperator == 'AND' ? '' : '~');
     }
 
     /**
@@ -225,8 +241,9 @@ class Factory extends \VuFind\View\Helper\Root\Factory
     {
         $locator = $sm->getServiceLocator();
         $menuConfig = $locator->get('VuFind\Config')->get('navibar');
+        $organisationInfo = $locator->get('Finna\OrganisationInfo');
 
-        return new Navibar($menuConfig);
+        return new Navibar($menuConfig, $organisationInfo);
     }
 
     /**

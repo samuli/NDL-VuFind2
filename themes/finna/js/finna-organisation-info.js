@@ -87,20 +87,18 @@ organisationInfo: function() {
             }
         });
         
-        if (mapUrl = getField(data, 'mapUrl')) {
-            var address = '';
-            if (street = getField(data.address, 'street')) {
-                address += street;
-            }
-            if (zipcode = getField(data.address, 'zipcode')) {
-                address += ', ' + zipcode;
-            }
-            if (city = getField(data.address, 'city')) {
-                address += ' ' + city;
-            }
-
-            details['address'] = address;
+        var address = '';
+        if (street = getField(data.address, 'street')) {
+            address += street;
         }
+        if (zipcode = getField(data.address, 'zipcode')) {
+            address += ', ' + zipcode;
+        }
+        if (city = getField(data.address, 'city')) {
+            address += ' ' + city;
+        }
+        
+        details['address'] = address;
 
         if (cached = getCachedDetails(id)) {
             details = $.extend(details, {details: cached});
@@ -159,8 +157,8 @@ organisationInfo: function() {
     };
 
     var getField = function(obj, field, organisationId) {
-        if (field in obj && typeof obj[field] != 'undefined') {
-            return obj[field];
+        if (res = finna.common.getField(obj, field)) {
+            return res;
         }
         if (organisationId) {
             if (cache = getCachedDetails(organisationId)) {

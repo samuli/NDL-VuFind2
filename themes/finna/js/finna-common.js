@@ -1,6 +1,13 @@
 /*global VuFind*/
 finna.common = (function() {
 
+    var getField = function(obj, field) {
+        if (field in obj && typeof obj[field] != 'undefined') {
+            return obj[field];
+        }
+        return null;
+    };
+
     var loginSetup = function() {
         // Standalone login form
         $('#loginForm').submit(function(evt) { 
@@ -92,6 +99,7 @@ finna.common = (function() {
     }
     
     var my = {
+        getField: getField,
         init: function() {
             loginSetup();
             initSearchInputListener();
