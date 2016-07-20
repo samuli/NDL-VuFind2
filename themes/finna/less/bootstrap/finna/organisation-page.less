@@ -14,6 +14,9 @@
     @media (min-width: @screen-sm-min) {
         margin-top: 25px;
     }
+    @media (max-width: @screen-xs-max) {
+        margin-bottom: 3px;   
+    }
     & span {
          color: @link-color;
          &:hover {
@@ -23,7 +26,10 @@
     & .marker {
         font-size: 1.5em;
         margin-left: 8px;
-        margin-right: 5px;
+        margin-right: 3px;
+        @media(max-width: @screen-xs-max) {
+            margin-left: 5px;   
+        }
         &.open {
             color: #68c043;
         }
@@ -39,6 +45,13 @@
         & i {
             margin-left: 20px;
             margin-right: 5px;
+        }
+        @media(max-width: @screen-xs-max) {
+            margin-left: -3px;  
+            font-size: 1.1em;
+            & i {
+                margin-right: 2px;   
+            }
         }
     }
 }
@@ -317,6 +330,11 @@
         
     }
     & .office-search {
+        & h3 {
+            font-size: 21px;
+            padding-top: .8em;
+            padding-bottom: 0em;  
+        }
         & .searchbox-office {
             margin: 10px 0px;
             width: 100%;
@@ -366,6 +384,9 @@
     & .office-quick-information {
         margin-top: 20px;
         margin-bottom: 20px;
+        & h2 {
+            font-size: 20px;   
+        }
         & .office-description {
             font-size: 1.2em !important;
             color: @gray-light;
@@ -521,6 +542,7 @@
         & h1 {
             margin-top: 0;   
         }
+
         @media (max-width: @screen-xs-max) {
             & .consortium-logo {
                 max-width: 300px;
@@ -529,10 +551,16 @@
         }
     }
     & .consortium-usage-rights {
+        & h3 {
+            font-size: 21px;
+            padding-top: .8em;
+            padding-bottom: 0.3em;   
+        }
         & .usage-rights-text {
             margin-bottom: 10px;   
         }
         & .sidebar {
+            margin-bottom: 0px;
             & h4 {
                 padding: 12px 15px;
             }
