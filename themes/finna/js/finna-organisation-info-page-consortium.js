@@ -34,24 +34,20 @@ finna = $.extend(finna, {
 
                 var desc = finna.common.getField(consortiumData, 'description');
                 if (desc) {
-                    showConsortiumName = true;
                     info.find('.description').html(desc).removeClass('hide');
                 }
                 var logo = null;
                 if ('logo' in consortiumData) {
-                    showConsortiumName = true;                
                     logo = finna.common.getField(consortiumData.logo, 'small');
                     $('<img/>').attr('src', logo).appendTo(info.find('.consortium-logo').removeClass('hide'));
                 } else {
                     info.addClass('no-logo');
                 }
 
-                if (showConsortiumName) {
-                    var name = finna.common.getField(consortiumData, 'name');
-                    if (name) {
-                        info.removeClass('hide').find('.name').text(name);
-                        enableConsortiumNaviItem('building');
-                    }
+                var name = finna.common.getField(consortiumData, 'name');
+                if (name) {
+                    info.removeClass('hide').find('.name').text(name);
+                    enableConsortiumNaviItem('building');
                 }
 
                 var finnaData = finna.common.getField(consortiumData, 'finna');
@@ -89,6 +85,13 @@ finna = $.extend(finna, {
                     if (usage || usagePerc) {
                         holder.find('.usage-rights-heading').removeClass('hide');
                         enableConsortiumNaviItem('usage');
+                    }
+
+                    var finnaLink = finna.common.getField(finnaData, 'finnaLink');
+                    if (finnaLink) {
+                        var finnaLinkHolder = holder.find('.consortium-usage-rights .finna-link');
+                        finnaLinkHolder.removeClass('hide');
+                        finnaLinkHolder.find('ul li a').attr('href', finnaLink.value).text(finnaLink.name);
                     }
 
                     var links = finna.common.getField(finnaData, 'links');        

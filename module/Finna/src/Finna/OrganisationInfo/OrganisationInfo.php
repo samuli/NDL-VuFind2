@@ -351,7 +351,15 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                         ['name' => 'Flickr', 'value' => 'http://www.finna.fi'],
                         ['name' => 'Karanot-tietokanta', 'value' => 'http://www.finna.fi']
                     ];
-                    
+
+                    $finnaLink = $finnaLinkName = 'https://vaski.finna.fi';
+                    $parts = parse_url($finnaLink);
+                    if (isset($parts['host'])) {
+                        $finnaLinkName = $parts['host'];
+                    }
+                    $finna['finnaLink'] 
+                        = ['name' => $finnaLinkName, 'value' => $finnaLink]; 
+
                     if (!empty($finna)) {
                         $consortium['finna'] = $finna;
                     }
