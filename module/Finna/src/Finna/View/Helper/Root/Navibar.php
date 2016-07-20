@@ -156,11 +156,18 @@ class Navibar extends \Zend\View\Helper\AbstractHelper
             return $data['url'];
         }
 
-        if (isset($data['routeParams'])) {
-            return $this->urlHelper->__invoke($data['url'], $data['routeParams']);
-        } else {
-            return $this->urlHelper->__invoke($data['url']);
+        try {
+            if (isset($data['routeParams'])) {
+                return $this->urlHelper->__invoke(
+                    $data['url'], $data['routeParams']
+                );
+            } else {
+                return $this->urlHelper->__invoke($data['url']);
+            }
+        } catch (\Exception $e) {
         }
+
+        return null;
     }
 
     /**
