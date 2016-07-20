@@ -74,6 +74,13 @@ class Navibar extends \Zend\View\Helper\AbstractHelper
     protected $config;
 
     /**
+     * Organisation info
+     *
+     * @var Finna\OrganisationInfo\OrganisationInfo
+     */
+    protected $organisationInfo;
+
+    /**
      * Menu items
      *
      * @var Array
@@ -90,12 +97,15 @@ class Navibar extends \Zend\View\Helper\AbstractHelper
     /**
      * Constructor
      *
-     * @param Zend\Config\Config $config Menu configuration
+     * @param Zend\Config\Config                      $config Menu configuration
      * custom variables
+     * @param Finna\OrganisationInfo\OrganisationInfo $organisationInfo
+     * Organisation info
      */
-    public function __construct(\Zend\Config\Config $config)
+    public function __construct(\Zend\Config\Config $config, $organisationInfo)
     {
         $this->config = $config;
+        $this->organisationInfo = $organisationInfo;
     }
 
     /**
@@ -273,24 +283,7 @@ class Navibar extends \Zend\View\Helper\AbstractHelper
                 );
 
                 if ($option['route']) {
-                    if (strpos('metalib-', $option['url']) === 0) {
-                        if (!$this->metaLibHelper->isAvailable()) {
-                            continue;
-                        }
-                    }
-                    if (strpos('primo-', $option['url']) === 0) {
-                        if (!$this->primoHelper->isAvailable()) {
-                            continue;
-                        }
-                    }
-                    if ($option['url'] === 'browse-database'
-                        && !$this->browseHelper->isAvailable('Database')
-                    ) {
-                        continue;
-                    }
-                    if ($option['url'] === 'browse-journal'
-                        && !$this->browseHelper->isAvailable('Journal')
-                    ) {
+                    if (!$this->enableMenuItem($option)) {
                         continue;
                     }
                 }
@@ -309,6 +302,45 @@ class Navibar extends \Zend\View\Helper\AbstractHelper
             }
         }
         $this->menuItems = $this->sortMenuItems($result, $sortData);
+    }
+
+    /**
+     * Check if menu item may be enabled.
+     *
+     * @param array $item Menu item configuration
+     *
+     * @return boolean
+     */
+    protected function enableMenuItem($item)
+    {
+        if (empty($item['route'])) {
+            return true;
+        }
+
+        $url = $item['url'];
+        if (strpos('metalib-', $url) === 0) {
+            return $this->metaLibHelper->isAvailable();
+        }
+        if (strpos('primo-', $url) === 0) {
+            return $this->primoHelper->isAvailable();
+        }
+        if ($url === 'browse-database') {
+            return $this->browseHelper->isAvailable('Database');
+        }
+        if ($url === 'browse-journal') {
+            return $this->browseHelper->isAvailable('Journal');
+        }
+
+        if ($url == 'content-page'
+            && isset($item['routeParams']['page'])
+        ) {
+            $page = $item['routeParams']['page'];
+            if ($page == 'organisation') {
+                return $this->organisationInfo->isAvailable();
+            }
+        }
+
+        return true;
     }
 
     /**

@@ -241,8 +241,9 @@ class Factory extends \VuFind\View\Helper\Root\Factory
     {
         $locator = $sm->getServiceLocator();
         $menuConfig = $locator->get('VuFind\Config')->get('navibar');
+        $organisationInfo = $locator->get('Finna\OrganisationInfo');
 
-        return new Navibar($menuConfig);
+        return new Navibar($menuConfig, $organisationInfo);
     }
 
     /**

@@ -171,6 +171,16 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
     }
 
     /**
+     * Check if organisation info is enabled.
+     *
+     * @return boolean
+     */
+    public function isAvailable()
+    {
+        return !empty($this->config->General->enabled);
+    }
+
+    /**
      * Perform query.
      *
      * @param string $parent   Parent organisation
@@ -185,7 +195,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             $id = $params['id'];
         }
 
-        if (!$this->config->General->enabled) {
+        if (!$this->isAvailable()) {
             $this->logError("Organisation info disabled ($parent)");
             return false;
         }
