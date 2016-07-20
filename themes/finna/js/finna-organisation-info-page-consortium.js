@@ -100,7 +100,7 @@ finna = $.extend(finna, {
                             var li = template.clone();
                             var a = li.find('a');
                             a.attr('href', obj.value).text(obj.name);
-                            li.appendTo(linksHolder);
+                            li.appendTo(linksHolder.find('ul'));
                         });
                         template.remove();
                     }
