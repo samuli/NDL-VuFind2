@@ -1,6 +1,6 @@
 <?
-  $this->headTitle($this->translate('organisation-info-page-title'));
-  $this->content()->setHeading($this->translate('organisation-info-page-title'));
+  $this->content()->setHeading($this->title);
+  $this->headTitle($this->title);
 ?>
-<?=$this->organisationPage($this->params->fromQuery('id'))?>
+<?=$this->organisationPage($this->id)?>
 

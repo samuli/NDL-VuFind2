@@ -71,28 +71,25 @@ class OrganisationPage extends \Zend\View\Helper\AbstractHelper
      *
      * @return mixed null|string
      */
-    public function __invoke($id = null)
+    public function __invoke($id)
     {
         if (!$this->config->General->enabled) {
             throw(new \Exception('Organisation page is disabled'));
         } 
 
-        if (!$this->config->General->mapTileUrl) {
+        if (!$this->config->OrganisationPage->mapTileUrl) {
             throw(new \Exception('mapTileUrl not defined'));
         }
 
         if (!$id) {
-            if (!isset($this->config->General->defaultOrganisation)) {
-                return;
-            }
-            $id = $this->config->General->defaultOrganisation;
+            throw(new \Exception('id not defined'));
         }
 
-        $mapTileUrl = $this->config->General->mapTileUrl;
-        $attribution = $this->config->General->attribution;
+        $mapTileUrl = $this->config->OrganisationPage->mapTileUrl;
+        $attribution = $this->config->OrganisationPage->attribution;
 
-        $consortiumInfo = isset($this->config->General->consortiumInfo)
-            ? $this->config->General->consortiumInfo : false;
+        $consortiumInfo = isset($this->config->OrganisationPage->consortiumInfo)
+            ? $this->config->OrganisationPage->consortiumInfo : false;
 
         $params = [
             'id' => $id,

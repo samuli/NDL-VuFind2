@@ -696,14 +696,14 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
         }
 
         if (!empty($response['services'])
-            && ($includeAllServices || !empty($this->config->General->services))
+            && ($includeAllServices
+            || !empty($this->config->OpeningTimesWidget->services))
         ) {
             $servicesMap = [];
-            foreach ($this->config->General->services->toArray() as $key => $ids) {
+            $servicesConf = $this->config->OpeningTimesWidget->services->toArray();
+            foreach ($servicesConf as $key => $ids) {
                 $servicesMap[$key] = explode(',', $ids);
             }
-            error_log("services: " . var_export($response['services'], true) . ", all: " . var_export($servicesMap, true));
-
             $services = $allServices = [];
             foreach ($response['services'] as $service) {
                 foreach ($servicesMap as $key => $ids) {
