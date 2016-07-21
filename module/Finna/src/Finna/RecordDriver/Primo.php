@@ -133,6 +133,10 @@ class Primo extends \VuFind\RecordDriver\Primo
      */
     public function getURLs()
     {
+        if (!$this->showOnlineURLs()) {
+            return [];
+        }
+
         $urls = [];
 
         $rec = $this->getSimpleXML();
@@ -154,6 +158,68 @@ class Primo extends \VuFind\RecordDriver\Primo
             }
         }
         return $urls;
+    }
+
+    /**
+     * Check if Primo online URLs (local links from record metadata) should be
+     * displayed for this record.
+     *
+     * @return boolean
+     */
+    protected function showOnlineURLs()
+    {
+        if (!isset($this->recordConfig->OnlineURLs)) {
+            return true;
+        }
+
+        $rec = $this->getSimpleXML();
+        if (!isset($rec->search->sourceid)) {
+            return true;
+        }
+
+        $fulltextAvailable = $this->getFulltextAvailable();
+
+        $config = $this->recordConfig->OnlineURLs;
+        $hideFromSource = $fulltextAvailable && $config->hideFromSourceWithFulltext
+            ? $config->hideFromSourceWithFulltext : $config->hideFromSource;
+
+        $showFromSource = $fulltextAvailable && $config->showFromSourceWithFulltext
+            ? $config->showFromSourceWithFulltext : $config->showFromSource;
+
+        if (!$hideFromSource && !$showFromSource) {
+            return true;
+        }
+
+        if ($hideFromSource) {
+            if (is_string($hideFromSource)) {
+                $hideFromSource = [$hideFromSource];
+            } else {
+                $hideFromSource = $hideFromSource->toArray();
+            }
+        }
+        if ($showFromSource) {
+            if (is_string($showFromSource)) {
+                $showFromSource = [$showFromSource];
+            } else {
+                $showFromSource = $showFromSource->toArray();
+            }
+        }
+
+        $source = $rec->search->sourceid;
+
+        if ($showFromSource) {
+            if (!count(array_intersect($showFromSource, ['*', $source]))) {
+                return false;
+            }
+        }
+
+        if ($hideFromSource) {
+            if (count(array_intersect($hideFromSource, ['*', $source]))) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     /**
