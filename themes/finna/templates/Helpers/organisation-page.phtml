@@ -22,7 +22,7 @@
   <div class="loader">
     <i class="fa fa-spinner fa-spin" style="text-align: center;"></i>
   </div>
-  
+
   <div class="config">
     <? foreach (['id', 'library', 'mapTileUrl', 'attribution', 'consortiumInfo'] as $param): ?>
     <? if (isset($this->{$param})): ?>
@@ -103,7 +103,7 @@
     <? if ($this->consortiumInfo): ?>
     <div><h3 class="col-xs-12"><?=$this->transEsc('organisation-info-navi-service')?></h3></div>
     <? endif; ?>
-    <div class="consortium-notification hide"></div>
+    <div class="col-xs-12"><p class="consortium-notification hide "></p></div>
     <div class="col-sm-6 col-md-5">
       <form class="form-inline searchbox-office office-search-notifications">
         <input id="office-search" type="text" placeholder="" />
