@@ -36,6 +36,9 @@ finna = $.extend(finna, {
                 if (desc) {
                     info.find('.description').html(desc).removeClass('hide');
                 }
+                else {
+                  info.find('.description').removeClass('hide');
+                }
                 var logo = null;
                 if ('logo' in consortiumData) {
                     logo = finna.common.getField(consortiumData.logo, 'small');
@@ -48,6 +51,7 @@ finna = $.extend(finna, {
                 if (name) {
                     info.removeClass('hide').find('.name').text(name);
                     enableConsortiumNaviItem('building');
+                    $('.consortium-navigation-list .scroll.building').text(name);
                 }
 
                 var finnaData = finna.common.getField(consortiumData, 'finna');
