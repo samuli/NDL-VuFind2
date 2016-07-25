@@ -256,7 +256,7 @@ section.main.template-dir-content.template-name-content {
 
         & .leaflet-container {
             & .leaflet-top {
-                z-index: initial;
+                z-index: 99;
                 & .leaflet-bar {
                     z-index: initial;
                 }
@@ -308,6 +308,7 @@ section.main.template-dir-content.template-name-content {
              padding: 5px;
              border: 1px solid lightgray;
              opacity: 0.9;
+             z-index: 100;
         }
     }
 
@@ -380,7 +381,7 @@ section.main.template-dir-content.template-name-content {
                 color: white;
                 padding: 15px 20px;
                 position: absolute;
-                z-index: 1;
+                z-index: 101;
                 top: 42px;
                 left: 15px;
                 display: none;
@@ -668,7 +669,7 @@ section.main.template-dir-content.template-name-content {
     padding: 1px;
     max-height: 286px;
     overflow-y: auto;
-    z-index: 2;
+    z-index: 102;
     position: absolute;
     &::-webkit-scrollbar {
         background: transparent;

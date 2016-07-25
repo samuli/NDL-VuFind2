@@ -27,7 +27,6 @@ finna = $.extend(finna, {
             // Info
             if ('consortium' in data) {
                 var consortiumData = data.consortium;
-                console.log("cons: %o", consortiumData);
 
                 consortiumHomepage = finna.common.getField(consortiumData, 'homepage');
                 consortiumHomepageLabel = finna.common.getField(consortiumData, 'homepageLabel');

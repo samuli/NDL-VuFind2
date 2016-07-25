@@ -27,9 +27,14 @@ finna.organisationInfoPage = (function() {
                 infoWidget.organisationListLoaded(response);
                 if (cnt > 0) {
                     initMap();
-                    $('.office-quick-information').show();
+                    holder.find('.office-quick-information').show();
+
+                    // IE opens Delay initing autocomplete menu to prevent IE from opening it automatically at 
                     initSearch();
-                    $("#office-search").attr("placeholder", VuFind.translate('organisationInfoAutocomplete').replace('%%count%%', cnt));
+
+                    $("#office-search")
+                        .attr("placeholder", VuFind.translate('organisationInfoAutocomplete')
+                        .replace('%%count%%', cnt));
                     if (typeof id != 'undefined') {
                         updateSelectedOrganisation(id);
                     }
@@ -68,7 +73,7 @@ finna.organisationInfoPage = (function() {
 
         $.each(organisationList, function(ind, obj) {
             // Map data (info bubble, icon)
-            var bubble = $('.map-bubble-template').clone();
+            var bubble = holder.find('.map-bubble-template').clone();
             bubble.find('.name').text(obj.name);
             var openNow = null;
             if ('openTimes' in obj && 'openNow' in obj['openTimes']) {
@@ -116,22 +121,27 @@ finna.organisationInfoPage = (function() {
         map.draw(organisationList, defaultId);
 
         // Expand map
-        $('.expand-map').click (function() {
+        holder.find('.expand-map').click (function() {
             mapHolder.toggleClass("expand", true);
             map.resize();
             $(this).hide();
-            $('.contract-map').show();            
+            holder.find('.contract-map').show();            
         });
-        $('.contract-map').click (function() {
+        holder.find('.contract-map').click (function() {
             mapHolder.toggleClass("expand", false);
             map.resize();
             $(this).hide();
-            $('.expand-map').show();
+            holder.find('.expand-map').show();
         });
     };
     
     var initSearch = function() {
-        $('#office-search').autocomplete({
+        // Note: IE opens the autcomplete menu at page load. 
+        // To prevent this we set minLength initially to 1 and
+        // re-set it to 0 when the menu receives focus.
+
+        var officeSearch = holder.find('#office-search');
+        officeSearch.autocomplete({
             source: function (request, response) {
                 var term = request.term.toLowerCase();
                 var result = [];
@@ -149,7 +159,7 @@ finna.organisationInfoPage = (function() {
             },
 
             select: function(event, ui) {
-                $('#office-search').val(ui.item.label);
+                holder.find('#office-search').val(ui.item.label);
                 window.location.hash = ui.item.value;
                 return false;
             },
@@ -157,37 +167,36 @@ finna.organisationInfoPage = (function() {
             focus: function (event, ui) {
                 if ($(window).width() < 768) {
                     $('html, body').animate({
-                        scrollTop: $('#office-search').offset().top - 5
+                        scrollTop: officeSearch.offset().top - 5
                     }, 100);
                 }
                 return false;
             },
             open: function(event, ui) {
-                $('#office-search').off('menufocus hover mouseover mouseenter');
+                officeSearch.off('menufocus hover mouseover mouseenter');
             },
-            minLength: 0,
+            minLength: 1, // IE fix, see above.
             delay: 100,
             appendTo: ".autocomplete-container",
-            autoFocus: true
+            autoFocus: false
         });
-        
-        
-        // show list of
-        $("#office-search").on('click', function() {
-            $('#office-search').autocomplete("search", $(this).val());
+        officeSearch.focus().autocomplete({minLength: 0});
+
+        officeSearch.on('click', function() {
+            officeSearch.autocomplete("search", $(this).val());
         });
-        $(".ui-autocomplete li").on('touchstart', function() {
-            $('#office-search').autocomplete("search", $(this).val());
+        officeSearch.find('li').on('touchstart', function() {
+            officeSearch.autocomplete("search", $(this).val());
         });
-        $('.btn-office-search').on('click', function() {
-            $('#office-search').autocomplete("search", '');
-            $('#office-search').focus();
+        holder.find('.btn-office-search').on('click', function() {
+            officeSearch.autocomplete("search", '');
+            officeSearch.focus();
             return false;
         });
     };
 
     var hideMapMarker = function() {
-        $('#marker-tooltip').hide();
+        holder.find('#marker-tooltip').hide();
     };
 
     
