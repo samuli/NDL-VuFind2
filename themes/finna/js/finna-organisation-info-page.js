@@ -13,9 +13,9 @@ finna.organisationInfoPage = (function() {
 
     var loadOrganisationList = function(id) {
         service.getOrganisations('page', parent, function(response) {
-            holder.toggleClass('loading', false);
-
             if (response) {
+                holder.find('.loading').toggleClass('loading', false);
+
                 var cnt = 0;
                 $.each(response['list'], function(ind, obj) {
                     organisationList[obj.id] = obj;
@@ -54,10 +54,10 @@ finna.organisationInfoPage = (function() {
     };
 
     var err = function() {
-        $('<div/>')
+        var msg = $('<div/>')
             .addClass('alert alert-danger')
-            .text(VuFind.translate('error_occurred'))
-            .appendTo(holder.empty());
+            .text(VuFind.translate('error_occurred'));
+        holder.find('.organisation-info-page').first().replaceWith(msg);
     };
 
     var initMap = function() {
@@ -203,8 +203,6 @@ finna.organisationInfoPage = (function() {
     };
 
     var updateSelectedOrganisation = function(id) {
-        console.log("org: %o", organisationList);
-
         holder.find('.error, .info-element').hide();
         infoWidget.showDetails(id, '', true);
         $('#office-search').val('');
@@ -381,8 +379,7 @@ finna.organisationInfoPage = (function() {
 
     var my = {
         init: function() {
-            holder = $('.organisation-info-page');
-            holder.toggleClass('loading', true);
+            holder = $('section[role="main"]');
 
             var conf = holder.find('.config');
 
@@ -398,7 +395,7 @@ finna.organisationInfoPage = (function() {
 
             var imgPath = VuFind.path + '/themes/finna/images/';
 
-            mapHolder = $('.map-widget');
+            mapHolder = holder.find('.map-widget');
             map = finna.organisationMap();
             map.init(mapHolder[0], imgPath, mapTileUrl, attribution);
 
@@ -414,7 +411,7 @@ finna.organisationInfoPage = (function() {
             });
 
             $(map).on('marker-mouseover', function(ev, data) {
-                var tooltip = $('#marker-tooltip');
+                var tooltip = holder.find('#marker-tooltip');
                 var name = organisationList[data.id].name;
                 tooltip.removeClass('hide').html(name).css({
                     'left': data.x,
@@ -423,12 +420,7 @@ finna.organisationInfoPage = (function() {
                 tooltip.css({'margin-left': -(tooltip.outerWidth())/2 + 20}).show();
             });
 
-            $(map).on('my-location', function(ev, mode) { 
-                $('.my-location-btn .img').toggleClass('my-location', mode);
-            });
-
             service = finna.organisationInfo();
-
             infoWidget = finna.organisationInfoWidget();
             
             var widgetHolder = holder.find('.organisation-info');
@@ -445,7 +437,6 @@ finna.organisationInfoPage = (function() {
                 consortium = new finna.organisationInfoPageConsortium();
                 consortium.init(holder);
             }
-            
 
             window.onhashchange = function() {
                 if (id = getOrganisationFromURL()) {
@@ -453,7 +444,7 @@ finna.organisationInfoPage = (function() {
                 }
 
                 // Blur so that mobile keyboard is closed
-                $('#office-search').blur();
+                holder.find('#office-search').blur();
             };
 
             if (hash = getOrganisationFromURL()) {
@@ -462,7 +453,6 @@ finna.organisationInfoPage = (function() {
             loadOrganisationList(library);
         }
     };
-
 
     return my;
 

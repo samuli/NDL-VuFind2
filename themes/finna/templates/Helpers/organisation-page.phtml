@@ -18,7 +18,7 @@
 
   $this->jsTranslations()->addStrings(['organisationInfoAutocomplete' => 'organisation-info-autocomplete']);
 ?>
-<div class="organisation-info-page organisation-page-information-wrapper <?= !($this->consortiumInfo) ? 'last-section' : '';?>">
+<div class="organisation-info-page loading organisation-page-information-wrapper <?= !($this->consortiumInfo) ? 'last-section' : '';?>">
   <div class="loader">
     <i class="fa fa-spinner fa-spin" style="text-align: center;"></i>
   </div>
@@ -69,7 +69,7 @@
 </div>
 <!-- add fluid-odd wrapper to make background background-color -->
 <div class="fluid-odd">
-  <div class="container organisation-info-page organisation-page-information-wrapper">
+  <div class="container organisation-info-page loading organisation-page-information-wrapper">
     <div class="consortium-usage-rights hide navi-section" id="consortium-usage-rights-section">
       <div class="row">
         <div class="col-xs-12 hide usage-rights-heading"><h3><?=$this->transEsc('organisation-info-navi-usage')?></h3></div>
@@ -110,7 +110,7 @@
 </div>
 
 <div class="last-section">
-  <div class="container organisation-info-page organisation-page-information-wrapper">
+  <div class="container organisation-info-page loading organisation-page-information-wrapper">
   <? endif; ?>
 
 
