@@ -24,7 +24,6 @@ finna.organisationInfoPage = (function() {
                     }
                 });
 
-                var search = holder.find('.office-search');
                 infoWidget.organisationListLoaded(response);
                 if (cnt > 0) {
                     initMap();
@@ -33,15 +32,15 @@ finna.organisationInfoPage = (function() {
                     // IE opens Delay initing autocomplete menu to prevent IE from opening it automatically at 
                     initSearch();
 
-                    search
-                        .attr("placeholder", VuFind.translate('organisationInfoAutocomplete').replace('%%count%%', cnt))
+                    holder.find('.ui-autocomplete-input')
+                        .attr('placeholder', VuFind.translate('organisationInfoAutocomplete').replace('%%count%%', cnt))
                         .focus().blur();
 
                     if (typeof id != 'undefined') {
                         updateSelectedOrganisation(id);
                     }
                 } else {
-                    search.hide();
+                    holder.find('.searchbox-office').hide();
                 }
 
                 updateConsortiumNotification(response);
