@@ -30,6 +30,7 @@ finna.organisationInfoPage = (function() {
                     $('.office-quick-information').show();
                     initSearch();
                     $("#office-search").attr("placeholder", VuFind.translate('organisationInfoAutocomplete').replace('%%count%%', cnt));
+                    $("#office-search").focus().blur();
                     if (typeof id != 'undefined') {
                         updateSelectedOrganisation(id);
                     }
@@ -47,6 +48,7 @@ finna.organisationInfoPage = (function() {
                 }
 
                 updateURL = true;
+
             } else {
                 err();
             }
@@ -88,7 +90,7 @@ finna.organisationInfoPage = (function() {
                         }
                         tr.find('.day').text(scheduleObj['day']);
                         tr.find('.opens').text(timeObj['opens']);
-                        tr.find('.closes').text(timeObj['closes']);                        
+                        tr.find('.closes').text(timeObj['closes']);
                         scheduleTable.find('tbody').append(tr);
                     } else {
                         var tr = scheduleTable.find('tr:first-child').clone();
@@ -120,7 +122,7 @@ finna.organisationInfoPage = (function() {
             mapHolder.toggleClass("expand", true);
             map.resize();
             $(this).hide();
-            $('.contract-map').show();            
+            $('.contract-map').show();
         });
         $('.contract-map').click (function() {
             mapHolder.toggleClass("expand", false);
@@ -129,7 +131,7 @@ finna.organisationInfoPage = (function() {
             $('.expand-map').show();
         });
     };
-    
+
     var initSearch = function() {
         $('#office-search').autocomplete({
             source: function (request, response) {
@@ -153,7 +155,7 @@ finna.organisationInfoPage = (function() {
                 window.location.hash = ui.item.value;
                 return false;
             },
-            
+
             focus: function (event, ui) {
                 if ($(window).width() < 768) {
                     $('html, body').animate({
@@ -163,15 +165,17 @@ finna.organisationInfoPage = (function() {
                 return false;
             },
             open: function(event, ui) {
-                $('#office-search').off('menufocus hover mouseover mouseenter');
+                if (navigator.userAgent.match(/(iPod|iPhone|iPad)/)) {
+                    $('.ui-autocomplete').off('menufocus hover mouseover');
+                }
             },
             minLength: 0,
             delay: 100,
             appendTo: ".autocomplete-container",
             autoFocus: true
         });
-        
-        
+
+
         // show list of
         $("#office-search").on('click', function() {
             $('#office-search').autocomplete("search", $(this).val());
@@ -190,7 +194,7 @@ finna.organisationInfoPage = (function() {
         $('#marker-tooltip').hide();
     };
 
-    
+
     var updateConsortiumNotification = function(data) {
         if ('consortium' in data) {
             if ('finna' in data.consortium
@@ -208,7 +212,7 @@ finna.organisationInfoPage = (function() {
         holder.find('.error, .info-element').hide();
         infoWidget.showDetails(id, '', true);
         $('#office-search').val('');
-                
+
         var notification = holder.find('.office-search-notifications .notification');
         if (id in organisationList) {
             var data = organisationList[id];
@@ -240,14 +244,14 @@ finna.organisationInfoPage = (function() {
             var email = data['email'];
             holder.find('.email').attr('href', 'mailto:' + email).show();
             holder.find('.email span.email').text(email.replace('@','(at)'));
-            
+
             holder.find('.email-contact').show();
         }
         if ('homepage' in data) {
             holder.find('.office-website > a').attr('href', data['homepage']);
             holder.find('.office-website').show();
         }
-        
+
         if ('routeUrl' in data) {
             holder.find('.office-links.route').attr('href', data['routeUrl']).show();
         }
@@ -273,9 +277,9 @@ finna.organisationInfoPage = (function() {
                 });
             }
         }
-        
+
         var openToday = false;
-        
+
         if ('schedules' in data.openTimes) {
             $.each(data.openTimes.schedules, function(ind, obj) {
                 if ('today' in obj && 'times' in obj && obj.times.length) {
@@ -289,8 +293,8 @@ finna.organisationInfoPage = (function() {
             });
         }
 
-        var hasSchedules 
-            = 'openTimes' in data && 'schedules' in data.openTimes 
+        var hasSchedules
+            = 'openTimes' in data && 'schedules' in data.openTimes
             && data.openTimes.schedules.length > 0;
 
         if (hasSchedules) {
@@ -326,7 +330,7 @@ finna.organisationInfoPage = (function() {
             phones.find('> p').html(data.details.phone);
             phones.show();
         }
-        
+
         $('.office-information').show();
     };
 
@@ -391,7 +395,7 @@ finna.organisationInfoPage = (function() {
             var attribution = conf.find('input[name="attribution"]').val();
             consortiumInfo = conf.find('input[name="consortiumInfo"]').val() == 1;
             parent = conf.find('input[name="id"]').val();
-            
+
             if (typeof parent == 'undefined') {
                 return;
             }
@@ -402,14 +406,14 @@ finna.organisationInfoPage = (function() {
             map = finna.organisationMap();
             map.init(mapHolder[0], imgPath, mapTileUrl, attribution);
 
-            $(map).on('marker-click', function(ev, id) { 
+            $(map).on('marker-click', function(ev, id) {
                 if (updateURL) {
                     window.location.hash = id;
                 }
                 hideMapMarker();
             });
 
-            $(map).on('marker-mouseout', function(ev) { 
+            $(map).on('marker-mouseout', function(ev) {
                 hideMapMarker();
             });
 
@@ -423,14 +427,14 @@ finna.organisationInfoPage = (function() {
                 tooltip.css({'margin-left': -(tooltip.outerWidth())/2 + 20}).show();
             });
 
-            $(map).on('my-location', function(ev, mode) { 
+            $(map).on('my-location', function(ev, mode) {
                 $('.my-location-btn .img').toggleClass('my-location', mode);
             });
 
             service = finna.organisationInfo();
 
             infoWidget = finna.organisationInfoWidget();
-            
+
             var widgetHolder = holder.find('.organisation-info');
             widgetHolder.on('detailsLoaded', function(ev, id) {
                 var info = service.getDetails(id);
@@ -445,7 +449,7 @@ finna.organisationInfoPage = (function() {
                 consortium = new finna.organisationInfoPageConsortium();
                 consortium.init(holder);
             }
-            
+
 
             window.onhashchange = function() {
                 if (id = getOrganisationFromURL()) {
