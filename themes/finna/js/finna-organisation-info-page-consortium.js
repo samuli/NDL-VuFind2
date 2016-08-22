@@ -56,8 +56,8 @@ finna = $.extend(finna, {
                     if (usage) {
                         usageInfo.find('.usage-rights-text').html(usage);
                     }
-                    
-                    var usagePerc = finna.common.getField(finnaData, 'usage_perc');        
+
+                    var usagePerc = finna.common.getField(finnaData, 'usage_perc');
                     if (usagePerc) {
                         // Gauge
                         usageInfo.find('.gauge-meter').removeClass('hide');
@@ -78,7 +78,7 @@ finna = $.extend(finna, {
                         gauge.maxValue = 100;
                         gauge.animationSpeed = 10;
 
-                        var gaugeVal = usagePerc*100;
+                        var gaugeVal = usagePerc;
                         gauge.set(gaugeVal);
                         holder.find('.gauge-value .val').text(Math.round(gaugeVal));
                     }
@@ -89,12 +89,19 @@ finna = $.extend(finna, {
 
                     var finnaLink = finna.common.getField(finnaData, 'finnaLink');
                     if (finnaLink) {
-                        var finnaLinkHolder = holder.find('.consortium-usage-rights .finna-link');
-                        finnaLinkHolder.removeClass('hide');
-                        finnaLinkHolder.find('ul li a').attr('href', finnaLink.value).text(finnaLink.name);
+                        var linksHolder = holder.find('.consortium-usage-rights .finna-link');
+                        linksHolder.removeClass('hide');
+                        var template = linksHolder.find('li.template').removeClass('template');
+                        $(finnaLink).each(function(ind, obj) {
+                            var li = template.clone();
+                            var a = li.find('a');
+                            a.attr('href', obj.value).text(obj.name);
+                            li.appendTo(linksHolder.find('ul'));
+                        });
+                        template.remove();
                     }
 
-                    var links = finna.common.getField(finnaData, 'links');        
+                    var links = finna.common.getField(finnaData, 'links');
                     if (links) {
                         var linksHolder = holder.find('.consortium-usage-rights .links');
                         linksHolder.removeClass('hide');
@@ -145,7 +152,7 @@ finna = $.extend(finna, {
         var enableConsortiumNaviItem = function(id) {
             holder.find('.consortium-navigation .scroll.' + id).addClass('active');
         };
-        
+
         var initConsortiumNavi = function() {
             var active  = holder.find('.consortium-navigation .scroll.active');
             if (active.length > 1) {

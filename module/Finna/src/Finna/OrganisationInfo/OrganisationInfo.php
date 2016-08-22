@@ -123,7 +123,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             $fallback = $config->General->fallbackLanguage;
             $fallback = $this->validateLanguage($fallback, $allLanguages);
             if ($fallback != $this->language) {
-                $this->fallbackLanguage = $fallback;                
+                $this->fallbackLanguage = $fallback;
             }
         }
     }
@@ -251,7 +251,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             $startDate = strtotime("{$dir} Week", $startDate);
             $endDate = strtotime("{$dir} Week", $endDate);
         }
-        
+
         $allServices = !empty($params['allServices']);
 
         $weekNum = date('W', $startDate);
@@ -297,7 +297,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             $url .= '/consortium';
             $params = [
                 'finna:id' => $parent,
-                'with' => 'finna'
+                'with' => 'finna,link_groups'
             ];
             if (!$this->fallbackLanguage) {
                 $params['lang'] = $this->language;
@@ -333,32 +333,43 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                 if (!empty($response['logo'])) {
                     $consortium['logo'] = $response['logo'];
                 }
-                
+
                 if (isset($response['finna'])) {
                     $finna = [];
-                    foreach (['usage_info', 'notification'] as $field) {
+                    foreach (['usage_info', 'notification', 'finna_coverage'] as $field) {
                         $val = $this->getField($response['finna'], $field);
                         if (!empty($val)) {
                             $finna[$field] = $val;
                         }
                     }
-                    
-                    // fake data
-                    $finna['usage_perc'] = rand()/getrandmax();
-                    
-                    $finna['links'] = [
-                        ['name' => 'Yhteystiedot', 'value' => 'http://www.finna.fi'],
-                        ['name' => 'Flickr', 'value' => 'http://www.finna.fi'],
-                        ['name' => 'Karanot-tietokanta', 'value' => 'http://www.finna.fi']
-                    ];
 
-                    $finnaLink = $finnaLinkName = 'https://vaski.finna.fi';
-                    $parts = parse_url($finnaLink);
-                    if (isset($parts['host'])) {
-                        $finnaLinkName = $parts['host'];
+                    // show coverage if value exists
+                    if (isset($finna['finna_coverage'])) {
+                        $finna['usage_perc'] = $finna['finna_coverage'];
                     }
-                    $finna['finnaLink'] 
-                        = ['name' => $finnaLinkName, 'value' => $finnaLink]; 
+
+                    // show link_groups if they exist
+                    if (isset($response['link_groups'])) {
+                        foreach ($response['link_groups'] as $field) {
+                            if ($field['identifier'] == 'finna_materials') {
+                                foreach ($field['links'] as $field) {
+                                    $finna['links'][] = ['name' => $field['name'], 'value' => $field['url']];
+                                }
+                                break;
+                            }
+                        }
+                    }
+
+                    if (isset($response['link_groups'])) {
+                        foreach ($response['link_groups'] as $field) {
+                            if ($field['identifier'] == 'finna_usage_info') {
+                                foreach ($field['links'] as $field) {
+                                    $finna['finnaLink'][] = ['name' => $field['name'], 'value' => $field['url']];
+                                }
+                                break;
+                            }
+                        }
+                    }
 
                     if (!empty($finna)) {
                         $consortium['finna'] = $finna;
@@ -592,7 +603,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             if (!empty($item['address'])) {
                 $address = [];
                 foreach (['street', 'zipcode', 'city'] as $addressField) {
-                    $address[$addressField] 
+                    $address[$addressField]
                         = $this->getField($item['address'], $addressField);
                 }
                 if (!empty($item['address']['coordinates'])) {
@@ -868,7 +879,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                     $res['result']['info'] = $info;
                     $info = null;
                 }
-                
+
                 $times[] = $res['result'];
             }
             if ($today && !empty($times)) {
@@ -880,7 +891,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                'times' => $times,
                'day' => $weekDayName,
             ];
-            
+
             $closed = $day['closed']
                 && (!isset($day['sections']['selfservice']['closed'])
                     || $day['sections']['selfservice']['closed']);
@@ -923,7 +934,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
         if ($selfService) {
             $result['selfservice'] = true;
         }
-        
+
         $openNow = false;
 
         if ($today) {
@@ -961,7 +972,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
      *
      * @param array  $obj      Object
      * @param string $field    Field
-     * @param string $language Language version. If not defined, 
+     * @param string $language Language version. If not defined,
      * the configured language versions is used.
      *
      * @return mixed
@@ -981,7 +992,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
         if ($language && !empty($data[$language])) {
             return $data[$language];
         }
-        
+
         if (!empty($data[$this->language])) {
             return $data[$this->language];
         }
@@ -991,5 +1002,5 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
         }
 
         return null;
-    }    
+    }
 }
