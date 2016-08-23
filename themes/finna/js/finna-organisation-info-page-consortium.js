@@ -76,7 +76,7 @@ finna = $.extend(finna, {
 
                         var gauge = new Donut(target).setOptions(opts);
                         gauge.maxValue = 100;
-                        gauge.animationSpeed = 10;
+                        gauge.animationSpeed = 20;
 
                         var gaugeVal = usagePerc;
                         gauge.set(gaugeVal);

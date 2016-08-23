@@ -336,7 +336,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
 
                 if (isset($response['finna'])) {
                     $finna = [];
-                    foreach (['usage_info', 'notification', 'finna_coverage'] as $field) {
+                    foreach (['usage_info', 'notification', 'finna_coverage', 'service_point'] as $field) {
                         $val = $this->getField($response['finna'], $field);
                         if (!empty($val)) {
                             $finna[$field] = $val;

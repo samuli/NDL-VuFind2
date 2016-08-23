@@ -29,7 +29,7 @@ finna.organisationInfoPage = (function() {
                     initMap();
                     holder.find('.office-quick-information').show();
 
-                    // IE opens Delay initing autocomplete menu to prevent IE from opening it automatically at 
+                    // IE opens Delay initing autocomplete menu to prevent IE from opening it automatically at
                     initSearch();
 
                     holder.find('.ui-autocomplete-input')
@@ -51,6 +51,7 @@ finna.organisationInfoPage = (function() {
                     consortium.updateConsortiumInfo(response, organisationList);
                     consortium.initConsortiumNavi();
                 }
+                updateDefaultServicePoint(response);
 
                 updateURL = true;
 
@@ -127,7 +128,7 @@ finna.organisationInfoPage = (function() {
             mapHolder.toggleClass("expand", true);
             map.resize();
             $(this).hide();
-            holder.find('.contract-map').show();            
+            holder.find('.contract-map').show();
         });
         holder.find('.contract-map').click (function() {
             mapHolder.toggleClass("expand", false);
@@ -205,6 +206,16 @@ finna.organisationInfoPage = (function() {
                ) {
                    holder.find('.consortium-notification')
                        .html(data.consortium.finna.notification).removeClass('hide');
+               }
+        }
+    };
+
+    var updateDefaultServicePoint = function(data) {
+        if ('consortium' in data) {
+            if ('finna' in data.consortium
+                && 'service_point' in data.consortium.finna && window.location.hash == ''
+               ) {
+                  window.location.hash = data.consortium.finna['service_point'];
                }
         }
     };

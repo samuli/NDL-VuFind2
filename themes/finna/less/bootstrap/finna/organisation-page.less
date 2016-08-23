@@ -641,6 +641,9 @@ section.main.template-dir-content.template-name-content {
         }
         & .searchbox-consortium.searchForm {
             margin-top: 15px;
+            @media (max-width: @screen-xs-max) {
+                margin-bottom: 15px;   
+            }
             & input {
                 width: ~"-webkit-calc(100% - 40px)";
                 width: ~"-moz-calc(100% - 40px)";

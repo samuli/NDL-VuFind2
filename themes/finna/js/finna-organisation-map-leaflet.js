@@ -9,7 +9,7 @@ function getQueryParam(param) {
 
 finna = $.extend(finna, {
     organisationMap: function() {
-        var zoomLevel = {initial: 27, far: 5, close: 15};
+        var zoomLevel = {initial: 27, far: 5, close: 14};
         var holder = null;
         var mapTileUrl = null;
         var attribution = null;
