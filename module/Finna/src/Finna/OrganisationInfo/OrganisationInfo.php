@@ -353,20 +353,17 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                         foreach ($response['link_groups'] as $field) {
                             if ($field['identifier'] == 'finna_materials') {
                                 foreach ($field['links'] as $field) {
-                                    $finna['links'][] = ['name' => $field['name'], 'value' => $field['url']];
+                                    $name = $this->getField($field, 'name');
+                                    $url =  $this->getField($field, 'url');
+                                    $finna['links'][] = ['name' => $name, 'value' => $url];
                                 }
-                                break;
                             }
-                        }
-                    }
-
-                    if (isset($response['link_groups'])) {
-                        foreach ($response['link_groups'] as $field) {
                             if ($field['identifier'] == 'finna_usage_info') {
                                 foreach ($field['links'] as $field) {
-                                    $finna['finnaLink'][] = ['name' => $field['name'], 'value' => $field['url']];
+                                    $name = $this->getField($field, 'name');
+                                    $url =  $this->getField($field, 'url');
+                                    $finna['finnaLink'][] = ['name' => $name, 'value' => $url];
                                 }
-                                break;
                             }
                         }
                     }
