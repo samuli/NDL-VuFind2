@@ -2,10 +2,19 @@
 relative_path = ../finna/rss-organisation-page.ini
 
 [organisation-info-news]
-items = 5
-content[image] = 0
+type = "list"
 content[text] = 0
-content[date] = 1
+content[image] = 0
+content[date] = 0
+items = 5
+displayHTML = "true"
+moreLink = 0
+linkTo = "modal"
 
 [organisation-info-events]
+type = "list"
 items = 5
+linkTo = "content-page"
+moreLink = 0
+content[text] = 1
+content[date] = 1
