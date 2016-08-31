@@ -40,7 +40,7 @@ finna.organisationInfoPage = (function() {
                         updateSelectedOrganisation(id);
                     }
                 } else {
-                    holder.find('.searchbox-office').hide();
+                    holder.find('.map-ui').hide();
                 }
 
                 updateConsortiumNotification(response);

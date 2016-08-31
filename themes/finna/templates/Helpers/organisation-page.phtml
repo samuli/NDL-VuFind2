@@ -81,7 +81,10 @@
       <div class="row">
         <div class="col-xs-12 usage-rights-heading"><h3><?=$this->transEsc('organisation-info-navi-usage')?></h3></div>
         <div class="col-xs-12 col-sm-9">
-          <div class="usage-rights-text"><i class="fa fa-spinner fa-spin" style="text-align: center;"></i></div>
+          <div class="usage-rights-text">
+            <i class="fa fa-spinner fa-spin" style="text-align: center;"></i>
+            <p class="hide no-info"><?=$this->translate('organisation-no-consortium-info');?></p>
+          </div>
           <div class="row">
             <div class="col-xs-12 col-sm-8 col-md-7 col-lg-6">
               <form class="searchbox-consortium searchForm" action="<?=$this->url('search-results')?>">
@@ -121,13 +124,13 @@
   <? endif; ?>
 
 
-  <div class="office-search navi-section row" id="consortium-service-point-section">
+  <div class="office-search navi-section row map-ui" id="consortium-service-point-section">
     <? if ($this->consortiumInfo): ?>
     <div><h3 class="col-xs-12"><?=$this->transEsc('organisation-info-navi-service')?></h3></div>
     <? endif; ?>
     <div class="col-xs-12"><p class="consortium-notification hide "></p></div>
     <div class="col-sm-6 col-md-5">
-      <form class="form-inline searchbox-office office-search-notifications">
+      <form class="form-inline searchbox-office office-search-notifications map-ui">
         <input id="office-search" type="text" placeholder="" />
         <button class="btn btn-primary btn-office-search"><i class="fa fa-arrow-down"></i></button>
         <div class="notification"><?=$this->transEsc('organisation-info-location-not-available');?></div>
@@ -137,7 +140,7 @@
     <div class="col-sm-6 col-md-7 text-right">
       <div>
       </div>
-      <div class="map-control-buttons">
+      <div class="map-ui map-control-buttons">
         <i class="fa fa-map-marker marker open"></i><?=$this->transEsc('organisation-info-is-open')?>
         <i class="fa fa-map-marker marker closed"></i><?=$this->transEsc('organisation-info-is-closed')?>
         <i class="fa fa-map-marker marker no-schedule"></i><?=$this->transEsc('organisation-info-no-schedule')?>
@@ -170,7 +173,7 @@
     </div>
   </div>
 
-  <div class="row office map <?=$this->escapeHtmlAttr($this->mapWidget)?>">
+  <div class="row office map-ui map <?=$this->escapeHtmlAttr($this->mapWidget)?>">
     <div class="col-xs-11 col-sm-12">
       <div id="openlayers-canvas" class="map-widget"></div>
       <div id="marker-tooltip" class="hide"></div>

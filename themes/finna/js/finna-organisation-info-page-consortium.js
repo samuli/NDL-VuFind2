@@ -123,7 +123,8 @@ finna = $.extend(finna, {
                 if (!usageRights) {
                     initSectorUsageInfo(parent, function(info) {
                         if (info) {
-                            usageHolder.html(info).slideDown();
+                            usageHolder.find('.fa-spinner').remove();
+                            usageHolder.find('.no-info').removeClass('hide').after($('<p/>').html(info));
                         }
                     });
                 }
