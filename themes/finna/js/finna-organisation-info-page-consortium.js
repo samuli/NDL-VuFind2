@@ -3,6 +3,7 @@ finna = $.extend(finna, {
     organisationInfoPageConsortium: function() {
         var consortiumInfo = false;
         var holder = false;
+        var parent = false;
 
         var updateConsortiumNotification = function(data) {
             if ('consortium' in data) {
@@ -50,11 +51,15 @@ finna = $.extend(finna, {
                     holder.find('.consortium-navigation-list .scroll.building').text(name);
                 }
 
+                var usageRights = null;
+                var usageHolder = usageInfo.find('.usage-rights-text');
                 var finnaData = finna.common.getField(consortiumData, 'finna');
                 if (finnaData) {
-                    var usage = finna.common.getField(finnaData, 'usage_info');
-                    if (usage) {
-                        usageInfo.find('.usage-rights-text').html(usage);
+                    usageRights = finna.common.getField(finnaData, 'usage_info');
+                    if (usageRights) {
+                        usageHolder.html(usageRights);
+                    } else {
+                        usageRights = null;
                     }
 
                     var usagePerc = finna.common.getField(finnaData, 'usage_perc');
@@ -82,16 +87,16 @@ finna = $.extend(finna, {
                         gauge.set(gaugeVal);
                         holder.find('.gauge-value .val').text(Math.round(gaugeVal));
                     }
-                    if (usage || usagePerc) {
-                        holder.find('.usage-rights-heading').removeClass('hide');
-                        enableConsortiumNaviItem('usage');
-                    }
+                    enableConsortiumNaviItem('usage');
+
+                    var linksHolder;
+                    var template;
 
                     var finnaLink = finna.common.getField(finnaData, 'finnaLink');
                     if (finnaLink) {
-                        var linksHolder = holder.find('.consortium-usage-rights .finna-link');
+                        linksHolder = holder.find('.consortium-usage-rights .finna-link');
                         linksHolder.removeClass('hide');
-                        var template = linksHolder.find('li.template').removeClass('template');
+                        template = linksHolder.find('li.template').removeClass('template');
                         $(finnaLink).each(function(ind, obj) {
                             var li = template.clone();
                             var a = li.find('a');
@@ -103,9 +108,9 @@ finna = $.extend(finna, {
 
                     var links = finna.common.getField(finnaData, 'links');
                     if (links) {
-                        var linksHolder = holder.find('.consortium-usage-rights .links');
+                        linksHolder = holder.find('.consortium-usage-rights .links');
                         linksHolder.removeClass('hide');
-                        var template = linksHolder.find('li.template').removeClass('template');
+                        template = linksHolder.find('li.template').removeClass('template');
                         $(links).each(function(ind, obj) {
                             var li = template.clone();
                             var a = li.find('a');
@@ -114,6 +119,13 @@ finna = $.extend(finna, {
                         });
                         template.remove();
                     }
+                }
+                if (!usageRights) {
+                    initSectorUsageInfo(parent, function(info) {
+                        if (info) {
+                            usageHolder.html(info).slideDown();
+                        }
+                    });
                 }
             }
 
@@ -149,6 +161,37 @@ finna = $.extend(finna, {
             }
         };
 
+        var initSectorUsageInfo = function(id, callback) {
+            // Resolve building sector
+            var url = 'https://api.finna.fi/v1/search?';
+            var params = {
+                'filter[]': 'building:0/' + id + '/',
+                'limit': 1,
+                'field[]': 'sectors'
+            };
+            url += $.param(params) + '&callback=?';
+
+            $.getJSON(url)
+                .done(function(response) {
+                    if (response.status == 'OK'
+                        && response.resultCount > 0
+                        && 'sectors' in response.records[0])
+                    {
+                        // General usage info for sector
+                        var sector = $(response.records[0].sectors).last()[0].value;
+                        // Use same info for academic libraries
+                        if (sector == '1/lib/poly/') {
+                            sector = '1/lib/uni/';
+                        }
+                        var usageInfo = VuFind.translate('usageInfo-' + sector);
+                        callback(finna.common.decodeHtml(usageInfo));
+                    }
+                })
+                .fail(function(response, textStatus, err) {
+                    callback(false);
+                });
+        };
+
         var enableConsortiumNaviItem = function(id) {
             holder.find('.consortium-navigation .scroll.' + id).addClass('active');
         };
@@ -175,7 +218,8 @@ finna = $.extend(finna, {
             enableConsortiumNaviItem: enableConsortiumNaviItem,
             initConsortiumNavi: initConsortiumNavi,
             updateConsortiumInfo: updateConsortiumInfo,
-            init: function(_holder) {
+            init: function(_parent, _holder) {
+                parent = _parent;
                 holder = _holder;
             }
         };

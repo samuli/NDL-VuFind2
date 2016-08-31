@@ -453,7 +453,7 @@ finna.organisationInfoPage = (function() {
 
             if (consortiumInfo) {
                 consortium = new finna.organisationInfoPageConsortium();
-                consortium.init(holder);
+                consortium.init(parent, holder);
             }
 
             window.onhashchange = function() {

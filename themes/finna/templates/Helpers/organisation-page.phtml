@@ -17,6 +17,13 @@
   $this->headScript()->appendScript($setupJS);
 
   $this->jsTranslations()->addStrings(['organisationInfoAutocomplete' => 'organisation-info-autocomplete']);
+
+  if ($this->consortiumInfo) {
+     foreach (['0/arc/', '0/mus/', '1/lib/pub/', '1/lib/poly/', '1/lib/uni/'] as $sector) {
+        $this->jsTranslations()->addStrings(["usageInfo-{$sector}" => "organisation-usage-rights-{$sector}_html"]);
+     }
+  }
+
 ?>
 <div class="organisation-info-page loading organisation-page-information-wrapper <?= !($this->consortiumInfo) ? 'last-section' : '';?>">
   <div class="loader">
@@ -72,9 +79,9 @@
   <div class="container organisation-info-page loading organisation-page-information-wrapper">
     <div class="consortium-usage-rights hide navi-section" id="consortium-usage-rights-section">
       <div class="row">
-        <div class="col-xs-12 hide usage-rights-heading"><h3><?=$this->transEsc('organisation-info-navi-usage')?></h3></div>
+        <div class="col-xs-12 usage-rights-heading"><h3><?=$this->transEsc('organisation-info-navi-usage')?></h3></div>
         <div class="col-xs-12 col-sm-9">
-          <div class="usage-rights-text"><?=$this->translate('organisation-no-consortium-info');?><p><a href="http://finna.fi/Content/organisations?lng=<?=$this->layout()->userLang;?>#usage" target="_blank"><?=$this->translate('organisation-common-usage-rights-link');?></a></p></div>
+          <div class="usage-rights-text"><i class="fa fa-spinner fa-spin" style="text-align: center;"></i></div>
           <div class="row">
             <div class="col-xs-12 col-sm-8 col-md-7 col-lg-6">
               <form class="searchbox-consortium searchForm" action="<?=$this->url('search-results')?>">
