@@ -2,7 +2,7 @@
   $this->headScript()->appendFile("finna-organisation-info.js");
   $this->headScript()->appendFile("finna-organisation-info-widget.js");
 ?>
-<div class="organisation-info" data-parent="<?=$this->escapeHtmlAttr($this->id)?>" data-target="<?=$this->escapeHtmlAttr($this->target)?>" data-init="<?=$this->target == 'widget' ? '1' : '0'?>">
+<div class="organisation-info" data-parent="<?=$this->escapeHtmlAttr($this->id)?>" data-target="<?=$this->escapeHtmlAttr($this->target)?>" data-init="<?=$this->target == 'widget' ? '1' : '0'?>"<?=!empty($this->buildings) ? (' data-buildings="' . implode(',', $this->buildings) . '"') : ''?>>
 <? if ($this->target == 'widget'): ?>
   <div class="row">
     <div class="col-xs-12">
@@ -16,11 +16,11 @@
   </div>
   <div class="row content hide">
     <div class="col-md-8 col-lg-7 col-xs-12 info">
-      <h4>
+      <div>
         <select name="organisation" class="organisation form-control form-inline"></select>
         <span class="is-open open info-element"><?=$this->translate('organisation-info-is-open')?></span>
         <span class="is-open closed info-element"><?=$this->translate('organisation-info-is-closed')?></span>
-      </h4>
+      </div>
 <? endif ?>
       <div class="info schedules">
         <div class="week-navi-holder">

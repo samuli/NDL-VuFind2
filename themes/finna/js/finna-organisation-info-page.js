@@ -11,8 +11,8 @@ finna.organisationInfoPage = (function() {
     var consortiumInfo = false;
     var consortium = false;
 
-    var loadOrganisationList = function(id) {
-        service.getOrganisations('page', parent, function(response) {
+    var loadOrganisationList = function(id, buildings) {
+        service.getOrganisations('page', parent, buildings, function(response) {
             if (response) {
                 holder.find('.loading').toggleClass('loading', false);
 
@@ -402,6 +402,7 @@ finna.organisationInfoPage = (function() {
             var conf = holder.find('.config');
 
             var library = conf.find('input[name="library"]').val();
+            var buildings = conf.find('input[name="buildings"]').val();
             var mapTileUrl = conf.find('input[name="mapTileUrl"]').val();
             var attribution = conf.find('input[name="attribution"]').val();
             consortiumInfo = conf.find('input[name="consortiumInfo"]').val() == 1;
@@ -468,7 +469,7 @@ finna.organisationInfoPage = (function() {
             if (hash = getOrganisationFromURL()) {
                 library = hash;
             }
-            loadOrganisationList(library);
+            loadOrganisationList(library, buildings);
         }
     };
 

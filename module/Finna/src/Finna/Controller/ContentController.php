@@ -121,11 +121,16 @@ class ContentController extends \VuFind\Controller\AbstractBase
             ->get('VuFind\Config')->get('organisationInfo');
 
         $id = $this->params()->fromQuery('id');
+        $buildings = $this->params()->fromQuery('buildings');
+
         if (!$id) {
             if (!isset($config->General->defaultOrganisation)) {
                 throw(new \Exception('Organisation id not defined'));
             }
             $id = $config->General->defaultOrganisation;
+            if (isset($config->General->buildings)) {
+                $buildings = $config->General->buildings->toArray();
+            }
         }
 
         $organisation = "0/{$id}/";
@@ -142,6 +147,9 @@ class ContentController extends \VuFind\Controller\AbstractBase
 
         $view->title = $title;
         $view->id = $id;
+        if ($buildings) {
+            $view->buildings = implode(',', $buildings);
+        }
 
         return $view;
     }

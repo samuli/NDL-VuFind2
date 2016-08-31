@@ -14,10 +14,11 @@ finna = $.extend(finna, {
             if (typeof parent == 'undefined') {
                 return;
             }
+            var buildings = holder.data('buildings');
 
             toggleSpinner(true);
             holder.find('.error,.info-element').hide();
-            service.getOrganisations(holder.data('target'), parent, function(response) {
+            service.getOrganisations(holder.data('target'), parent, buildings, function(response) {
                 if (response === false) {
                     holder.html('<!-- Organisation info could not be loaded');            
                 } else {

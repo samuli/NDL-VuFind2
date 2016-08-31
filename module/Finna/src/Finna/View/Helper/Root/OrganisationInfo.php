@@ -69,16 +69,22 @@ class OrganisationInfo extends \Zend\View\Helper\AbstractHelper
         }
 
         $id = isset($params['id']) ? $params['id'] : null;
+        $buildings = isset($params['buildings']) ? $params['buildings'] : null;
+
         if (!$id) {
             if (!isset($this->config->General->defaultOrganisation)) {
                 return;
             }
             $id = $this->config->General->defaultOrganisation;
+            if (isset($this->config->General->buildings)) {
+                $buildings = $this->config->General->buildings->toArray();
+            }
         }
 
         return $this->getView()->render(
             'Helpers/organisation-info.phtml', [
                'id' => $id,
+               'buildings' => $buildings,
                'init' => isset($params['init'])
                   ? $params['init'] : true,
                'target' => isset($params['target'])

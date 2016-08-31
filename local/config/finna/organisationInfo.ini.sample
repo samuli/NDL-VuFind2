@@ -23,6 +23,10 @@ languages[] = en
 ; Default organisation id
 defaultOrganisation = Vaski
 
+; Optional list of building id's to show from organisation.
+; buildings[] = 85141
+; buildings[] = 85968
+
 ; How long content is cached locally in minutes.
 ; Set this to false or comment out to disable caching.
 cachetime = 1

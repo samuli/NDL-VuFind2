@@ -71,7 +71,7 @@ class OrganisationPage extends \Zend\View\Helper\AbstractHelper
      *
      * @return mixed null|string
      */
-    public function __invoke($id)
+    public function __invoke($id, $buildings = null)
     {
         if (!$this->config->General->enabled) {
             throw(new \Exception('Organisation page is disabled'));
@@ -93,6 +93,7 @@ class OrganisationPage extends \Zend\View\Helper\AbstractHelper
 
         $params = [
             'id' => $id,
+            'buildings' => $buildings,
             'buildingFacetOperator' => $this->buildingFacetOperator,
             'consortiumInfo' => $consortiumInfo,
             'mapTileUrl' => $mapTileUrl,

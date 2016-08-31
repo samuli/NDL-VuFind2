@@ -30,7 +30,7 @@ organisationInfo: function() {
         });
     };
 
-    var getOrganisations = function(target, parent, callback) {
+    var getOrganisations = function(target, parent, buildings, callback) {
         if (typeof parent == 'undefined') {
             return;
         }
@@ -40,7 +40,7 @@ organisationInfo: function() {
         }
 
         var me = self;
-        var response = query(parent, {action: 'consortium', target: target}, function(success, response) {
+        var response = query(parent, {action: 'consortium', target: target, buildings: buildings}, function(success, response) {
             if (!success) {
                 callback(false);
                 return;

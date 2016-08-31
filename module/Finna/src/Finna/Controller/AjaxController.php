@@ -939,6 +939,8 @@ class AjaxController extends \VuFind\Controller\AjaxController
         $params = $this->params()->fromQuery('params');
         $session = new SessionContainer('OrganisationInfo');
         $action = $params['action'];
+        $buildings = isset($params['buildings'])
+            ? explode(',', $params['buildings']) : null;
 
         $key = $parent;
         if ($action == 'details') {
@@ -966,7 +968,7 @@ class AjaxController extends \VuFind\Controller\AjaxController
 
         $service = $this->getServiceLocator()->get('Finna\OrganisationInfo');
         try {
-            $response = $service->query($parent, $params);
+            $response = $service->query($parent, $params, $buildings);
         } catch (\Exception $e) {
             return $this->output(
                 "Error reading organisation info (parent $parent)",

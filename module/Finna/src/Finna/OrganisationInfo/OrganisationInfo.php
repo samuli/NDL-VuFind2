@@ -188,7 +188,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
      *
      * @return mixed array of results or false on error.
      */
-    public function query($parent, $params)
+    public function query($parent, $params, $buildings = null)
     {
         $id = null;
         if (isset($params['id'])) {
@@ -277,7 +277,6 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                 $this->logError("Lookup error (url: $url)");
                 return false;
             }
-            error_log(var_export($response, true));
 
             if ($response['total'] == 0) {
                 return false;
@@ -343,26 +342,27 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                         }
                     }
 
-                    // show coverage if value exists
                     if (isset($finna['finna_coverage'])) {
                         $finna['usage_perc'] = $finna['finna_coverage'];
                     }
 
-                    // show link_groups if they exist
                     if (isset($response['link_groups'])) {
                         foreach ($response['link_groups'] as $field) {
-                            if ($field['identifier'] == 'finna_materials') {
-                                foreach ($field['links'] as $field) {
-                                    $name = $this->getField($field, 'name');
-                                    $url =  $this->getField($field, 'url');
-                                    $finna['links'][] = ['name' => $name, 'value' => $url];
+                            $map = [
+                                'finna_materials' => 'links',
+                                'finna_usage_info' => 'finnaLink'
+                            ];
+                            foreach ($map as $from => $to) {
+                                if (empty($field['identifier'])) {
+                                    continue;
                                 }
-                            }
-                            if ($field['identifier'] == 'finna_usage_info') {
-                                foreach ($field['links'] as $field) {
-                                    $name = $this->getField($field, 'name');
-                                    $url =  $this->getField($field, 'url');
-                                    $finna['finnaLink'][] = ['name' => $name, 'value' => $url];
+                                if ($field['identifier'] == $from) {
+                                    foreach ($field['links'] as $field) {
+                                        $name = $this->getField($field, 'name');
+                                        $url =  $this->getField($field, 'url');
+                                        $finna[$to][]
+                                            = ['name' => $name, 'value' => $url];
+                                    }
                                 }
                             }
                         }
@@ -388,6 +388,9 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             ];
             if (!$this->fallbackLanguage) {
                 $params['lang'] = $this->language;
+            }
+            if (!empty($buildings)) {
+                $params['id'] = implode(',', $buildings);
             }
 
             $response = $this->fetchData($url, $params);
