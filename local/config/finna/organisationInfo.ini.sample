@@ -15,7 +15,7 @@ url = "https://api.kirjastot.fi/v3"
 ; Fallback language version to use when no translation has been defined for the current language.
 fallbackLanguage = 'fi'
 
-; Language versions with translations.
+; Allowed language versions
 languages[] = fi
 languages[] = sv
 languages[] = en
