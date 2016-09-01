@@ -29,37 +29,52 @@ finna = $.extend(finna, {
         var organisationListLoaded = function(data) {
             var list = data['list'];
             var id = data['id'];
-
             var found = false;
-            var menu = holder.find('.organisation');
+            var menu = holder.find('.organisation ul.dropdown-menu');
+            var menuInput = holder.find('.organisation .dropdown-toggle input');
+
             $.each(list, function(ind, obj) {
                 if (id == obj['id']) {
                     found = true;
                 }
-                $('<option/>', {value: obj['id'], text: obj['name']}).appendTo(menu);
+                $('<li role="menuitem"><input type="hidden" value="' + obj['id'] + '"></input>' + obj['name'] + '</li>').appendTo(menu);
                 organisationList[obj['id']] = obj;
             });
 
             if (!found) {
-                id = menu.find('option').eq(0).val();
+                id = menu.find('li input').eq(0).val();
+                
             }
-            menu.val(id);
-            menu.on('change', function() {
-                showDetails($(this).val(), $(this).find('option:selected').text(), false);
+            menuInput.val(id);
+            var menuItem = holder.find('.organisation ul.dropdown-menu li');
+            menuItem.on('click', function() {
+                menuInput.val($(this).find('input').val());
+                menuClicked(false);
             });
 
-            var organisation = holder.find('.organisation option:selected');
-            showDetails(organisation.val(), organisation.text(), false);
-
+            menuClicked(list.length == 1);
             toggleSpinner(false);
             holder.find('.content').removeClass('hide');
-
             var week = parseInt(data['weekNum']);
             updateWeekNum(week);
-
             attachWeekNaviListener();
         };
-        
+
+        var menuClicked = function(disable) {
+            var toggle = holder.find('.organisation .dropdown-toggle');
+            var input = toggle.find('input');
+            var id = input.val();
+            var name = holder.find('.organisation ul.dropdown-menu li input[value="' + id + '"]').parent('li').text();
+            
+            toggle.find('span').text(name);
+            showDetails(id, name, false);
+
+            if (disable) {
+                var menu = holder.find('.organisation.dropdown');
+                menu.replaceWith(menu.find('.dropdown-toggle span'));
+            }
+        };
+
         var attachWeekNaviListener = function() {
             holder.find('.week-navi').unbind('click').click(function() {
                 if (schedulesLoading) {
