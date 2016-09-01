@@ -214,9 +214,9 @@ finna.organisationInfoPage = (function() {
         if ('consortium' in data) {
             if ('finna' in data.consortium
                 && 'service_point' in data.consortium.finna && window.location.hash == ''
-               ) {
-                  window.location.hash = data.consortium.finna['service_point'];
-               }
+            ) {
+               window.location.hash = data.consortium.finna['service_point'];
+            }
         }
     };
 
