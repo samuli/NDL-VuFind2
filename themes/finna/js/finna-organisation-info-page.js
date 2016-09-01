@@ -29,9 +29,13 @@ finna.organisationInfoPage = (function() {
                     initMap();
                     holder.find('.office-quick-information').show();
 
-                    // IE opens Delay initing autocomplete menu to prevent IE from opening it automatically at
-                    initSearch();
-
+                    // if theres only one service point, hide searchbox and ignore initSearch
+                    if (cnt == 1) {
+                        holder.find('.office-search .searchbox-office').hide();
+                    } else {
+                        // IE opens Delay initing autocomplete menu to prevent IE from opening it automatically at
+                        initSearch();
+                    }
                     holder.find('.ui-autocomplete-input')
                         .attr('placeholder', VuFind.translate('organisationInfoAutocomplete').replace('%%count%%', cnt))
                         .focus().blur();
