@@ -16,11 +16,17 @@
   </div>
   <div class="row content hide">
     <div class="col-md-8 col-lg-7 col-xs-12 info">
-      <div>
-        <select name="organisation" class="organisation form-control form-inline"></select>
+      <h4>
+        <div class="organisation-dropdown-holder">
+          <div name="organisation" class="organisation dropdown">
+              <a href="#" class="dropdown-toggle" data-toggle="dropdown"><input type="hidden"></input><span></span><i class="fa fa-arrow-down"></i></a>
+              <ul class="dropdown-menu" role="menu">
+              </ul>
+          </div>
+        </div>
         <span class="is-open open info-element"><?=$this->translate('organisation-info-is-open')?></span>
         <span class="is-open closed info-element"><?=$this->translate('organisation-info-is-closed')?></span>
-      </div>
+      </h4>
 <? endif ?>
       <div class="info schedules">
         <div class="week-navi-holder">
@@ -37,18 +43,18 @@
             <div class="time-row template hide">
               <div class="cell date"></div>
               <div class="cell description">
-                <span class="name"></span><span class="name-staff"><?=$this->translate('organisation-info-schedule-staff')?></span><span class="info"></span><span class="selfservice-only hide"><?=$this->translate('organisation-info-only-selfservice')?></span>              
+                <span class="name"></span><span class="name-staff"><?=$this->translate('organisation-info-schedule-staff')?></span><span class="info"></span><span class="selfservice-only hide"><?=$this->translate('organisation-info-only-selfservice')?></span>
               </div>
               <div class="cell time-container">
                 <div class="cell time-template">
                   <span class="period"><span class="opens"></span> - <span class="closes"></span></span>
                   <span class="closed-today hide"><?=$this->translate('organisation-info-is-closed')?></span>
                 </div>
-              </div>                
+              </div>
             </div>
           </div>
         </div>
-        
+
         <div class="no-schedules info-element"><?=$this->translate('organisation-info-no-schedule')?></div>
         <div class="mobile-schedule-link-template hide"><a href="#"></a></div>
         <div class="mobile-schedules info-element"></div>

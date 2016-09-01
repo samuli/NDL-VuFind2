@@ -1,5 +1,11 @@
 .organisation-info {
     padding-bottom: 20px;
+    & .loader {
+        text-align: center;
+        & .fa-spinner:before {
+            font-size: 30px;   
+        }
+    }
     & .open {
         color: green;
     }
@@ -45,7 +51,7 @@
             font-size: 1.2em;
             font-weight: bold;
             float: right;
-            margin-top: 8px;
+            margin-top: 0px;
             margin-right: 3px;
         }
         & h4 {
@@ -72,7 +78,7 @@
             }
             & .day-container {
                 margin-bottom: 1px;
-                padding: 2px 0px;
+                padding: 2px;
                 & .time-row {
                     width: 100%;
                     line-height: 1.26em;
