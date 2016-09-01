@@ -435,7 +435,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                 return false;
             }
 
-            $url .= "/library";
+            $url .= "/organisation";
 
             $with = $schedules ? 'schedules,' : '';
             if (!empty($params['fullDetails'])) {
