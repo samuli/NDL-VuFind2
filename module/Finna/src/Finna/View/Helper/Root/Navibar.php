@@ -38,7 +38,6 @@ namespace Finna\View\Helper\Root;
  */
 class Navibar extends \Zend\View\Helper\AbstractHelper
 {
-
     /**
      * View helpers
      *
