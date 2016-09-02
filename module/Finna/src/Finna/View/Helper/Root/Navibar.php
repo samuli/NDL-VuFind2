@@ -38,40 +38,13 @@ namespace Finna\View\Helper\Root;
  */
 class Navibar extends \Zend\View\Helper\AbstractHelper
 {
-    /**
-     * Browse view helper
-     *
-     * @var Zend\View\Helper\Url
-     */
-    protected $browseHelper;
 
     /**
-     * Combined results view helper
+     * View helpers
      *
-     * @var Zend\View\Helper\Combined
+     * @var array
      */
-    protected $combinedHelper;
-
-    /**
-     * MetaLib view helper
-     *
-     * @var Zend\View\Helper\Url
-     */
-    protected $metaLibHelper;
-
-    /**
-     * Primo view helper
-     *
-     * @var Zend\View\Helper\Url
-     */
-    protected $primoHelper;
-
-    /**
-     * Url view helper
-     *
-     * @var Zend\View\Helper\Url
-     */
-    protected $urlHelper;
+    protected $viewHelpers = [];
 
     /**
      * Menu configuration
@@ -140,11 +113,6 @@ class Navibar extends \Zend\View\Helper\AbstractHelper
     public function getMenuItems($lng)
     {
         if (!$this->menuItems || $lng != $this->language) {
-            $this->browseHelper = $this->getView()->plugin('browse');
-            $this->combinedHelper = $this->getView()->plugin('combined');
-            $this->metaLibHelper = $this->getView()->plugin('metalib');
-            $this->primoHelper = $this->getView()->plugin('primo');
-            $this->urlHelper = $this->getView()->plugin('url');
             $this->language = $lng;
             $this->parseMenuConfig($lng);
         }
@@ -166,11 +134,11 @@ class Navibar extends \Zend\View\Helper\AbstractHelper
 
         try {
             if (isset($data['routeParams'])) {
-                return $this->urlHelper->__invoke(
+                return $this->getViewHelper('url')->__invoke(
                     $data['url'], $data['routeParams']
                 );
             } else {
-                return $this->urlHelper->__invoke($data['url']);
+                return $this->getViewHelper('url')->__invoke($data['url']);
             }
         } catch (\Exception $e) {
         }
@@ -287,7 +255,7 @@ class Navibar extends \Zend\View\Helper\AbstractHelper
                     $parseUrl($action)
                 );
 
-                if (!$this->enableMenuItem($option)) {
+                if (!$this->menuItemEnabled($option)) {
                     continue;
                 }
 
@@ -314,7 +282,7 @@ class Navibar extends \Zend\View\Helper\AbstractHelper
      *
      * @return boolean
      */
-    protected function enableMenuItem($item)
+    protected function menuItemEnabled($item)
     {
         if (empty($item['route'])) {
             return true;
@@ -323,19 +291,19 @@ class Navibar extends \Zend\View\Helper\AbstractHelper
         $url = $item['url'];
 
         if (strpos($url, 'combined-') === 0) {
-            return $this->combinedHelper->isAvailable();
+            return $this->getViewHelper('combined')->isAvailable();
         }
         if (strpos($url, 'metalib-') === 0) {
-            return $this->metaLibHelper->isAvailable();
+            return $this->getViewHelper('metalib')->isAvailable();
         }
         if (strpos($url, 'primo-') === 0) {
-            return $this->primoHelper->isAvailable();
+            return $this->getViewHelper('primo')->isAvailable();
         }
         if ($url === 'browse-database') {
-            return $this->browseHelper->isAvailable('Database');
+            return $this->getViewHelper('browse')->isAvailable('Database');
         }
         if ($url === 'browse-journal') {
-            return $this->browseHelper->isAvailable('Journal');
+            return $this->getViewHelper('browse')->isAvailable('Journal');
         }
 
         return true;
@@ -480,5 +448,20 @@ class Navibar extends \Zend\View\Helper\AbstractHelper
         $move = array_splice($items, $from, 1);
         array_splice($items, $to, 0, $move);
         return $items;
+    }
+
+    /**
+     * Return view helper
+     *
+     * @param string $id Helper id
+     *
+     * @return \Zend\View\Helper
+     */
+    protected function getViewHelper($id)
+    {
+        if (!isset($this->viewHelpers[$id])) {
+            $this->viewHelpers[$id] = $this->getView()->plugin($id);
+        }
+        return $this->viewHelpers[$id];
     }
 }
