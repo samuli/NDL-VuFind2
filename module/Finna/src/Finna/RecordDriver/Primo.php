@@ -180,29 +180,37 @@ class Primo extends \VuFind\RecordDriver\Primo
         $fulltextAvailable = $this->getFulltextAvailable();
 
         $config = $this->recordConfig->OnlineURLs;
-        $hideFromSource = $fulltextAvailable && $config->hideFromSourceWithFulltext
-            ? $config->hideFromSourceWithFulltext : $config->hideFromSource;
+        $hideFromSource = isset($config->hideFromSource)
+            ? $config->hideFromSource->toArray() : [];
+        $showFromSource = isset($config->showFromSource)
+            ? $config->showFromSource->toArray() : [];
 
-        $showFromSource = $fulltextAvailable && $config->showFromSourceWithFulltext
-            ? $config->showFromSourceWithFulltext : $config->showFromSource;
+        if ($fulltextAvailable) {
+            if ($config->hideFromSourceWithFulltext) {
+                $hideFromSourceWithFulltext
+                    = $config->hideFromSourceWithFulltext->toArray();
+                if (!is_array($hideFromSourceWithFulltext)) {
+                    $hideFromSourceWithFulltext = [$hideFromSourceWithFulltext];
+                }
+                $hideFromSource = array_merge(
+                    $hideFromSource, $hideFromSourceWithFulltext
+                );
+            }
+
+            if ($config->showFromSourceWithFulltext) {
+                $showFromSourceWithFulltext
+                    = $config->showFromSourceWithFulltext->toArray();
+                if (!is_array($showFromSourceWithFulltext)) {
+                    $showFromSourceWithFulltext = [$showFromSourceWithFulltext];
+                }
+                $showFromSource = array_merge(
+                    $showFromSource, $showFromSourceWithFulltext
+                );
+            }
+        }
 
         if (!$hideFromSource && !$showFromSource) {
             return true;
-        }
-
-        if ($hideFromSource) {
-            if (is_string($hideFromSource)) {
-                $hideFromSource = [$hideFromSource];
-            } else {
-                $hideFromSource = $hideFromSource->toArray();
-            }
-        }
-        if ($showFromSource) {
-            if (is_string($showFromSource)) {
-                $showFromSource = [$showFromSource];
-            } else {
-                $showFromSource = $showFromSource->toArray();
-            }
         }
 
         $source = $rec->search->sourceid;
