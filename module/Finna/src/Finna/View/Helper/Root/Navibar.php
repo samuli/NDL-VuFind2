@@ -254,10 +254,6 @@ class Navibar extends \Zend\View\Helper\AbstractHelper
                     $parseUrl($action)
                 );
 
-                if (!$this->menuItemEnabled($option)) {
-                    continue;
-                }
-
                 $desc = 'menu_' . $itemKey . '_desc';
                 if (!$translationEmpty($desc)) {
                     $option['desc'] = $desc;
@@ -271,7 +267,16 @@ class Navibar extends \Zend\View\Helper\AbstractHelper
                 $result[] = $item;
             }
         }
-        $this->menuItems = $this->sortMenuItems($result, $sortData);
+
+        $menuItems = $this->sortMenuItems($result, $sortData);
+        foreach ($menuItems as &$option) {
+            foreach ($option['items'] as $itemKey => &$item) {
+                if (!$this->menuItemEnabled($item)) {
+                    unset($option['items'][$itemKey]);
+                }
+            }
+        }
+        $this->menuItems = $menuItems;
     }
 
     /**
