@@ -163,10 +163,8 @@ finna.organisationInfoPage = (function() {
 
             select: function(event, ui) {
                 holder.find('#office-search').val(ui.item.label);
-                // Reset hash so that onhashchange is triggered when the same menu
-                // item is re-selected
-                window.location.hash = '';
-                window.location.hash = ui.item.value;
+                var hash = ui.item.value;
+                updateWindowHash(hash);
                 return false;
             },
 
@@ -199,6 +197,26 @@ finna.organisationInfoPage = (function() {
             officeSearch.focus();
             return false;
         });
+    };
+
+    var updateWindowHash = function(hash) {
+        // Create a fake hidden div with id=hash and absolute position
+        // so that window scroll position is preserved when the hash is updated below.
+        holder.find('div.hash').remove();
+        $('<div/>')
+            .css({
+                position:'absolute',
+                visibility:'hidden',
+                top: $(document).scrollTop() + 'px'
+            })
+            .addClass('hash')
+            .attr( 'id', hash )
+            .appendTo(holder);
+
+        // Set hash first to empty value, so that onhashchange is triggered when
+        // the same menu item is re-selected.
+        window.location.hash = '';
+        window.location.hash = hash;
     };
 
     var hideMapMarker = function() {
