@@ -127,17 +127,21 @@ class Navibar extends \Zend\View\Helper\AbstractHelper
      */
     public function getMenuItemUrl(array $data)
     {
-        if (!$data['route']) {
-            return $data['url'];
+        $action = $data['action'];
+        if (!$action || empty($action['url'])) {
+            return null;
+        }
+        if (!$action['route']) {
+            return $action['url'];
         }
 
         try {
-            if (isset($data['routeParams'])) {
+            if (isset($action['routeParams'])) {
                 return $this->getViewHelper('url')->__invoke(
-                    $data['url'], $data['routeParams']
+                    $action['url'], $action['routeParams']
                 );
             } else {
-                return $this->getViewHelper('url')->__invoke($data['url']);
+                return $this->getViewHelper('url')->__invoke($action['url']);
             }
         } catch (\Exception $e) {
         }
@@ -238,21 +242,14 @@ class Navibar extends \Zend\View\Helper\AbstractHelper
 
             $options = [];
             foreach ($items as $itemKey => $action) {
-                if (!$action) {
-                    continue;
-                }
-                if (!is_string($action)) {
-                    if (!isset($action[$lng])) {
-                        continue;
-                    } else {
-                        $action = $action[$lng];
-                    }
+                if (!is_string($action) && isset($action[$lng])) {
+                    $action = $action[$lng];
                 }
 
-                $option = array_merge(
-                    ['id' => $itemKey, 'label' => "menu_$itemKey"],
-                    $parseUrl($action)
-                );
+                $option = [
+                    'id' => $itemKey, 'label' => "menu_$itemKey",
+                    'action' => $parseUrl($action)
+                ];
 
                 $desc = 'menu_' . $itemKey . '_desc';
                 if (!$translationEmpty($desc)) {
@@ -269,10 +266,11 @@ class Navibar extends \Zend\View\Helper\AbstractHelper
         }
 
         $menuItems = $this->sortMenuItems($result, $sortData);
-        foreach ($menuItems as &$option) {
-            foreach ($option['items'] as $itemKey => &$item) {
-                if (!$this->menuItemEnabled($item)) {
-                    unset($option['items'][$itemKey]);
+
+        foreach ($menuItems as $menuKey => $option) {
+            foreach ($option['items'] as $itemKey => $item) {
+                if (!$item['action'] || !$this->menuItemEnabled($item)) {
+                    unset($menuItems[$menuKey]['items'][$itemKey]);
                 }
             }
         }
