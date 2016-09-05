@@ -193,6 +193,9 @@ class Navibar extends \Zend\View\Helper\AbstractHelper
         $translationEmpty = $this->getView()->plugin('translationEmpty');
 
         $parseUrl = function ($url) {
+            if (!$url) {
+                return null;
+            }
             $url = trim($url);
 
             $data = [];
@@ -242,8 +245,8 @@ class Navibar extends \Zend\View\Helper\AbstractHelper
 
             $options = [];
             foreach ($items as $itemKey => $action) {
-                if (!is_string($action) && isset($action[$lng])) {
-                    $action = $action[$lng];
+                if (!is_string($action)) {
+                    $action = isset($action[$lng]) ? $action = $action[$lng] : null;
                 }
 
                 $option = [
@@ -273,7 +276,16 @@ class Navibar extends \Zend\View\Helper\AbstractHelper
                     unset($menuItems[$menuKey]['items'][$itemKey]);
                 }
             }
+            $menuItems[$menuKey]['items']
+                = array_values($menuItems[$menuKey]['items']);
+
+            if (isset($menuItems[$menuKey]['items'])
+                && empty($menuItems[$menuKey]['items'])
+            ) {
+                unset($menuItems[$menuKey]);
+            }
         }
+
         $this->menuItems = $menuItems;
     }
 
