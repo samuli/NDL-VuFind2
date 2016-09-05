@@ -163,6 +163,9 @@ finna.organisationInfoPage = (function() {
 
             select: function(event, ui) {
                 holder.find('#office-search').val(ui.item.label);
+                // Reset hash so that onhashchange is triggered when the same menu
+                // item is re-selected
+                window.location.hash = '';
                 window.location.hash = ui.item.value;
                 return false;
             },
@@ -232,11 +235,11 @@ finna.organisationInfoPage = (function() {
         var notification = holder.find('.office-search-notifications .notification');
         if (id in organisationList) {
             var data = organisationList[id];
+            map.hideMarker();
             if ('address' in data && 'coordinates' in data.address) {
                 map.selectMarker(id);
                 notification.hide();
             } else {
-                map.hideMarker();
                 map.reset();
                 notification.show().delay(2000).fadeOut(500);
             }
