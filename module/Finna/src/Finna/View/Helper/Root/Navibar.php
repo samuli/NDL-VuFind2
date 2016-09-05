@@ -286,11 +286,15 @@ class Navibar extends \Zend\View\Helper\AbstractHelper
      */
     protected function menuItemEnabled($item)
     {
-        if (empty($item['route'])) {
+        $action = $item['action'];
+        if (!$action) {
+            return false;
+        }
+        if (empty($action['route'])) {
             return true;
         }
 
-        $url = $item['url'];
+        $url = $action['url'];
 
         if (strpos($url, 'combined-') === 0) {
             return $this->getViewHelper('combined')->isAvailable();
