@@ -32,7 +32,7 @@ finna = $.extend(finna, {
 
             map = L.map($(holder).attr('id'), {
                 minZoom: zoomLevel.far,
-                maxZoom: 20,
+                maxZoom: 18,
                 zoomDelta: 0.1,
                 zoomSnap: 0.1
             });
