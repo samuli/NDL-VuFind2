@@ -45,11 +45,7 @@ consortiumInfo = 0
 title = 'organisation-info-page-title';
 ;title = 'organisation-info-page-title-national';
 
-; OpenStreetMap
-;mapTileUrl = 'http://tile.openstreetmap.org/{z}/{x}/{y}.png'
-
-; DigiTransit / HSL
-mapTileUrl = 'https://api.digitransit.fi/map/v1/hsl-map/{z}/{x}/{y}.png'
+mapTileUrl = 'https://map-api.finna.fi/v1/rendered/{z}/{x}/{y}.png'
 
 ; Info text on map widget
 attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
