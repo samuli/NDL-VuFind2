@@ -128,21 +128,23 @@ class Navibar extends \Zend\View\Helper\AbstractHelper
     public function getMenuItemUrl(array $data)
     {
         $action = $data['action'];
+        $target = isset($action['target']) ? $action['target'] : null;
         if (!$action || empty($action['url'])) {
             return null;
         }
         if (!$action['route']) {
-            return $action['url'];
+            return ['url' => $action['url'], 'target' => $target];
         }
 
         try {
             if (isset($action['routeParams'])) {
-                return $this->getViewHelper('url')->__invoke(
+                $url =  $this->getViewHelper('url')->__invoke(
                     $action['url'], $action['routeParams']
                 );
             } else {
-                return $this->getViewHelper('url')->__invoke($action['url']);
+                $url = $this->getViewHelper('url')->__invoke($action['url']);
             }
+            return ['url' => $url, 'target' => $target];
         } catch (\Exception $e) {
         }
 
