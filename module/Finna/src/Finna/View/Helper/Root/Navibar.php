@@ -248,7 +248,7 @@ class Navibar extends \Zend\View\Helper\AbstractHelper
             $options = [];
             foreach ($items as $itemKey => $action) {
                 if (!is_string($action)) {
-                    $action = isset($action[$lng]) ? $action = $action[$lng] : null;
+                    $action = isset($action[$lng]) ? $action[$lng] : null;
                 }
 
                 $option = [
