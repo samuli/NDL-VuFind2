@@ -123,10 +123,9 @@ finna = $.extend(finna, {
                 holder.find('.email').attr('href', 'mailto:' + data['email']).show();
             }
 
-            if ('homepage' in data) {
-                holder.find('a.details').attr('href', data['homepage']);
-                holder.find('.details-link').show();
-            }
+            var detailsLinkHolder = holder.find('.details-link').show();
+            var detailsLink = detailsLinkHolder.find('a');
+            detailsLink.attr('href', detailsLink.data('href') + ('#' + id));
 
             if ('routeUrl' in data) {
                 holder.find('.route').attr('href', data['routeUrl']).show();
