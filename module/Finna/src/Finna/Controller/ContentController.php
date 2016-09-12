@@ -84,7 +84,9 @@ class ContentController extends \VuFind\Controller\AbstractBase
             return $this->notFoundAction($this->getResponse());
         }
 
-        $view = $this->createViewModel(['page' => $page]);
+        $view = $this->createViewModel(
+            ['page' => $page, 'params' => $this->params()]
+        );
         if (method_exists($this, $action)) {
             $view = call_user_func([$this, $action], $view);
         }
@@ -104,6 +106,52 @@ class ContentController extends \VuFind\Controller\AbstractBase
             return $this->createHttpNotFoundModel($response);
         }
         return $this->createConsoleNotFoundModel($response);
+    }
+
+    /**
+     * Organisation page action.
+     *
+     * @param Zend\View\Model\ViewModel $view View
+     *
+     * @return Zend\View\Model\ViewModel
+     */
+    public function organisationAction($view)
+    {
+        $config = $this->getServiceLocator()
+            ->get('VuFind\Config')->get('organisationInfo');
+
+        $id = $this->params()->fromQuery('id');
+        $buildings = $this->params()->fromQuery('buildings');
+
+        if (!$id) {
+            if (!isset($config->General->defaultOrganisation)) {
+                throw(new \Exception('Organisation id not defined'));
+            }
+            $id = $config->General->defaultOrganisation;
+            if (isset($config->General->buildings)) {
+                $buildings = $config->General->buildings->toArray();
+            }
+        }
+
+        $organisation = "0/{$id}/";
+        $translator = $this->getServiceLocator()->get('VuFind\Translator');
+
+        $title = isset($config->OrganisationPage->title)
+            ? $config->OrganisationPage->title : 'organisation-info-page-title';
+
+        $title = str_replace(
+            '%%organisation%%',
+            $translator->translate($organisation),
+            $translator->translate($title)
+        );
+
+        $view->title = $title;
+        $view->id = $id;
+        if ($buildings) {
+            $view->buildings = implode(',', $buildings);
+        }
+
+        return $view;
     }
 
     /**

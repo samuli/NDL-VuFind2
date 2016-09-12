@@ -646,8 +646,50 @@ finna.layout = (function() {
       }
     };
 
+    var initOrganisationPageLinks = function() {
+        $('.organisation-page-link').not('.done').map(function() {
+            $(this).one('inview', function() {
+                var holder = $(this);
+                var organisation = $(this).data('organisation');
+                var link = $(this).data('link');
+                getOrganisationPageLink(organisation, link, function(response) {
+                    holder.toggleClass('done', true);
+                    if (response) {
+                        var data = response[organisation];
+                        if (link === '1') {
+                            holder.wrap($('<a/>').attr('href', data));
+                        } else {
+                            holder.html(data);
+                        }
+                    }
+                });
+            });
+        });
+    };
+
+    var getOrganisationPageLink = function(organisation, link, callback) {
+        var url = VuFind.path + '/AJAX/JSON?method=getOrganisationInfo';
+        url += '&params[action]=lookup&link=' + link + '&parent=' + organisation;
+        $.getJSON(url)
+            .done(function(response) {
+                callback(response.data.items);
+            })
+            .fail(function() {
+            });
+        return callback(false);
+    };
+
+    var initOrganisationInfoWidgets = function() {
+        $('.organisation-info[data-init="1"]').map(function() {
+            var service = finna.organisationInfo();
+            var widget = finna.organisationInfoWidget();
+            widget.init($(this), service);
+            widget.loadOrganisationList();
+        });
+    };
 
     var my = {
+        getOrganisationPageLink: getOrganisationPageLink,
         isTouchDevice: isTouchDevice,
         initTruncate: initTruncate,
         initLocationService: initLocationService,
@@ -682,6 +724,8 @@ finna.layout = (function() {
             initIpadCheck();
             initLoginRedirect();
             initLoadMasonry();
+            initOrganisationInfoWidgets();
+            initOrganisationPageLinks();
         }
     };
 
