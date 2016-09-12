@@ -280,8 +280,6 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                 $fullDetails, $allServices
             );
 
-            // $id, $target, $schedules, $startDate, $endDate, $fullDetails, $allServices
-
             if ($response) {
                 $response['weekNum'] = $weekNum;
             }
@@ -560,7 +558,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
     /**
      * Fetch data from cache or external API.
      *
-     * @param string $url    URL
+     * @param string $action Action
      * @param array  $params Query parameters
      *
      * @return mixed result or false on error.
