@@ -236,7 +236,9 @@ finna.organisationInfoPage = (function() {
     var updateDefaultServicePoint = function(data) {
         if ('consortium' in data) {
             if ('finna' in data.consortium
-                && 'service_point' in data.consortium.finna && window.location.hash == ''
+                && 'service_point' in data.consortium.finna
+                && data.consortium.finna.service_point !== null
+                && window.location.hash == ''
             ) {
                window.location.hash = data.consortium.finna['service_point'];
             }
