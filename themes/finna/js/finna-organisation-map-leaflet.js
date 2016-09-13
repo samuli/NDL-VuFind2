@@ -34,7 +34,8 @@ finna = $.extend(finna, {
                 minZoom: zoomLevel.far,
                 maxZoom: 18,
                 zoomDelta: 0.1,
-                zoomSnap: 0.1
+                zoomSnap: 0.1,
+                closePopupOnClick: false
             });
 
             L.tileLayer(mapTileUrl, {
@@ -54,7 +55,12 @@ finna = $.extend(finna, {
             map.on('popupclose', function(e) {
                 selectedMarker = null;
             });
-           
+
+            map.once('focus', function() {
+                map.scrollWheelZoom.enable();
+            });
+            map.scrollWheelZoom.disable();
+
             L.control.locate().addTo(map);
 
             var LeafIcon = L.Icon.extend({
