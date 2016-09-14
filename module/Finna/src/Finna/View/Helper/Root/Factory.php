@@ -169,7 +169,7 @@ class Factory extends \VuFind\View\Helper\Root\Factory
     public static function getOrganisationInfo(ServiceManager $sm)
     {
         $config = $sm->getServiceLocator()->get('VuFind\Config')
-            ->get('organisationInfo');
+            ->get('OrganisationInfo');
         return new OrganisationInfo($config);
     }
 
@@ -198,7 +198,7 @@ class Factory extends \VuFind\View\Helper\Root\Factory
         }
         
         $config = $sm->getServiceLocator()->get('VuFind\Config')
-            ->get('organisationInfo');
+            ->get('OrganisationInfo');
 
         return new OrganisationPage($config, $buildingOperator == 'AND' ? '' : '~');
     }

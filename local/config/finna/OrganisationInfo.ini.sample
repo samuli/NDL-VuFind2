@@ -21,7 +21,7 @@ languages[] = sv
 languages[] = en
 
 ; Default organisation id
-defaultOrganisation = Vaski
+; defaultOrganisation = Vaski
 
 ; Optional list of building id's to show from organisation.
 ; buildings[] = 85141
@@ -44,8 +44,6 @@ consortiumInfo = 0
 ; Page title (translation key)
 title = 'organisation-info-page-title';
 ;title = 'organisation-info-page-title-national';
-
-mapTileUrl = 'https://map-api.finna.fi/v1/rendered/{z}/{x}/{y}.png'
 
 ; Info text on map widget
 attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'

@@ -31,7 +31,7 @@
   </div>
 
   <div class="config">
-    <? foreach (['id', 'buildings', 'library', 'mapTileUrl', 'attribution', 'consortiumInfo'] as $param): ?>
+    <? foreach (['id', 'buildings', 'library', 'attribution', 'consortiumInfo'] as $param): ?>
     <? if (isset($this->{$param})): ?>
     <input type="hidden" name="<?=$param?>" value="<?=$this->escapeHtmlAttr($this->{$param})?>"></input>
     <? endif; ?>

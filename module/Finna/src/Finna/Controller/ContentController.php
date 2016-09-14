@@ -118,7 +118,7 @@ class ContentController extends \VuFind\Controller\AbstractBase
     public function organisationAction($view)
     {
         $config = $this->getServiceLocator()
-            ->get('VuFind\Config')->get('organisationInfo');
+            ->get('VuFind\Config')->get('OrganisationInfo');
 
         $id = $this->params()->fromQuery('id');
         $buildings = $this->params()->fromQuery('buildings');

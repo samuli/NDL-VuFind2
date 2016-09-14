@@ -79,10 +79,6 @@ class OrganisationPage extends \Zend\View\Helper\AbstractHelper
             throw(new \Exception('Organisation page is disabled'));
         }
 
-        if (!$this->config->OrganisationPage->mapTileUrl) {
-            throw(new \Exception('mapTileUrl not defined'));
-        }
-
         if (!$id) {
             throw(new \Exception('id not defined'));
         }
@@ -98,7 +94,6 @@ class OrganisationPage extends \Zend\View\Helper\AbstractHelper
             'buildings' => $buildings,
             'buildingFacetOperator' => $this->buildingFacetOperator,
             'consortiumInfo' => $consortiumInfo,
-            'mapTileUrl' => $mapTileUrl,
             'attribution' => $attribution
         ];
 

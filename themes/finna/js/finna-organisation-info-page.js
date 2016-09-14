@@ -424,11 +424,11 @@ finna.organisationInfoPage = (function() {
         init: function() {
             holder = $('section[role="main"]');
 
-            var conf = holder.find('.config');
+            var mapTileUrl = 'https://map-api.finna.fi/v1/rendered/{z}/{x}/{y}.png';
 
+            var conf = holder.find('.config');
             var library = conf.find('input[name="library"]').val();
             var buildings = conf.find('input[name="buildings"]').val();
-            var mapTileUrl = conf.find('input[name="mapTileUrl"]').val();
             var attribution = conf.find('input[name="attribution"]').val();
             consortiumInfo = conf.find('input[name="consortiumInfo"]').val() == 1;
             parent = conf.find('input[name="id"]').val();
