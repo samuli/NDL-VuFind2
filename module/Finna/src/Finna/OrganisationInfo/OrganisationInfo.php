@@ -330,7 +330,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             if ($link) {
                 $data = $this->viewRenderer->partial(
                     'Helpers/organisation-page-link.phtml',
-                    ['url' => $data, 'label' => 'organisation-info-link']
+                    ['url' => $data, 'label' => 'organisation_info_link']
                 );
             }
             $result['items'][$id] = $data;

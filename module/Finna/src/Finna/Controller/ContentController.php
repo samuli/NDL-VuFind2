@@ -109,52 +109,6 @@ class ContentController extends \VuFind\Controller\AbstractBase
     }
 
     /**
-     * Organisation page action.
-     *
-     * @param Zend\View\Model\ViewModel $view View
-     *
-     * @return Zend\View\Model\ViewModel
-     */
-    public function organisationAction($view)
-    {
-        $config = $this->getServiceLocator()
-            ->get('VuFind\Config')->get('OrganisationInfo');
-
-        $id = $this->params()->fromQuery('id');
-        $buildings = $this->params()->fromQuery('buildings');
-
-        if (!$id) {
-            if (!isset($config->General->defaultOrganisation)) {
-                throw(new \Exception('Organisation id not defined'));
-            }
-            $id = $config->General->defaultOrganisation;
-            if (isset($config->General->buildings)) {
-                $buildings = $config->General->buildings->toArray();
-            }
-        }
-
-        $organisation = "0/{$id}/";
-        $translator = $this->getServiceLocator()->get('VuFind\Translator');
-
-        $title = isset($config->OrganisationPage->title)
-            ? $config->OrganisationPage->title : 'organisation-info-page-title';
-
-        $title = str_replace(
-            '%%organisation%%',
-            $translator->translate($organisation),
-            $translator->translate($title)
-        );
-
-        $view->title = $title;
-        $view->id = $id;
-        if ($buildings) {
-            $view->buildings = implode(',', $buildings);
-        }
-
-        return $view;
-    }
-
-    /**
      * Inject list of login drivers to About Finna page.
      *
      * @param Zend\View\Model\ViewModel $view View

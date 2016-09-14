@@ -42,8 +42,8 @@ mapUrl = "http://maps.google.com/?q={street}%20{city}"
 consortiumInfo = 0
 
 ; Page title (translation key)
-title = 'organisation-info-page-title';
-;title = 'organisation-info-page-title-national';
+title = 'organisation_info_page_title';
+;title = 'organisation_info_page_title_national';
 
 ; Info text on map widget
 attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>'
