@@ -53,7 +53,7 @@ class OrganisationInfoController extends \VuFind\Controller\AbstractBase
 
         if (!$id) {
             if (!isset($config->General->defaultOrganisation)) {
-                throw(new \Exception('Organisation id not defined'));
+                throw new \Exception('Organisation id not defined');
             }
             $id = $config->General->defaultOrganisation;
             if (isset($config->General->buildings)) {
