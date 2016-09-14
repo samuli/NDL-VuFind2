@@ -464,6 +464,12 @@ finna.organisationInfoPage = (function() {
                 tooltip.css({'margin-left': -(tooltip.outerWidth())/2 + 20}).show();
             });
 
+            holder.find('.map-control-buttons .show-all').click(
+                function() {
+                    map.reset();
+                }
+            );
+
             service = finna.organisationInfo();
             infoWidget = finna.organisationInfoWidget();
 

@@ -124,7 +124,7 @@ finna = $.extend(finna, {
             var bounds = group.getBounds().pad(0.2);
             // Fit markers to screen
             map.fitBounds(bounds, {zoom: {animate: true}});
-
+            map.closePopup();
             selectedMarker = null;
         };
 
