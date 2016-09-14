@@ -1,8 +1,13 @@
+<!-- START of: finna - organisationInfo/home.phtml -->
 <?
+  $this->headTitle($this->title);
+  $this->layout()->finnaMainHeader = '<div class="col-xs-12"><h3>' . $this->title . '</h3></div>';
+
   $this->headLink()->appendStylesheet('vendor/leaflet.css');
   $this->headScript()->appendFile('vendor/leaflet.js');
   $this->headLink()->appendStylesheet('vendor/L.Control.Locate.min.css');
   $this->headScript()->appendFile('vendor/L.Control.Locate.min.js');
+
   $this->headScript()->appendFile("vendor/jquery-ui-custom.min.js");
 
   $this->headScript()->appendFile("finna-organisation-info.js");
@@ -23,6 +28,13 @@
         $this->jsTranslations()->addStrings(["usageInfo-{$sector}" => "organisation-usage-rights-{$sector}_html"]);
      }
   }
+?>
+
+<? if ($template = $this->content()->findTemplateForLng("content/Additions/organisation-page-start")): ?>
+<?=$this->render($template);?>
+<? endif; ?>
+
+<?
 
 ?>
 <div class="organisation-info-page loading organisation-page-information-wrapper <?= !($this->consortiumInfo) ? 'last-section' : '';?>">
@@ -260,3 +272,8 @@
 <div class="container">
   <div class="row">
 <? endif; ?>
+
+<? if ($template = $this->content()->findTemplateForLng("content/Additions/organisation-page-end")): ?>
+<?=$this->render('content/Additions/organisation-page-end.phtml')?>
+<? endif; ?>
+<!-- END of: finna - organisationInfo/home.phtml -->

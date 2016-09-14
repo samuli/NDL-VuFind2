@@ -321,9 +321,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
         }
 
         $urlHelper = $this->viewRenderer->plugin('url');
-        $url = $urlHelper(
-            'content-page', ['page' => 'organisation']
-        );
+        $url = $urlHelper('organisationinfo-home');
 
         $result = ['success' => true, 'items' => []];
         foreach ($response['items'] as $item) {

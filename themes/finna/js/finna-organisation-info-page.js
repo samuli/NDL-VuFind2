@@ -467,6 +467,7 @@ finna.organisationInfoPage = (function() {
             holder.find('.map-control-buttons .show-all').click(
                 function() {
                     map.reset();
+                    return false;
                 }
             );
 
