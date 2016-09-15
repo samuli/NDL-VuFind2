@@ -441,11 +441,9 @@ finna.organisationInfoPage = (function() {
             return;
         }
 
-        var imgPath = VuFind.path + '/themes/finna/images/';
-
         mapHolder = holder.find('.map-widget');
         map = finna.organisationMap();
-        map.init(mapHolder[0], imgPath, mapTileUrl, attribution);
+        map.init(mapHolder[0], mapTileUrl, attribution);
 
         $(map).on('marker-click', function(ev, id) {
             if (updateURL) {
