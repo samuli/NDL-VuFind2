@@ -8,14 +8,14 @@
   $this->headLink()->appendStylesheet('vendor/L.Control.Locate.min.css');
   $this->headScript()->appendFile('vendor/L.Control.Locate.min.js');
 
-  $this->headScript()->appendFile("vendor/jquery-ui-custom.min.js");
+  $this->headScript()->appendFile('vendor/jquery-ui-custom.min.js');
 
-  $this->headScript()->appendFile("finna-organisation-info.js");
+  $this->headScript()->appendFile('finna-organisation-info.js');
   if ($this->consortiumInfo) {
-    $this->headScript()->appendFile("finna-organisation-info-page-consortium.js");
+    $this->headScript()->appendFile('finna-organisation-info-page-consortium.js');
   }
-  $this->headScript()->appendFile("finna-organisation-info-widget.js");
-  $this->headScript()->appendFile("finna-organisation-info-page.js");
+  $this->headScript()->appendFile('finna-organisation-info-widget.js');
+  $this->headScript()->appendFile('finna-organisation-info-page.js');
   $this->headScript()->appendFile('finna-organisation-map-leaflet.js');
 
   $setupJS = '$(document).ready(function() { finna.organisationInfoPage.init();});';
@@ -30,8 +30,8 @@
   }
 ?>
 
-<? if ($template = $this->content()->findTemplateForLng("content/Additions/organisation-page-start")): ?>
-<?=$this->render($template);?>
+<? if ($template = $this->content()->findTemplateForLng('content/Additions/organisation-page-start')): ?>
+   <?=$this->render($template);?>
 <? endif; ?>
 
 <?
@@ -44,37 +44,37 @@
 
   <div class="config">
     <? foreach (['id', 'buildings', 'library', 'attribution', 'consortiumInfo'] as $param): ?>
-    <? if (isset($this->{$param})): ?>
-    <input type="hidden" name="<?=$param?>" value="<?=$this->escapeHtmlAttr($this->{$param})?>"></input>
-    <? endif; ?>
+       <? if (isset($this->{$param})): ?>
+          <input type="hidden" name="<?=$param?>" value="<?=$this->escapeHtmlAttr($this->{$param})?>"></input>
+       <? endif; ?>
     <? endforeach; ?>
   </div>
 
   <? if ($this->consortiumInfo): ?>
-  <? $building = "0/{$this->id}/"; ?>
-  <div class="consortium-navigation hide">
-    <div class="row">
-      <ul class="consortium-navigation-list col-xs-12" data-spy="affix" data-offset-top="310">
-        <li class="scroll building hide"></li>
-        <li class="scroll usage hide"><?=$this->transEsc('organisation_info_navi_usage')?></li>
-        <li class="scroll service hide"><?=$this->transEsc('organisation_info_navi_service')?></li>
-      </ul>
-    </div>
-  </div>
+     <? $building = "0/{$this->id}/"; ?>
+     <div class="consortium-navigation hide">
+        <div class="row">
+           <ul class="consortium-navigation-list col-xs-12" data-spy="affix" data-offset-top="310">
+              <li class="scroll building hide"></li>
+              <li class="scroll usage hide"><?=$this->transEsc('organisation_info_navi_usage')?></li>
+              <li class="scroll service hide"><?=$this->transEsc('organisation_info_navi_service')?></li>
+           </ul>
+        </div>
+     </div>
   <? endif; ?>
 
   <? if ($this->consortiumInfo): ?>
-  <div class="consortium-info hide navi-section" id="consortium-info-section">
-    <div class="row">
-      <div class="col-xs-12"><h1 class="name"></h1></div>
-      <div class="col-xs-12">
-        <div class="consortium-logo hide"></div>
-        <div class="description"><?=$this->translate('organisation_no_consortium_info');?></div>
-      </div>
-    </div>
-    <div class="homepage hide"></div>
-    <div class="organisation-list" data-rows="1"><ul></ul></div>
-  </div>
+     <div class="consortium-info hide navi-section" id="consortium-info-section">
+       <div class="row">
+         <div class="col-xs-12"><h1 class="name"></h1></div>
+         <div class="col-xs-12">
+           <div class="consortium-logo hide"></div>
+           <div class="description"><?=$this->translate('organisation_no_consortium_info');?></div>
+         </div>
+       </div>
+       <div class="homepage hide"></div>
+       <div class="organisation-list" data-rows="1"><ul></ul></div>
+     </div>
 </div>
 <!-- close divs organisation-info-wrapper, row and container to make layout fluid again -->
 </div>
@@ -132,7 +132,7 @@
 
   <div class="office-search navi-section row map-ui" id="consortium-service-point-section">
     <? if ($this->consortiumInfo): ?>
-    <div><h3 class="col-xs-12"><?=$this->transEsc('organisation_info_navi_service')?></h3></div>
+       <div><h3 class="col-xs-12"><?=$this->transEsc('organisation_info_navi_service')?></h3></div>
     <? endif; ?>
     <div class="col-xs-12"><p class="consortium-notification hide "></p></div>
     <div class="col-sm-6 col-md-5">
@@ -269,11 +269,11 @@
 </div>
 <!-- open closed tags to make valid html, if consortiumInfo -->
 <? if ($this->consortiumInfo): ?>
-<div class="container">
-  <div class="row">
+   <div class="container">
+     <div class="row">
 <? endif; ?>
 
-<? if ($template = $this->content()->findTemplateForLng("content/Additions/organisation-page-end")): ?>
-<?=$this->render('content/Additions/organisation-page-end.phtml')?>
+<? if ($template = $this->content()->findTemplateForLng('content/Additions/organisation-page-end')): ?>
+   <?=$this->render('content/Additions/organisation-page-end.phtml')?>
 <? endif; ?>
 <!-- END of: finna - organisationInfo/home.phtml -->
