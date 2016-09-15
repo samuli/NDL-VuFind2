@@ -64,10 +64,6 @@ class OrganisationInfoController extends \VuFind\Controller\AbstractBase
         $organisation = "0/{$id}/";
         $translator = $this->getServiceLocator()->get('VuFind\Translator');
 
-        $mapTileUrl = $config->OrganisationPage->mapTileUrl;
-        $attribution = $config->OrganisationPage->attribution;
-
-
         $consortiumInfo = isset($config->OrganisationPage->consortiumInfo)
             ? $config->OrganisationPage->consortiumInfo : false;
 
@@ -105,7 +101,6 @@ class OrganisationInfoController extends \VuFind\Controller\AbstractBase
         }
         $view->buildingFacetOperator = $buildingOperator;
         $view->consortiumInfo = $consortiumInfo;
-        $view->attribution = $attribution;
 
         return $view;
     }

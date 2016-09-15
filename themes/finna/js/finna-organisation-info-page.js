@@ -11,7 +11,7 @@ finna.organisationInfoPage = (function() {
     var consortiumInfo = false;
     var consortium = false;
 
-    var loadOrganisationList = function(id, buildings) {
+    var loadOrganisationList = function(buildings, id) {
         service.getOrganisations('page', parent, buildings, function(response) {
             if (response) {
                 holder.find('.loading').toggleClass('loading', false);
@@ -421,17 +421,22 @@ finna.organisationInfoPage = (function() {
     };
 
     var my = {
-        init: function() {
+        /**
+         * Initialize organisation page
+         *
+         * @param options Array of options:
+         *   library        int    Organisation id
+         *   buildings      string Comma separated list of buildings to show on map
+         *   consortiumInfo 0|1    Show consortium info?
+         */
+        init: function(options) {
             holder = $('section[role="main"]');
 
+            parent = finna.common.getField(options, 'id');
+            consortiumInfo = finna.common.getField(options, 'consortiumInfo') === 1;
+            var buildings = finna.common.getField(options, 'buildings');
             var mapTileUrl = 'https://map-api.finna.fi/v1/rendered/{z}/{x}/{y}.png';
-
-            var conf = holder.find('.config');
-            var library = conf.find('input[name="library"]').val();
-            var buildings = conf.find('input[name="buildings"]').val();
-            var attribution = conf.find('input[name="attribution"]').val();
-            consortiumInfo = conf.find('input[name="consortiumInfo"]').val() == 1;
-            parent = conf.find('input[name="id"]').val();
+            var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
 
             if (typeof parent == 'undefined') {
                 return;
@@ -498,10 +503,12 @@ finna.organisationInfoPage = (function() {
                 holder.find('#office-search').blur();
             };
 
+            var library = null;
             if (hash = getOrganisationFromURL()) {
                 library = hash;
             }
-            loadOrganisationList(library, buildings);
+
+            loadOrganisationList(buildings, library);
         }
     };
 

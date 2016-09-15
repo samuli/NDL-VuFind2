@@ -18,9 +18,6 @@
   $this->headScript()->appendFile('finna-organisation-info-page.js');
   $this->headScript()->appendFile('finna-organisation-map-leaflet.js');
 
-  $setupJS = '$(document).ready(function() { finna.organisationInfoPage.init();});';
-  $this->headScript()->appendScript($setupJS);
-
   $this->jsTranslations()->addStrings(['organisationInfoAutocomplete' => 'organisation_info_autocomplete']);
 
   if ($this->consortiumInfo) {
@@ -28,6 +25,17 @@
         $this->jsTranslations()->addStrings(["usageInfo-{$sector}" => "organisation_usage_rights_{$sector}_html"]);
      }
   }
+
+  $setupJS = <<<JS
+$(document).ready(function() {
+   finna.organisationInfoPage.init({
+      id: "{$this->id}",
+      consortiumInfo: {$this->consortiumInfo},
+      buildings: "{$this->buildings}"
+   });
+});
+JS;
+   $this->headScript()->appendScript($setupJS);
 ?>
 
 <? if ($template = $this->content()->findTemplateForLng('content/Additions/organisation-page-start')): ?>
@@ -40,14 +48,6 @@
 <div class="organisation-info-page loading organisation-page-information-wrapper <?= !($this->consortiumInfo) ? 'last-section' : '';?>">
   <div class="loader">
     <i class="fa fa-spinner fa-spin" style="text-align: center;"></i>
-  </div>
-
-  <div class="config">
-    <? foreach (['id', 'buildings', 'library', 'attribution', 'consortiumInfo'] as $param): ?>
-       <? if (isset($this->{$param})): ?>
-          <input type="hidden" name="<?=$param?>" value="<?=$this->escapeHtmlAttr($this->{$param})?>"></input>
-       <? endif; ?>
-    <? endforeach; ?>
   </div>
 
   <? if ($this->consortiumInfo): ?>

@@ -458,7 +458,9 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             $params['lang'] = $this->language;
         }
         if (!empty($buildings)) {
-            $params['id'] = implode(',', $buildings);
+            if (($buildings = implode(',', $buildings)) != '') {
+                $params['id'] = $buildings;
+            }
         }
 
         $response = $this->fetchData('organisation', $params);
