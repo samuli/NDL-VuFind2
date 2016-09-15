@@ -643,18 +643,19 @@ class AjaxController extends \VuFind\Controller\AjaxController
     public function getOrganisationPageFeedAjax()
     {
         if (null === ($id = $this->params()->fromQuery('id'))) {
-            return $this->output('Missing feed id', self::STATUS_ERROR, 400);
+            return $this->handleError('getOrganisationPageFeed: missing feed id');
         }
 
         if (null === ($url = $this->params()->fromQuery('url'))) {
-            return $this->output('Missing feed url', self::STATUS_ERROR, 400);
+            return $this->handleError('getOrganisationPageFeed: missing feed url');
         }
 
+        $url = urldecode($url);
         $feedService = $this->getServiceLocator()->get('Finna\Feed');
         try {
             $config = $this->getServiceLocator()->get('VuFind\Config')
                 ->get('rss-organisation-page');
-            $feedConfig = ['url' => urldecode($url)];
+            $feedConfig = ['url' => $url];
 
             if (isset($config[$id])) {
                 $feedConfig['result'] = $config[$id]->toArray();
@@ -666,17 +667,20 @@ class AjaxController extends \VuFind\Controller\AjaxController
 
             $feed
                 = $feedService->readFeedFromUrl(
-                    urldecode($url),
+                    $url,
                     $feedConfig,
                     $this->url(), $this->getServerUrl('home')
                 );
         } catch (\Exception $e) {
-            return $this->output($e->getMessage(), self::STATUS_ERROR, 400);
+            return $this->handleError(
+                "getOrganisationPageFeed: error reading feed from url: {$url}",
+                $e->getMessage()
+            );
         }
 
         if (!$feed) {
-            return $this->output(
-                'Error reading organisation page feed', self::STATUS_ERROR, 400
+            return $this->handleError(
+                "getOrganisationPageFeed: error reading feed from url: {$url}"
             );
         }
 
@@ -935,7 +939,7 @@ class AjaxController extends \VuFind\Controller\AjaxController
     {
         $this->disableSessionWrites();  // avoid session write timing bug
         if (null === ($parent = $this->params()->fromQuery('parent'))) {
-            return $this->output('Missing parent', self::STATUS_ERROR, 400);
+            return $this->handleError('getOrganisationInfo: missing parent');
         }
 
         $params = $this->params()->fromQuery('params');
@@ -947,7 +951,7 @@ class AjaxController extends \VuFind\Controller\AjaxController
         $key = $parent;
         if ($action == 'details') {
             if (!isset($params['id'])) {
-                return $this->output('Missing id', self::STATUS_ERROR, 400);
+                return $this->handleError('getOrganisationInfo: missing id');
             }
             if (isset($params['id'])) {
                 $id = $params['id'];
@@ -977,9 +981,9 @@ class AjaxController extends \VuFind\Controller\AjaxController
         try {
             $response = $service->query($parent, $params, $buildings);
         } catch (\Exception $e) {
-            return $this->output(
-                "Error reading organisation info (parent $parent)",
-                self::STATUS_ERROR, 400
+            return $this->handleError(
+                "getOrganisationInfo: error reading organisation info (parent $parent)",
+                $e->getMessage()
             );
         }
 
@@ -1593,5 +1597,24 @@ class AjaxController extends \VuFind\Controller\AjaxController
         }
 
         return $facetList;
+    }
+
+    /**
+     * Return an error response in JSON format and log the error message.
+     *
+     * @param string    $outputMsg  Message to include in the JSON response.
+     * @param string    $logMsg     Message to ouput to the error log.
+     * @param int       $httpStatus HTTPs status of the JSOn response.
+     *
+     * @return \Zend\Http\Response
+     */
+    protected function handleError($outputMsg, $logMsg, $httpStatus = 400)
+    {
+        $this->setLogger($this->getServiceLocator()->get('VuFind\Logger'));
+        $this->logError(
+            $outputMsg . ($logMsg ? " ({$logMsg})" : null)
+        );
+
+        return $this->output($outputMsg, self::STATUS_ERROR, $httpStatus);
     }
 }

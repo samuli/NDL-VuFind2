@@ -570,6 +570,9 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             = $this->config->General->url . '/' . $action
             . '?' . http_build_query($params);
 
+
+        error_log($url);
+
         $cacheDir = $this->cacheManager->getCache('organisation-info')
             ->getOptions()->getCacheDir();
 
@@ -858,7 +861,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                     if (in_array($link['id'], ['news', 'events'])) {
                         $rssLinks[] = [
                            'id' => $link['id'],
-                           'url' => $link['value']
+                           'url' => $this->getField($link, 'value')
                         ];
                     }
                 }
