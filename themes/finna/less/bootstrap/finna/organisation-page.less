@@ -34,11 +34,12 @@
             color: #535353;
         }
     }
-    & .expand-map, .contract-map, .show-all {
+    & .expand-map, .contract-map {
+        display: inline-block;
         font-size: 1.2em;
         & i {
             margin-left: 20px;
-            margin-right: 5px;
+            margin-right: 0px;
         }
         @media(max-width: @screen-xs-max) {
             margin-left: -3px;  
@@ -49,8 +50,14 @@
         }
     }
     & .show-all {
+        font-size: 1em;
         float: left;
-        
+        @media(min-width: @screen-sm-min) {
+            margin-left: -22px;
+            
+            margin-top: -8px;
+            
+        }
     }
 }
 .library-is-open {
