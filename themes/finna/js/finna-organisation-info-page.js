@@ -420,96 +420,98 @@ finna.organisationInfoPage = (function() {
         return false;
     };
 
-    var my = {
-        /**
-         * Initialize organisation page
-         *
-         * @param options Array of options:
-         *   library        int    Organisation id
-         *   buildings      string Comma separated list of buildings to show on map
-         *   consortiumInfo 0|1    Show consortium info?
-         */
-        init: function(options) {
-            holder = $('section[role="main"]');
+    /**
+     * Initialize organisation page
+     *
+     * @param options Array of options:
+     *   library        int    Organisation id
+     *   buildings      string Comma separated list of buildings to show on map
+     *   consortiumInfo 0|1    Show consortium info?
+     */
+    var init = function(options) {
+        holder = $('section[role="main"]');
 
-            parent = finna.common.getField(options, 'id');
-            consortiumInfo = finna.common.getField(options, 'consortiumInfo') === 1;
-            var buildings = finna.common.getField(options, 'buildings');
-            var mapTileUrl = 'https://map-api.finna.fi/v1/rendered/{z}/{x}/{y}.png';
-            var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
+        parent = finna.common.getField(options, 'id');
+        consortiumInfo = finna.common.getField(options, 'consortiumInfo') === 1;
+        var buildings = finna.common.getField(options, 'buildings');
+        var mapTileUrl = 'https://map-api.finna.fi/v1/rendered/{z}/{x}/{y}.png';
+        var attribution = 'Map data &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors, <a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>';
 
-            if (typeof parent == 'undefined') {
-                return;
-            }
-
-            var imgPath = VuFind.path + '/themes/finna/images/';
-
-            mapHolder = holder.find('.map-widget');
-            map = finna.organisationMap();
-            map.init(mapHolder[0], imgPath, mapTileUrl, attribution);
-
-            $(map).on('marker-click', function(ev, id) {
-                if (updateURL) {
-                    window.location.hash = id;
-                }
-                hideMapMarker();
-            });
-
-            $(map).on('marker-mouseout', function(ev) {
-                hideMapMarker();
-            });
-
-            $(map).on('marker-mouseover', function(ev, data) {
-                var tooltip = holder.find('#marker-tooltip');
-                var name = organisationList[data.id].name;
-                tooltip.removeClass('hide').html(name).css({
-                    'left': data.x,
-                    'top': data.y - 35
-                });
-                tooltip.css({'margin-left': -(tooltip.outerWidth())/2 + 20}).show();
-            });
-
-            holder.find('.map-control-buttons .show-all').click(
-                function() {
-                    map.reset();
-                    return false;
-                }
-            );
-
-            service = finna.organisationInfo();
-            infoWidget = finna.organisationInfoWidget();
-
-            var widgetHolder = holder.find('.organisation-info');
-            widgetHolder.on('detailsLoaded', function(ev, id) {
-                var info = service.getDetails(id);
-                updateServices(info);
-                var rssAvailable = updateRSSFeeds(info);
-                updateGeneralInfo(info, rssAvailable);
-            });
-
-            infoWidget.init(widgetHolder, service);
-
-            if (consortiumInfo) {
-                consortium = new finna.organisationInfoPageConsortium();
-                consortium.init(parent, holder);
-            }
-
-            window.onhashchange = function() {
-                if (id = getOrganisationFromURL()) {
-                    updateSelectedOrganisation(id);
-                }
-
-                // Blur so that mobile keyboard is closed
-                holder.find('#office-search').blur();
-            };
-
-            var library = null;
-            if (hash = getOrganisationFromURL()) {
-                library = hash;
-            }
-
-            loadOrganisationList(buildings, library);
+        if (typeof parent == 'undefined') {
+            return;
         }
+
+        var imgPath = VuFind.path + '/themes/finna/images/';
+
+        mapHolder = holder.find('.map-widget');
+        map = finna.organisationMap();
+        map.init(mapHolder[0], imgPath, mapTileUrl, attribution);
+
+        $(map).on('marker-click', function(ev, id) {
+            if (updateURL) {
+                window.location.hash = id;
+            }
+            hideMapMarker();
+        });
+
+        $(map).on('marker-mouseout', function(ev) {
+            hideMapMarker();
+        });
+
+        $(map).on('marker-mouseover', function(ev, data) {
+            var tooltip = holder.find('#marker-tooltip');
+            var name = organisationList[data.id].name;
+            tooltip.removeClass('hide').html(name).css({
+                'left': data.x,
+                'top': data.y - 35
+            });
+            tooltip.css({'margin-left': -(tooltip.outerWidth())/2 + 20}).show();
+        });
+
+        holder.find('.map-control-buttons .show-all').click(
+            function() {
+                map.reset();
+                return false;
+            }
+        );
+
+        service = finna.organisationInfo();
+        infoWidget = finna.organisationInfoWidget();
+
+        var widgetHolder = holder.find('.organisation-info');
+        widgetHolder.on('detailsLoaded', function(ev, id) {
+            var info = service.getDetails(id);
+            updateServices(info);
+            var rssAvailable = updateRSSFeeds(info);
+            updateGeneralInfo(info, rssAvailable);
+        });
+
+        infoWidget.init(widgetHolder, service);
+
+        if (consortiumInfo) {
+            consortium = new finna.organisationInfoPageConsortium();
+            consortium.init(parent, holder);
+        }
+
+        window.onhashchange = function() {
+            if (id = getOrganisationFromURL()) {
+                updateSelectedOrganisation(id);
+            }
+
+            // Blur so that mobile keyboard is closed
+            holder.find('#office-search').blur();
+        };
+
+        var library = null;
+        if (hash = getOrganisationFromURL()) {
+            library = hash;
+        }
+
+        loadOrganisationList(buildings, library);
+    };
+
+    var my = {
+        init: init
     };
 
     return my;

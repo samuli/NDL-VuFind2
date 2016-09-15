@@ -1,11 +1,7 @@
 /*global VuFind*/
 finna = $.extend(finna, {
 organisationInfo: function() {
-    var consortium = null;
     var organisationList = {};
-    var currentWeekNum = null;
-    var currentScheduleInfo = null;
-    var loading = false;
 
     var query = function(parentId, queryParams, callback) {
         var url = VuFind.path + '/AJAX/JSON';
@@ -13,7 +9,6 @@ organisationInfo: function() {
 
         $.getJSON(url, params)
         .done(function(response) {
-            loading = false;
             if (response.data) {
                 callback(true, response.data);
                 return;
@@ -21,7 +16,6 @@ organisationInfo: function() {
             callback(false, 'Error reading organisation info');
         })
         .fail(function(response, textStatus, err) {
-            loading = false;
             var err = false;
             if (typeof response.responseJSON != 'undefined') {
                 err = response.responseJSON.data;
@@ -39,8 +33,7 @@ organisationInfo: function() {
             callback(organisationList[parent]);
         }
 
-        var me = self;
-        var response = query(parent, {action: 'consortium', target: target, buildings: buildings}, function(success, response) {
+        query(parent, {action: 'consortium', target: target, buildings: buildings}, function(success, response) {
             if (!success) {
                 callback(false);
                 return;
