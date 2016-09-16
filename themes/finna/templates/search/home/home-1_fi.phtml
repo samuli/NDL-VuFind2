@@ -4,9 +4,9 @@
   <?=$this->render($template)?>
 </div>
 <? endif; ?>
-
+<? if ($template = $this->content()->findTemplateForLng('search/home/home-right')): ?>
 <div class="col-sm-5 right-column-content">
-  <?=$this->organisationInfo(['id' => 'vaski'])?>
+  <?=$this->render($template)?>
 </div>
-
+<? endif; ?>
 <!-- END of: finna - search/home/home-1.phtml -->
