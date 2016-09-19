@@ -527,9 +527,14 @@ trait VoyagerFinna
             }
         }
         $currency = $this->config['OnlinePayment']['currency'];
+        $userId = $patron['id'];
         $patronId = $patron['cat_username'];
-        $errFun = function ($patronId, $error) {
-            $this->error("SIP2 payment error (patron $patronId): $error");
+        $errFun = function ($userId, $driver, $patronId, $error) {
+            $this->error(
+                "SIP2 payment error (user: {$userId}, driver: "
+                . "{$driver}, patron: {$patronId}): "
+                . $error
+            );
             throw new ILSException($error);
         };
 
@@ -568,22 +573,24 @@ trait VoyagerFinna
                             return true;
                         } else {
                             $sip->disconnect();
-                            $errFun($patronId, 'payment rejected');
+                            $errFun(
+                                $userId, $this->dbName, $patronId, 'payment rejected'
+                            );
                         }
                     } else {
                         $sip->disconnect();
-                        $errFun($patronId, 'payment failed');
+                        $errFun($userId, $this->dbName, $patronId, 'payment failed');
                     }
                 } else {
                     $sip->disconnect();
-                    $errFun($patronId, 'login failed');
+                    $errFun($userId, $this->dbName, $patronId, 'login failed');
                 }
             } else {
                 $sip->disconnect();
-                $errFun($patronId, 'login failed');
+                $errFun($userId, $this->dbName, $patronId, 'login failed');
             }
         } else {
-            $errFun($patronId, 'connection error');
+            $errFun($userId, $this->dbName, $patronId, 'connection error');
         }
         return false;
     }
