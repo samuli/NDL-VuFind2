@@ -191,7 +191,10 @@ JS;
       <div id="marker-tooltip" class="hide"></div>
     </div>
   </div>
-  <div class="row office-quick-information hide">
+  <div class="office-information-loader">    
+    <i class="fa fa-spinner fa-spin" style="text-align: center;"></i>
+  </div>
+  <div class="row office-quick-information info-element hide">
     <div class="col-xs-12 col-sm-7">
       <h2 class="service-title"></h2>
       <p><span class="office-links address"></span> <a href="#" target="_blank" class="office-links route info-element"><i class="fa fa-bus"></i> <?=$this->translate('organisation_info_route')?></a> <a href="" class="office-links reserve-computer info-element"><i class="fa fa-desktop"></i> <?=$this->translate('organisation_info_reserve_computer')?></a> <span class="office-links office-website info-element"><a href="#" target="_blank"><i class="fa fa-home"></i> <?=$this->translate('organisation_info_homepage')?></a><span></p>
@@ -210,7 +213,7 @@ JS;
     <div class="col-xs-12"><p class="office-description slogan info-element"></p></div>
   </div>
 
-  <div class="row office-information">
+  <div class="row office-information info-element">
     <div class="col-sm-4 opening-times-widget col-sm-push-4">
       <div class="finna-panel opening-times-library-information">
         <h4 class="panel-title">

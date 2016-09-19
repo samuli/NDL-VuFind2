@@ -245,11 +245,16 @@ finna.organisationInfoPage = (function() {
         }
     };
 
+    var setOfficeInformationLoader = function(mode) {
+        holder.find('.office-information-loader').toggle(mode);
+    };
+
     var updateSelectedOrganisation = function(id) {
         holder.find('.error, .info-element').hide();
         infoWidget.showDetails(id, '', true);
         $('#office-search').val('');
-
+        setOfficeInformationLoader(true);
+        
         var notification = holder.find('.office-search-notifications .notification');
         if (id in organisationList) {
             var data = organisationList[id];
@@ -368,7 +373,10 @@ finna.organisationInfoPage = (function() {
             phones.show();
         }
 
+
+        $('.office-quick-information').show();
         $('.office-information').show();
+        setOfficeInformationLoader(false);
     };
 
     var updateServices = function(data) {

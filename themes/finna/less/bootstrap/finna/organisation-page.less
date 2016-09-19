@@ -131,13 +131,18 @@
 @finna-panel-header-color: @body-bg;
 
 .main.template-dir-organisationinfo {
-    .office-button {
+    & .office-information-loader {
+        margin-top: 20px;
+        margin-bottom: 20px;
+    }
+
+    & .office-button {
         margin-left: 7px;
         margin-top: -1px;
         margin-bottom: -1px;   
     }
 
-    .map-control-buttons {
+    & .map-control-buttons {
         margin-top: 5px;
         @media (min-width: @screen-sm-min) {
             margin-top: 25px;
@@ -186,7 +191,7 @@
         }
     }
 
-    .fa-map-marker {
+    & .fa-map-marker {
         &.open {
             color: #68c043;
         }
@@ -215,7 +220,7 @@
         & p {
             margin: 0;   
         }
-}
+    }
     
     & .organisation-info-page {
         &.loading {
