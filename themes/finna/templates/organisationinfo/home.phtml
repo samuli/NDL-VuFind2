@@ -18,7 +18,12 @@
   $this->headScript()->appendFile('finna-organisation-info-page.js');
   $this->headScript()->appendFile('finna-organisation-map-leaflet.js');
 
-  $this->jsTranslations()->addStrings(['organisationInfoAutocomplete' => 'organisation_info_autocomplete']);
+  $this->jsTranslations()->addStrings([
+     'map_my_location' => 'map_my_location',
+     'map_zoom_in' => 'map_zoom_in',
+     'map_zoom_out' => 'map_zoom_out',     
+     'organisationInfoAutocomplete' => 'organisation_info_autocomplete'
+  ]);
 
   if ($this->consortiumInfo) {
      foreach (['0/arc/', '0/mus/', '1/lib/pub/', '1/lib/poly/', '1/lib/uni/'] as $sector) {

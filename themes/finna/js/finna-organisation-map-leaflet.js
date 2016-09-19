@@ -108,6 +108,8 @@ finna = $.extend(finna, {
                 }
             });
 
+            finna.layout.initMapTooltips($(holder));
+
             reset();
         };
         

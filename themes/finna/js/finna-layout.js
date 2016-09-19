@@ -1,5 +1,14 @@
 /*global VuFind,checkSaveStatuses*/
 finna.layout = (function() {
+    var initMapTooltips = function(holder) {
+        if (!holder) {
+            holder = $(document);
+        }
+        holder.find('.leaflet-control-zoom-in').attr('title', VuFind.translate('map_zoom_in'));
+        holder.find('.leaflet-control-zoom-out').attr('title', VuFind.translate('map_zoom_out'));
+        holder.find('.leaflet-control-locate a').attr('title', VuFind.translate('map_my_location'));
+    };
+
     var initResizeListener = function() {
         var intervalId = false;
         $(window).on("resize", function(e) {
@@ -695,6 +704,7 @@ finna.layout = (function() {
         initLocationService: initLocationService,
         initHierarchicalFacet: initHierarchicalFacet,
         initJumpMenus: initJumpMenus,
+        initMapTooltips: initMapTooltips,
         initMobileNarrowSearch: initMobileNarrowSearch,
         initSecondaryLoginField: initSecondaryLoginField,
         init: function() {
