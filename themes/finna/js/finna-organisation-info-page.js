@@ -71,11 +71,6 @@ finna.organisationInfoPage = (function() {
     };
 
     var initMap = function() {
-        var imgPath = VuFind.path + '/themes/finna/images/';
-        var openIcon = imgPath + 'map-marker-green.png';
-        var closedIcon = imgPath + 'map-marker-red.png';
-        var unknownIcon = imgPath + 'map-marker-black.png';
-
         $.each(organisationList, function(ind, obj) {
             // Map data (info bubble, icon)
             var bubble = holder.find('.map-bubble-template').clone();
@@ -114,12 +109,7 @@ finna.organisationInfoPage = (function() {
                 });
             }
 
-            var markerIcon = unknownIcon;
-            if (openNow !== null) {
-                markerIcon = openNow ? openIcon : closedIcon;
-            }
-
-            obj['map'] = {info: bubble.html(), icon: markerIcon};
+            obj['map'] = {info: bubble.html()};
         });
 
         var defaultId = Object.keys(organisationList)[0];
