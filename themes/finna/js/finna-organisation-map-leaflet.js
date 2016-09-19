@@ -47,26 +47,35 @@ finna = $.extend(finna, {
 
             L.control.locate().addTo(map);
 
-            LeafIcon = L.Icon.extend({
-                options: {
-                    iconSize:     [21, 35],
+            var icons = {};
+            $(['open', 'closed', 'no-schedule']).each(function(ind, obj) {
+                icons[obj] = L.divIcon({
+                    className: 'mapMarker',
+                    iconSize: null,
+                    html: '<div class="leaflet-marker-icon leaflet-zoom-animated leaflet-interactive"><i class="fa fa-map-marker ' + obj + '" style="position: relative; font-size: 35px;"></i></div>',
                     iconAnchor:   [10, 35],
                     popupAnchor:  [0, -36],
                     labelAnchor: [-5, -86]
-                }
+                });
             });
 
             // Map points
             $.each(organisations, function(ind, obj) {
                 if (obj.address != null && obj.address.coordinates != null) {
-                    var markerIcon = new LeafIcon({iconUrl: obj['map']['icon']});
-
                     var infoWindowContent = obj['map']['info'];
                     var point = obj.address.coordinates;
+                    
+                    var icon = icons['no-schedule'];
+                    var openTimes = finna.common.getField(obj, 'openTimes');
+                    if (openTimes) {
+                        var schedules = finna.common.getField(openTimes, 'schedules');
+                        var openNow = finna.common.getField(openTimes, 'openNow');
+                        icon = schedules && schedules.length > 0 && openNow ? icons.open : icons.closed;
+                    }
 
                     var marker = L.marker(
                         [point.lat, point.lon], 
-                        {icon: markerIcon}
+                        {icon: icon}
                     ).addTo(map);
                     marker.on('mouseover', function(ev) {
                         if (marker == selectedMarker) {
