@@ -982,7 +982,8 @@ class AjaxController extends \VuFind\Controller\AjaxController
             $response = $service->query($parent, $params, $buildings);
         } catch (\Exception $e) {
             return $this->handleError(
-                "getOrganisationInfo: error reading organisation info (parent $parent)",
+                'getOrganisationInfo: '
+                . "error reading organisation info (parent $parent)",
                 $e->getMessage()
             );
         }
@@ -1602,9 +1603,9 @@ class AjaxController extends \VuFind\Controller\AjaxController
     /**
      * Return an error response in JSON format and log the error message.
      *
-     * @param string    $outputMsg  Message to include in the JSON response.
-     * @param string    $logMsg     Message to ouput to the error log.
-     * @param int       $httpStatus HTTPs status of the JSOn response.
+     * @param string $outputMsg  Message to include in the JSON response.
+     * @param string $logMsg     Message to ouput to the error log.
+     * @param int    $httpStatus HTTPs status of the JSOn response.
      *
      * @return \Zend\Http\Response
      */

@@ -76,7 +76,6 @@ class OrganisationInfoController extends \VuFind\Controller\AbstractBase
             $translator->translate($title)
         );
 
-
         $facetConfig = $this->getServiceLocator()->get('VuFind\Config')
             ->get('facets');
 
