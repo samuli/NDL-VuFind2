@@ -80,7 +80,7 @@ class OrganisationInfoController extends \VuFind\Controller\AbstractBase
         $facetConfig = $this->getServiceLocator()->get('VuFind\Config')
             ->get('facets');
 
-        $buildingOperator = 'AND';
+        $buildingOperator = '';
         if (isset($facetConfig->Results_Settings->orFacets)) {
             $orFacets = array_map(
                 'trim', explode(',', $facetConfig->Results_Settings->orFacets)
@@ -88,7 +88,7 @@ class OrganisationInfoController extends \VuFind\Controller\AbstractBase
             if (!empty($orFacets[0])
                 && ($orFacets[0] == '*' || in_array('building', $orFacets))
             ) {
-                $buildingOperator = 'OR';
+                $buildingOperator = '~';
             }
         }
 
