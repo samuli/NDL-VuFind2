@@ -19,6 +19,7 @@ finna = $.extend(finna, {
             });
 
             map = L.map($(holder).attr('id'), {
+                zoomControl: false,
                 layers: layer,
                 minZoom: zoomLevel.far,
                 maxZoom: 18,
@@ -26,6 +27,8 @@ finna = $.extend(finna, {
                 zoomSnap: 0.1,
                 closePopupOnClick: false
             });
+
+            finna.layout.initMap(map);
 
             // Center popup
             map.on('popupopen', function(e) {
@@ -40,12 +43,7 @@ finna = $.extend(finna, {
                 selectedMarker = null;
             });
 
-            map.once('focus', function() {
-                map.scrollWheelZoom.enable();
-            });
-            map.scrollWheelZoom.disable();
-
-            L.control.locate().addTo(map);
+            L.control.locate({strings: {title: VuFind.translate('map_my_location')}}).addTo(map);
 
             var icons = {};
             $(['open', 'closed', 'no-schedule']).each(function(ind, obj) {
@@ -107,8 +105,6 @@ finna = $.extend(finna, {
                     markers.push(marker);
                 }
             });
-
-            finna.layout.initMapTooltips($(holder));
 
             reset();
         };

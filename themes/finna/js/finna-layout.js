@@ -1,14 +1,20 @@
 /*global VuFind,checkSaveStatuses*/
 finna.layout = (function() {
-    var initMapTooltips = function(holder) {
-        if (!holder) {
-            holder = $(document);
-        }
-        holder.find('.leaflet-control-zoom-in').attr('title', VuFind.translate('map_zoom_in'));
-        holder.find('.leaflet-control-zoom-out').attr('title', VuFind.translate('map_zoom_out'));
-        holder.find('.leaflet-control-locate a').attr('title', VuFind.translate('map_my_location'));
-    };
+    var initMap = function(map) {
+        // Add zoom control with translated tooltips
+        L.control.zoom({
+            position:'topleft',
+            zoomInTitle: VuFind.translate('map_zoom_in'),
+            zoomOutTitle: VuFind.translate('map_zoom_out')            
+        }).addTo(map);
 
+        // Enable mouseWheel zoom on click
+        map.once('focus', function() {
+            map.scrollWheelZoom.enable();
+        });
+        map.scrollWheelZoom.disable();
+    };
+    
     var initResizeListener = function() {
         var intervalId = false;
         $(window).on("resize", function(e) {
@@ -700,11 +706,11 @@ finna.layout = (function() {
     var my = {
         getOrganisationPageLink: getOrganisationPageLink,
         isTouchDevice: isTouchDevice,
+        initMap: initMap,
         initTruncate: initTruncate,
         initLocationService: initLocationService,
         initHierarchicalFacet: initHierarchicalFacet,
         initJumpMenus: initJumpMenus,
-        initMapTooltips: initMapTooltips,
         initMobileNarrowSearch: initMobileNarrowSearch,
         initSecondaryLoginField: initSecondaryLoginField,
         init: function() {
