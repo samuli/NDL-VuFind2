@@ -265,6 +265,7 @@ finna.organisationInfoPage = (function() {
             } else {
                 map.reset();
                 notification.show().delay(2000).fadeOut(500);
+                setOfficeInformationLoader(false);
             }
             return;
         }
