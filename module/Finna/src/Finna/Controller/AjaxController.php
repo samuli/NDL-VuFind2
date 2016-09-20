@@ -1604,7 +1604,7 @@ class AjaxController extends \VuFind\Controller\AjaxController
      * Return an error response in JSON format and log the error message.
      *
      * @param string $outputMsg  Message to include in the JSON response.
-     * @param string $logMsg     Message to ouput to the error log.
+     * @param string $logMsg     Message to output to the error log.
      * @param int    $httpStatus HTTPs status of the JSOn response.
      *
      * @return \Zend\Http\Response
