@@ -188,7 +188,7 @@ class Feed implements \Zend\Log\LoggerAwareInterface
         if (!$config = $this->getFeedConfig($id)) {
             throw new \Exception('Error reading feed');
         }
-        return $this->processReadFeed($config, $urlHelper, $viewUrl);
+        return $this->processReadFeed($config, $urlHelper, $viewUrl, $id);
     }
 
     /**
@@ -214,10 +214,12 @@ class Feed implements \Zend\Log\LoggerAwareInterface
      * @param array                          $feedConfig Configuration
      * @param Zend\Mvc\Controller\Plugin\Url $urlHelper  Url helper
      * @param string                         $viewUrl    View URL
+     * @param string                         $id         Feed id (needed when the
+     * feed content is shown on a content page or in a modal)
      *
      * @return mixed null|array
      */
-    protected function processReadFeed($feedConfig, $urlHelper, $viewUrl)
+    protected function processReadFeed($feedConfig, $urlHelper, $viewUrl, $id = null)
     {
         $config = $feedConfig['result'];
         $url = $feedConfig['url'];
