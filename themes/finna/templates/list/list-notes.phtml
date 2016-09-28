@@ -11,7 +11,7 @@
       <?
       $note = implode('', $notes);
       if ($this->params->getView() == 'list') {
-        $note = preg_replace("/\r\n|\r|\n/",'<br />', $this->escapeHtml($note));
+        $note = $this->markdown()->toHtml($note);
       }
       echo $note
       ?>
