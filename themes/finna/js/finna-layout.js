@@ -555,6 +555,7 @@ finna.layout = (function() {
             initToolTips($('.sidebar'));
             initMobileNarrowSearch();
             VuFind.lightbox.bind($('.sidebar'));
+            initCollapsedFacetMemory();
         })
         .fail(function() {
             $container.find('.facet-load-indicator').addClass('hidden');
@@ -647,7 +648,7 @@ finna.layout = (function() {
         return;
       }
       document.addEventListener('VuFind.lightbox.login', function(e) {
-        if (!e.detail.formUrl.match(/catalogLogin/) && !e.detail.formUrl.match(/\Save/) && !e.detail.formUrl.match(/%2[fF]Save/)) {
+        if (typeof action !== 'undefined' && action == 'home' && !e.detail.formUrl.match(/catalogLogin/) && !e.detail.formUrl.match(/\Save/) && !e.detail.formUrl.match(/%2[fF]Save/)) {
           window.location.href = VuFind.path + '/MyResearch/Home';
           e.preventDefault();
         }
