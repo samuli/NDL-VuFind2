@@ -798,8 +798,10 @@ class AjaxController extends \VuFind\Controller\AjaxController
         if (null === ($id = $this->params()->fromQuery('id'))) {
             return $this->output('Missing feed id', self::STATUS_ERROR, 400);
         }
-        $element = urldecode($this->params()->fromQuery('element', 0));
-
+        $element = urldecode($this->params()->fromQuery('element'));
+        if (!$element) {
+            $element = 0;
+        }
         $feedService = $this->getServiceLocator()->get('Finna\Feed');
         try {
             $feed
