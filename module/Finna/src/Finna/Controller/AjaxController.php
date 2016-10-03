@@ -845,8 +845,10 @@ class AjaxController extends \VuFind\Controller\AjaxController
             }
             $result['navigation'] = $this->getViewRenderer()->partial(
                 'feedcontent/navigation',
-                ['baseUrl' => $baseUrl, 'items' => $titles,
-                 'num' => $num, 'feedUrl' => $feedUrl]
+                [
+                   'baseUrl' => $baseUrl, 'items' => $titles,
+                   'num' => $num, 'feedUrl' => $feedUrl
+                ]
             );
         }
 
