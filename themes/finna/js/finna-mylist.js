@@ -406,7 +406,6 @@ finna.myList = (function() {
         target.toggleClass('fa-spinner fa-spin list-save', mode);
     };
 
-
     var my = {
         initFavoriteOrderingFunctionality: initFavoriteOrderingFunctionality,
         init: function() {

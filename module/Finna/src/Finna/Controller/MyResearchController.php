@@ -198,6 +198,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
     {
         $view = parent::mylistAction();
         $user = $this->getUser();
+        $table = $this->getTable('FavoriteOrder');
 
         if ($results = $view->results) {
             $list = $results->getListObject();
@@ -214,7 +215,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
             return $view;
         }
 
-        $view->sortList = $this->createSortList($list); 
+        $view->sortList = $this->createSortList();
 
         return $view;
     }
@@ -519,7 +520,6 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
     public static function getFavoritesSortList()
     {
         return [
-            'own_ordering' => 'sort_own_order',
             'id desc' => 'sort_saved',
             'id' => 'sort_saved asc',
             'title' => 'sort_title',
@@ -527,7 +527,6 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
             'year' => 'sort_year asc',
             'format' => 'sort_format',
         ];
-
     }
 
     /**
@@ -656,7 +655,6 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
         $key = $this->params()->fromQuery('key', false);
         $type = $this->params()->fromQuery('type', 'alert');
 
-
         if ($id === false || $key === false) {
             throw new \Exception('Missing parameters.');
         }
@@ -706,25 +704,36 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
      *
      * @return array
      */
-    protected function createSortList($list)
+    protected function createSortList()
     {
-        $sortOptions = self::getFavoritesSortList();
-        if (! $list) {
-            unset($sortOptions['own_ordering']);
+        $view = parent::mylistAction();
+        $user = $this->getUser();
+        $table = $this->getTable('FavoriteOrder');
+
+        if ($results = $view->results) {
+            $list = $results->getListObject();
         }
+
+        $sortOptions = self::getFavoritesSortList();
         $sort = isset($_GET['sort']) ? $_GET['sort'] : false;
         if (!$sort) {
             reset($sortOptions);
             $sort = key($sortOptions);
         }
         $sortList = [];
+        if ($table->getFavoriteOrder($user->id,$list->id) !== false) {
+            $tmp['own_ordering'] = 'sort_own_order';
+            $sortOptions = $tmp + $sortOptions;
+            /* TODO: Pitää saada valituksi own_ordering, jos on juuri tehty oma järjestys */
+            /* TODO: Miksi ei järjestä enää own_ordering-järjestykseen */
+        }
+
         foreach ($sortOptions as $key => $value) {
             $sortList[$key] = [
                 'desc' => $value,
                 'selected' => $key === $sort,
             ];
         }
-
         return $sortList;
     }
 
