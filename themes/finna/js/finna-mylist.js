@@ -354,6 +354,36 @@ finna.myList = (function() {
         };
     };
 
+    var initFavoriteOrderingFunctionality = function() {
+	$('#sortable').sortable({cursor: "move",opacity: 0.7});
+
+	$("#save_order").click( function() {
+	    var userID = $('input[name=user_id]').val();
+	    var listID = $('input[name=list_id]').val();
+	    var listOfItems = $('#sortable').sortable('toArray').toString();
+	    
+	    if (userID > 0 && listID > 0 && listOfItems.length > 0) {
+		$.ajax({
+		    type: "POST",
+		    url: "/vufind2/Cart/MyResearchBulk",
+		    data: { 'orderedList' :  listOfItems,
+			    'saveOwnFavoritesOrder' : '1',
+			    'userID' : userID,
+			    'listID' : listID,
+			  }
+		})
+		    .done(function() {
+			location.reload();
+		    })
+		    .fail(function() {
+			$('#error-message').show();
+		    });
+	    } else {
+		$('#error-message').show();
+	    }
+	});
+    };
+    
     var toggleErrorMessage = function(mode) {
         var $msg = $('.mylist-error');
         $msg.addClass('alert alert-danger');
@@ -376,7 +406,9 @@ finna.myList = (function() {
         target.toggleClass('fa-spinner fa-spin list-save', mode);
     };
 
+
     var my = {
+        initFavoriteOrderingFunctionality: initFavoriteOrderingFunctionality,
         init: function() {
             initEditComponents();
         },

@@ -55,18 +55,23 @@ class FavoriteOrder extends \VuFind\Db\Table\Gateway
      * @param int $list_id  List_id
      * @param string $resource_list Ordered List of Resources
      *
-     * @return void
+     * @return boolean
      */
     public function saveFavoriteOrder($user_id,$list_id,$resource_list)
     {
-        if ($this->select(['user_id' => $user_id, 'list_id' => $list_id])->current()) {
-            $this->update(['resource_list' => "$resource_list"], "user_id = $user_id and list_id = $list_id");
-        } else {
-            $result = $this->createRow();
-            $result->user_id = $user_id;
-            $result->list_id = $list_id;
-            $result->resource_list = $resource_list;
-            $result->save();
+        try {
+            if ($this->select(['user_id' => $user_id, 'list_id' => $list_id])->current()) {
+                $this->update(['resource_list' => "$resource_list"], "user_id = $user_id and list_id = $list_id");
+            } else {
+                $result = $this->createRow();
+                $result->user_id = $user_id;
+                $result->list_id = $list_id;
+                $result->resource_list = $resource_list;
+                $result->save();
+            }
+            return true;
+        } catch (Exception $e) {
+            return false;
         }
     }
 

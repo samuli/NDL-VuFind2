@@ -243,8 +243,8 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
             // We want to merge together GET, POST and route parameters to
             // initialize our search object:
             $request = $this->getRequest()->getQuery()->toArray()
-                + $this->getRequest()->getPost()->toArray()
-                + ['id' => $listId];
+                     + $this->getRequest()->getPost()->toArray()
+                     + ['id' => $listId];
 
             $setupCallback = function ($runner, $params, $searchId) {
                 $params->setLimit(1000);
@@ -947,13 +947,13 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
         $listID = $this->params()->fromPost('listID');
         $orderedList = $this->params()->fromPost('orderedList');
 
-        if (empty($listID)) {
-            throw new \Exception('Cannot save order without listID!');
-        }
-
         $table = $this->getTable('FavoriteOrder');
-        $table->saveFavoriteOrder($user->id,$listID,$orderedList);
-
-        return true;
+        
+        if (! empty($listID) && ! empty($orderedList) &&
+            $table->saveFavoriteOrder($user->id,$listID,$orderedList)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }

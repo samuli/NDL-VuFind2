@@ -3,8 +3,9 @@
   $user = $this->auth()->isLoggedIn();
 ?>
 
+<input type="hidden" name="user_id" value="<?=$user->id ?>">
+<input type="hidden" name="list_id" value="<?=$list->id ?>">
 <h2><?=$this->transEsc('Sort manually');?></h2>
-<!-- <form action="tallennus" id="sort-favorite-list"> -->
   <div class="row">
     <div class="col-xs-12">
       <button type="button" id="save_order" value="save_order" class="btn btn-primary"><?=$this->transEsc('Save Order');?></button>
@@ -19,38 +20,4 @@
       <li id="<?=$current->getUniqueID() ?>"><input hidden value="<?=$current->getUniqueID() ?>"><h4><?=$current->getTitle()?><i class="fa fa-arrow-down"></i><i class="fa fa-arrow-up"></i></h4><p><?=$this->record($current)->getFormatList() ?></p></li> 
     <? endforeach; ?>
   </ol>
-<!-- </form> -->
-
-<script>
-$('#sortable').sortable({cursor: "move",opacity: 0.7});
-
-$("#save_order").click( function() {
-    var regexp = /\/([0-9]+)[?#]/g;
-    var userID = <? echo $user->id ?>;
-    var listID = (regexp.exec($(location).attr("href")))[1];
-    var listOfItems = $('#sortable').sortable('toArray').toString();
-
-
-    if (userID > 0 && listID > 0 && listOfItems.length > 0) {
-        $.ajax({
-            type: "POST",
-            url: "/vufind2/Cart/MyResearchBulk",
-            data: { 'orderedList' :  listOfItems,
-                    'saveOwnFavoritesOrder' : '1',
-                    'userID' : userID,
-                    'listID' : listID,
-                  }
-            })
-            .done(function() {
-		location.reload();
-	    })
-	    .fail(function() {
-		$('#error-message').show();
-	    });
-    } else {
-	$('#error-message').show();
-    }
-});
-
-
-</script>
+<script>finna.myList.initFavoriteOrderingFunctionality();</script> 
