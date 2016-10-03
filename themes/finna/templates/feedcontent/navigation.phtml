@@ -1,7 +1,13 @@
 <? $cnt = 0; ?>
 <ul class="article-links">
 <? foreach ($this->items as $item): ?>
-  <li><?= $cnt != $num ? ('<a href="' . $this->baseUrl . $cnt . '">' . $item . '</a>') : $item ?></li>
+  <?
+    $link = $this->baseUrl . $cnt;
+    if ($this->feedUrl) {
+       $link .= '?feedUrl=' . $this->escapeHtmlAttr($this->feedUrl);
+    }
+  ?>
+  <li><?= $cnt != $num ? ('<a href="' . $link . '">' . $item . '</a>') : $item ?></li>
   <? $cnt++;?>
 <?endforeach;?>
 </ul>
