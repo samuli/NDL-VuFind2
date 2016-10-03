@@ -363,16 +363,15 @@
     }
     
     & .markdown.edit {
-        box-shadow: 10px 10px 20px -10px @gray;
         & .CodeMirror {
             height: 300px;
-            //height: auto;
         }
         & .markdown-preview {
             padding: 10px;
             background: #fafafa;
             height: 300px;
             overflow-y: auto;
+            border: 1px solid @gray-lighter;
             & .preview {
                 position: absolute;
                 right: 40px;
@@ -381,7 +380,13 @@
             }
         }
     }
-
+    & .markdown .editable {
+        padding: 5px;
+        & > p {
+            margin: 0;
+        }
+    }
+    
     & .list-title, .list-description:not(.edit), .resource-note:not(.edit), .add-new-list {
             border: 1px solid transparent;
             display: inline-block;
@@ -417,6 +422,13 @@
         }
         & .markdown-preview {
             display: none;
+        }
+    }
+    & .list-description.markdown, .resource-note.markdown {
+        padding: 0;
+        & .fa {
+            margin-top: 7px;
+            margin-right: 5px;
         }
     }
     & .list-title.disable {

@@ -7,7 +7,7 @@
       <span class="heading"><?=$this->transEsc('Description')?></span>
       (<?=$this->escapeHtml(trim($this->userPublicName($this->list_username)))?>):
     </p>
-    <p class="note-rows">
+    <div class="note-rows">
       <?
       $note = implode('', $notes);
       if ($this->params->getView() == 'list') {
@@ -15,7 +15,7 @@
       }
       echo $note
       ?>
-    </p>
+    </div>
   </div>
 <? endif; ?>
 <!-- END of: finna - list/list-notes.phtml -->

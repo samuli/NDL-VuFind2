@@ -62,9 +62,11 @@
       <div class="row">
         <div class="col-xs-12">
           <h2 class="list-title<?= !$list ? ' no-edit' : '' ?>"><? if(!$isDefaultList): ?><i class="list-title-edit fa fa-pen"></i><? endif; ?><span><?=$list ? $this->escapeHtml($list->title) : $this->transEsc("All Favourites")?></span></h2>
-          <div class="list-description markdown">
+          <? if ($list): ?>
+          <div class="list-description<?= $list ? ' markdown' : ''?>">
             <i class="list-description-edit fa fa-pen" aria-hidden="true"></i><div class="editable" data-markdown="<?=$this->escapeHtmlAttr($list ? $list->description : '')?>"><?=(!empty($list->description) ? $this->markdown()->toHtml($list->description) : $this->translate('Add list description'))?></div>
           </div>
+          <? endif; ?>
         </div>
       </div>
     </div>
