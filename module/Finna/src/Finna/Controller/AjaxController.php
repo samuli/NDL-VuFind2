@@ -685,14 +685,16 @@ class AjaxController extends \VuFind\Controller\AjaxController
             );
         }
 
-        return $this->output($this->formatFeed($config, $feed, $url), self::STATUS_OK);
+        return $this->output(
+            $this->formatFeed($config, $feed, $url), self::STATUS_OK
+        );
     }
 
     /**
      * Utility function for formatting a RSS feed.
      *
-     * @param VuFind\Config $config Feed configuration
-     * @param array         $feed   Feed data
+     * @param VuFind\Config $config  Feed configuration
+     * @param array         $feed    Feed data
      * @param string        $feedUrl Feed URL (needed for organisation page
      * RSS-feeds where the feed URL is passed to the FeedContentController as
      * an URL parameter.
