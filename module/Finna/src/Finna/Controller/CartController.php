@@ -49,8 +49,8 @@ class CartController extends \VuFind\Controller\CartController
         if (! empty($this->params()->fromPost('saveOwnFavoritesOrder', ''))) {
             $listID = $this->params()->fromPost('listID');
             $this->session->url = empty($listID)
-                                ? $this->url()->fromRoute('myresearch-favorites')
-                                : $this->url()->fromRoute('userList', ['id' => $listID]);
+                  ? $this->url()->fromRoute('myresearch-favorites')
+                  : $this->url()->fromRoute('userList', ['id' => $listID]);
             $controller = 'MyResearch';
             $action = 'SaveOwnFavoritesOrder';
             return $this->forwardTo($controller, $action);

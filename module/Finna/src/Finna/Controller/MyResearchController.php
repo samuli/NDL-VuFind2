@@ -723,7 +723,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
             $sort = key($sortOptions);
         }
         $sortList = [];
-        if ($table->getFavoriteOrder($user->id,$list->id) === false) {
+        if ($table->getFavoriteOrder($user->id, $list->id) === false) {
             array_shift($sortOptions);
             $sort = 'id desc';
         }
@@ -945,7 +945,6 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
      *
      * @return mixed
      */
-
     public function saveOwnFavoritesOrderAction()
     {
         $user = $this->getUser();
@@ -958,8 +957,10 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
 
         $table = $this->getTable('FavoriteOrder');
         
-        if (! empty($listID) && ! empty($orderedList) &&
-            $table->saveFavoriteOrder($user->id,$listID,$orderedList)) {
+        if (! empty($listID)
+            && ! empty($orderedList)
+            && $table->saveFavoriteOrder($user->id, $listID, $orderedList)
+        ) {
             return true;
         } else {
             return false;

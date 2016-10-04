@@ -51,8 +51,8 @@ class FavoriteOrder extends \VuFind\Db\Table\Gateway
     /**
      * Add favorite list order
      *
-     * @param int $user_id  User_id
-     * @param int $list_id  List_id
+     * @param int    $user_id       User_id
+     * @param int    $list_id       List_id
      * @param string $resource_list Ordered List of Resources
      *
      * @return boolean
@@ -60,7 +60,7 @@ class FavoriteOrder extends \VuFind\Db\Table\Gateway
     public function saveFavoriteOrder($user_id,$list_id,$resource_list)
     {
         try {
-            if ($this->select(['user_id' => $user_id, 'list_id' => $list_id])->current()) {
+            if ($this->select(['user_id' => $user_id,'list_id' => $list_id])->current()) {
                 $this->update(['resource_list' => "$resource_list"], "user_id = $user_id and list_id = $list_id");
             } else {
                 $result = $this->createRow();
@@ -78,8 +78,8 @@ class FavoriteOrder extends \VuFind\Db\Table\Gateway
     /**
      * Get favorite list order
      *
-     * @param int $user_id  User_id
-     * @param int $list_id  List_id
+     * @param int $user_id User_id
+     * @param int $list_id List_id
      *
      * @return boolean|array
      */

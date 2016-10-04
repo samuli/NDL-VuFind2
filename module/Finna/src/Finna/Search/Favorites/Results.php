@@ -77,12 +77,12 @@ class Results extends \VuFind\Search\Favorites\Results
             $user = $authManager->isLoggedIn();
 
             $uri = $_SERVER['REQUEST_URI']; // Mistä listan numeron saisi nätimmin?
-            preg_match('/\/([0-9]+)[?#]/',$uri,$matches);
+            preg_match('/\/([0-9]+)[?#]/', $uri, $matches);
             $list_id = $matches[1];
 
             $table = $this->getTable('FavoriteOrder');
 
-            if ($orderResult = $table->getFavoriteOrder($user->id,$list_id)) {
+            if ($orderResult = $table->getFavoriteOrder($user->id, $list_id)) {
 
                 $list = explode(',', $orderResult->resource_list);
                 $listHash = array();
