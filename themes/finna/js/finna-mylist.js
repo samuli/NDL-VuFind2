@@ -373,7 +373,13 @@ finna.myList = (function() {
 			  }
 		})
 		    .done(function() {
-			location.reload();
+			if (window.location.href.match(/sort=\w+$/)) {
+			    window.location.href = window.location.href.replace(/sort=\w+?$/,"sort=own_ordering");
+			} else if (window.location.href.match(/sort=\w+?&(.*)$/)) {
+			    window.location.href = window.location.href.replace(/sort=\w+?&(.*)$/,"sort=own_ordering&$1");
+			} else {
+			    window.location.reload();
+			}
 		    })
 		    .fail(function() {
 			$('#error-message').show();

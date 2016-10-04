@@ -200,6 +200,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
         $user = $this->getUser();
         $table = $this->getTable('FavoriteOrder');
 
+
         if ($results = $view->results) {
             $list = $results->getListObject();
 
@@ -520,6 +521,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
     public static function getFavoritesSortList()
     {
         return [
+            'own_ordering' => 'sort_own_order',
             'id desc' => 'sort_saved',
             'id' => 'sort_saved asc',
             'title' => 'sort_title',
@@ -721,17 +723,15 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
             $sort = key($sortOptions);
         }
         $sortList = [];
-        if ($table->getFavoriteOrder($user->id,$list->id) !== false) {
-            $tmp['own_ordering'] = 'sort_own_order';
-            $sortOptions = $tmp + $sortOptions;
-            /* TODO: Pitää saada valituksi own_ordering, jos on juuri tehty oma järjestys */
-            /* TODO: Miksi ei järjestä enää own_ordering-järjestykseen */
+        if ($table->getFavoriteOrder($user->id,$list->id) === false) {
+            array_shift($sortOptions);
+            $sort = 'id desc';
         }
 
         foreach ($sortOptions as $key => $value) {
             $sortList[$key] = [
                 'desc' => $value,
-                'selected' => $key === $sort,
+                'selected' => $key === $sort
             ];
         }
         return $sortList;
