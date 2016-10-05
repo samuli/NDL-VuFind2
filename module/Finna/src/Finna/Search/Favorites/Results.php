@@ -78,8 +78,12 @@ class Results extends \VuFind\Search\Favorites\Results
 
             $uri = $_SERVER['REQUEST_URI']; // Mistä listan numeron saisi nätimmin?
             preg_match('/\/([0-9]+)[?#]/', $uri, $matches);
-            $list_id = $matches[1];
-
+            if (empty($matches[1])) {
+                $list_id = NULL;
+            } else {
+                $list_id = $matches[1];
+            }
+            
             $table = $this->getTable('FavoriteOrder');
 
             if ($orderResult = $table->getFavoriteOrder($user->id, $list_id)) {
