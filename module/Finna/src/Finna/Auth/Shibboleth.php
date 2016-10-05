@@ -46,6 +46,18 @@ use Zend\Session\Container as SessionContainer;
  */
 class Shibboleth extends \VuFind\Auth\Shibboleth
 {
+
+    /**
+     * Constructor
+     *
+     * @param \Zend\Session\Container $container Session container for persisting
+     * state information.
+     */
+    public function __construct(\Zend\Session\Container $container)
+    {
+        $this->session = $container;
+    }
+
     /**
      * Attempt to authenticate the current user.  Throws exception if login fails.
      *
@@ -115,8 +127,7 @@ class Shibboleth extends \VuFind\Auth\Shibboleth
         if (isset($config->logout_attribute)) {
             $url = $this->getServerParam($request, $config->logout_attribute);
             if ($url) {
-                $sessionContainer = new SessionContainer('Shibboleth');
-                $sessionContainer['logoutUrl'] = $url;
+                $this->session['logoutUrl'] = $url;
             }
         }
 
@@ -136,9 +147,8 @@ class Shibboleth extends \VuFind\Auth\Shibboleth
     public function logout($url)
     {
         // Check for a dynamic logout url:
-        $sessionContainer = new SessionContainer('Shibboleth');
-        if (!empty($sessionContainer['logoutUrl'])) {
-            $url = $sessionContainer['logoutUrl'] . '?return=' . urlencode($url);
+        if (!empty($this->session['logoutUrl'])) {
+            $url = $this->session['logoutUrl'] . '?return=' . urlencode($url);
             return $url;
         }
 

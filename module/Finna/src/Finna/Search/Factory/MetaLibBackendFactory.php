@@ -139,9 +139,13 @@ class MetaLibBackendFactory implements FactoryInterface
             : null
         ;
 
+        $session = new SessionContainer(
+            'MetaLib', $this->getServiceLocator->get('VuFind\SessionManager')
+        );
+
         $connector = new Connector(
             $institution, $host, $user, $pass,
-            $client, $table, $auth, $sets, $luceneHelper
+            $client, $table, $auth, $sets, $session, $luceneHelper
         );
         $connector->setLogger($this->logger);
         return $connector;
