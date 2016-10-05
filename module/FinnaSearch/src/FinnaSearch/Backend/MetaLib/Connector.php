@@ -124,16 +124,16 @@ class Connector implements \Zend\Log\LoggerAwareInterface
      *
      * Sets up the MetaLib Client
      *
-     * @param string                $institution    MetaLib institution code
-     * @param string                $url            MetaLib API url institution code
-     * @param string                $user           MetaLib API user
-     * @param string                $pass           MetaLib API password
-     * @param HttpClient            $client         HTTP client
-     * @param MetaLibSearch         $table          Table for cached search results
-     * @param AuthorizationService  $auth           Authorization service
-     * @param array                 $sets           MetaLib search sets
-     * @param SessionContainer      $session        Session
-     * @param LuceneSyntaxHelper    $luceneHelper   Lucene syntax helper
+     * @param string               $institution  MetaLib institution code
+     * @param string               $url          MetaLib API url institution code
+     * @param string               $user         MetaLib API user
+     * @param string               $pass         MetaLib API password
+     * @param HttpClient           $client       HTTP client
+     * @param MetaLibSearch        $table        Table for cached search results
+     * @param AuthorizationService $auth         Authorization service
+     * @param array                $sets         MetaLib search sets
+     * @param SessionContainer     $session      Session
+     * @param LuceneSyntaxHelper   $luceneHelper Lucene syntax helper
      */
     public function __construct(
         $institution, $url, $user, $pass,
