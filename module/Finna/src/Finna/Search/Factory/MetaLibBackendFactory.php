@@ -36,6 +36,7 @@ use FinnaSearch\Backend\Solr\LuceneSyntaxHelper;
 
 use Zend\ServiceManager\ServiceLocatorInterface;
 use Zend\ServiceManager\FactoryInterface;
+use Zend\Session\Container as SessionContainer;
 
 /**
  * Factory for MetaLib backends.
@@ -140,7 +141,7 @@ class MetaLibBackendFactory implements FactoryInterface
         ;
 
         $session = new SessionContainer(
-            'MetaLib', $this->getServiceLocator->get('VuFind\SessionManager')
+            'MetaLib', $this->serviceLocator->get('VuFind\SessionManager')
         );
 
         $connector = new Connector(
