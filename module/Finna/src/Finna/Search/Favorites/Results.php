@@ -76,7 +76,7 @@ class Results extends \VuFind\Search\Favorites\Results
             $authManager = $this->serviceLocator->get('VuFind\AuthManager');
             $user = $authManager->isLoggedIn();
 
-            $uri = $_SERVER['REQUEST_URI']; // Mistä listan numeron saisi nätimmin?
+            $uri = $_SERVER['REQUEST_URI']; 
             preg_match('/\/([0-9]+)[?#]/', $uri, $matches);
             if (empty($matches[1])) {
                 $list_id = NULL;
