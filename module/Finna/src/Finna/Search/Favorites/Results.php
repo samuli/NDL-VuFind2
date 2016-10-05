@@ -79,7 +79,7 @@ class Results extends \VuFind\Search\Favorites\Results
             $uri = $_SERVER['REQUEST_URI']; 
             preg_match('/\/([0-9]+)[?#]/', $uri, $matches);
             if (empty($matches[1])) {
-                $list_id = NULL;
+                $list_id = null;
             } else {
                 $list_id = $matches[1];
             }
@@ -97,7 +97,8 @@ class Results extends \VuFind\Search\Favorites\Results
                 }
                 
                 foreach ($this->results as $result) {
-                    $records[$listHash[$result->getUniqueID()] . '_' . $result->getUniqueID()] = $result;
+                    $records[$listHash[$result->getUniqueID()]
+                             . '_' . $result->getUniqueID()] = $result;
                 }
                 ksort($records);
                 $this->results = array_values($records);

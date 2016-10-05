@@ -365,7 +365,7 @@ finna.myList = (function() {
 	    if (userID > 0 && listID > 0 && listOfItems.length > 0) {
 		$.ajax({
 		    type: "POST",
-		    url: "/vufind2/Cart/MyResearchBulk",
+		    url: VuFind.path + "/Cart/MyResearchBulk",
 		    data: { 'orderedList' :  listOfItems,
 			    'saveOwnFavoritesOrder' : '1',
 			    'userID' : userID,
