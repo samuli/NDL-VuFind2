@@ -250,15 +250,9 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
                 $params->setLimit(1000);
             };
             $results = $runner->run($request, 'Favorites', $setupCallback);
-            $uri = $this->getRequest()->getUriString();
-            $userList = $this->getViewRenderer()->plugin('url')('home');
-            // print_r($userList); 
-            // print_r(get_class_methods($userList));
-            // var_dump(get_object_vars($userList));
         
             return $this->createViewModel(
-                ['params' => $results->getParams(), 'results' => $results,
-                 'redirectURI' => $uri]
+                ['params' => $results->getParams(), 'results' => $results]
             );
         } catch (ListPermissionException $e) {
             if (!$this->getUser()) {
