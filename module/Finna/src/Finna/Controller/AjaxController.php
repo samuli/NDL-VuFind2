@@ -859,7 +859,7 @@ class AjaxController extends \VuFind\Controller\AjaxController
                 'feedcontent/navigation',
                 [
                    'items' => $items, 'element' => $element, 'numeric' => $numeric,
-                   'num' => $num, 'feedUrl' => $feedUrl
+                   'feedUrl' => $feedUrl
                 ]
             );
         }
