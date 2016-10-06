@@ -60,13 +60,11 @@ class FavoriteOrder extends \VuFind\Db\Table\Gateway
     public function saveFavoriteOrder($user_id,$list_id,$resource_list)
     {
         try {
-            if ($this->select(
+            if ($row = $this->select(
                 ['user_id' => $user_id,'list_id' => $list_id]
             )->current()) {
-                $this->update(
-                    ['resource_list' => "$resource_list"],
-                    "user_id = $user_id and list_id = $list_id"
-                );
+                $row->resource_list = $resource_list;
+                $row->save();
             } else {
                 $result = $this->createRow();
                 $result->user_id = $user_id;

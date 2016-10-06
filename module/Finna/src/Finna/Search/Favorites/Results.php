@@ -76,12 +76,10 @@ class Results extends \VuFind\Search\Favorites\Results
             $authManager = $this->serviceLocator->get('VuFind\AuthManager');
             $user = $authManager->isLoggedIn();
 
-            $uri = $_SERVER['REQUEST_URI']; 
-            preg_match('/\/([0-9]+)[?#]/', $uri, $matches);
-            if (empty($matches[1])) {
-                $list_id = null;
+            if (! empty($this->getParams()->getFilters()['lists'][0])) {
+                $list_id = $this->getParams()->getFilters()['lists'][0];
             } else {
-                $list_id = $matches[1];
+                $list_id = null;
             }
             
             $table = $this->getTable('FavoriteOrder');

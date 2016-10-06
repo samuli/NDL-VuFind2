@@ -198,8 +198,6 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
     {
         $view = parent::mylistAction();
         $user = $this->getUser();
-        $table = $this->getTable('FavoriteOrder');
-
 
         if ($results = $view->results) {
             $list = $results->getListObject();
@@ -252,8 +250,15 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
                 $params->setLimit(1000);
             };
             $results = $runner->run($request, 'Favorites', $setupCallback);
+            $uri = $this->getRequest()->getUriString();
+            $userList = $this->getViewRenderer()->plugin('url')('home');
+            // print_r($userList); 
+            // print_r(get_class_methods($userList));
+            // var_dump(get_object_vars($userList));
+        
             return $this->createViewModel(
-                ['params' => $results->getParams(), 'results' => $results]
+                ['params' => $results->getParams(), 'results' => $results,
+                 'redirectURI' => $uri]
             );
         } catch (ListPermissionException $e) {
             if (!$this->getUser()) {
@@ -958,7 +963,6 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
 
         $listID = $this->params()->fromPost('listID');
         $orderedList = $this->params()->fromPost('orderedList');
-
         $table = $this->getTable('FavoriteOrder');
         
         if (! empty($listID)

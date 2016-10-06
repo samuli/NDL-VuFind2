@@ -378,7 +378,7 @@ finna.myList = (function() {
 			} else if (window.location.href.match(/sort=\w+?&(.*)$/)) {
 			    window.location.href = window.location.href.replace(/sort=\w+?&(.*)$/,"sort=own_ordering&$1");
 			} else {
-			    window.location.reload();
+                          window.location.href += "&sort=own_ordering";
 			}
 		    })
 		    .fail(function() {
