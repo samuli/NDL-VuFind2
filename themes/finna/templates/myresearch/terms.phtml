@@ -1,19 +1,19 @@
 <?
     $this->layout()->searchbox = false;
+    $this->headTitle($this->translate('terms_of_service_title'));
 ?>
 <!-- START of: finna - myresearch/terms.phtml -->
-
 <div class="terms-of-service">
   <form name="termsForm"  method="post" action="<?=$this->url('myresearch-userlogin')?>">
     <p><?= $this->translate('terms_of_service_text_html'); ?></p>
     <p><label><input type="checkbox" name="acceptTerms" value="1"> Suostun käyttäjätietojen luovutukseen</p></label>
-    <input type="submit" class="btn btn-primary disabled" name="processAcceptTerms" value="<?=$this->transEsc('terms_of_service_yes')?>">
-    <a class="btn btn-primary" href="<?=$this->url('search-home')?>" target="_top" data-lightbox-ignore="1"><?=$this->translate('terms_of_service_no')?></a>
+    <input type="submit" class="btn btn-primary submit disabled" name="processAcceptTerms" value="<?=$this->transEsc('terms_of_service_yes')?>">
+    <input type="submit" class="btn btn-primary" name="cancel" value="<?=$this->transEsc('terms_of_service_no')?>">
   </form>
 </div>
 <script type="text/javascript">
 $(document).ready(function() {
-  finna.layout.initTermsOfServiceCheckbox();
+  finna.layout.initTermsOfServiceCheckbox(<?=$this->lightbox ? 'true' : 'false' ?>);
 });  
 </script>
 <!-- END of: finna - myresearch/terms.phtml -->

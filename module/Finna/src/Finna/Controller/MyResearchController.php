@@ -210,6 +210,8 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
 
             $view = $this->createViewModel();
             $view->setTemplate('myresearch/terms.phtml');
+            $view->lightbox
+                = $this->getRequest()->getQuery('layout', 'no') === 'lightbox';
             return $view;
         }
 
