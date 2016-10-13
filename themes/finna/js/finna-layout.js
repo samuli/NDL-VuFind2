@@ -704,6 +704,16 @@ finna.layout = (function() {
         });
     };
 
+    var initTermsOfServiceCheckbox = function() {
+        var form = $('.terms-of-service form');
+        var btn = form.find('input[type="submit"]');
+        form.find('input[type="checkbox"]').change(
+            function(e) {
+                btn.toggleClass('disabled', !$(this).is(':checked'));
+            }
+        );
+    };
+
     var my = {
         getOrganisationPageLink: getOrganisationPageLink,
         isTouchDevice: isTouchDevice,
@@ -714,6 +724,7 @@ finna.layout = (function() {
         initJumpMenus: initJumpMenus,
         initMobileNarrowSearch: initMobileNarrowSearch,
         initSecondaryLoginField: initSecondaryLoginField,
+        initTermsOfServiceCheckbox: initTermsOfServiceCheckbox,
         init: function() {
             initScrollRecord();
             initJumpMenus();

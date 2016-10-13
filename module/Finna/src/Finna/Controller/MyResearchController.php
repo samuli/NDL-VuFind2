@@ -27,6 +27,7 @@
  * @link     http://vufind.org   Main Site
  */
 namespace Finna\Controller;
+use Zend\Session\Container as SessionContainer;
 
 /**
  * Controller for the user account area.
@@ -185,6 +186,34 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
             $view->transactions = $transactions;
         }
         return $view;
+    }
+
+    /**
+     * Login Action
+     *
+     * @return mixed
+     */
+    public function loginAction()
+    {
+        $session = new SessionContainer(
+            'TermsOfService',
+            $this->getServiceLocator()->get('VuFind\SessionManager')
+        );
+        if (!isset($session->accept)) {
+            if ($this->params()->fromPost('processAcceptTerms', false)) {
+                if ($this->params()->fromPost('acceptTerms', false) === '1') {
+                    $session->accept = true;
+                }
+                $this->getRequest()->getPost()->offsetUnset('processAcceptTerms');
+                return $this->forwardTo('MyResearch', 'UserLogin');
+            }
+
+            $view = $this->createViewModel();
+            $view->setTemplate('myresearch/terms.phtml');
+            return $view;
+        }
+
+        return parent::loginAction();
     }
 
     /**
