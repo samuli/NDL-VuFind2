@@ -27,7 +27,8 @@
  * @link     http://vufind.org   Main Site
  */
 namespace Finna\Controller;
-use Zend\Session\Container as SessionContainer;
+use Zend\Http\Header\SetCookie,
+    Zend\Session\Container as SessionContainer;
 
 /**
  * Controller for the user account area.
@@ -195,14 +196,13 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
      */
     public function loginAction()
     {
-        $session = new SessionContainer(
-            'TermsOfService',
-            $this->getServiceLocator()->get('VuFind\SessionManager')
-        );
-        if (!isset($session->accept)) {
+        $cookieName = 'finnaTermsOfService';
+        $cookieManager = $this->serviceLocator->get('VuFind\CookieManager');
+        if (!$cookieManager->get($cookieName)) {
             if ($this->params()->fromPost('processAcceptTerms', false)) {
                 if ($this->params()->fromPost('acceptTerms', false) === '1') {
-                    $session->accept = true;
+                    $expire = time() + 365 * 60 * 60 * 24; // 1 year
+                    $cookieManager->set($cookieName, 'Accept', $expire);
                 }
                 $this->getRequest()->getPost()->offsetUnset('processAcceptTerms');
                 return $this->forwardTo('MyResearch', 'UserLogin');
