@@ -526,8 +526,6 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
             $scheduleDescriptions = [];
             foreach ($response['references']['period'] as $key => $period) {
                 $scheduleDesc = $this->getField($period, 'description');
-                error_log("period: {$scheduleDesc}, " . var_export($period, true));
-
                 if (!empty($scheduleDesc)) {
                     $scheduleDescriptions[] = $scheduleDesc;
                 }
