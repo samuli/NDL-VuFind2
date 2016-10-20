@@ -8,7 +8,7 @@
   <form name="termsForm"  method="post" action="<?=$this->url('myresearch-userlogin')?>">
     <p><?= $this->translate('terms_of_service_text_html'); ?></p>
     <p><label><input type="checkbox" name="acceptTerms" value="1"> Suostun käyttäjätietojen luovutukseen</p></label>
-    <input type="submit" class="btn btn-primary submit disabled" name="processAcceptTerms" value="<?=$this->transEsc('terms_of_service_yes')?>">
+    <input type="submit" class="btn btn-primary submit disabled" name="submit" value="<?=$this->transEsc('terms_of_service_yes')?>">
     <input type="submit" class="btn btn-primary" name="cancel" value="<?=$this->transEsc('terms_of_service_no')?>">
   </form>
 </div>

@@ -196,26 +196,36 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
      */
     public function loginAction()
     {
-        $cookieName = 'finnaTermsOfService';
-        $cookieManager = $this->serviceLocator->get('VuFind\CookieManager');
-        if (!$cookieManager->get($cookieName)) {
-            if ($this->params()->fromPost('processAcceptTerms', false)) {
-                if ($this->params()->fromPost('acceptTerms', false) === '1') {
-                    $expire = time() + 365 * 60 * 60 * 24; // 1 year
-                    $cookieManager->set($cookieName, 'Accept', $expire);
-                }
-                $this->getRequest()->getPost()->offsetUnset('processAcceptTerms');
-                return $this->forwardTo('MyResearch', 'UserLogin');
-            }
-
-            $view = $this->createViewModel();
-            $view->setTemplate('myresearch/terms.phtml');
-            $view->lightbox
-                = $this->getRequest()->getQuery('layout', 'no') === 'lightbox';
-            return $view;
+        $conf = $this->serviceLocator->get('VuFind\Config')->get('config');
+        if (!isset($conf->TermsOfService->version)) {
+            return parent::loginAction();
         }
 
-        return parent::loginAction();
+        $termsOfServiceVersion = $conf->TermsOfService->version;
+        $cookieName = 'finnaTermsOfService';
+
+        $cookieManager = $this->serviceLocator->get('VuFind\CookieManager');
+        $cookie = $cookieManager->get($cookieName);
+
+        if ($cookie && $cookie === $termsOfServiceVersion) {
+            return parent::loginAction();
+        }
+
+        if ($this->formWasSubmitted('submit', false)) {
+            if ($this->params()->fromPost('acceptTerms', false) === '1') {
+                $expire = time() + 5 * 365 * 60 * 60 * 24; // 5 years
+                $cookieManager->set($cookieName, $termsOfServiceVersion, $expire);
+            }
+            $this->getRequest()->getPost()->offsetUnset('submit');
+            return $this->forwardTo('MyResearch', 'UserLogin');
+        }
+        
+        $view = $this->createViewModel();
+        $view->setTemplate('myresearch/terms.phtml');
+        $view->lightbox
+            = $this->getRequest()->getQuery('layout', 'no') === 'lightbox';
+
+        return $view;
     }
 
     /**
