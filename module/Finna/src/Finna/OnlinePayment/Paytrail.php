@@ -28,10 +28,6 @@
  * @link     http://docs.paytrail.com/ Paytrail API documentation
  */
 namespace Finna\OnlinePayment;
-use Finna\Db\Row\Transaction,
-    Finna\OnlinePayment\OnlinePaymentHanderInterface,
-    Zend\Log\LoggerAwareInterface,
-    Zend\Log\LoggerInterface;
 
 require_once 'Paytrail_Module_Rest.php';
 
@@ -46,55 +42,11 @@ require_once 'Paytrail_Module_Rest.php';
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  * @link     http://docs.paytrail.com/ Paytrail API documentation
  */
-class Paytrail implements OnlinePaymentHandlerInterface, LoggerAwareInterface
+class Paytrail extends BaseHandler
 {
-    use \VuFind\Db\Table\DbTableAwareTrait {
-        getDbTable as getTable;
-    }
-    use \VuFind\Log\LoggerAwareTrait;
-
     const PAYMENT_SUCCESS = 'success';
     const PAYMENT_FAILURE = 'failure';
     const PAYMENT_NOTIFY = 'notify';
-
-    /**
-     * Configuration.
-     *
-     * @var array
-     */
-    protected $config;
-
-    /**
-     * Constructor
-     *
-     * @param array $config Configuration as key-value pairs.
-     */
-    public function __construct($config)
-    {
-        $this->config = $config;
-    }
-
-    /**
-     * Return name of handler.
-     *
-     * @return string name
-     */
-    public function getName()
-    {
-        return 'Paytrail';
-    }
-
-    /**
-     * Set logger instance
-     *
-     * @param LoggerInterface $logger Logger
-     *
-     * @return void
-     */
-    public function setLogger(LoggerInterface $logger)
-    {
-        $this->logger = $logger;
-    }
 
     /**
      * Start transaction.
@@ -270,17 +222,5 @@ class Paytrail implements OnlinePaymentHandlerInterface, LoggerAwareInterface
             $this->config['secret'],
             $this->config['url']
         );
-    }
-
-    /**
-     * Generate the internal payment transaction identifer.
-     *
-     * @param string $patronId Patron's Catalog Username (barcode)
-     *
-     * @return string Transaction identifier
-     */
-    protected function generateTransactionId($patronId)
-    {
-        return md5($patronId . '_' . microtime(true));
     }
 }

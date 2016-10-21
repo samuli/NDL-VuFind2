@@ -120,6 +120,7 @@ trait OnlinePaymentControllerTrait
         }
         $payableOnline = $catalog->getOnlinePayableAmount($patron);
 
+
         // Check if there is a payment in progress
         // or if the user has unregistered payments
         $transactionMaxDuration
@@ -136,6 +137,12 @@ trait OnlinePaymentControllerTrait
         try {
             $paymentHandler = $onlinePayment->getHandler($patron['source']);
         } catch (\Exception $e) {
+            error_log("ex: " . $e->getMessage());
+
+            $this->logError(
+                'Error retrieving online payment handler for source '
+                . $patron['source'] . '(' . $e->getMessage() . ')'
+            );            
             return;
         }
 
@@ -143,6 +150,7 @@ trait OnlinePaymentControllerTrait
             return $fine['payableOnline'];
         };
         $payableFines = array_filter($fines, $callback);
+
 
         $view->onlinePayment = true;
         $view->paymentHandler = $onlinePayment->getHandlerName($patron['source']);
