@@ -1020,7 +1020,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
         if ($today) {
             $opensTime = strtotime($time['opens']);
             $closesTime = strtotime($time['closes']);
-            $openNow = $openNow || $now >= $opensTime && $now <= $closesTime;
+            $openNow = $now >= $opensTime && $now <= $closesTime;
             if ($openNow) {
                 $result['openNow'] = true;
             }
