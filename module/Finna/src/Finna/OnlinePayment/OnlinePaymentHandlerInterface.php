@@ -48,32 +48,42 @@ interface OnlinePaymentHandlerInterface
     public function __construct($config);
 
     /**
+     * Return payment response parameters.
+     *
+     * @param Zend\Http\Request $request Request
+     *
+     * @return array
+     */
+    public function getPaymentResponseParams($request);
+
+    /**
      * Start transaction.
      *
-     * @param string $finesUrl           Return URL to MyResearch/Fines
-     * @param string $ajaxUrl            Base URL for AJAX-actions
-     * @param int    $userId             User ID
-     * @param string $patronId           Patron's catalog username (e.g. barcode)
-     * @param string $driver             Patron MultiBackend ILS source
-     * @param int    $amount             Amount (excluding transaction fee)
-     * @param int    $transactionFee     Transaction fee
-     * @param array  $fines              Fines data
-     * @param strin  $currency           Currency
-     * @param string $statusParam        Payment status URL parameter
-     * @param string $transactionIdParam Transaction Id URL parameter
+     * @param string             $finesUrl       Return URL to MyResearch/Fines
+     * @param string             $ajaxUrl        Base URL for AJAX-actions
+     * @param \Finna\Db\Row\User $user           User
+     * @param string             $patronId       Patron's catalog username
+     * (e.g. barcode)
+     * @param string             $driver         Patron MultiBackend ILS source
+     * @param int                $amount         Amount
+     * (excluding transaction fee)
+     * @param int                $transactionFee Transaction fee
+     * @param array              $fines          Fines data
+     * @param strin              $currency       Currency
+     * @param string             $statusParam    Payment status URL parameter
      *
      * @return false on error, otherwise redirects to payment handler.
      */
     public function startPayment(
-        $finesUrl, $ajaxUrl, $userId, $patronId, $driver,
+        $finesUrl, $ajaxUrl, $user, $patronId, $driver,
         $amount, $transactionFee, $fines, $currency,
-        $statusParam, $transactionIdParam
+        $statusParam
     );
 
     /**
      * Process the response from payment service.
      *
-     * @param array $params Response variables
+     * @param Zend\Http\Request $request Request
      *
      * @return string error message (not translated)
      *   or associative array with keys:
@@ -82,5 +92,5 @@ interface OnlinePaymentHandlerInterface
      *     'transactionId' (string) Transaction ID.
      *     'amount' (int) Amount to be registered (does not include transaction fee).
      */
-    public function processResponse($params);
+    public function processResponse($request);
 }

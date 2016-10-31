@@ -263,6 +263,7 @@ class OnlinePaymentMonitor extends AbstractService
                         }
                     } catch (\Exception $e) {
                         $this->err('Patron login error: ' . $e->getMessage());
+                        $this->logException($e);
                     }
                 }
             }
@@ -295,6 +296,7 @@ class OnlinePaymentMonitor extends AbstractService
                     . $t->transaction_id . ' failed'
                 );
                 $this->err('      ' . $e->getMessage());
+                $this->logException($e);
 
                 if ($this->transactionTable->setTransactionRegistrationFailed(
                     $t->transaction_id, $e->getMessage()
@@ -387,6 +389,7 @@ class OnlinePaymentMonitor extends AbstractService
                         "    Failed to send error email to customer: $email "
                         . "(driver: $driver)"
                     );
+                    $this->logException($e);
                     continue;
                 }
             }
