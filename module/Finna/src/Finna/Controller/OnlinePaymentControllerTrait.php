@@ -88,7 +88,7 @@ trait OnlinePaymentControllerTrait
         try {
             return $onlinePayment->getHandler($driver);
         } catch (\Exception $e) {
-            $this->logError(
+            $this->handleError(
                 "Error retrieving online payment handler for driver $driver"
                 . ' (' . $e->getMessage() . ')'
             );
@@ -288,7 +288,7 @@ trait OnlinePaymentControllerTrait
         );
 
         if (!isset($params['driver'])) {
-            $this->logError(
+            $this->handleError(
                 'Error processing payment: missing parameter "driver" in response.'
             );
             return ['success' => false];
@@ -298,7 +298,7 @@ trait OnlinePaymentControllerTrait
 
         $handler = $this->getOnlinePaymentHandler($driver);
         if (!$handler) {
-            $this->logError(
+            $this->handleError(
                 'Error processing payment: could not initialize payment'
                 . " handler $handlerName"
             );
@@ -310,14 +310,14 @@ trait OnlinePaymentControllerTrait
 
         $tr = $this->getTable('transaction');
         if (!$t = $tr->getTransaction($transactionId)) {
-            $this->logError(
+            $this->handleError(
                 "Error processing payment: transaction $transactionId not found"
             );
             return ['success' => false];
         }
 
         if (!$tr->isTransactionInProgress($transactionId)) {
-            $this->logError(
+            $this->handleError(
                 'Error processing payment: '
                 . "transaction $transactionId already processed."
             );
@@ -367,7 +367,7 @@ trait OnlinePaymentControllerTrait
             // Payable sum updated. Skip registration and inform user
             // that payment processing has been delayed.
             if (!$transactionTable->setTransactionFinesUpdated($tId)) {
-                $this->logError(
+                $this->handleError(
                     "Error updating transaction $transactionId"
                     . " status: payable sum updated"
                 );
@@ -381,14 +381,14 @@ trait OnlinePaymentControllerTrait
         try {
             $catalog->markFeesAsPaid($patron, $res['amount']);
             if (!$transactionTable->setTransactionRegistered($tId)) {
-                $this->logError(
+                $this->handleError(
                     "Error updating transaction $transactionId status: registered"
                 );
             }
             $session = $this->getOnlinePaymentSession();
             $session->paymentOk = true;
         } catch (\Exception $e) {
-            $this->logError(
+            $this->handleError(
                 'SIP2 payment error (patron ' . $patron['id'] . '): '
                 . $e->getMessage()
             );
@@ -397,7 +397,7 @@ trait OnlinePaymentControllerTrait
             if (!$transactionTable->setTransactionRegistrationFailed(
                 $tId, $e->getMessage()
             )) {
-                $this->logError(
+                $this->handleError(
                     "Error updating transaction $transactionId status: "
                     . 'registering failed'
                 );
@@ -420,5 +420,18 @@ trait OnlinePaymentControllerTrait
         $session = $this->getOnlinePaymentSession();
         $session->sessionId = $this->generateFingerprint($patron);
         $session->fines = $this->generateFingerprint($fines);
+    }
+
+    /**
+     * Log error message.
+     *
+     * @param string $msg Error message.
+     *
+     * @return void
+     */
+    protected function handleError($msg)
+    {
+        $this->setLogger($this->getServiceLocator()->get('VuFind\Logger'));
+        $this->handleError($msg);
     }
 }
