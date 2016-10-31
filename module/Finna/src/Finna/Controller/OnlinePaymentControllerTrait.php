@@ -41,8 +41,6 @@ use Zend\Session\Container as SessionContainer;
  */
 trait OnlinePaymentControllerTrait
 {
-    use \VuFind\Log\LoggerAwareTrait;
-
     /**
      * Checks if the given list of fines is identical to the listing
      * preserved in the session variable.
@@ -71,6 +69,24 @@ trait OnlinePaymentControllerTrait
     protected function generateFingerprint($data)
     {
         return md5(json_encode($data));
+    }
+
+    protected function getOnlinePaymentHandler($driver)
+    {
+        $onlinePayment = $this->getServiceLocator()->get('Finna\OnlinePayment');
+        if (!$onlinePayment->isEnabled($driver)) {
+            return false;
+        }
+
+        try {
+            return $onlinePayment->getHandler($driver);
+        } catch (\Exception $e) {
+            $this->logError(
+                "Error retrieving online payment handler for driver $driver"
+                . ' (' . $e->getMessage() . ')'
+            );            
+            return false;
+        }
     }
 
     /**
@@ -134,15 +150,7 @@ trait OnlinePaymentControllerTrait
             $patron['cat_username'], $transactionMaxDuration
         );
 
-        try {
-            $paymentHandler = $onlinePayment->getHandler($patron['source']);
-        } catch (\Exception $e) {
-            error_log("ex: " . $e->getMessage());
-
-            $this->logError(
-                'Error retrieving online payment handler for source '
-                . $patron['source'] . '(' . $e->getMessage() . ')'
-            );            
+        if (!$paymentHandler = $this->getOnlinePaymentHandler($patron['source'])) {
             return;
         }
 
@@ -189,22 +197,39 @@ trait OnlinePaymentControllerTrait
             }
 
             // Start payment
-            $paymentHandler->startPayment(
+            if (!($paymentHandler->startPayment(
                 $finesUrl,
                 $ajaxUrl,
-                $user->id,
+                $user,
                 $patron['cat_username'],
                 $driver,
                 $payableOnline['amount'],
                 $view->transactionFee,
                 $payableFines,
                 $paymentConfig['currency'],
-                $paymentParam,
-                'transaction'
-            );
+                $paymentParam
+            ))) {
+                $this->flashMessenger()->addMessage(
+                    'online_payment_failed', 'error'
+                );
+                header("Location: " . $this->getServerUrl('myresearch-fines'));
+                return;                
+            }
             exit();
         } else if ($payment) {
-            // Payment response received. Display page and process via AJAX.
+            // Payment response received. 
+
+
+            // AJAX/onlinePaymentNotify was called and the transaction completed 
+            // before the user returned to Finna. Display success message.
+            if (!$payableOnline) {
+                $this->flashMessenger()->addMessage(
+                    'online_payment_successful', 'success'
+                );
+                return;
+            }
+            
+            //  Display page and process via AJAX.
             $view->registerPayment = true;
             $view->registerPaymentParams
                 = $this->getRequest()->getQuery()->toArray();
@@ -251,10 +276,30 @@ trait OnlinePaymentControllerTrait
      *   - 'success' (boolean)
      *   - 'msg' (string) error message if payment could not be processed.
      */
-    protected function processPayment($params)
+    protected function processPayment($request)
     {
-        $this->setLogger($this->getServiceLocator()->get('VuFind\Logger'));
+        $params = array_merge($request->getQuery()->toArray(), $request->getPost()->toArray());
 
+        if (!isset($params['driver'])) {
+            $this->logError(
+                'Error processing payment: missing handler name in response.'
+            );
+            return ['success' => false];            
+        }
+
+        $driver = $params['driver'];
+
+        $handler = $this->getOnlinePaymentHandler($driver);
+
+        if (!$handler) {
+            $this->logError(
+                'Error processing payment: could not initialize payment'
+                . " handler $handlerName"
+            );
+            return ['success' => false];
+        }
+
+        $params = $handler->getPaymentResponseParams($request);
         $transactionId = $params['transaction'];
 
         $tr = $this->getTable('transaction');
@@ -274,15 +319,9 @@ trait OnlinePaymentControllerTrait
         }
 
         $driver = $t['driver'];
-        $onlinePayment = $this->getServiceLocator()->get('Finna\OnlinePayment');
-        if (!$onlinePayment->isEnabled($driver)) {
-            return ['success' => false];
-        }
-
-        try {
-            $paymentHandler = $onlinePayment->getHandler($driver);
-        } catch (\Exception $e) {
-            return ['success' => false];
+        
+        if (!$paymentHandler = $this->getOnlinePaymentHandler($driver)) {
+            return ['success' => false];        
         }
 
         $patronId = $t->cat_username;
@@ -300,11 +339,12 @@ trait OnlinePaymentControllerTrait
                     $user['cat_username'], $user['cat_password']
                 );
             } catch (\Exception $e) {
+                $this->logException($e);
                 return ['success' => false];
             }
         }
 
-        $res = $paymentHandler->processResponse($params);
+        $res = $paymentHandler->processResponse($request);
         if (!is_array($res) || empty($res['markFeesAsPaid'])) {
             return ['success' => false, 'msg' => $res];
         }
@@ -313,6 +353,7 @@ trait OnlinePaymentControllerTrait
         try {
             $finesAmount = $catalog->getOnlinePayableAmount($patron);
         } catch (\Exception $e) {
+            $this->logException($e);
             return ['success' => false];
         }
         $transactionTable = $this->getTable('transaction');
@@ -350,6 +391,8 @@ trait OnlinePaymentControllerTrait
                 'SIP2 payment error (patron ' . $patron['id'] . '): '
                 . $e->getMessage()
             );
+            $this->logException($e);
+
             if (!$transactionTable->setTransactionRegistrationFailed(
                 $tId, $e->getMessage()
             )) {

@@ -44,7 +44,8 @@ use Finna\Db\Row\Transaction,
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  * @link     http://docs.paytrail.com/ Paytrail API documentation
  */
-abstract class BaseHandler implements OnlinePaymentHandlerInterface, LoggerAwareInterface
+abstract class BaseHandler
+implements OnlinePaymentHandlerInterface, LoggerAwareInterface
 {
     use \VuFind\Db\Table\DbTableAwareTrait {
         getDbTable as getTable;
@@ -100,5 +101,147 @@ abstract class BaseHandler implements OnlinePaymentHandlerInterface, LoggerAware
     protected function generateTransactionId($patronId)
     {
         return md5($patronId . '_' . microtime(true));
+    }
+
+    /**
+     * Store transaction to database.
+     *
+     * @param string             $orderNumber        ID
+     * @param string             $driver             Patron MultiBackend ILS source
+     * @param int                $userId             User ID
+     * @param string             $patronId           Patron's catalog username
+     * (e.g. barcode)
+     * @param int                $amount             Amount
+     * (excluding transaction fee)
+     * @param int                $transactionFee     Transaction fee
+     * @param strin              $currency           Currency
+     * @param array              $fines              Fines data
+     *
+     * @return boolean success
+     */
+    protected function createTransaction(
+        $orderNumber, $driver, $userId, $patronId, $amount, $transactionFee, 
+        $currency, $fines
+    ) {
+        $t = $this->getTable('transaction')->createTransaction(
+            $orderNumber,
+            $driver,
+            $userId,
+            $patronId,
+            $amount,
+            $transactionFee,
+            $currency
+        );
+
+        if (!$t) {
+            $this->logger->err($this->getName() . ': error creating transaction');
+            return false;
+        }
+
+        $feeTable = $this->getTable('fee');
+        foreach ($fines as $fine) {
+            if (!$feeTable->addFee($t->id, $fine, $t->user_id, $t->currency)) {
+                $this->logger->err(
+                    $this->getName() . ': error adding fee to transaction.'
+                );
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Return started transaction from database.
+     *
+     * @param string $id Transaction ID
+     *
+     * @return array Array:
+     * - true|false success
+     * - string|Finna\Db\Table\Row\Transaction 
+     * Transaction or error message (translation key).
+     */
+    protected function getStartedTransaction($id)
+    {
+        $table = $this->getTable('transaction');
+        if (!$table->isTransactionInProgress($id)) {
+            return [
+                false, 'online_payment_transaction_already_processed_or_unknown'
+            ];
+        }
+
+        if (($t = $table->getTransaction($id)) === false) {
+            $this->logger->err(
+                "Error retrieving started transaction $id: transaction not found"
+            );
+            return [false, 'transaction_found'];
+        }
+
+        return [true, $t];
+    }
+
+    /**
+     * Redirect to payment handler.
+     *
+     * @param string $url URL
+     *
+     * @return void
+     */
+    protected function redirectToPayment($url)
+    {
+        header("Location: $url", true, 302);
+        exit();
+    }
+
+    /**
+     * Set transaction paid.
+     *
+     * @param string $orderNum  Transaction ID.
+     * @param string $timestamp Time stamp.
+     *
+     * @return void
+     */
+    protected function setTransactionPaid($orderNum, $timestamp = null)
+    {
+        if (!$timestamp) {
+            $timestamp = time();
+        }
+        $table = $this->getTable('transaction');
+        if (!$table->setTransactionPaid($orderNum, $timestamp)) {
+            $this->logger->err(
+                $this->getName() . ": error updating transaction $orderNum to paid"
+            );
+        }
+    }
+
+    /**
+     * Set transaction cancelled.
+     *
+     * @param string $orderNum  Transaction ID.
+     *
+     * @return void
+     */
+    protected function setTransactionCancelled($orderNum)
+    {
+        $table = $this->getTable('transaction');
+        if (!$table->setTransactionCancelled($orderNum)) {
+            $this->logger->err(
+                "Paytrail: error updating transaction $orderNum to cancelled"
+            );
+        }
+    }
+
+    /**
+     * Set transaction unknown response.
+     *
+     * @param string $orderNum Transaction ID.
+     * @param string $status   Message.
+     *
+     * @return void
+     */
+    protected function setTransactionUnknownResponse($orderNum, $status)
+    {
+        $table = $this->getTable('transaction');
+        $table->setTransactionUnknownPaymentResponse($orderNum, $status);
     }
 }

@@ -49,37 +49,71 @@ class Paytrail extends BaseHandler
     const PAYMENT_NOTIFY = 'notify';
 
     /**
+     * Return payment response parameters.
+     *
+     * @param Zend\Http\Request $request Request
+     *
+     * @return array
+     */
+    public function getPaymentResponseParams($request)
+    {
+        $params = array_merge(
+            $request->getQuery()->toArray(), $request->getPost()->toArray()
+        );
+
+        $required = [
+            'ORDER_NUMBER', 'TIMESTAMP', 'RETURN_AUTHCODE'
+        ];
+
+        foreach ($required as $name) {
+            if (!isset($params[$name])) {
+                $this->logger->err(
+                    'Paytrail: missing parameter $name in payment response'
+                );
+                return false;
+            }
+        }
+
+        $params['transaction'] = $params['ORDER_NUMBER'];
+
+        return $params;
+    }
+
+    /**
      * Start transaction.
      *
-     * @param string $finesUrl           Return URL to MyResearch/Fines
-     * @param string $ajaxUrl            Base URL for AJAX-actions
-     * @param int    $userId             User ID
-     * @param string $patronId           Patron's catalog username (e.g. barcode)
-     * @param string $driver             Patron MultiBackend ILS source
-     * @param int    $amount             Amount (excluding transaction fee)
-     * @param int    $transactionFee     Transaction fee
-     * @param array  $fines              Fines data
-     * @param strin  $currency           Currency
-     * @param string $statusParam        Payment status URL parameter
-     * @param string $transactionIdParam Transaction Id URL parameter
+     * @param string             $finesUrl       Return URL to MyResearch/Fines
+     * @param string             $ajaxUrl        Base URL for AJAX-actions
+     * @param \Finna\Db\Row\User $user           User
+     * @param string             $patronId       Patron's catalog username
+     * (e.g. barcode)
+     * @param string             $driver         Patron MultiBackend ILS source
+     * @param int                $amount         Amount
+     * (excluding transaction fee)
+     * @param int                $transactionFee Transaction fee
+     * @param array              $fines          Fines data
+     * @param strin              $currency       Currency
+     * @param string             $statusParam    Payment status URL parameter
      *
      * @return false on error, otherwise redirects to payment handler.
      */
     public function startPayment(
-        $finesUrl, $ajaxUrl, $userId, $patronId, $driver, $amount, $transactionFee,
-        $fines, $currency, $statusParam, $transactionIdParam
+        $finesUrl, $ajaxUrl, $user, $patronId, $driver, $amount, $transactionFee,
+        $fines, $currency, $statusParam
     ) {
         $orderNumber = $this->generateTransactionId($patronId);
 
         $successUrl
-            = "{$finesUrl}?{$statusParam}=" . self::PAYMENT_SUCCESS
-            . "&{$transactionIdParam}=" . urlencode($orderNumber);
+            = "{$finesUrl}?driver={$driver}"
+            . "&{$statusParam}=" . self::PAYMENT_SUCCESS;
+
         $failUrl
-            = "{$finesUrl}?{$statusParam}=" . self::PAYMENT_FAILURE
-            . "&{$transactionIdParam}=" . urlencode($orderNumber);
+            = "{$finesUrl}?driver={$driver}"
+            . "&{$statusParam}=" . self::PAYMENT_FAILURE;
+
         $notifyUrl
-            = "{$ajaxUrl}/paytrailNotify?{$statusParam}=" . self::PAYMENT_NOTIFY
-            . "&{$transactionIdParam}=" . urlencode($orderNumber);
+            = "{$ajaxUrl}/onlinePaymentNotify?driver={$driver}"
+            . "&{$statusParam}=" . self::PAYMENT_NOTIFY;
 
         $urlset
             = new Paytrail_Module_Rest_Urlset($successUrl, $failUrl, $notifyUrl, '');
@@ -102,35 +136,26 @@ class Paytrail extends BaseHandler
             header("Location: {$finesUrl}");
         }
 
-        $t = $this->getTable('transaction')->createTransaction(
+        if (!$this->createTransaction(
             $orderNumber,
             $driver,
-            $userId,
+            $user->id,
             $patronId,
             $amount,
             $transactionFee,
-            $currency
-        );
-
-        if (!$t) {
-            $this->logger->err('Paytrail: error creating transaction');
+            $currency,
+            $fines
+        )) {
             return false;
         }
 
-        $feeTable = $this->getTable('fee');
-        foreach ($fines as $fine) {
-            if (!$feeTable->addFee($t->id, $fine, $t->user_id, $t->currency)) {
-                $this->logger->err('Paytrail: error adding fee to transaction.');
-                return false;
-            }
-        }
-        header("Location: {$result->getUrl()}");
+        $this->redirectToPayment($result->getUrl());
     }
 
     /**
      * Process the response from payment service.
      *
-     * @param array $params Response variables
+     * @param Zend\Http\Request $request Request
      *
      * @return string error message (not translated)
      *   or associative array with keys:
@@ -139,28 +164,21 @@ class Paytrail extends BaseHandler
      *     'transactionId' (string) Transaction ID.
      *     'amount' (int) Amount to be registered (does not include transaction fee).
      */
-    public function processResponse($params)
+    public function processResponse($request)
     {
+        $params = $this->getPaymentResponseParams($request);
         $status = $params['payment'];
-        $orderNum = $params['ORDER_NUMBER'];
+        $orderNum = $params['transaction'];
         $timestamp = $params['TIMESTAMP'];
 
-        $table = $this->getTable('transaction');
-
-        if (!$table->isTransactionInProgress($orderNum)) {
-            return 'online_payment_transaction_already_processed_or_unknown';
+        list($success, $data) = $this->getStartedTransaction($orderNum);
+        if (!$success) {
+            return $data;
         }
 
-        if (($t = $table->getTransaction($orderNum)) === false) {
-            $this->logger->err(
-                "Paytrail: error processing transaction $orderNum"
-                . ': transaction not found'
-            );
-            return 'online_payment_failed';
-        }
+        $t = $data;
 
         $amount = $t->amount;
-        $paid = false;
         if ($status == self::PAYMENT_SUCCESS || $status == self::PAYMENT_NOTIFY) {
             if (!$module = $this->initPaytrail()) {
                 return 'online_payment_failed';
@@ -178,30 +196,21 @@ class Paytrail extends BaseHandler
                 $this->logger->err("   " . var_export($params, true));
                 return 'online_payment_failed';
             }
+            $this->setTransactionPaid($orderNum, $timestamp);
 
-            if (!$table->setTransactionPaid($orderNum, $timestamp)) {
-                $this->logger->err(
-                    "Paytrail: error updating transaction $orderNum to paid"
-                );
-            }
-            $paid = true;
+            return [
+                'markFeesAsPaid' => true,
+                'transactionId' => $orderNum,
+                'amount' => $amount
+            ];
         } else if ($status == self::PAYMENT_FAILURE) {
-            if (!$table->setTransactionCancelled($orderNum)) {
-                $this->logger->err(
-                    "Paytrail: error updating transaction $orderNum to cancelled"
-                );
-            }
+            $this->setTransactionCancelled($orderNum);
             return 'online_payment_canceled';
         } else {
-            $table->setTransactionUnknownPaymentResponse($orderNum, $status);
+            $this->setTransactionUnknownResponse($orderNum, $status);
             return 'online_payment_failed';
         }
 
-        return [
-           'markFeesAsPaid' => $paid,
-           'transactionId' => $orderNum,
-           'amount' => $amount
-        ];
     }
 
     /**
