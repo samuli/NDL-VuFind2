@@ -226,7 +226,27 @@ implements OnlinePaymentHandlerInterface, LoggerAwareInterface
         $table = $this->getTable('transaction');
         if (!$table->setTransactionCancelled($orderNum)) {
             $this->logger->err(
-                "Paytrail: error updating transaction $orderNum to cancelled"
+                $this->getName()
+                . ": error updating transaction $orderNum to cancelled"
+            );
+        }
+    }
+
+    /**
+     * Set transaction failed.
+     *
+     * @param string $orderNum Transaction ID.
+     * @param string $msg      Message
+     *
+     * @return void
+     */
+    protected function setTransactionFailed($orderNum, $msg = null)
+    {
+        $table = $this->getTable('transaction');
+        if (!$table->setTransactionRegistrationFailed($orderNum, $msg)) {
+            $this->logger->err(
+                $this->getName()
+                . ": error updating transaction $orderNum to failed"
             );
         }
     }

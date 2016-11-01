@@ -272,8 +272,9 @@ class CPU extends BaseHandler
         $hash = $params['Hash'];
 
         if (!$this->verifyHash([$id, $status, $reference], $hash)) {
+            $this->setTransactionFailed($orderNum, 'invalid checksum');
             $this->handleCPUError(
-                'error processing response: invalid checksum', $response
+                'error processing response: invalid checksum', $params
             );
             return 'online_payment_failed';
         }

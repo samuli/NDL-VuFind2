@@ -194,6 +194,7 @@ class Paytrail extends BaseHandler
                     'Paytrail: error processing response: invalid checksum'
                 );
                 $this->logger->err("   " . var_export($params, true));
+                $this->setTransactionFailed($orderNum, 'invalid checksum');
                 return 'online_payment_failed';
             }
             $this->setTransactionPaid($orderNum, $timestamp);

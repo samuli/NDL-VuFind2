@@ -210,7 +210,11 @@ class Transaction extends \VuFind\Db\Table\Gateway
         if (!$t = $this->getTransaction($transactionId)) {
             return false;
         }
-        return $t->complete == self::STATUS_PROGRESS;
+
+        return in_array(
+            $t->complete,
+            [self::STATUS_PROGRESS, self::STATUS_REGISTRATION_FAILED]
+        );
     }
 
     /**

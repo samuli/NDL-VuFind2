@@ -27,7 +27,8 @@
  * @link     https://vufind.org/wiki/development:plugins:controllers Wiki
  */
 namespace Finna\Controller;
-use Zend\Session\Container as SessionContainer;
+use Zend\Console\Console,
+    Zend\Session\Container as SessionContainer;
 
 /**
  * Online payment controller trait.
@@ -41,6 +42,8 @@ use Zend\Session\Container as SessionContainer;
  */
 trait OnlinePaymentControllerTrait
 {
+    use \VuFind\Log\LoggerAwareTrait;
+
     /**
      * Checks if the given list of fines is identical to the listing
      * preserved in the session variable.
@@ -334,18 +337,32 @@ trait OnlinePaymentControllerTrait
                 = $userTable->select(
                     ['cat_username' => $t['cat_username'], 'id' => $t['user_id']]
                 )->current();
-
+            
             try {
                 $patron = $catalog->patronLogin(
-                    $user['cat_username'], $user['cat_password']
+                    $user['cat_username'], $user->getCatPassword()
                 );
             } catch (\Exception $e) {
-                $this->logException($e);
-                return ['success' => false];
+                $this->handleException($e);
             }
         }
 
         $res = $handler->processResponse($request);
+        $transactionTable = $this->getTable('transaction');
+
+        if (!$patron) {
+            $this->handleError(
+                'Error processing transaction id ' . $t['id']
+                . ': patronLogin error (cat_username: ' . $user['cat_username']
+                . ', user id: ' . $t['user_id'] . ')'
+            );
+
+            $transactionTable->setTransactionRegistrationFailed(
+                $t['transaction_id'], 'patronLogin error'
+            );
+            return ['success' => false];
+        }
+
         if (!is_array($res) || empty($res['markFeesAsPaid'])) {
             return ['success' => false, 'msg' => $res];
         }
@@ -354,10 +371,9 @@ trait OnlinePaymentControllerTrait
         try {
             $finesAmount = $catalog->getOnlinePayableAmount($patron);
         } catch (\Exception $e) {
-            $this->logException($e);
+            $this->handleException($e);
             return ['success' => false];
         }
-        $transactionTable = $this->getTable('transaction');
 
         // Check that payable sum has not been updated
         if ($finesAmount['payable']
@@ -392,7 +408,7 @@ trait OnlinePaymentControllerTrait
                 'SIP2 payment error (patron ' . $patron['id'] . '): '
                 . $e->getMessage()
             );
-            $this->logException($e);
+            $this->handleException($e);
 
             if (!$transactionTable->setTransactionRegistrationFailed(
                 $tId, $e->getMessage()
@@ -432,6 +448,23 @@ trait OnlinePaymentControllerTrait
     protected function handleError($msg)
     {
         $this->setLogger($this->getServiceLocator()->get('VuFind\Logger'));
-        $this->handleError($msg);
+        $this->logError($msg);
+    }
+
+    /**
+     * Log exception.
+     *
+     * @param Exception $e Exception
+     *
+     * @return void
+     */
+    protected function handleException($e)
+    {
+        $this->setLogger($this->getServiceLocator()->get('VuFind\Logger'));
+        if (!Console::isConsole()) {
+            $this->logger->logException($e, new \Zend\Stdlib\Parameters());
+        } else {
+            $this->logException($e);
+        }        
     }
 }

@@ -249,15 +249,19 @@ class OnlinePaymentMonitor extends AbstractService
                 $user = $this->userTable->getById($t->user_id);
             }
 
-            $catUsername = $patron = null;
+            $patron = null;
             foreach ($user->getLibraryCards() as $card) {
                 $card = $user->getLibraryCard($card['id']);
 
                 if ($card['cat_username'] == $t->cat_username) {
                     try {
+                        $cardUser = $this->userTable->createRow();
+                        $cardUser->cat_username = $card['cat_username'];
+                        $cardUser->cat_pass_enc = $card['cat_pass_enc'];
                         $patron = $this->catalog->patronLogin(
-                            $card['cat_username'], $card['cat_password']
+                            $card['cat_username'], $cardUser->getCatPassword()
                         );
+                        
                         if ($patron) {
                             break;
                         }

@@ -1440,6 +1440,7 @@ class AjaxController extends \VuFind\Controller\AjaxController
      */
     public function onlinePaymentNotifyAction()
     {
+        $this->outputMode = 'json';
         $this->processPayment($this->getRequest());
         // This action does not return anything but a HTTP 200 status.
         exit();
