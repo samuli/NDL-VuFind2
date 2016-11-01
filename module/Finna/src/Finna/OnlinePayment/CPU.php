@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * Copyright (C) The National Library of Finland 2014.
+ * Copyright (C) The National Library of Finland 2016.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -25,7 +25,6 @@
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
- * @link     http://docs.paytrail.com/ Paytrail API documentation
  */
 namespace Finna\OnlinePayment;
 
@@ -34,7 +33,7 @@ require_once 'Cpu/Client/Payment.class.php';
 require_once 'Cpu/Client/Product.class.php';
 
 /**
- * Paytrail payment handler module.
+ * CPU payment handler module.
  *
  * @category VuFind
  * @package  OnlinePayment
@@ -42,7 +41,6 @@ require_once 'Cpu/Client/Product.class.php';
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
- * @link     http://docs.paytrail.com/ Paytrail API documentation
  */
 class CPU extends BaseHandler
 {
@@ -52,8 +50,6 @@ class CPU extends BaseHandler
     const STATUS_ID_EXISTS = 97;
     const STATUS_ERROR = 98;
     const STATUS_INVALID_REQUEST = 99;
-
-    const PAYMENT_NOTIFY = 'notify';
 
     /**
      * Start transaction.
@@ -300,15 +296,15 @@ class CPU extends BaseHandler
     }
 
     /**
-     * Init Paytrail module with configured merchantId, secret and URL.
+     * Init CPU module with configured merchantId, secret and URL.
      *
-     * @return Paytrail_Module_Rest module.
+     * @return Cpu_Client.
      */
     protected function initCpu()
     {
         foreach (['merchantId', 'secret', 'url'] as $req) {
             if (!isset($this->config[$req])) {
-                $this->logger->err("Paytrail: missing parameter $req");
+                $this->logger->err("CPU: missing parameter $req");
                 return false;
             }
         }
