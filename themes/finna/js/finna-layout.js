@@ -693,24 +693,6 @@ finna.layout = (function() {
         });
     };
 
-    var initTermsOfServiceCheckbox = function(lightbox) {
-        var form = $('.terms-of-service form');
-        var btn = form.find('input.submit');
-        form.find('input[type="checkbox"]').change(function(e) {
-            btn.toggleClass('disabled', !$(this).is(':checked'));
-        }
-        );
-        form.find('input[name="cancel"]').click(function(e) {
-            if (lightbox) {
-               VuFind.modal('hide');
-            } else {
-               window.location = VuFind.path;
-            }
-            e.stopPropagation();
-            return false;
-        });
-    };
-
     var initIframeEmbed = function(container) {
         if (typeof(container) == 'undefined') {
             container = $('body');
@@ -757,7 +739,6 @@ finna.layout = (function() {
         initJumpMenus: initJumpMenus,
         initMobileNarrowSearch: initMobileNarrowSearch,
         initSecondaryLoginField: initSecondaryLoginField,
-        initTermsOfServiceCheckbox: initTermsOfServiceCheckbox,
         initIframeEmbed: initIframeEmbed, 
         init: function() {
             initScrollRecord();
