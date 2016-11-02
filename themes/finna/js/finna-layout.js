@@ -693,7 +693,6 @@ finna.layout = (function() {
         });
     };
 
-<<<<<<< .merge_file_XbcFh8
     var initTermsOfServiceCheckbox = function(lightbox) {
         var form = $('.terms-of-service form');
         var btn = form.find('input.submit');
@@ -712,7 +711,6 @@ finna.layout = (function() {
         });
     };
 
-=======
     var initIframeEmbed = function(container) {
         if (typeof(container) == 'undefined') {
             container = $('body');
