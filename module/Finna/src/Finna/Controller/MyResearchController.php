@@ -198,7 +198,10 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
     public function loginAction()
     {
         $conf = $this->serviceLocator->get('VuFind\Config')->get('config');
-        if (!isset($conf->TermsOfService->version)) {
+        
+        if (empty($conf->TermsOfService->enabled)
+            || !isset($conf->TermsOfService->version)
+        ) {
             return parent::loginAction();
         }
 

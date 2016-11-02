@@ -1372,4 +1372,5 @@ en-gb['FREE ACCESS - NO-REUSE'] = "http://www.europeana.eu/portal/rights/rr-f.ht
 ; The user is prompted to accept the Terms of Service before the login screen is shown 
 ; when the current version number differs from the version saved to the browser cookie.
 [TermsOfService]
+enabled = false
 version = 1.0
