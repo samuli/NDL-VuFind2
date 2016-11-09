@@ -309,11 +309,15 @@ class CPU extends BaseHandler
             }
         }
 
-        return new \Cpu_Client(
+        $module = new \Cpu_Client(
             $this->config['url'],
             $this->config['merchantId'],
             $this->config['secret']
         );
+        $module->setHttpService($this->http);
+        $module->setLogger($this->logger);
+        return $module;
+
     }
 
     /**

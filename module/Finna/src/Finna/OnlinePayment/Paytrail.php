@@ -134,6 +134,7 @@ class Paytrail extends BaseHandler
                 . $e->getMessage();
             $this->logger->err($err);
             header("Location: {$finesUrl}");
+            exit();
         }
 
         if (!$this->createTransaction(
@@ -227,10 +228,13 @@ class Paytrail extends BaseHandler
                 return false;
             }
         }
-        return new Paytrail_Module_Rest(
+        $module = new Paytrail_Module_Rest(
             $this->config['merchantId'],
             $this->config['secret'],
             $this->config['url']
         );
+        $module->setHttpService($this->http);
+        $module->setLogger($this->logger);
+        return $module;
     }
 }

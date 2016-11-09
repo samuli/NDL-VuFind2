@@ -47,7 +47,7 @@ class Cpu_Client_Product {
 	 *
 	 * @var string
 	 */
-	public $taxcode = NULL;
+	public $Taxcode = NULL;
 
 	/**
 	 * Constructor creates the product.
@@ -56,7 +56,6 @@ class Cpu_Client_Product {
 	 * @param string $code Product code
 	 * @param integer $amount Amount ordered
 	 * @param number $price Price of single product
-	 * @param string $taxcode Vat code
 	 * @param string $description Short product description
 	 */
 	public function __construct($code, $amount = NULL, $price = NULL, $description = NULL) {

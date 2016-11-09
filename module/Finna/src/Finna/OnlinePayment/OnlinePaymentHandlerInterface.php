@@ -43,9 +43,10 @@ interface OnlinePaymentHandlerInterface
     /**
      * Constructor
      *
-     * @param array $config Configuration
+     * @param array        $config Configuration
+     * @param \VuFind\Http $http HTTP service.
      */
-    public function __construct($config);
+    public function __construct($config, $http);
 
     /**
      * Return payment response parameters.

@@ -9,6 +9,8 @@
  * @version 1.0
  */
 class Cpu_Client {
+    use \Finna\OnlinePayment\OnlinePaymentModuleTrait;
+
 	/**
 	 * Url of eCommerce service where payment data will be sent.
 	 *
@@ -63,30 +65,23 @@ class Cpu_Client {
 			$data = $payment->convertToArray();
 			$data['Source'] = $this->source;
 			$data['Hash']   = Cpu_Client::calculateHash($payment, $this->source, $this->secret_key);
-	    	//$data['Secret-key'] = $this->source;
 
 			$json_data = json_encode($data);
 
-	    $ch = curl_init();
-	    curl_setopt($ch, CURLOPT_URL, $this->service_url);
-	    curl_setopt($ch, CURLOPT_REFERER, $_SERVER['REMOTE_ADDR']);
-	    curl_setopt($ch, CURLOPT_TIMEOUT, 30);
-	    curl_setopt($ch, CURLOPT_POST, TRUE);
-      curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: application/json; charset=utf-8']);
-      curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-			curl_setopt($ch, CURLOPT_POSTFIELDS, $json_data);
+            $options = ['maxredirects' => 1];
+            $headers = [
+               'Content-Type: application/json; charset=utf-8'
+            ];
 
-			// Skipping ssl verification here. Use the proper way to verify host and peer when in production environment!
-			curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, FALSE);
+            $response = $this->postRequest(
+                $this->service_url, $json_data, $options, $headers
+            );
 
-	    $output = curl_exec($ch);
+            if (!$response) {
+                return false;
+            }
 
-	    if (curl_error($ch))
-	    	trigger_error(curl_error($ch));
-
-	    curl_close($ch);
-
-			return $output;
+			return $response['response'];
 		}
 
 		return NULL;
