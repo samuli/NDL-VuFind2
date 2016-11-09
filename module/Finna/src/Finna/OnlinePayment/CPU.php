@@ -331,6 +331,12 @@ class CPU extends BaseHandler
     protected function verifyHash($params, $hash)
     {
         $params[] = $this->config['secret'];
+        foreach ($params as &$param) {
+            if (!is_string($param)) {
+                continue;
+            }
+            $param = trim(str_replace(';', '', $param));
+        }
         return hash('sha256', implode('&', $params)) === $hash;
     }
 
