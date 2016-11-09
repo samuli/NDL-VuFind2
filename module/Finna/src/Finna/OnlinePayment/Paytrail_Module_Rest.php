@@ -649,7 +649,7 @@ class Paytrail_Module_Rest
 
         // Read result, including http code
         $result = new \StdClass();
-        $result->response = $response['response'];        
+        $result->response = $response['response'];
         $result->httpCode = $response['httpCode'];
         $result->contentType = $response['contentType'];
 

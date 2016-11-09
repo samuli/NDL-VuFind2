@@ -44,7 +44,7 @@ interface OnlinePaymentHandlerInterface
      * Constructor
      *
      * @param array        $config Configuration
-     * @param \VuFind\Http $http HTTP service.
+     * @param \VuFind\Http $http   HTTP service.
      */
     public function __construct($config, $http);
 

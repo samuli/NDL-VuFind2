@@ -59,7 +59,6 @@ implements OnlinePaymentHandlerInterface, LoggerAwareInterface
      */
     protected $config;
 
-
     /**
      * HTTP service.
      *
@@ -71,7 +70,7 @@ implements OnlinePaymentHandlerInterface, LoggerAwareInterface
      * Constructor
      *
      * @param array        $config Configuration as key-value pairs.
-     * @param \VuFind\Http $http HTTP service
+     * @param \VuFind\Http $http   HTTP service
      */
     public function __construct($config, $http)
     {

@@ -88,7 +88,7 @@ trait OnlinePaymentModuleTrait
             $client->setOptions($options);
             $headers = array_merge(
                 [
-                    'Content-Type' => 'application/json', 
+                    'Content-Type' => 'application/json',
                     'Content-Length' => strlen($body)
                 ],
                 $headers
@@ -96,9 +96,9 @@ trait OnlinePaymentModuleTrait
             $client->setHeaders($headers);
             $client->setRawBody($body);
             $response = $client->send();
-        } catch (\Exception $e) {            
+        } catch (\Exception $e) {
             $this->logger->err(
-                "Error posting request: " . $e->getMessage() 
+                "Error posting request: " . $e->getMessage()
                 . ", url: $url, body: $body, headers: " . var_export($headers, true)
             );
             $this->logger->logException($e, new \Zend\Stdlib\Parameters());
@@ -110,7 +110,7 @@ trait OnlinePaymentModuleTrait
 
         if (!$response->isSuccess()) {
             $this->logger->err(
-                "Error posting request: invalid status code: $status" 
+                "Error posting request: invalid status code: $status"
                 . ", url: $url, body: $body, headers: " . var_export($headers, true)
                 . ", response: $content"
             );

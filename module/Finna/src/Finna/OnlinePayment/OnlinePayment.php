@@ -77,7 +77,7 @@ class OnlinePayment
      */
     public function __construct($http, $tableManager, $logger, $config)
     {
-        $this->http = $http;        
+        $this->http = $http;
         $this->tableManager = $tableManager;
         $this->logger = $logger;
         $this->config = $config;
@@ -98,7 +98,7 @@ class OnlinePayment
             throw new \Exception(
                 "Online payment handler $class not found for $source"
             );
-        }        
+        }
         $handler = new $class(
             $this->getConfig($source),
             $this->http
