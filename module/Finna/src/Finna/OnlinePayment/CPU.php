@@ -102,7 +102,10 @@ class CPU extends BaseHandler
         $productCode = $this->config->productCode;
 
         foreach ($fines as $fine) {
-            $fineDesc = $fine['fine'];
+            $fineDesc = null;
+            if (!empty($fine['fine'])) {
+                $fineDesc = $fine['fine'];
+            }
             if (!empty($fine['title'])) {
                 $fineDesc .= ' (' . $fine['title'] . ')';
             }
@@ -331,12 +334,6 @@ class CPU extends BaseHandler
     protected function verifyHash($params, $hash)
     {
         $params[] = $this->config['secret'];
-        foreach ($params as &$param) {
-            if (!is_string($param)) {
-                continue;
-            }
-            $param = trim(str_replace(';', '', $param));
-        }
         return hash('sha256', implode('&', $params)) === $hash;
     }
 
