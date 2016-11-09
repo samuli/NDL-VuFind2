@@ -1,6 +1,6 @@
 <?php
 /**
- * Organisation display name view helper
+ * Organisation display name view helper for Solr records.
  *
  * PHP version 5
  *
@@ -28,7 +28,7 @@
 namespace Finna\View\Helper\Root;
 
 /**
- * Organisation display name view helper
+ * Organisation display name view helper for Solr records.
  *
  * @category VuFind
  * @package  View_Helpers
@@ -77,7 +77,7 @@ class OrganisationDisplayName extends \Zend\View\Helper\AbstractHelper
         }
 
         $datasource
-            = $translator->__invoke("source_$datasource", null, $datasource);        
+            = $translator->__invoke("source_$datasource", null, $datasource);
 
         if ($datasource === $displayName) {
             return $displayName;
