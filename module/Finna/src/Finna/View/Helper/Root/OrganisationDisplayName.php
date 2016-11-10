@@ -66,7 +66,7 @@ class OrganisationDisplayName extends \Zend\View\Helper\AbstractHelper
         // Case 2: search for institution among building levels,
         // use the first one found
         foreach ($buildings as $building) {
-            if (strstr($building, $institution) !== false) {
+            if (strpos($building, $institution) !== false) {
                 $displayName = $translator->__invoke($building, null, $building);
                 break;
             }
@@ -87,7 +87,7 @@ class OrganisationDisplayName extends \Zend\View\Helper\AbstractHelper
         if ($fullName && $pos === false) {
             // Datasource name differs from building name:
             // include both for a full display name.
-            return $displayName . " / $datasource";
+            return "$displayName / $datasource";
         }
 
         // Building name is duplicated in datasource name.
