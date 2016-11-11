@@ -275,7 +275,7 @@ finna = $.extend(finna, {
                         $.each(data.details.links, function(ind, obj) {                            
                             var link = holder.find('.mobile-schedule-link-template').eq(0).clone();
                             link.removeClass('hide mobile-schedule-link-template');
-                            link.find('a').attr('href', obj.url).text(obj.name);
+                            link.find('a').attr('href', obj.url).attr('target', '_blank').text(obj.name);
                             link.appendTo(linkHolder);
                         });
                         links = true;
