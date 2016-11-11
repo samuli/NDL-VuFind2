@@ -27,8 +27,7 @@
  * @link     http://vufind.org   Main Site
  */
 namespace Finna\Controller;
-use Zend\Http\Header\SetCookie,
-    Zend\Session\Container as SessionContainer;
+use Zend\Http\Header\SetCookie;
 
 /**
  * Controller for the user account area.
