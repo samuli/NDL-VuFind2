@@ -37,6 +37,7 @@ return [
             'searchbox' => 'Finna\View\Helper\Root\Factory::getSearchBox',
             'searchTabs' => 'Finna\View\Helper\Root\Factory::getSearchTabs',
             'searchTabsRecommendations' => 'Finna\View\Helper\Root\Factory::getSearchTabsRecommendations',
+            'survey' => 'Finna\View\Helper\Root\Factory::getSurvey',
             'systemMessages' => 'Finna\View\Helper\Root\Factory::getSystemMessages',
             'translation' => 'Finna\View\Helper\Root\Factory::getTranslation',
             'proxyurl' => 'Finna\View\Helper\Root\Factory::getProxyUrl',

@@ -23,7 +23,8 @@ var finna = (function() {
                 'primoAdvSearch',
                 'record',
                 'searchTabsRecommendations',
-                'StreetSearch'
+                'StreetSearch',
+                'survey'
             ];
 
             $.each(modules, function(ind, module) {
