@@ -262,7 +262,8 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
 
         if ($action == 'lookup') {
             $link = $params['link'];
-            return $this->lookupAction($parent, $link);
+            $parentName = $params['parentName'];
+            return $this->lookupAction($parent, $link, $parentName);
         } elseif ($action == 'consortium') {
             $response = $this->consortiumAction(
                 $parent, $buildings, $target, $startDate, $endDate, $params
@@ -298,10 +299,11 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
      * Use a comma delimited string to check multiple Finna IDs.
      * @param boolean $link   True to render the link as a html-snippet.
      * Oherwise only the link URL is outputted.
+     * @param string  $parentName Translated consortium display name.
      *
      * @return array Array with the keys 'success' and 'items'.
      */
-    protected function lookupAction($parent, $link = false)
+    protected function lookupAction($parent, $link = false, $parentName = null)
     {
         // Check if consortium is found in Kirjastohakemisto
         $parents = explode(',', $parent);
@@ -342,7 +344,7 @@ class OrganisationInfo implements \Zend\Log\LoggerAwareInterface
                 $data = $this->viewRenderer->partial(
                     'Helpers/organisation-page-link.phtml', [
                        'url' => $data, 'label' => 'organisation_info_link',
-                       'logo' => $logo
+                       'logo' => $logo, 'name' => $parentName
                     ]
                 );
             }
