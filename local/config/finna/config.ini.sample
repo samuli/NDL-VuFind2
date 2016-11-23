@@ -1371,3 +1371,4 @@ en-gb['FREE ACCESS - NO-REUSE'] = "http://www.europeana.eu/portal/rights/rr-f.ht
 ; Finna survey
 [Survey]
 enabled = false
+url = "https://my.surveypal.com/Finnasurvey"

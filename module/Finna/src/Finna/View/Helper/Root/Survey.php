@@ -62,7 +62,10 @@ class Survey extends \Zend\View\Helper\AbstractHelper
      */
     public function render()
     {
-        return $this->getView()->render('Helpers/survey.phtml');
+        return $this->getView()->render(
+            'Helpers/survey.phtml',
+            ['url' => $this->config->Survey->url]
+        );
     }
 
     /**
@@ -73,6 +76,7 @@ class Survey extends \Zend\View\Helper\AbstractHelper
     public function isEnabled()
     {
         return isset($this->config->Survey->enabled) 
-            && $this->config->Survey->enabled;
+            && $this->config->Survey->enabled
+            && !empty($this->config->Survey->url);
     }
 }
