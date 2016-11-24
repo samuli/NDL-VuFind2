@@ -75,7 +75,7 @@ class Survey extends \Zend\View\Helper\AbstractHelper
      */
     public function isEnabled()
     {
-        return isset($this->config->Survey->enabled) 
+        return isset($this->config->Survey->enabled)
             && $this->config->Survey->enabled
             && !empty($this->config->Survey->url);
     }
