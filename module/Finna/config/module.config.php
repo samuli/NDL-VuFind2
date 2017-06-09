@@ -263,6 +263,7 @@ $config = [
                     'axiellwebservices' => 'Finna\ILS\Driver\Factory::getAxiellWebServices',
                     'demo' => 'Finna\ILS\Driver\Factory::getDemo',
                     'koharest' => 'Finna\ILS\Driver\Factory::getKohaRest',
+                    'mikromarc' => 'Finna\ILS\Driver\Factory::getMikromarc',
                     'multibackend' => 'Finna\ILS\Driver\Factory::getMultiBackend',
                     'sierrarest' => 'Finna\ILS\Driver\Factory::getSierraRest',
                     'voyager' => 'Finna\ILS\Driver\Factory::getVoyager',
