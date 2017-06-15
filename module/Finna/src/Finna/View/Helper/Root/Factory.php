@@ -392,8 +392,9 @@ class Factory extends \VuFind\View\Helper\Root\Factory
     {
         $locator = $sm->getServiceLocator();
         $config = $locator->get('VuFind\Config')->get('config');
+        $systemConfig = $locator->get('VuFind\Config')->get('system');
 
-        return new SystemMessages($config);
+        return new SystemMessages($config, $systemConfig);
     }
 
     /**

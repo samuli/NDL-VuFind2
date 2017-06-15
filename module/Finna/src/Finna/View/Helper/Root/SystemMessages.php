@@ -4,7 +4,7 @@
  *
  * PHP version 5
  *
- * Copyright (C) The National Library of Finland 2015.
+ * Copyright (C) The National Library of Finland 2015-2017.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -22,6 +22,7 @@
  * @category VuFind
  * @package  View_Helpers
  * @author   Ere Maijala <ere.maijala@helsinki.fi>
+ * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
@@ -33,6 +34,7 @@ namespace Finna\View\Helper\Root;
  * @category VuFind
  * @package  View_Helpers
  * @author   Ere Maijala <ere.maijala@helsinki.fi>
+ * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
@@ -46,13 +48,22 @@ class SystemMessages extends \Zend\View\Helper\AbstractHelper
     protected $config;
 
     /**
+     * System configuration
+     *
+     * @var array
+     */
+    protected $systemConfig;
+
+    /**
      * Constructor
      *
-     * @param array $config Configuration
+     * @param array $config       Configuration
+     * @param array $systemConfig System configuration
      */
-    public function __construct($config)
+    public function __construct($config, $systemConfig)
     {
         $this->config = $config;
+        $this->systemConfig = $systemConfig;
     }
 
     /**
@@ -62,7 +73,16 @@ class SystemMessages extends \Zend\View\Helper\AbstractHelper
      */
     public function __invoke()
     {
-        return !empty($this->config->Site->systemMessages)
-            ? $this->config->Site->systemMessages : [];
+        $messages = !empty($this->config->Site->systemMessages)
+            ? $this->config->Site->systemMessages->toArray() : [];
+
+        if (!empty($this->systemConfig->Site->systemMessages)) {
+            $messages
+                = array_merge(
+                    $messages,
+                    $this->systemConfig->Site->systemMessages->toArray()
+                );
+        }
+        return $messages;
     }
 }

@@ -1,0 +1,9 @@
+; Inherit main configuration
+[Parent_Config]
+relative_path = ../finna/system.ini
+
+; Add any overrides below
+[Site]
+; Any system messages that need to be displayed on the top of every page. May be translation entries or
+; strings and may contain html markup.
+;systemMessages[] = development_disclaimer
