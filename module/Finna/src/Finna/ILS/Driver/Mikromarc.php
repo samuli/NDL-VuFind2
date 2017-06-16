@@ -73,6 +73,16 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
      */
     protected $defaultPickUpLocation;
 
+     /**
+     * Mappings from fee (account line) types
+     *
+     * @var array
+     */
+    protected $feeTypeMappings = [
+        'Overdue charge' => 'Overdue',
+        'Extra service' => 'Extra service'
+    ];
+
     /**
      * Constructor
      *
@@ -269,6 +279,54 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
         return $this->getPatronBlocks($patron);
     }
 
+    /**
+     * Get Patron Fines
+     *
+     * This is responsible for retrieving all fines by a specific patron.
+     *
+     * @param array $patron The patron array from patronLogin
+     *
+     * @throws DateException
+     * @throws ILSException
+     * @return array        Array of the patron's fines on success.
+     */
+    public function getMyFines($patron)
+    {
+        $result = $this->makeRequest(
+            ['BorrowerDebts', $patron['cat_username'], '1', '0']
+        );
+
+        if (empty($result)) {
+            return [];
+        }
+        $fines = [];
+        foreach ($result as $entry) {
+            $createDate = !empty($entry['DeptDate'])
+                ? $this->dateConverter->convertToDisplayDate(
+                    'U', strtotime($entry['DeptDate'])
+                )
+                : '';
+
+            $type = $entry['Notes'];
+            if (isset($this->feeTypeMappings[$type])) {
+                $type = $this->feeTypeMappings[$type];
+            }
+            $amount = $entry['Remainder']*100;
+            $fines[] = [
+                'amount' => $amount,
+                'balance' => $amount,
+                'fine' => $type,
+                'createdate' => $createDate,
+                'checkout' => '',
+                'id' => isset($entry['MarcRecordId'])
+                   ? $entry['MarcRecordId'] : null,
+                'item_id' => $entry['Id'],
+                'title' => $entry['MarcRecordTitle']
+            ];
+        }
+        return $fines;
+    }
+
      /**
      * Get Patron Profile
      *
@@ -314,7 +372,7 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
         ];
         $profile = array_merge($patron, $profile);
         
-        $this->putCachedData($cacheKey, $profile);
+        $this->putCachedData($cacheKey, $patron);
 
         return $profile;
     }
@@ -396,7 +454,7 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
             $checkedOutId = $details;
             list($code, $result) = $this->makeRequest(
                 ['odata', "BorrowerLoans($checkedOutId)", 'Default.RenewLoan'],
-                false, 'POST', true
+                'POST', true
             );
             
             if ($code != 200 || $result['ServiceCode'] != 'LoanRenewed') {
@@ -497,7 +555,6 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
             ['odata', 'BorrowerReservations', 'Default.Create'],
             json_encode($request),
             'POST',
-            $request,
             true
         );
 
@@ -542,7 +599,7 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
         foreach ($details as $detail) {
             list($resultCode, $result) = $this->makeRequest(
                 ['odata', 'BorrowerReservations(' . $detail . ')'],
-                false, 'DELETE', null, true
+                false, 'DELETE', true
             );
             
             if ($resultCode != 204) {
@@ -662,24 +719,39 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
      */
     public function updateAddress($patron, $details)
     {
+        $map = [
+            'address1' => 'MainAddrLine1',
+            'address2' => 'MainAddrLine2',
+            'zip' => 'MainZip',
+            'city' => 'MainPlace',
+            'phone' => 'MainPhone',
+            'email' => 'MainEmail'
+        ];
+
         $request = [];
+        foreach ($details as $field => $val) {
+            if (!isset($map[$field])) {
+                continue;
+            }
+            $field = $map[$field];
+            $request[$field] = $val;
+        }
         
         list($code, $result) = $this->makeRequest(
             ['odata',
              'Borrowers(' . $patron['id'] . ')'],
             json_encode($request),
             'PATCH',
-            null,
             true
         );
-        
+
         if ($code != 200) {
             $message = 'An error has occurred';
             return [
                 'success' => false, 'status' => $message
             ];
         }
-        $this->putCachedData($this->getPatronCacheKey(), null);
+        $this->putCachedData($this->getProfileCacheKey($patron), null);
 
         return ['success' => true, 'status' => 'request_change_accepted'];
     }
@@ -712,7 +784,6 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
              'Default.ChangePickupUnit'],
             json_encode($request),
             'POST',
-            null,
             true
         );
 
@@ -749,7 +820,6 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
              'Default.ChangePinCode'],
             json_encode($request),
             'POST',
-            null,
             true
         );
         
@@ -1151,7 +1221,7 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
         // Create proxy request
         $client = $this->createHttpClient($apiUrl);
         $client->setAuth($conf['username'], $conf['password']);
-        
+
         // Add params
         if (false !== $params) {
             if ($method == 'GET') {
@@ -1210,7 +1280,7 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
             // Handle errors as complete failures only if the API call didn't return
             // valid JSON that the caller can handle
             $decodedResult = json_decode($result, true);
-
+            
             if (!$response->isSuccess()
                 && (null === $decodedResult || !empty($decodedResult['error']))
                 && !$returnCode
