@@ -320,7 +320,7 @@ class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
      */
     public function patronLogin($username, $password, $secondary = null)
     {
-        $cacheKey = "patron|$username";
+        $cacheKey = "patron|$username|$password";
         $item = $this->getCachedData($cacheKey);
         if ($item !== null) {
             return $item;
@@ -365,6 +365,25 @@ class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
                 $this->stripIdPrefixes($patron, $source), $params
             );
             return $this->addIdPrefixes($transactions, $source);
+        }
+        throw new ILSException('No suitable backend driver found');
+    }
+
+    /**
+     * Purge Patron Transaction History
+     *
+     * @param array $patron The patron array from patronLogin
+     *
+     * @return array Associative array of the results
+     */
+    public function purgeTransactionHistory($patron)
+    {
+        $source = $this->getSource($patron['cat_username']);
+        $driver = $this->getDriver($source);
+        if ($driver) {
+            return $driver->purgeTransactionHistory(
+                $this->stripIdPrefixes($patron, $source)
+            );
         }
         throw new ILSException('No suitable backend driver found');
     }
