@@ -212,38 +212,35 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
      */
     public function patronLogin($username, $password)
     {
-        $patron = ['cat_username' => $username, 'cat_password' => $password];
-        /*
+        $request = json_encode(
+            [
+              'Barcode' => $username,
+              'Pin' => $password
+            ]
+        );
+
         list($code, $result) = $this->makeRequest(
-            ['odata', 'Borrowers', 'DefaultAuthenticate'],
-            ['Barcode' => $username, 'Pin' => $password],
-            'POST',
-            true
+            ['odata', 'Borrowers', 'Default.Authenticate'],
+            $request, 'POST', true
         );
 
         if ($code == 401) {
             return null;
         }
-        if ($code != 200) {
+        if ($code != 200 || empty($result)) {
             throw new ILSException('Problem with Mikromarc REST API.');
         }
-        */
-        $result = true;
-        if ($result) {
-            if ($profile = $this->getMyProfile($patron)) {
-                return [
-                   'id' => $profile['id'],
-                   'firstname' => $profile['firstname'],
-                   'lastname' => $profile['lastname'],
-                   'cat_username' => $username,
-                   'cat_password' => $password,
-                   'email' => $profile['email'],
-                   'major' => null,
-                   'college' => null
-                ];                
-            }
+
+        $patron = [
+            'cat_username' => $username, 'cat_password' => $password, 'id' => $result
+        ];
+        
+        if ($profile = $this->getMyProfile($patron)) {
+            $profile['major'] = null;
+            $profile['college'] = null;
         }
-        return null;
+
+        return $profile;
     }
 
         /**
@@ -289,9 +286,13 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
             return $profile;
         }
         
-        $result = $this->makeRequest(
-            ['odata', 'Borrowers(' . $patron['cat_username'] . ')']
+        list($code, $result) = $this->makeRequest(
+            ['odata', 'Borrowers(' . $patron['id'] . ')'], false, 'GET', true
         );
+
+        if ($code != 200) {
+            return null;
+        }
 
         $expirationDate = !empty($result['Expires'])
             ? $this->dateConverter->convertToDisplayDate(
@@ -299,9 +300,8 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
             ) : '';
 
         $name = explode(',', $result['Name'], 2);
-
+        
         $profile = [
-            'id' => $result['Id'],
             'firstname' => trim($name[1]),
             'lastname' => ucfirst(trim($name[0])),
             'phone' => $result['MainPhone'],
@@ -312,6 +312,8 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
             'city' => $result['MainPlace'],
             'expiration_date' => $expirationDate
         ];
+        $profile = array_merge($patron, $profile);
+        
         $this->putCachedData($cacheKey, $profile);
 
         return $profile;
@@ -333,7 +335,7 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
     {
         $result = $this->makeRequest(
             ['odata', 'BorrowerLoans'],
-            ['$filter' => 'BorrowerId eq ' . $patron['cat_username']]
+            ['$filter' => 'BorrowerId eq ' . $patron['id']]
         );
         if (empty($result)) {
             return [];
@@ -432,7 +434,7 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
     {
         $result = $this->makeRequest(
             ['odata', 'BorrowerReservations'],
-            ['$filter' => 'BorrowerId eq ' . $patron['cat_username']]
+            ['$filter' => 'BorrowerId eq ' . $patron['id']]
         );
         if (!isset($result)) {
             return [];
@@ -664,7 +666,7 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
         
         list($code, $result) = $this->makeRequest(
             ['odata',
-             'Borrowers(' . $patron['cat_username'] . ')'],
+             'Borrowers(' . $patron['id'] . ')'],
             json_encode($request),
             'PATCH',
             null,
@@ -743,7 +745,7 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
 
         list($code, $result) = $this->makeRequest(
             ['odata',
-             'Borrowers(' . $patron['cat_username'] . ')',
+             'Borrowers(' . $patron['id'] . ')',
              'Default.ChangePinCode'],
             json_encode($request),
             'POST',
@@ -1166,7 +1168,7 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
         } else {
             $client->setHeaders(['Content-length' => 0]);
         }
-        
+
         // Send request and retrieve response
         $startTime = microtime(true);
         $client->setMethod($method);
@@ -1182,7 +1184,8 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
         while (true && $page < $maxPages) {
             // Append '$skip' parameter straight to the url
             // so that Zend does not urlencode the $-sign (this would break
-            // the pagination). 
+            // the pagination).
+
             $client->setUri($apiUrl);
             if ($page > 0) {
                 $client->setUri($apiUrl . '?$skip=' . $page*100);
