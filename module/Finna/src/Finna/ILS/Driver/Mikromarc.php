@@ -813,25 +813,17 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
 
         list($code, $result) = $this->makeRequest(
             ['odata',
-             'Borrowers(' . $patron['id'] . ')',
+             'Borrowers(' . $details['patron']['id'] . ')',
              'Default.ChangePinCode'],
             json_encode($request),
             'POST',
             true
         );
-        
-        if ($code != 200) {
-            if ($code == 403 || (isset($result['error'])
-                && $result['error'] == 'Wrong current password.')
-            ) {
-                $message = 'authentication_error_invalid';
-            } elseif ($code == 404) {
-                $message = 'An error has occurred';
-            } else {
-                $message = 'password_error_invalid';
-            }
+
+        if ($code != 204) {
             return [
-                'success' => false, 'status' => $message
+                'success' => false,
+                'status' => 'authentication_error_invalid_attributes'
             ];
         }
         return ['success' => true, 'status' => 'change_password_ok'];
