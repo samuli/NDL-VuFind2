@@ -234,9 +234,6 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
             $request, 'POST', true
         );
 
-        if ($code == 401) {
-            return null;
-        }
         if ($code != 200 || empty($result)) {
             throw new ILSException('Problem with Mikromarc REST API.');
         }
@@ -249,7 +246,7 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
             $profile['major'] = null;
             $profile['college'] = null;
         }
-
+        
         return $profile;
     }
 
@@ -372,7 +369,7 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
         ];
         $profile = array_merge($patron, $profile);
         
-        $this->putCachedData($cacheKey, $patron);
+        $this->putCachedData($cacheKey, $profile);
 
         return $profile;
     }
@@ -454,7 +451,7 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
             $checkedOutId = $details;
             list($code, $result) = $this->makeRequest(
                 ['odata', "BorrowerLoans($checkedOutId)", 'Default.RenewLoan'],
-                'POST', true
+                false, 'POST', true
             );
             
             if ($code != 200 || $result['ServiceCode'] != 'LoanRenewed') {
@@ -736,7 +733,7 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
             $field = $map[$field];
             $request[$field] = $val;
         }
-        
+
         list($code, $result) = $this->makeRequest(
             ['odata',
              'Borrowers(' . $patron['id'] . ')'],
@@ -787,7 +784,7 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
             true
         );
 
-        if ($code >= 204) {
+        if ($code > 204) {
             return $this->holdError($code, $result);
         }
         return ['success' => true];
@@ -1078,7 +1075,8 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
      */
     protected function getProfileCacheKey($patron)
     {
-        return 'mikromarc|profile|' . md5(implode('|', $patron));
+        return 'mikromarc|profile|'
+            . md5(implode('|', [$patron['cat_username'], $patron['cat_password']]));
     }
     
     /**
