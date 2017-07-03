@@ -309,7 +309,7 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
                 $type = $this->feeTypeMappings[$type];
             }
             $amount = $entry['Remainder']*100;
-            $fines[] = [
+            $fine = [
                 'amount' => $amount,
                 'balance' => $amount,
                 'fine' => $type,
@@ -317,9 +317,13 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
                 'checkout' => '',
                 'id' => isset($entry['MarcRecordId'])
                    ? $entry['MarcRecordId'] : null,
-                'item_id' => $entry['Id'],
-                'title' => $entry['MarcRecordTitle']
+                'item_id' => $entry['Id']
             ];
+            if (!empty($entry['MarcRecordTitle'])) {
+                $fine['title'] = $entry['MarcRecordTitle'];
+            }
+            $fines[] = $fine;
+
         }
         return $fines;
     }
@@ -413,6 +417,9 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
                 'renewable' => ($renewLimit-$renewalCount) > 0,
                 'message' => $entry['Notes']
             ];
+            if (!empty($entry['MarcRecordTitle'])) {
+                $transaction['title'] = $entry['MarcRecordTitle'];
+            }
 
             $transactions[] = $transaction;
         }
@@ -497,7 +504,7 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
 
         $holds = [];
         foreach ($result as $entry) {
-            $holds[] = [
+            $hold = [
                 'id' => $entry['MarcRecordId'],
                 'item_id' => $entry['ItemId'],
                 'location' =>
@@ -512,6 +519,10 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
                 'available' => $entry['ServiceCode'] === 'ReservationArrived',
                 'requestId' => $entry['Id']
             ];
+            if (!empty($entry['MarcRecordTitle'])) {
+                $hold['title'] = $entry['MarcRecordTitle'];
+            }
+            $holds[] = $hold;
         }
         return $holds;
     }
@@ -543,7 +554,7 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
         }
 
         $request = [
-            'BorrowerId' =>  $patron['cat_username'],
+            'BorrowerId' =>  $patron['id'],
             'MarcId' => $holdDetails['id'],
             'DeliverAtUnitId' => $pickUpLocation
         ];
