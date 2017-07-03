@@ -235,7 +235,7 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
         );
 
         if ($code != 200 || empty($result)) {
-            throw new ILSException('Problem with Mikromarc REST API.');
+            return null;
         }
 
         $patron = [
