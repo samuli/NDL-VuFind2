@@ -40,7 +40,7 @@
 @import "finna/feedback-form";
 @import "finna/headings";
 @import "finna/lists";
-@import "finna/modal";
+@import "finna/lightbox";
 @import "finna/buttons";
 @import "finna/common";
 @import "finna/tables";
@@ -1351,11 +1351,6 @@ label.list-group-item {border-radius:0;font-weight:normal;margin-top:0;padding-l
         font-size: .9em;
     }
 }
-.template-dir-primo .record-container {
-    @media (min-width: @screen-sm-min) and (max-width: @screen-sm-max) {
-        margin-left: 15px;
-    }
-}
 //== PCI FACETS
 #creationdateFilter, #publishDateFilter {
     & input[type="text"] {
@@ -1747,7 +1742,3 @@ label.list-group-item {border-radius:0;font-weight:normal;margin-top:0;padding-l
         }
     }
 }
-
-.lightbox-only { display: none; }
-#modal .lightbox-only { display: initial; }
-.lightbox-scroll { overflow-y: auto; }
