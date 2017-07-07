@@ -52,6 +52,7 @@ class RecordDataFormatterFactory
     {
         $helper = new RecordDataFormatter();
         $helper->setDefaults('core', $this->getDefaultCoreSpecs());
+        $helper->setDefaults('coreEad', $this->getDefaultCoreEadSpecs());
         $helper->setDefaults('description', $this->getDefaultDescriptionSpecs());
         return $helper;
     }
@@ -638,6 +639,19 @@ class RecordDataFormatterFactory
     }
 
     /**
+     * Get default specifications for displaying data in EAD core metadata.
+     *
+     * @return array
+     */
+    public function getDefaultCoreEadSpecs()
+    {
+        $spec = $this->getDefaultCoreSpecs();
+        $spec = $this->renameKey($spec, 'Physical Description', 'Extent');
+
+        return $spec;
+    }
+
+    /**
      * Get default specifications for displaying data in the description tab.
      *
      * @return array
@@ -665,5 +679,25 @@ class RecordDataFormatterFactory
         $spec->setLine('Publication_Place', 'getHierarchicalPlaceNames');
         $spec->setTemplateLine('Author Notes', true, 'data-authorNotes.phtml');
         return $spec->getArray();
+    }
+
+    /**
+     * Rename array key
+     *
+     * @param array  $arr  Array
+     * @param string $from Old key name
+     * @param string $to   New key name
+
+     * @return array
+     */
+    protected function renameKey($arr, $from, $to)
+    {
+        $keys = array_keys($arr);
+        if (false === ($ind = array_search($from, $keys))) {
+            return $arr;
+        }
+        $keys[$ind] = $to;
+
+        return array_combine($keys, $arr);
     }
 }

@@ -106,7 +106,7 @@
       <?
         $formatter = $this->recordDataFormatter();
         $coreFields = $formatter->getData(
-            $driver, $formatter->filterEADFields($formatter->getDefaults('core'))
+            $driver, $formatter->filterEADFields($formatter->getDefaults('coreEad'))
         );
       ?>
       <? if (!empty($coreFields)): ?>
