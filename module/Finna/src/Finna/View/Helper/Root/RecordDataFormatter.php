@@ -53,8 +53,8 @@ class RecordDataFormatter extends \VuFind\View\Helper\Root\RecordDataFormatter
     public function filterMarcFields($coreFields)
     {
         $filter = [
-            'Contributors', 'Extent', 'Format', 'Organisation', 'Published', 'Online Access',
-            'Original Work', 'Assistants', 'Authors', 'Music',
+            'Contributors', 'Extent', 'Format', 'Organisation', 'Published',
+            'Online Access', 'Original Work', 'Assistants', 'Authors', 'Music',
             'Press Reviews', 'mainFormat', 'Access Restrictions', 'Edition',
             'Archive', 'Archive Series', 'Archive Origination',
             'Item Description FWD', 'Published in', 'Source Collection'
@@ -97,8 +97,8 @@ class RecordDataFormatter extends \VuFind\View\Helper\Root\RecordDataFormatter
     public function filterQDCFields($coreFields)
     {
         $filter = [
-            'Contributors', 'Extent', 'Format', 'Organisation', 'Published', 'Online Access',
-            'Original Work', 'Assistants', 'Authors', 'Music',
+            'Contributors', 'Extent', 'Format', 'Organisation', 'Published',
+            'Online Access', 'Original Work', 'Assistants', 'Authors', 'Music',
             'Press Reviews', 'Publisher', 'Access Restrictions', 'mainFormat',
             'Archive', 'Item Description FWD', 'Publish date', 'Source Collection',
             'ISBN'
