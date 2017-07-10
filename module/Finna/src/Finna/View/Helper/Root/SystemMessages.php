@@ -39,50 +39,74 @@ namespace Finna\View\Helper\Root;
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
 class SystemMessages extends \Zend\View\Helper\AbstractHelper
+    implements \VuFind\I18n\Translator\TranslatorAwareInterface
 {
-    /**
-     * Configuration
-     *
-     * @var array
-     */
-    protected $config;
+    use \VuFind\I18n\Translator\TranslatorAwareTrait;
 
     /**
-     * System configuration
+     * Core configuration
      *
      * @var array
      */
-    protected $systemConfig;
+    protected $coreConfig;
+
+    /**
+     * Local system configuration
+     *
+     * @var array
+     */
+    protected $localConfig;
 
     /**
      * Constructor
      *
-     * @param array $config       Configuration
-     * @param array $systemConfig System configuration
+     * @param array $coreConfig  Configuration
+     * @param array $localConfig Local configuration
      */
-    public function __construct($config, $systemConfig)
+    public function __construct($coreConfig, $localConfig)
     {
-        $this->config = $config;
-        $this->systemConfig = $systemConfig;
+        $this->coreConfig = $coreConfig;
+        $this->localConfig = $localConfig;
     }
 
     /**
-     * Return any system messages (translatable).
+     * Return any system messages.
      *
      * @return array
      */
     public function __invoke()
     {
-        $messages = !empty($this->config->Site->systemMessages)
-            ? $this->config->Site->systemMessages->toArray() : [];
+        $language = $this->translator->getLocale();
 
-        if (!empty($this->systemConfig->Site->systemMessages)) {
-            $messages
-                = array_merge(
-                    $messages,
-                    $this->systemConfig->Site->systemMessages->toArray()
-                );
+        // Return all language versions if current locale is not defined.
+        $getMessageFn = function ($messages, $language) {
+            if (isset($messages[$language])) {
+                return [$messages[$language]];
+            } else {
+                $data = [];
+                foreach ($messages as $lan => $msg) {
+                    $data[] = $msg;
+                }
+                return $data;
+            }
+        };
+
+        $messages = [];
+        
+        if (!empty($this->coreConfig->Site->systemMessages)) {
+            $messages = $getMessageFn(
+                $this->coreConfig->Site->systemMessages->toArray(), $language
+            );
         }
+        
+        if (!empty($this->localConfig->Site->systemMessages)) {
+            $localMessages = $getMessageFn(
+               $this->localConfig->Site->systemMessages, $language
+            );
+            
+            $messages = array_filter(array_merge($messages, $localMessages));
+        }
+
         return $messages;
     }
 }
