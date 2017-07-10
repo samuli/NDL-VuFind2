@@ -78,11 +78,11 @@ class SystemMessages extends \Zend\View\Helper\AbstractHelper
     {
         $language = $this->translator->getLocale();
 
-        // Return all language versions if current locale is not defined.
         $getMessageFn = function ($messages, $language) {
             if (isset($messages[$language])) {
                 return [$messages[$language]];
             } else {
+                // Return all language versions if current locale is not defined.
                 $data = [];
                 foreach ($messages as $lan => $msg) {
                     $data[] = $msg;
