@@ -1,0 +1,6 @@
+<? //Don't add START and END comments ?>
+<? if (!empty($truncate)): ?><div class="truncate-field"><? endif; ?>
+  <? foreach (is_array($data) ? $data : [$data] as $field): ?>
+    <?=$this->escapeHtml($field)?><br/>
+  <? endforeach; ?>
+<? if (!empty($truncate)): ?></div><? endif; ?>
