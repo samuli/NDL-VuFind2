@@ -397,16 +397,16 @@ class RecordDataFormatterFactory
             ]
         );
         $spec->setTemplateLine(
-            'Premiere Night', 'getPremiereTime', 'data-simple.phtml',
+            'Premiere Night', 'getPremiereTime', 'data-escapeHtml.phtml',
             [
                 'context' => ['class' => 'record-premiere-night']
             ]
         );
         $spec->setTemplateLine(
-            'Premiere Theaters', 'getPremiereTheaters', 'data-simple.phtml',
+            'Premiere Theaters', 'getPremiereTheaters', 'data-escapeHtml.phtml',
             [
                'context' =>
-                  ['class' => 'record-premiere-theaters', 'truncate' => true],
+                  ['class' => 'record-premiere-theaters'],
             ]
         );
         $spec->setTemplateLine(
@@ -430,7 +430,7 @@ class RecordDataFormatterFactory
             ]
         );
         $spec->setTemplateLine(
-            'Film Copies', 'getNumberOfCopies', 'data-simple.phtml',
+            'Film Copies', 'getNumberOfCopies', 'data-escapeHtml.phtml',
             [
                 'context' => ['class' => 'record-film-copies']
             ]
