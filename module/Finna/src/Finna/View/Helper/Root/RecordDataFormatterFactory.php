@@ -288,9 +288,9 @@ class RecordDataFormatterFactory
             ]
         );
         $spec->setTemplateLine(
-            'mainFormat', 'getEvents', 'data-mainFormat.phtml',
+            'Events', 'getEvents', 'data-mainFormat.phtml',
             [
-                'context' => ['class' => 'hide']
+                'context' => ['class' => 'record-events', 'renderTr' => false]
             ]
         );
         $spec->setTemplateLine(
