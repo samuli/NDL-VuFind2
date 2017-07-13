@@ -410,6 +410,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
             ) {
                 return $this->redirect()->toRoute('list-page', ['lid' => $list->id]);
             }
+            $this->rememberListReturnUrl($list->id);
         }
 
         if (!$user) {
@@ -1222,6 +1223,24 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
         ];
         $token = new \VuFind\Crypt\HMAC('usersecret');
         return $token->generate(array_keys($data), $data);
+    }
+
+    /**
+     * Append list URL to search memory so that return links on
+     * record pages opened from a list point back to the list page.
+     *
+     * @param int     $id         List id
+     * @param boolean $publicView Return to public list view?
+     *
+     * @return void
+     */
+    protected function rememberListReturnUrl($id, $publicView = false)
+    {
+        $memory  = $this->serviceLocator->get('VuFind\Search\Memory');
+        $route = $publicView ? 'list-page' : 'userList';
+        $param = $publicView ? 'lid' : 'id';
+        $listUrl = $this->url()->fromRoute($route, [$param => $id]);
+        $memory->rememberSearch($listUrl);
     }
 
     /**
