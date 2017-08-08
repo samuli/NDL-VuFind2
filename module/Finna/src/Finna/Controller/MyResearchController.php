@@ -422,7 +422,9 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
             ) {
                 return $this->redirect()->toRoute('list-page', ['lid' => $list->id]);
             }
-            $this->rememberListReturnUrl($list->id);
+            if ($list) {
+                $this->rememberListReturnUrl($list->id);
+            }
         }
 
         if (!$user) {
