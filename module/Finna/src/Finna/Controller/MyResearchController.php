@@ -424,6 +424,11 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
             }
             if ($list) {
                 $this->rememberListReturnUrl($list->id);
+            } else {
+                $memory  = $this->serviceLocator->get('VuFind\Search\Memory');
+                $memory->rememberSearch(
+                    $this->url()->fromRoute('myresearch-favorites')
+                );
             }
         }
 
@@ -1244,7 +1249,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
      * record pages opened from a list point back to the list page.
      *
      * @param int     $id         List id
-     * @param boolean $publicView Return to public list view?
+     * @param boolean $publicView Whether to return to public list view
      *
      * @return void
      */
