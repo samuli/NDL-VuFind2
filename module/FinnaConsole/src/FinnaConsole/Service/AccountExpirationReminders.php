@@ -37,6 +37,8 @@ use Zend\ServiceManager\ServiceManager;
 use Zend\View\Resolver\AggregateResolver;
 use Zend\View\Resolver\TemplatePathStack;
 
+use Zend\Stdlib\RequestInterface as Request;
+
 /**
  * Console service for reminding users x days before account expiration
  *
@@ -183,11 +185,12 @@ class AccountExpirationReminders extends AbstractService
     /**
      * Run service.
      *
-     * @param array $arguments Command line arguments.
+     * @param array   $arguments Command line arguments.
+     * @param Request $request   Full request
      *
      * @return boolean success
      */
-    public function run($arguments)
+    public function run($arguments, Request $request)
     {
         if (!$this->collectScriptArguments($arguments)) {
             $this->msg($this->getUsage());
