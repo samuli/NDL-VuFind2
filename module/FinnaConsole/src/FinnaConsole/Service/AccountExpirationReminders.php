@@ -38,7 +38,6 @@ use Zend\Stdlib\RequestInterface as Request;
 use Zend\View\Resolver\AggregateResolver;
 use Zend\View\Resolver\TemplatePathStack;
 
-
 /**
  * Console service for reminding users x days before account expiration
  *
