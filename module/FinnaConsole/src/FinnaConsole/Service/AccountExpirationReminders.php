@@ -33,11 +33,11 @@ use DateInterval;
 use DateTime;
 use Zend\Db\Sql\Select;
 use Zend\ServiceManager\ServiceManager;
+use Zend\Stdlib\RequestInterface as Request;
 
 use Zend\View\Resolver\AggregateResolver;
 use Zend\View\Resolver\TemplatePathStack;
 
-use Zend\Stdlib\RequestInterface as Request;
 
 /**
  * Console service for reminding users x days before account expiration
