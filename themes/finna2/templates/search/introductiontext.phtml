@@ -1,8 +1,5 @@
 <!-- START of: finna - search/introductiontext.phtml -->
-<div class="header">
-    <? if (($img = $this->imageSrc('header-image.' . $this->layout()->userLang)) || ($img = $this->imageSrc('header-image'))): ?>
-    <img src="<?=$img; ?>" alt="Logo" />
-    <? endif ?>
+<div>
     <?php if (!$this->translationEmpty('site_header_slogan')): ?><h1 class="introductionText"><?=$this->translate('site_header_slogan')?></h1><?php endif; ?>
     <?php if (!$this->translationEmpty('site_header_slogan_small')): ?><h3 class="introductionText"><?=$this->translate('site_header_slogan_small')?></h3><?php endif; ?>
 </div>
