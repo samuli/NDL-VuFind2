@@ -147,7 +147,7 @@
     font-size: 1em;
     text-transform: uppercase;
     font-weight: 600;
-    background: @gray-ultralight;
+    background: @facet-background;
     color: @text-color;
     border-left: 4px solid @action-link-color;
     padding: 15px;
@@ -442,33 +442,6 @@
   }
 }
 
-.useraccount-nav .dropdown-menu {
-  border: 1px solid @gray-lighter;
-  border-left: none;
-  border-right: none;
-  .box-shadow(none);
-  margin-bottom: 2px;
-  padding: 0;
-  > li {
-    border: none;
-  }
-  > li:last-child > a, li:last-child {
-    .border-bottom-radius(0);
-  }
-  > li:first-child > a, li:first-child {
-    .border-top-radius(0);
-  }
-  > li > a {
-    padding: 10px 15px 10px 20px;
-  }
-  .active a {
-    font-weight: 600;
-    text-decoration: none;
-    color: @dropdown-link-color;;
-    background-color: @gray-ultralight;
-  }
-}
-
 .dropdown-menu > li > a {
   &:hover,
   &:focus,
@@ -481,7 +454,7 @@
 
 #my-info-dropdown-menu {
   width: 280px;
-  background-color: white;
+  background-color: @body-bg;
   margin-top: 0;
   @media (max-width: @screen-xxs) {
     right: -90%;
@@ -536,8 +509,7 @@
 
 // Default styling of Finna Jump menus
 .jumpMenuForm {
-  height: 33px;
-  margin-bottom: 10px;
+  height: 38px;
   label {
     font-weight: normal;
     margin-left: 10px;

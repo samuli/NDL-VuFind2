@@ -19,7 +19,7 @@
     @media (min-width: @screen-sm-min) {
       padding-right: 0;
     }
-    @media( max-width: @grid-float-breakpoint) {
+    @media ( max-width: @grid-float-breakpoint) {
       top: @navbar-height;
     }
     &:not(.fixed) .mylist-functions {
@@ -53,6 +53,9 @@
 }
 
 .mylist-bar {
+  h4.visible-xs.visible-sm {
+    text-transform: none;
+  }
   .list-visibility {
     padding: 2px 2px 10px 20px;
     background-color: @gray-ultralight;
@@ -73,7 +76,7 @@
       }
     }
     a {
-      padding: 2px !important;
+      padding: 2px;
     }
 
     .list-visibility-hidden {
@@ -86,7 +89,7 @@
     max-width: none;
 
     > a {
-      padding: 3px 20px !important;
+      padding: 3px 20px;
       &.active {
         font-weight: bold;
       }
@@ -133,21 +136,30 @@
     margin: 5px 0 10px 0px;
     .add-new-list {
       border: 1px solid @gray-lighter;
-      display: block;
+      display: -webkit-flex;
+      display: flex;
       border-radius: 2px;
+      @media (max-width: @screen-sm-max) {
+        margin-bottom: 25px;
+      } 
       input {
-        width: 85%;
+        width: 90%;
         border-radius: 4px;
         padding-left: 4px;
         border: none;
+        display: inline-block;
+        @media (max-width: @screen-sm-max) {
+          font-size: 16px;
+        }
       }
       i {
+        margin-left: auto;
         cursor: pointer;
-        position: absolute;
+        width: 22px;
         font-size: 20px;
-        top: 0.3em;
-        right: 0.5em;
+        line-height: 20px;
         color: @action-link-color;
+        padding: 1px;
       }
     }
   }
@@ -155,7 +167,7 @@
 .bulk-action-buttons-row {
   margin: 0;
   border-bottom: 1px solid @gray-lighter;
-  @media(max-width:@screen-xs-max) {
+  @media (max-width:@screen-xs-max) {
     .row();
   }
 }
@@ -185,7 +197,7 @@
 .my-list-functions-label {
   font-size: @font-size-base;
   margin-left: 5px;
-  @media(min-width: @screen-sm) {
+  @media (min-width: @screen-sm) {
     margin-left: 2em;
   }
 }
@@ -202,11 +214,13 @@
 
 .list-title {
   margin-bottom: 0;
+  margin-top: 0px;
   i.fa-pen {
     margin-bottom: -22px;
   }
   &.no-edit {
     border: 0;
+    margin-top: 5px;
     &:hover {
       border: 0;
     }
@@ -214,8 +228,8 @@
 }
 
 .list-description {
-  @media(min-width: @screen-sm) {
-    margin-bottom: 10px;
+  @media (min-width: @screen-sm) {
+    margin-bottom: 4px;
   }
 }
 .list-description i.fa-pen {
@@ -226,29 +240,6 @@
 }
 .resource-note i.fa-pen {
   margin-bottom: -18px;
-}
-
-.useraccount-nav {
-  &.nav-tabs-personal {
-    position: -webkit-sticky;
-    position: sticky;
-    top: 30px;
-    display: block;
-    margin-top: 15px;
-    .subtabs.mylist-nav {
-      border-top-width: 0px;
-    }
-  }
-  li.hidden-xs.hidden-sm, li.mylist-menu-favorites {
-    max-width: none;
-
-    h4 {
-      text-transform: none;
-      @media (max-width: @screen-sm-max) {
-        text-align: center;
-      }
-    }
-  }
 }
 
 .list-title, .list-description:not(.edit), .resource-note:not(.edit), .add-new-list {
@@ -301,9 +292,9 @@
   }
 }
 
-button.caret{
-  background-color: transparent;
+span.caret {
   border: none;
+  cursor: pointer;
 }
 
 .sortable-favorite-list {
@@ -339,7 +330,7 @@ button.caret{
     margin-bottom: 10px;
     margin-right: 10px;
   }
-  @media(max-width: @screen-xs-max) {
+  @media (max-width: @screen-xs-max) {
     margin-left: 5px;
     margin-right: 10px;
     li {
@@ -350,53 +341,7 @@ button.caret{
   }
 }
 
-.menu-header {
-  h4 {
-    color: @myresearch-menu-header-font-color;
-    padding-right: 12px !important;
-    span {
-      float: right;
-      > i {
-        color: @myresearch-menu-header-font-color;
-        font-size: 25px;
-        cursor: pointer;
-      }
-    }
-  }
-}
-
-@media(max-width: @screen-sm-max) {
-  .hidden-print.nav-tabs-personal.list-group {
-    position: fixed;
-    top: 120%;
-    transition: top 0.5s ease;
-    background: @body-bg;
-    z-index: 1030;
-    width: 100%;
-    height: 100%;
-    overflow-y: scroll;
-    padding-left: 0px;
-    padding-right: 0px;
-    padding-bottom: 40px;
-
-    &.open {
-      top: 0%;
-      right: 0;
-    }
-    .list-group.facet:last-child {
-      margin-bottom: 44px;
-    }
-    .list-group-item.active i.fa.fa-check-square-o:before {
-      content: "\f00c" !important;
-    }
-    .list-group.facet {
-      margin: 0 10px;
-      margin-bottom: 5px;
-    }
-  }
-}
-
-@media(max-width: @screen-sm-max) {
+@media (max-width: @screen-sm-max) {
   .mylist-mobile.mobile-navigation {
     left: 0;
     border-top: 1px solid @body-bg;
@@ -426,50 +371,85 @@ button.caret{
 }
 
 .mylist-header {
-  @media(max-width: @screen-xs-max) {
-    margin: 0 -15px;
-    padding: 0 5px;
-  }
+  display: inline-block;
+  width: 100%;
   .alert {
     margin-top: 1em;
   }
+  > p {
+    margin-left: 6px;
+  }
 }
 .mylist-controls-bar {
-  div {
-    display: inline-block;
-  }
+  display: inline-block;
+  width: 100%;
   .mylist-controls {
     float: right;
-    &::after {
-      content: "";
-      clear: both;
+    text-align: right;
+    @media (max-width: @screen-sm) {
+      width: 100%;
+      text-align: left;
     }
-    >.btn {
-      padding: 6px;
-      margin-top: -3px;
+    @media (max-width: @screen-xxs-max) {
+      text-align: right;
     }
     .button-label {
       margin-left: 5px;
     }
-  }
-  @media(max-width: @screen-xxs) {
-    .sort-button .dropdown>a span{
-      padding-right: 20px;
-      max-width: 72px;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      overflow: hidden;
+    a.btn.btn-primary {
       display: inline-block;
-      margin-bottom: -6px;
+      padding: 6px;
+      margin-top: -1px;
+      @media (max-width: @screen-xxs-max) {
+        max-width: 40%;
+      }
+    }
+    .sort-option-container {
+      display: inline-block;
+      @media (max-width: @screen-sm) {
+        text-align: left;
+        width: 35%;
+        .sort-button {
+          span {
+            width: 95%;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            display: inline-block;
+            overflow: hidden;
+            padding-right: 20px;
+            margin-bottom: -6px;
+          }
+        }
+        div, a {
+          width: 100%;
+        }
+      }
+      @media (max-width: @screen-xxs-max) {
+        .dropdown-menu {
+          left: -90px;
+        }
+      }
+    }
+    .limit-option-container {
+      display: inline-block;
+      @media (max-width: @screen-xxs-max) {
+        text-align: right;
+        width: 20%;
+        div, a {
+          width: 100%;
+        }
+      }
     }
   }
-  @media(max-width: @screen-xs-max) {
-    .pagination-container, .mylist-controls {
-      width: 100%;
-      margin-top: 8px;
+  .pagination-container {
+    display: inline-block;
+    padding: 8px;
+    padding-left: 6px;
+    .paginationSimple {
+      margin-left: 0px;
+      .pagination-text {
+        font-size: 14px;
+      }
     }
-    .pagination-container .paginationSimple {
-      text-align: left;
-    }
-  }
+  } 
 }
