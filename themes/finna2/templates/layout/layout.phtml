@@ -16,10 +16,10 @@
     ?>
     
     <?php if ($appleTouchIcon = $this->imageSrc('webapp-icon-180.png')): ?>
-    <link rel="apple-touch-icon" sizes="180x180" href="<?=$appleTouchIcon?>">
+      <link rel="apple-touch-icon" sizes="180x180" href="<?=$appleTouchIcon?>">
     <?php endif ?>
     <?php if ($webAppManifest = $this->imageSrc('manifest.json')): ?>
-    <link rel="manifest" href="<?=$webAppManifest?>">
+      <link rel="manifest" href="<?=$webAppManifest?>">
     <?php endif ?>
 
     <?=$this->headMeta()?>
