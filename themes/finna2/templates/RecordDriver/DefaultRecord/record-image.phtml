@@ -8,7 +8,7 @@
 
     <?php if (!$this->userAgent()->isBot()): ?>
       <?php if (!empty($images[0]['urls']['medium']) || !empty($images[0]['urls']['large'])): ?>
-        <div class="recordcover-container">
+        <div class="recordcover-container" data-id="<?=$this->driver->getUniqueId()?>">
           <a class="image-popup-trigger" href="<?=$this->recordLink()->getUrl($this->driver) ?>#image">
             <?php if (count($images) <= 1): ?>
               <div class="iconlabel format-<?=$this->record($this->driver)->getFormatClass(end($formats))?>"></div>

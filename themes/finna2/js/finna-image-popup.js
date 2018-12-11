@@ -72,6 +72,22 @@ finna.imagePopup = (function finnaImagePopup() {
   }
 
   function initRecordImage() {
+    
+    $('.image-popup-trigger').each(function initPopup() {
+      var id = $(this).parent('.recordcover-container').data('id');
+      $(this).on('click', function(ev) {
+        console.log("id: %o", id);
+        
+        finna.UV.open(id);
+
+        ev.preventDefault();
+        return false;
+      });
+    });
+  }
+
+  /*
+  function initRecordImage() {
     // Collect data for all image-popup triggers on page.
     var urls = $('.image-popup').map(function mapPopupTriggers() {
       // result list
@@ -115,7 +131,7 @@ finna.imagePopup = (function finnaImagePopup() {
         recordInd: recordInd
       }
     }).toArray();
-
+    
     $('.image-popup-trigger').each(function initPopup() {
       $(this).magnificPopup({
         items: urls,
@@ -195,10 +211,10 @@ finna.imagePopup = (function finnaImagePopup() {
               $('.mfp-container').swipe({
                 allowPageScroll: 'vertical',
                 // Generic swipe handler for all directions
-                swipeRight: function onSwipeRight(/*event, phase, direction, distance, duration*/) {
+                swipeRight: function onSwipeRight() {
                   $('.mfp-container .mfp-arrow-left').click();
                 },
-                swipeLeft: function onSwipeLeft(/*event, direction, distance, duration*/) {
+                swipeLeft: function onSwipeLeft() {
                   $('.mfp-container .mfp-arrow-right').click();
                 },
                 threshold: 75,
@@ -232,7 +248,7 @@ finna.imagePopup = (function finnaImagePopup() {
 
             // load feedback modal
             if ($('.imagepopup-holder .feedback-record')[0] || $('.imagepopup-holder .save-record')[0]) {
-              $('.imagepopup-holder .feedback-record, .imagepopup-holder .save-record').click(function onClickActionLink(/*e*/) {
+              $('.imagepopup-holder .feedback-record, .imagepopup-holder .save-record').click(function onClickActionLink() {
                 $.magnificPopup.close();
               });
             }
@@ -250,7 +266,7 @@ finna.imagePopup = (function finnaImagePopup() {
                     summaryHolder.removeClass('loading');
                   }
                 })
-                .fail(function onGetDescriptionFail(/*response, textStatus*/) {
+                .fail(function onGetDescriptionFail() {
                   summaryHolder.removeClass('loading');
                 });
             } else {
@@ -280,7 +296,7 @@ finna.imagePopup = (function finnaImagePopup() {
       });
     });
   }
-
+*/
   function initVideoPopup(_container) {
     var container = typeof _container === 'undefined' ? $('body') : _container;
 

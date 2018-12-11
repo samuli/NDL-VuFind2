@@ -146,6 +146,20 @@ $config = [
                         'action'     => 'Feedback',
                     ]
                 ]
+            ],
+            'record-resource' => [
+                'type'    => 'Zend\Router\Http\Segment',
+                'options' => [
+                    'route'    => '/Record/[:id]/Resource',
+                    'constraints' => [
+                        'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                        'action'     => '[a-zA-Z][a-zA-Z0-9_-]*',
+                    ],
+                    'defaults' => [
+                        'controller' => 'Record',
+                        'action'     => 'Resource',
+                    ]
+                ]
             ]
         ],
     ],
@@ -315,6 +329,8 @@ $config = [
                         'Finna\AjaxHandler\GetFacetDataFactory',
                     'Finna\AjaxHandler\GetFeed' =>
                         'Finna\AjaxHandler\GetFeedFactory',
+                     'Finna\AjaxHandler\GetIIIFManifest' =>
+                        'Finna\AjaxHandler\GetIIIFManifestFactory',               
                     'Finna\AjaxHandler\GetImagePopup' =>
                         'Finna\AjaxHandler\GetImagePopupFactory',
                     'Finna\AjaxHandler\GetOrganisationInfo' =>
@@ -349,6 +365,7 @@ $config = [
                     'getDescription' => 'Finna\AjaxHandler\GetDescription',
                     'getDateRangeVisual' => 'Finna\AjaxHandler\GetDateRangeVisual',
                     'getFeed' => 'Finna\AjaxHandler\GetFeed',
+                    'GetIIIFManifest' => 'Finna\AjaxHandler\GetIIIFManifest',
                     'getImagePopup' => 'Finna\AjaxHandler\GetImagePopup',
                     'getOrganisationPageFeed' => 'Finna\AjaxHandler\GetOrganisationPageFeed',
                     'getMyLists' => 'Finna\AjaxHandler\GetUserLists',
@@ -749,6 +766,11 @@ $config = [
         ],
     ],
 
+    'view_manager' => [
+       'strategies' => [
+           'ViewJsonStrategy',
+       ],
+    ],
 ];
 
 $recordRoutes = [

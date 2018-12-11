@@ -392,6 +392,10 @@ JS;
     </section>
 
     <?php // TODO: get rid of template-dir-* and template-name-* here ?>
+    <div class="uv-wrapper">
+        <div class="header"><span class="close">close</span></div>
+        <div id="uv">uv</div>
+    </div>
     <section role="main" class="main template-dir-<?=$this->templateDir?> template-name-<?=$this->templateName?><?=$this->browse ? ' browse' : '' ?><?=$currentTabClass?>">
       <?php if (!empty($this->layout()->advSearchHeader)): ?>
         <?=$this->layout()->advSearchHeader; ?>
@@ -452,6 +456,7 @@ JS;
         </div>
       </div>
     <?php endif; ?>
+      <script type="text/javascript" src="<?=$this->url('home')?>themes/finna2/js/vendor/uv/uv.js" async></script>
 
     <?php if ($finnaSurvey): ?>
       <?=$this->finnaSurvey()->render()?>

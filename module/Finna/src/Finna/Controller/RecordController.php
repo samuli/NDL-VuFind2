@@ -749,4 +749,31 @@ class RecordController extends \VuFind\Controller\RecordController
         $view->setTemplate('record/illrequest');
         return $view;
     }
+
+    public function resourceAction()
+    {
+        $url = $this->params()->fromQuery('url');
+        // TODO: handle special characters in url: theseus_karelia.10024_56071
+
+        /*
+        $parts = parse_url($url);
+        $path_parts = array_map('rawurldecode', explode('/', $parts['path']));
+        
+        $url = 
+            $parts['scheme'] . '://' .
+            $parts['host'] .
+            implode('/', array_map('rawurlencode', $path_parts))
+            ;
+        */
+
+        $content = file_get_contents($url);
+
+        $response = $this->getResponse();
+        $response->setContent($content);
+        $headers = $response->getHeaders();
+        $headers->addHeaderLine('Content-Type', 'application/pdf')
+            ->addHeaderLine('Content-Length', strlen($content));
+
+        return $this->response;
+    }
 }
