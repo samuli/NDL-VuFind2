@@ -72,12 +72,9 @@ finna.imagePopup = (function finnaImagePopup() {
   }
 
   function initRecordImage() {
-    
     $('.image-popup-trigger').each(function initPopup() {
       var id = $(this).parent('.recordcover-container').data('id');
       $(this).on('click', function(ev) {
-        console.log("id: %o", id);
-        
         finna.UV.open(id);
 
         ev.preventDefault();
@@ -338,11 +335,16 @@ finna.imagePopup = (function finnaImagePopup() {
   }
 
   function resolveRecordImageSize() {
+    initRecordImage();
+
     if ($('.image-popup-navi').length > 1) {
       initThumbnailNavi();
-      initRecordImage();
+      //initRecordImage();
     } else {
       $('.image-popup-trigger img').one('load', function onLoadImg() {
+        initThumbnailNavi();
+        //initRecordImage();
+        /*
         if (this.naturalWidth > 10 && this.naturalHeight > 10) {
           initThumbnailNavi();
           initRecordImage();
@@ -354,7 +356,7 @@ finna.imagePopup = (function finnaImagePopup() {
           if ( $('.access-rights').has('.more-link') ) {
             $('.access-rights > .more-link').hide();
           }
-        }
+        }*/
       });
     }
   }
@@ -384,12 +386,12 @@ finna.imagePopup = (function finnaImagePopup() {
         }
         if (this.naturalWidth && this.naturalWidth === 10 && this.naturalHeight === 10) {
           $(this).parent().addClass('no-image');
-          $(this).closest('a.image-popup-trigger').unbind('click');
+          //$(this).closest('a.image-popup-trigger').unbind('click');
           $('.record.large-image-layout').addClass('no-image-layout').removeClass('large-image-layout');
           $('.large-image-sidebar').addClass('visible-xs');
           $('.record-main').addClass('mainbody left');
           var href = $(this).parent().attr('href');
-          $(this).parent().attr({'href': href.split('#')[0], 'title': ''});
+          //$(this).parent().attr({'href': href.split('#')[0], 'title': ''});
           $(this).parents('.grid').addClass('no-image');
           $('.rating-stars').addClass('hidden-xs');
         }

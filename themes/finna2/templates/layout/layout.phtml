@@ -38,6 +38,7 @@
       // IE-specific stylesheet
       $this->headLink()->appendStylesheet('ie9-and-lower.css', 'screen', 'lte IE 9');
       $this->headLink()->appendStylesheet('ie8-and-lower.css', 'screen', 'lt IE 9');
+
       $this->headScript()->appendFile('vendor/classList.js', 'text/javascript', ['conditional' => 'lte IE 9']);
       $this->headScript()->appendFile('vendor/html5shiv.js', 'text/javascript', ['conditional' => 'lt IE 9']);
       $this->headScript()->appendFile('vendor/respond.js', 'text/javascript', ['conditional' => 'lt IE 9']);
@@ -49,7 +50,7 @@
 
       if ($finnaSurvey) {
         $this->headScript()->appendFile('finna-survey.js');
-      }
+    }
     ?>
     <?=$this->headLink()?>
     <?=$this->headStyle()?>
@@ -393,7 +394,10 @@ JS;
 
     <?php // TODO: get rid of template-dir-* and template-name-* here ?>
     <div class="uv-wrapper">
-        <div class="header"><span class="close">close</span></div>
+        <div class="header">
+            <span class="paginate prev"><strong>Prev record</strong></span>
+            <span class="paginate next"><strong>Next record</strong></span>
+            <span class="close">close</span></div>
         <div id="uv">uv</div>
     </div>
     <section role="main" class="main template-dir-<?=$this->templateDir?> template-name-<?=$this->templateName?><?=$this->browse ? ' browse' : '' ?><?=$currentTabClass?>">
@@ -456,7 +460,7 @@ JS;
         </div>
       </div>
     <?php endif; ?>
-      <script type="text/javascript" src="<?=$this->url('home')?>themes/finna2/js/vendor/uv/uv.js" async></script>
+      <script type="text/javascript" src="<?=$this->url('home')?>themes/finna2/js/vendor/uv-build/build.js" async></script>
 
     <?php if ($finnaSurvey): ?>
       <?=$this->finnaSurvey()->render()?>

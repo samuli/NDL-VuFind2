@@ -32,6 +32,8 @@ namespace Finna\AjaxHandler;
 use VuFind\Record\Loader;
 use VuFind\Session\Settings as SessionSettings;
 
+use VuFind\I18n\Translator\TranslatorAwareInterface;
+
 use Zend\Config\Config;
 use Zend\Mvc\Controller\Plugin\Params;
 use Zend\Mvc\Controller\Plugin\Url;
@@ -53,7 +55,10 @@ use Zend\View\Renderer\RendererInterface;
  * @link     https://vufind.org/wiki/development Wiki
  */
 class GetIIIFManifest extends \VuFind\AjaxHandler\AbstractBase
+    implements TranslatorAwareInterface
 {
+    use \VuFind\I18n\Translator\TranslatorAwareTrait;
+
     /**
      * Record loader
      *
@@ -91,7 +96,6 @@ class GetIIIFManifest extends \VuFind\AjaxHandler\AbstractBase
      * @param RendererInterface $renderer View renderer
      * @param Url               $url      URL helper
      */
-
     public function __construct(SessionSettings $ss, Loader $loader, RendererInterface $renderer, Url $url) {
         $this->sessionSettings = $ss;
         $this->loader = $loader;
@@ -247,13 +251,7 @@ class GetIIIFManifest extends \VuFind\AjaxHandler\AbstractBase
                         ]
                     ]
                 ],
-                'metadata' => [
-                    'value' => [
-                        '@none' => [
-                            $driver->getTitle()
-                        ]
-                    ]
-                ]
+                'metadata' => $this->getMetadata($driver)
             ];
 
             // TODO
@@ -306,5 +304,35 @@ class GetIIIFManifest extends \VuFind\AjaxHandler\AbstractBase
         $data = str_replace("\\/", "/", $data);
         echo $data;
         die();
+    }
+
+    protected function getMetadata($driver)
+    {
+        $fields = [
+            'Title' => 'getTitle',
+            'Author' => 'getPrimaryAuthor',
+            'Year' => 'getYear',
+            'Description' => 'getDescription',
+            'Summary' => 'getSummary',
+            'Format' => 'getFormats',
+            'License' => 'getUsageRights'
+
+        ];
+        $metadata = [];
+        foreach ($fields as $field => $method) {
+            if (! method_exists($driver, $method)) {
+                continue;
+            }
+            
+            $val = $driver->$method();
+            if ($val) {
+                $val = is_array($val) ? implode(', ', array_map(function ($v) { return $this->translate($v); }, $val)) : $this->translate($val);
+                $metadata[] = ['label' => $this->translate($field), 'value' => $val];
+            }
+        }
+        return $metadata;
+                   
+        
+            
     }
 }

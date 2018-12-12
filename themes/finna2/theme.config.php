@@ -165,8 +165,8 @@ return [
         'finna-map-facet.js',
 
 
-        'vendor/uv-3.0.22/helpers.js',
-        'vendor/uv-offline.js',
+        'vendor/uv-build/helpers.js',
+        'vendor/uv-build/lib/offline.js',
         //'vendor/uv/uv.js',
         'finna-uv.js',        
         'vendor/jquery.dataTables.min.js',

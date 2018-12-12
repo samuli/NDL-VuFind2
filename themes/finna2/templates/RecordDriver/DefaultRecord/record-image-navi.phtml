@@ -19,6 +19,7 @@
         <a href="<?=$this->escapeHtmlAttr($img['urls']['large'] ?? $img['urls']['medium']) ?>"><?=($ind + 1) ?></a>
       <?php endif; ?>
       <?php $ind++; ?>
+      <?php if ($ind > 4) { break; } ?>
     <?php endforeach; ?>
   </div>
 <?php endif; ?>

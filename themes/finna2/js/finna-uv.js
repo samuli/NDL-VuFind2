@@ -1,11 +1,13 @@
 
 
-/*global VuFind, finna */
+/*global VuFind, finna, createUV */
 
 finna.UV = (function finnaUV() {
 
   var wrapper;
   var el;
+  var uv;
+  var dataProvider;
   
   function close() {
     el.empty();
@@ -17,8 +19,51 @@ finna.UV = (function finnaUV() {
   }
   
   function resize() {
-    el.width($(window).width());
-    el.height($(window).height()-el.position().top);
+    var uvEl = el.find('>div');
+    uvEl.width($(window).width());
+    uvEl.height($(window).height()-el.position().top);
+    if (uv) {
+      uv.resize();
+    }
+  }
+
+  function getData(id) {
+    var data = {
+      iiifResourceUri: VuFind.path + '/AJAX/JSON?method=GetIIIFManifest&id=' + id,
+      canvasIndex: 0,
+      isReload: false
+    };
+    return data;
+  }
+
+  function initPagination(id) {
+    var prevId = null;
+    var nextId = null;
+    var prevBtn = wrapper.find('.paginate.prev');
+    var nextBtn = wrapper.find('.paginate.next');
+
+    
+    prevBtn.hide();
+    nextBtn.hide();
+    
+    var recEl = $(".recordcover-container[data-id=\"" + id + "\"] .image-popup-trigger").closest('div.result');
+    if (recEl.length) {
+      var prev = recEl.prev('div.result');
+      if (prev.length) {
+        prevId = prev.find('.hiddenId').val();
+        prevBtn.show().off('click').on('click', function() { show(prevId); });
+      }
+      var next = recEl.next('div.result');
+      if (next.length) {
+        nextId = next.find('.hiddenId').val();
+        nextBtn.show().off('click').on('click', function() { show(nextId); });
+      }
+    }
+  }
+  
+  function show(id) {
+    uv.set(getData(id));
+    initPagination(id);
   }
   
   function open(id) {
@@ -27,34 +72,39 @@ finna.UV = (function finnaUV() {
     wrapper.find('.close').on('click', function() {
       close();
     });
-    
-    el = wrapper.find('#uv');
 
-    resize();
-    reposition();
+    initPagination(id);
+
+    el = wrapper.find('#uv');
 
     id = encodeURIComponent(id).replace(/%20/g, "%2B");
     window.requestAnimationFrame(function() {
-      createUV(el, {
-        //root: VuFind.path + '/themes/finna2/js/vendor/uv-3.0.22',
-        //configUri: VuFind.path + '/themes/finna2/js/vendor/uv-3.0.22/uv-config.json',
+      dataProvider = new UV.URLDataProvider();
+      uv = createUV(el, {
+        root: '../themes/finna2/js/vendor/uv-build',
+        configUri: VuFind.path + '/themes/finna2/js/vendor/uv-build/uv-config.json',
+        iiifResourceUri: VuFind.path + '/AJAX/JSON?method=GetIIIFManifest&id=' + id,
+        isHomeDomain: false,
+        canvasIndex: 0
+      }, dataProvider);
 
-        
-        root: '../themes/finna2/js/vendor/uv',
-        configUri: VuFind.path + '/themes/finna2/js/vendor/uv/uv-config.json',
+      window.onresize = function() {
+        resize();
+      }
 
-        iiifResourceUri: VuFind.path + '/AJAX/JSON?method=GetIIIFManifest&id=' + id
-        
-      }, new UV.URLDataProvider());
+      resize();
+      reposition();
     });
-    
   }
 
   // if the embed script has been included in the page for testing, don't append it.
   var scriptIncluded = $('#embedUV').length;
 
   var my = {
-    open: open
+    uv: uv,
+    dataProvider: dataProvider,
+    open: open,
+    show: show
   };
   
   return my;
