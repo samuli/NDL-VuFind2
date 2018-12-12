@@ -28,11 +28,16 @@ finna.UV = (function finnaUV() {
   }
 
   function getData(id) {
+    id = encodeURIComponent(id).replace(/[!'()]/g, escape).replace(/\*/g, "%2A");
+
     var data = {
+      root: '../themes/finna2/js/vendor/uv-build',
+      configUri: VuFind.path + '/themes/finna2/js/vendor/uv-build/uv-config.json',
       iiifResourceUri: VuFind.path + '/AJAX/JSON?method=GetIIIFManifest&id=' + id,
       canvasIndex: 0,
       isReload: false
     };
+
     return data;
   }
 
@@ -77,16 +82,10 @@ finna.UV = (function finnaUV() {
 
     el = wrapper.find('#uv');
 
-    id = encodeURIComponent(id).replace(/%20/g, "%2B");
     window.requestAnimationFrame(function() {
       dataProvider = new UV.URLDataProvider();
-      uv = createUV(el, {
-        root: '../themes/finna2/js/vendor/uv-build',
-        configUri: VuFind.path + '/themes/finna2/js/vendor/uv-build/uv-config.json',
-        iiifResourceUri: VuFind.path + '/AJAX/JSON?method=GetIIIFManifest&id=' + id,
-        isHomeDomain: false,
-        canvasIndex: 0
-      }, dataProvider);
+      var data = getData(id);
+      uv = createUV(el, data, dataProvider);
 
       window.onresize = function() {
         resize();

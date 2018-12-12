@@ -201,7 +201,7 @@ class GetIIIFManifest extends \VuFind\AjaxHandler\AbstractBase
             switch($type) {
             case 'Image':
                 $coverUrl = $serverHelper($this->url->fromRoute('cover-show'));
-                $url = $coverUrl . "?id=${id}&index=${cnt}";
+                $url = $coverUrl . '?id=' . urlencode($id) . "&index=${cnt}";
                 $itemUrl = "$url&size=large";
                 $thumbnail = "$url&size=small&rnd=" . md5(rand());
                 break;
