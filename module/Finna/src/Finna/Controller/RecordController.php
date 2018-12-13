@@ -753,20 +753,21 @@ class RecordController extends \VuFind\Controller\RecordController
     public function resourceAction()
     {
         $url = $this->params()->fromQuery('url');
-        // TODO: handle special characters in url: theseus_karelia.10024_56071
 
-        /*
-        $parts = parse_url($url);
-        $path_parts = array_map('rawurldecode', explode('/', $parts['path']));
+        // TODO: file_get_contents fails with redirects...
+        $tmp = tempnam(sys_get_temp_dir(), 'resource');
+        $fp = fopen($tmp, 'w+');
+        $ch = curl_init($url);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 50);
+        curl_setopt($ch, CURLOPT_FILE, $fp); 
+        curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+        curl_exec($ch); 
+        curl_close($ch);
+        fclose($fp);
+        $content = file_get_contents($tmp);
         
-        $url = 
-            $parts['scheme'] . '://' .
-            $parts['host'] .
-            implode('/', array_map('rawurlencode', $path_parts))
-            ;
-        */
 
-        $content = file_get_contents($url);
+        //$content = file_get_contents($url);
 
         $response = $this->getResponse();
         $response->setContent($content);

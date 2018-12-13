@@ -207,7 +207,7 @@ class GetIIIFManifest extends \VuFind\AjaxHandler\AbstractBase
                 break;
                 
             case 'Pdf':
-                $base = $serverHelper($this->url->fromRoute('record-resource', ['id' => $id]));
+                $base = $serverHelper($this->url->fromRoute('record-resource', ['id' => urlencode($id)]));
                 $itemUrl = "${base}?url=" . urlencode($url);
                 
                 break;
