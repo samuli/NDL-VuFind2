@@ -28,7 +28,6 @@
 namespace Finna\Form;
 
 use Interop\Container\ContainerInterface;
-use Zend\ServiceManager\Factory\FactoryInterface;
 
 /**
  * Factory for configurable forms.

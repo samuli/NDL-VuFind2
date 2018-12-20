@@ -27,11 +27,6 @@
  */
 namespace Finna\Form;
 
-use VuFind\Config\YamlReader;
-use Zend\InputFilter\InputFilter;
-use Zend\Validator\EmailAddress;
-use Zend\Validator\NotEmpty;
-
 /**
  * Configurable form.
  *
@@ -84,7 +79,7 @@ class Form extends \VuFind\Form\Form
         $this->formId = $formId;
         parent::setFormId($formId);
     }
-        
+
     /**
      * Set institution
      *
@@ -130,7 +125,6 @@ class Form extends \VuFind\Form\Form
             // Remove zero width space
             $instructions = str_replace("\xE2\x80\x8C", "", $instructions);
             if (!empty($instructions) && $instructions !== $key) {
-                
                 $pre = !empty($pre)
                     ? $instructions . '<br><br>' . $pre
                     : $instructions;
@@ -138,12 +132,12 @@ class Form extends \VuFind\Form\Form
         }
 
         if ($this->institution) {
-            // Receiver info            
+            // Receiver info
             $institution = $this->institution;
             $institutionName = $this->translate(
                 "institution::$institution", null, $institution
             );
-            
+
             // Try to handle cases like tritonia-tria
             if ($institutionName === $institution && strpos($institution, '-') > 0
             ) {
@@ -152,7 +146,7 @@ class Form extends \VuFind\Form\Form
                     "institution::$part", null, $institution
                 );
             }
-        
+
             $recipientInfo= $this->translate(
                 'feedback_recipient_info', ['%%institution%%' => $institutionName]
             );
@@ -162,7 +156,7 @@ class Form extends \VuFind\Form\Form
             }
             $pre .= '<strong>' . $recipientInfo . '</strong>';
         }
-        
+
         $help['pre'] = $pre;
 
         return $help;
@@ -197,7 +191,7 @@ class Form extends \VuFind\Form\Form
 
         return [$params, $tpl];
     }
-    
+
     /**
      * Parse form configuration.
      *
@@ -223,7 +217,7 @@ class Form extends \VuFind\Form\Form
 
         return $elements;
     }
-    
+
     /**
      * Return a list of field names to read from settings file.
      *
@@ -253,7 +247,7 @@ class Form extends \VuFind\Form\Form
 
         $finnaConfig = $this->yamlReader->getFinna($confName, 'config/finna');
         $viewConfig = $this->yamlReader->getFinna($confName, 'config/vufind');
-        
+
         if (!$formId) {
             $formId = $viewConfig['default'] ?? $finnaConfig['default'] ?? null;
             if (!$formId) {
@@ -267,7 +261,7 @@ class Form extends \VuFind\Form\Form
         if (!$viewConfig) {
             return $config;
         }
-        
+
         if (isset($config['allowLocalOverride'])
             && $config['allowLocalOverride'] === false
         ) {
