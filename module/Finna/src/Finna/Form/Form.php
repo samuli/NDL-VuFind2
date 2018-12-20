@@ -118,12 +118,12 @@ class Form extends \VuFind\Form\Form
         // Help text from configuration
         $pre = $this->formConfig['help']['pre'] ?? '';
 
-        // 'feedback_instructions_html' translation (legacy support)
+        // 'feedback_instructions_html' translation
         if ($this->formId === 'FeedbackSite') {
             $key = 'feedback_instructions_html';
             $instructions = $this->translate($key);
             // Remove zero width space
-            $instructions = str_replace("\xE2\x80\x8C", "", $instructions);
+            $instructions = str_replace("\xE2\x80\x8C", '', $instructions);
             if (!empty($instructions) && $instructions !== $key) {
                 $pre = !empty($pre)
                     ? $instructions . '<br><br>' . $pre
