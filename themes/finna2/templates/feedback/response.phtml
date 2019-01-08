@@ -1,0 +1,15 @@
+<?php
+  $form = $this->form;
+  $form->prepare();
+
+  $title = $form->getTitle();
+  $title = !empty($title)
+    ? $this->transEsc($title) : null;
+?>
+<div class="feedback-content">
+  <?php if ($title): ?>
+    <?php $this->headTitle($title); ?>
+    <h1><?=$title?></h1>
+  <?php endif; ?>
+  <p><?= $this->translate($form->getSubmitResponse()) ?></p>
+</div>
