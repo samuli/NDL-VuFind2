@@ -46,7 +46,7 @@ class FeedbackController extends \VuFind\Controller\FeedbackController
      * @var bool
      */
     protected $submitOk = false;
-    
+
     /**
      * Show response after form submit.
      *
@@ -78,7 +78,7 @@ class FeedbackController extends \VuFind\Controller\FeedbackController
         if (!$this->submitOk) {
             return $view;
         }
-        
+
         // Reset flashmessages set by VuFind
         $msg = $this->flashMessenger();
         $namespaces = ['error', 'info', 'success'];
