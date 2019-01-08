@@ -79,6 +79,14 @@ class FeedbackController extends \VuFind\Controller\FeedbackController
             return $view;
         }
         
+        // Reset flashmessages set by VuFind
+        $msg = $this->flashMessenger();
+        $namespaces = ['error', 'info', 'success'];
+        foreach ($namespaces as $ns) {
+            $msg->setNamespace($ns);
+            $msg->clearCurrentMessages();
+        }
+
         $view->setTemplate('feedback/response');
         return $view;
     }
