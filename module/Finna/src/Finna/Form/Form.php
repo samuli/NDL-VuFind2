@@ -179,7 +179,7 @@ class Form extends \VuFind\Form\Form
                 'login_method_' . $this->user->auth_method,
                 null,
                 $this->user->auth_method
-            ) : strtolower($this->translate('feedback_user_anonymous'));
+            ) : $this->translate('feedback_user_anonymous');
 
         $params[$this->translate('feedback_user_login_method')]
             = ['type' => 'text', 'value' => $loginMethod];
