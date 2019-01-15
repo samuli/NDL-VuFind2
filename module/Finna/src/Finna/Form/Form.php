@@ -117,8 +117,8 @@ class Form extends \VuFind\Form\Form
 
         // Help text from configuration
         $pre = isset($this->formConfig['help']['pre'])
-            ? $this->translate($this->formConfig['help']['pre']) :
-            '';
+            ? $this->translate($this->formConfig['help']['pre'])
+            : '';
 
         // 'feedback_instructions_html' translation
         if ($this->formId === 'FeedbackSite') {
