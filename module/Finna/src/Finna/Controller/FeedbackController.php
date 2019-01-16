@@ -98,6 +98,9 @@ class FeedbackController extends \VuFind\Controller\FeedbackController
      */
     public function emailAction()
     {
+        $post = $this->getRequest()->getPost();
+        $post->set('message', $post->get('comments'));
+
         return $this->forwardTo('Feedback', 'Form');
     }
 }
