@@ -133,8 +133,9 @@ class Form extends \VuFind\Form\Form
     public function getRecipient()
     {
         $recipient = parent::getRecipient();
-        if (!isset($recipient[1]) && $this->institutionEmail) {
-            $recipient[1] = $this->institutionEmail;
+        
+        if ($recipient[1] === null && $this->institutionEmail) {
+            return ['', $this->institutionEmail];
         }
         return $recipient;
     }
