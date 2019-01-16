@@ -94,7 +94,7 @@ forms:
           - feedback_category_usability
           - feedback_category_technical
         label: Subject
-      - name: message
+      - name: comments
         type: textarea
         label: feedback_message
         required: true
