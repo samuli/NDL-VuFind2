@@ -183,9 +183,11 @@ class Form extends \VuFind\Form\Form
                 );
             }
 
-            $recipientInfo= $this->translate(
-                'feedback_recipient_info', ['%%institution%%' => $institutionName]
-            );
+            $translationKey = $this->useEmailHandler()
+                ? 'feedback_recipient_info_email'
+                : 'feedback_recipient_info';
+
+            $recipientInfo= $this->translate($translationKey, ['%%institution%%' => $institutionName]);
 
             if (!empty($pre)) {
                 $pre .= '<br><br>';
@@ -226,6 +228,17 @@ class Form extends \VuFind\Form\Form
         }
 
         return [$params, $tpl];
+    }
+
+    /**
+     * Should submitted form data be sent via email?
+     *
+     * @return boolean
+     */
+    public function useEmailHandler()
+    {
+        // Send via email if not specifed otherwise in local configuration
+        return $this->formConfig['sendEmail'] ?? true;
     }
 
     /**
@@ -276,7 +289,8 @@ class Form extends \VuFind\Form\Form
         $fields = parent::getFormSettingFields();
 
         $fields = array_merge(
-            $fields, ['allowLocaloverride', 'hideSenderInfo', 'senderInfoHelp']
+            $fields,
+            ['allowLocaloverride', 'hideSenderInfo', 'sendEmail', 'senderInfoHelp']
         );
 
         return $fields;

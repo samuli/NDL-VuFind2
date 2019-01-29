@@ -28,6 +28,7 @@
  * @link     http://vufind.org   Main Site
  */
 namespace Finna\Controller;
+use Finna\Form\Form;
 
 /**
  * Feedback Controller
@@ -102,5 +103,53 @@ class FeedbackController extends \VuFind\Controller\FeedbackController
         $post->set('message', $post->get('comments'));
 
         return $this->forwardTo('Feedback', 'Form');
+    }
+
+    /**
+     * Send submitted form data via email or save the data to the database.
+     *
+     * @param string $recipientName  Recipient name
+     * @param string $recipientEmail Recipient email
+     * @param string $senderName     Sender name
+     * @param string $senderEmail    Sender email
+     * @param string $replyToName    Reply-to name
+     * @param string $replyToEmail   Reply-to email
+     * @param string $emailSubject   Email subject
+     * @param string $emailMessage   Email message
+     *
+     * @return array with elements success:boolean, errorMessage:string (optional)
+     */
+    protected function sendEmail(
+        $recipientName, $recipientEmail, $senderName, $senderEmail,
+        $replyToName, $replyToEmail, $emailSubject, $emailMessage
+    ) {
+        $formId = $this->params()->fromRoute('id', $this->params()->fromQuery('id'));
+        if (!$formId) {
+            $formId = 'FeedbackSite';
+        }
+        $form = $this->serviceLocator->get('VuFind\Form\Form');
+        $form->setFormId($formId);
+
+        if ($form->useEmailHandler()) {
+            return parent::sendEmail(...func_get_args());
+        }
+
+        // Save to database
+        $user = $this->getUser();
+        $userId = $user ? $user->id : null;
+
+        $url = rtrim($this->getServerUrl('home'), '/');
+        $url = substr($url, strpos($url, '://')+3);
+
+        $messageJson = json_encode((array)$this->params()->fromPost());
+        $message
+            = $emailSubject . PHP_EOL . '-----' . PHP_EOL . PHP_EOL . $emailMessage;
+
+        $feedback = $this->getTable('Feedback');
+        $success = $feedback->saveFeedback(
+            $url, $formId, $userId, $message, $messageJson
+        );
+
+        return [$success, null];
     }
 }
