@@ -21,7 +21,7 @@
 #                         that are replaced with submitted form values.
 #
 #   sendMethod (string) Determines how submitted form data is handled:
-#     email    Form data is set via email to 'recipient'
+#     email    Form data is sent via email to 'recipient'
 #     database Form data is saved to the database.
 #
 #   recipient (needed only when 'sendMethod' is email)
