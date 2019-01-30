@@ -87,7 +87,7 @@ forms:
     senderInfoRequired: false 
     senderInfoHelp: feedback_info
     hideSenderInfo: false
-    sendEmail: true
+    sendMethod: email
     #help:
     #  pre: feedback_help_pre
     #  post: feedback_help_post
