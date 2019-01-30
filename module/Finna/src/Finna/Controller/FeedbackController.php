@@ -28,6 +28,7 @@
  * @link     http://vufind.org   Main Site
  */
 namespace Finna\Controller;
+
 use Finna\Form\Form;
 
 /**
@@ -139,7 +140,7 @@ class FeedbackController extends \VuFind\Controller\FeedbackController
         $userId = $user ? $user->id : null;
 
         $url = rtrim($this->getServerUrl('home'), '/');
-        $url = substr($url, strpos($url, '://')+3);
+        $url = substr($url, strpos($url, '://') + 3);
 
         $messageJson = json_encode((array)$this->params()->fromPost());
         $message
