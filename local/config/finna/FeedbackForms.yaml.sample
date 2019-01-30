@@ -20,10 +20,11 @@
 #                         The subject may contain placeholders (for example %%receiver%%)
 #                         that are replaced with submitted form values.
 #
-#   sendEmail (boolean) If true the submitted form data is sent via email to 'recipient'.
-#                       If false the data is saved to the database.
+#   sendMethod (string) Determines how submitted form data is handled:
+#     email    Form data is set via email to 'recipient'
+#     database Form data is saved to the database.
 #
-#   recipient (needed only when 'sendEmail' is false)
+#   recipient (needed only when 'sendMethod' is email)
 #     name (string)  Recipient name (default = recipient_name setting from config.ini
 #                    [Feedback] section)
 #     email (string) Recipient email address (default = recipient_email setting from

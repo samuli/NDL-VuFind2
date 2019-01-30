@@ -39,6 +39,20 @@ namespace Finna\Form;
 class Form extends \VuFind\Form\Form
 {
     /**
+     * Email form handler
+     *
+     * @var string
+     */
+    const HANDLER_EMAIL = 'email';
+
+    /**
+     * Database form handler
+     *
+     * @var string
+     */
+    const HANDLER_DATABASE = 'database';
+    
+    /**
      * Form id
      *
      * @var string
@@ -239,10 +253,21 @@ class Form extends \VuFind\Form\Form
      */
     public function useEmailHandler()
     {
-        // Send via email if not specifed otherwise in local configuration
-        return $this->formConfig['sendEmail'] ?? true;
+        // Send via email if an valid alternative method is not
+        // specifed in local configuration
+        if (! isset($this->formConfig['sendMethod'])) {
+            return true;
+        }
+
+        $method = $this->formConfig['sendMethod'];
+        if (! in_array($method, [ Form::HANDLER_DATABASE, Form::HANDLER_EMAIL])) {
+            return true;
+        }
+
+        return $method === Form::HANDLER_EMAIL;
     }
 
+    
     /**
      * Parse form configuration.
      *
@@ -292,7 +317,7 @@ class Form extends \VuFind\Form\Form
 
         $fields = array_merge(
             $fields,
-            ['allowLocaloverride', 'hideSenderInfo', 'sendEmail', 'senderInfoHelp']
+            ['allowLocaloverride', 'hideSenderInfo', 'sendMethod', 'senderInfoHelp']
         );
 
         return $fields;
