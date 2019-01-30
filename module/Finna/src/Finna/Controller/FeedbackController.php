@@ -147,10 +147,10 @@ class FeedbackController extends \VuFind\Controller\FeedbackController
             = $emailSubject . PHP_EOL . '-----' . PHP_EOL . PHP_EOL . $emailMessage;
 
         $feedback = $this->getTable('Feedback');
-        $success = $feedback->saveFeedback(
+        $feedback->saveFeedback(
             $url, $formId, $userId, $message, $messageJson
         );
 
-        return [$success, null];
+        return [true, null];
     }
 }

@@ -66,7 +66,7 @@ class Feedback extends \VuFind\Db\Table\Gateway
      * @param string $message     Feedback form email message
      * @param string $messageJson Form data as JSON
      *
-     * @return boolean success
+     * @return FeedbackRow
      */
     public function saveFeedback(
         $url, $formId, $userId = null, $message = null, $messageJson = null
@@ -77,10 +77,8 @@ class Feedback extends \VuFind\Db\Table\Gateway
         $feedback->form = $formId;
         $feedback->message = $message;
         $feedback->message_json = $messageJson;
+        $feedback->save();
 
-        if (!$feedback->save()) {
-            return false;
-        }
-        return true;
+        return $feedback;
     }
 }
