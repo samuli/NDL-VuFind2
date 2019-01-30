@@ -187,7 +187,9 @@ class Form extends \VuFind\Form\Form
                 ? 'feedback_recipient_info_email'
                 : 'feedback_recipient_info';
 
-            $recipientInfo= $this->translate($translationKey, ['%%institution%%' => $institutionName]);
+            $recipientInfo = $this->translate(
+                $translationKey, ['%%institution%%' => $institutionName]
+            );
 
             if (!empty($pre)) {
                 $pre .= '<br><br>';
