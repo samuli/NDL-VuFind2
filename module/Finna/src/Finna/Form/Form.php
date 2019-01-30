@@ -51,7 +51,7 @@ class Form extends \VuFind\Form\Form
      * @var string
      */
     const HANDLER_DATABASE = 'database';
-    
+
     /**
      * Form id
      *
@@ -267,7 +267,25 @@ class Form extends \VuFind\Form\Form
         return $method === Form::HANDLER_EMAIL;
     }
 
-    
+    /**
+     * Get form element/field names
+     *
+     * @return array
+     */
+    public function getFormFields()
+    {
+        $elements = parent::getFormElements($this->getFormConfig($this->formId));
+        $fields = [];
+        foreach ($elements as $el) {
+            if ($el['type'] === 'submit') {
+                continue;
+            }
+            $fields[] = $el['name'];
+        }
+
+        return $fields;
+    }
+
     /**
      * Parse form configuration.
      *

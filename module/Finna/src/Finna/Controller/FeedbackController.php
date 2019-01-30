@@ -142,7 +142,19 @@ class FeedbackController extends \VuFind\Controller\FeedbackController
         $url = rtrim($this->getServerUrl('home'), '/');
         $url = substr($url, strpos($url, '://') + 3);
 
-        $messageJson = json_encode((array)$this->params()->fromPost());
+        $formFields = $form->getFormFields();
+
+        $save = [];
+        $params = (array)$this->params()->fromPost();
+        foreach ($params as $key => $val) {
+            if (! in_array($key, $formFields)) {
+                continue;
+            }
+            $save[$key] = $val;
+        }
+        $save['emailSubject'] = $emailSubject;
+        $messageJson = json_encode($save);
+
         $message
             = $emailSubject . PHP_EOL . '-----' . PHP_EOL . PHP_EOL . $emailMessage;
 
