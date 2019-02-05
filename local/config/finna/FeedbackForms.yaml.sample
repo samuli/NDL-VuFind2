@@ -55,7 +55,7 @@
 # 
 #     options (array) List of select values (translation keys)
 #
-#     or
+#     or for select elements alternatively:
 #
 #     optionGroups (array) List of option groups with keys:
 #       label (string) Group label (translation key)
