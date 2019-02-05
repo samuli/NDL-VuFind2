@@ -156,7 +156,7 @@ CREATE TABLE `finna_feedback` (
   `message_json` json DEFAULT '',
   `message` longtext DEFAULT '',
   `created` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `status` varchar(255) DEFAULT '',
+  `status` varchar(255) DEFAULT 'open',
   `modifier_id` int(11) DEFAULT NULL,
   `modification_date` datetime DEFAULT NULL,
   PRIMARY KEY (`id`),
