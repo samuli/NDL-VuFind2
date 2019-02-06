@@ -254,16 +254,8 @@ class Form extends \VuFind\Form\Form
     public function useEmailHandler()
     {
         // Send via email if not configured otherwise locally.
-        if (! isset($this->formConfig['sendMethod'])) {
-            return true;
-        }
-
-        $method = $this->formConfig['sendMethod'];
-        if (! in_array($method, [ Form::HANDLER_DATABASE, Form::HANDLER_EMAIL])) {
-            return true;
-        }
-
-        return $method === Form::HANDLER_EMAIL;
+        return (!isset($this->formConfig['sendMethod'])
+                || $this->formConfig['sendMethod'] !== Form::HANDLER_DATABASE);
     }
 
     /**
