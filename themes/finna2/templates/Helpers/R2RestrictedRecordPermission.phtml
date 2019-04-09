@@ -58,7 +58,7 @@ JS;
   <? endif; ?>
 <? endif; ?>
 
-<?php if (!$this->weakLogin && $this->autoOpen && $this->status === null): ?>
+<?php if (!$this->weakLogin && $this->autoOpen && in_array($this->status, [null, \Finna\RemsService\RemsService::STATUS_NOT_SUBMITTED])): ?>
   <?php    
   $setupJS .= <<<JS
 $(document).ready(function() {
