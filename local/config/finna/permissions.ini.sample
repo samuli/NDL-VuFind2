@@ -156,3 +156,10 @@ permission = access.StaffViewTab
 [default.Favorites]
 role[] = loggedin
 permission = feature.Favorites
+
+; Restricted Solr (R2) Search
+[access.R2]
+require = ALL
+;authenticationStrategy[] = Shibboleth
+permission[] = access.R2
+;shibboleth[] = "entityid https://testidp2.example.org/idp/shibboleth"

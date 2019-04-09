@@ -42,6 +42,8 @@ use Finna\Form\Form;
  */
 class FeedbackController extends \VuFind\Controller\FeedbackController
 {
+    use R2ControllerTrait;
+
     /**
      * True if form was submitted successfully.
      *
@@ -75,6 +77,10 @@ class FeedbackController extends \VuFind\Controller\FeedbackController
      */
     public function formAction()
     {
+        if (null !== ($view = $this->processR2RegisterForm())) {
+            return $view;
+        }
+
         $view = parent::formAction();
 
         if (!$this->submitOk) {

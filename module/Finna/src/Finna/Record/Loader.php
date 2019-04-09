@@ -45,6 +45,8 @@ use VuFindSearch\ParamBag;
  */
 class Loader extends \VuFind\Record\Loader
 {
+    protected $defaultParams = null;
+    
     /**
      * Preferred language for display strings from RecordDriver
      *
@@ -92,6 +94,12 @@ class Loader extends \VuFind\Record\Loader
         }
         $missingException = false;
         try {
+            if ($this->defaultParams) {
+                $params = $params ?? new ParamBag();
+                foreach ($this->defaultParams as $key => $val) {
+                    $params->set($key, $val);
+                }
+            }
             $result = parent::load($id, $source, $tolerateMissing, $params);
         } catch (RecordMissingException $e) {
             $missingException = $e;
@@ -163,6 +171,11 @@ class Loader extends \VuFind\Record\Loader
         }
 
         return $records;
+    }
+
+    public function setDefaultParams($params = null)
+    {
+        $this->defaultParams = $params;
     }
 
     /**

@@ -1,6 +1,6 @@
 <?php
 /**
- * Record loader factory.
+ * R2 restricted record note helper factory.
  *
  * PHP version 7
  *
@@ -20,25 +20,26 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category VuFind
- * @package  Record
- * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
- * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org   Main Site
- */
-namespace Finna\Record;
-
-use Interop\Container\ContainerInterface;
-
-/**
- * Record loader factory.
- *
- * @category VuFind
- * @package  Record
+ * @package  View_Helpers
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development Wiki
  */
-class LoaderFactory extends \VuFind\Record\LoaderFactory
+namespace Finna\View\Helper\Root;
+
+use Interop\Container\ContainerInterface;
+use Zend\ServiceManager\Factory\FactoryInterface;
+
+/**
+ * R2 restricted record note helper factory.
+ *
+ * @category VuFind
+ * @package  View_Helpers
+ * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     https://vufind.org/wiki/development Wiki
+ */
+class R2RestrictedRecordPermissionFactory implements FactoryInterface
 {
     /**
      * Create an object
@@ -57,11 +58,19 @@ class LoaderFactory extends \VuFind\Record\LoaderFactory
     public function __invoke(ContainerInterface $container, $requestedName,
         array $options = null
     ) {
-        $loader = parent::__invoke($container, $requestedName);
-        $loader->setPreferredLanguage(
-            $container->get('VuFind\Translator')->getLocale()
+        if (!empty($options)) {
+            throw new \Exception('Unexpected options sent to factory.');
+        }
+
+        $enabled = $container->get(\VuFind\Config\PluginManager::class)
+            ->get('R2')->General->enabled ?? false;
+
+        $auth = $container->get('ZfcRbac\Service\AuthorizationService');
+
+        return new $requestedName(
+            $enabled,
+            $container->get('Finna\RemsService\RemsService'),
+            $auth->isGranted('access.R2Restricted')
         );
-        $loader->setDefaultParams($options);
-        return $loader;
     }
 }

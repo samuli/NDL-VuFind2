@@ -39,6 +39,13 @@ namespace Finna\Form;
 class Form extends \VuFind\Form\Form
 {
     /**
+     * R2 registration form id
+     *
+     * @var string
+     */
+    const R2_REGISTER_FORM = 'R2Register';
+    
+    /**
      * Email form handler
      *
      * @var string
@@ -181,7 +188,9 @@ class Form extends \VuFind\Form\Form
             }
         }
 
-        if ($this->institution) {
+        if (!($this->formConfig['hideRecipientInfo'] ?? false)
+            && $this->institution
+        ) {
             // Receiver info
             $institution = $this->institution;
             $institutionName = $this->translate(
@@ -312,6 +321,16 @@ class Form extends \VuFind\Form\Form
             }
         }
 
+        if ($formId === Form::R2_REGISTER_FORM && !empty($this->user->email)) {
+            // Set email field to readonly if defined in profile
+            foreach ($elements as &$el) {
+                if ($el['name'] !== 'email') {
+                    continue;
+                }
+                $el['settings']['readonly'] = 'readonly';
+            }
+        }
+        
         return $elements;
     }
 
@@ -326,7 +345,7 @@ class Form extends \VuFind\Form\Form
 
         $fields = array_merge(
             $fields,
-            ['hideSenderInfo', 'sendMethod', 'senderInfoHelp']
+            ['hideRecipientInfo', 'hideSenderInfo', 'sendMethod', 'senderInfoHelp']
         );
 
         return $fields;

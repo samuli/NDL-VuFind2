@@ -1,6 +1,7 @@
 <?php
 /**
- * Record loader factory.
+ * AJAX handler for getting user permissions from
+ * Resource Entitlement Management System (REMS)
  *
  * PHP version 7
  *
@@ -20,48 +21,55 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category VuFind
- * @package  Record
- * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
- * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org   Main Site
- */
-namespace Finna\Record;
-
-use Interop\Container\ContainerInterface;
-
-/**
- * Record loader factory.
- *
- * @category VuFind
- * @package  Record
+ * @package  AJAX
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development Wiki
  */
-class LoaderFactory extends \VuFind\Record\LoaderFactory
+namespace Finna\AjaxHandler;
+
+use Finna\RemsService\RemsService;
+use VuFind\Session\Settings as SessionSettings;
+use Zend\Mvc\Controller\Plugin\Params;
+
+/**
+ * AJAX handler for getting user permissions from
+ * Resource Entitlement Management System (REMS)
+ *
+ * @category VuFind
+ * @package  AJAX
+ * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     https://vufind.org/wiki/development Wiki
+ */
+class GetRemsPermission extends \VuFind\AjaxHandler\AbstractBase
 {
     /**
-     * Create an object
+     * REMS service
      *
-     * @param ContainerInterface $container     Service manager
-     * @param string             $requestedName Service being created
-     * @param null|array         $options       Extra options (optional)
-     *
-     * @return object
-     *
-     * @throws ServiceNotFoundException if unable to resolve the service.
-     * @throws ServiceNotCreatedException if an exception is raised when
-     * creating a service.
-     * @throws ContainerException if any other error occurs
+     * @var RemsService
      */
-    public function __invoke(ContainerInterface $container, $requestedName,
-        array $options = null
+    protected $rems;
+
+    /**
+     * Constructor
+     *
+     * @param RemsService $remsService RemsService
+     */
+    public function __construct(RemsService $remsService
     ) {
-        $loader = parent::__invoke($container, $requestedName);
-        $loader->setPreferredLanguage(
-            $container->get('VuFind\Translator')->getLocale()
-        );
-        $loader->setDefaultParams($options);
-        return $loader;
+        $this->rems = $remsService;
+    }
+
+    /**
+     * Handle a request.
+     *
+     * @param Params $params Parameter helper from controller
+     *
+     * @return array [response data, HTTP status code]
+     */
+    public function handleRequest(Params $params)
+    {
+        return $this->formatResponse($this->rems->checkPermission(true));
     }
 }

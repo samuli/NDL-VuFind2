@@ -1,6 +1,6 @@
 <?php
 /**
- * Record loader factory.
+ * Factory for GetRemsPermission AJAX handler.
  *
  * PHP version 7
  *
@@ -20,25 +20,26 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category VuFind
- * @package  Record
- * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
- * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org   Main Site
- */
-namespace Finna\Record;
-
-use Interop\Container\ContainerInterface;
-
-/**
- * Record loader factory.
- *
- * @category VuFind
- * @package  Record
+ * @package  AJAX
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development Wiki
  */
-class LoaderFactory extends \VuFind\Record\LoaderFactory
+namespace Finna\AjaxHandler;
+
+use Interop\Container\ContainerInterface;
+
+/**
+ * Factory for GetRemsPermission AJAX handler.
+ *
+ * @category VuFind
+ * @package  AJAX
+ * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     https://vufind.org/wiki/development Wiki
+ */
+class GetRemsPermissionFactory
+    implements \Zend\ServiceManager\Factory\FactoryInterface
 {
     /**
      * Create an object
@@ -53,15 +54,18 @@ class LoaderFactory extends \VuFind\Record\LoaderFactory
      * @throws ServiceNotCreatedException if an exception is raised when
      * creating a service.
      * @throws ContainerException if any other error occurs
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function __invoke(ContainerInterface $container, $requestedName,
         array $options = null
     ) {
-        $loader = parent::__invoke($container, $requestedName);
-        $loader->setPreferredLanguage(
-            $container->get('VuFind\Translator')->getLocale()
+        if (!empty($options)) {
+            throw new \Exception('Unexpected options passed to factory.');
+        }
+        $result = new $requestedName(
+            $container->get('Finna\RemsService\RemsService')
         );
-        $loader->setDefaultParams($options);
-        return $loader;
+        return $result;
     }
 }
