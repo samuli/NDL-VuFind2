@@ -173,6 +173,13 @@ class Loader extends \VuFind\Record\Loader
         return $records;
     }
 
+    /**
+     * Set default parameters that are passed to backend.
+     *
+     * @param array $params Parameters
+     *
+     * @return void
+     */
     public function setDefaultParams($params = null)
     {
         $this->defaultParams = $params;

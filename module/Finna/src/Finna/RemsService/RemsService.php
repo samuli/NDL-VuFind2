@@ -95,9 +95,10 @@ class RemsService
     /**
      * Register user to REMS
      *
-     * @param string $email     Email
-     * @param string $firstname First name
-     * @param string $lastname  Last name
+     * @param string $email      Email
+     * @param string $firstname  First name
+     * @param string $lastname   Last name
+     * @param array  $formParams Form parameters
      *
      * @return bool 
      */
@@ -152,6 +153,7 @@ class RemsService
 
 
         // TODO: use application/transit+json unitl json works...
+        // @codingStandardsIgnoreStart
         $body = sprintf(
             '["^ ","~:type","~:application.command/save-draft","~:application-id",%d,"~:field-values",["^ ","~i1","%s","~i2","%s","~i3","","~i4","","~i5","","~i6","","~i7","","~i8","%s"],"~:accepted-licenses",["~#set",[1,2]]]',
             $applicationId,
@@ -160,6 +162,7 @@ class RemsService
             //$formParams['usage_purpose'],
             $formParams['usage_desc']
         );
+        // @codingStandardsIgnoreEnd
 
         try {
             $response = $this->sendRequest(
@@ -194,7 +197,7 @@ class RemsService
      * Check permission
      *
      * @param bool $callApi Call REMS API if permission is not already
-     * checked and saved to session.
+     *                      checked and saved to session.
      *
      * @return bool 
      */
