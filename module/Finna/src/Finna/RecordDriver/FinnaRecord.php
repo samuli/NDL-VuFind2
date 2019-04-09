@@ -128,7 +128,7 @@ trait FinnaRecord
      * Get alternative restricted version of this record.
      * Returns false or an array with keys:
      * - route Route to restricted record
-     * - id    Restricted record id 
+     * - id    Restricted record id
      *
      * @return mixed
      */
@@ -141,7 +141,7 @@ trait FinnaRecord
      * Does this record contain restricted metadata?
      *
      * @return bool
-     */    
+     */
     public function hasRestrictedMetadata()
     {
         return false;

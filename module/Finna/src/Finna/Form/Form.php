@@ -44,7 +44,7 @@ class Form extends \VuFind\Form\Form
      * @var string
      */
     const R2_REGISTER_FORM = 'R2Register';
-    
+
     /**
      * Email form handler
      *
@@ -330,7 +330,7 @@ class Form extends \VuFind\Form\Form
                 $el['settings']['readonly'] = 'readonly';
             }
         }
-        
+
         return $elements;
     }
 

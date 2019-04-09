@@ -46,7 +46,7 @@ use VuFindSearch\ParamBag;
 class Loader extends \VuFind\Record\Loader
 {
     protected $defaultParams = null;
-    
+
     /**
      * Preferred language for display strings from RecordDriver
      *

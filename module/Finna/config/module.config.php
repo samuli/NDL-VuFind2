@@ -260,7 +260,7 @@ $config = [
             'FinnaSearch\Service' => 'VuFind\Service\SearchServiceFactory',
 
             'VuFind\Search\SearchTabsHelper' => 'Finna\Search\SearchTabsHelperFactory',
-            
+
             'Zend\Session\SessionManager' => 'Finna\Session\ManagerFactory',
         ],
         'aliases' => [

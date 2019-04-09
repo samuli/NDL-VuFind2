@@ -585,7 +585,7 @@ class SolrEad3 extends SolrEad
      * Get alternative restricted version of this record.
      * Returns false or an array with keys:
      * - route Route to restricted record
-     * - id    Restricted record id 
+     * - id    Restricted record id
      *
      * @return mixed
      */

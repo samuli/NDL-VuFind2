@@ -52,10 +52,10 @@ trait R2ControllerTrait
         if ($formId !== \Finna\Form\Form::R2_REGISTER_FORM) {
             return null;
         }
-        
+
         $recordId = $this->params()->fromQuery('recordId');
         $collection
-            = (boolean)$this->params()->fromQuery('collection', false);        
+            = (bool)$this->params()->fromQuery('collection', false);
         $session = $this->getR2Session();
 
         $closeForm = function () use ($session) {
@@ -65,7 +65,7 @@ trait R2ControllerTrait
             unset($session->inLightbox);
             unset($session->recordId);
             unset($session->collection);
-            
+
             if ($inLightbox) {
                 $response = $this->getResponse();
                 $response->setStatusCode(205);
@@ -82,20 +82,20 @@ trait R2ControllerTrait
                 }
             }
         };
-        
+
         // Verify that user is authorized to access restricted R2 data.
         if (!$user = $this->getUser()) {
             // Not logged, prompt login
-            
+
             $inLightbox
                 = $this->getRequest()->getQuery('layout', 'no') === 'lightbox'
                 || 'layout/lightbox' == $this->layout()->getTemplate();
-            
+
             $session->inLightbox = $inLightbox;
             $session->recordId = $recordId;
             $session->collection = $collection;
             return $this->forceLogin();
-        } else if ($user && !$this->isAuthorized()) {
+        } elseif ($user && !$this->isAuthorized()) {
             // Logged but not authorized (wrong login method etc), close form
             return $closeForm();
         }
@@ -106,16 +106,16 @@ trait R2ControllerTrait
         $showRegisterForm
             = RemsService::STATUS_NOT_SUBMITTED
             === $rems->checkPermission(true);
-        
+
         if (!$showRegisterForm) {
             // Registration has already been submitted, no need to show form.
             return $closeForm();
         }
-        
+
         if ($this->formWasSubmitted('submit')) {
             // Handle submitted registration form
             $user = $this->getUser();
-            
+
             $form = $this->serviceLocator->get('VuFind\Form\Form');
             $formId = \Finna\Form\Form::R2_REGISTER_FORM;
             $form->setFormId($formId);
@@ -155,15 +155,15 @@ trait R2ControllerTrait
                 $lastname,
                 $formParams
             );
-            
+
             if ($success !== true) {
                 return $success;
             }
-                        
+
             // Request lightbox to refresh page
             $response = $this->getResponse();
             $response->setStatusCode(205);
-            
+
             return '';
         }
 
@@ -193,8 +193,8 @@ trait R2ControllerTrait
             $view->autoOpenR2Registration = true;
             unset($session->autoOpen);
         }
-        
-        return $view;        
+
+        return $view;
     }
 
     /**
@@ -208,9 +208,8 @@ trait R2ControllerTrait
             'R2Registration',
             $this->serviceLocator->get('VuFind\SessionManager')
         );
-
     }
-    
+
     /**
      * Is the user authorized to use R2?
      *

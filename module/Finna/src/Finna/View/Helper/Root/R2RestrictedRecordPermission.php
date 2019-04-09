@@ -43,7 +43,7 @@ use Finna\RemsService\RemsService;
 class R2RestrictedRecordPermission extends \Zend\View\Helper\AbstractHelper
 {
     protected $enabled;
-    
+
     protected $rems;
     protected $authorized;
 
@@ -83,7 +83,7 @@ class R2RestrictedRecordPermission extends \Zend\View\Helper\AbstractHelper
             'id' => $driver->getUniqueID(),
             'collection' => $driver->isCollection()
         ];
-        
+
         if ($user !== false) {
             $status = $this->rems->checkPermission(false);
 
@@ -100,7 +100,7 @@ class R2RestrictedRecordPermission extends \Zend\View\Helper\AbstractHelper
                 'callApi' => $status === null
              ];
         }
-        
+
         return $this->getView()->render(
             'Helpers/R2RestrictedRecordPermission.phtml', $params
         );

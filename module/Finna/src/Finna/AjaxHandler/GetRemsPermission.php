@@ -29,7 +29,6 @@
 namespace Finna\AjaxHandler;
 
 use Finna\RemsService\RemsService;
-use VuFind\Session\Settings as SessionSettings;
 use Zend\Mvc\Controller\Plugin\Params;
 
 /**

@@ -38,7 +38,6 @@ namespace Finna\Search\R2;
  */
 class Options extends \Finna\Search\Solr\Options
 {
-
     /**
      * Configuration file to read facet settings from
      *

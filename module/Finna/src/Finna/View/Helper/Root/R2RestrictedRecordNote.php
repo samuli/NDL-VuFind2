@@ -40,7 +40,7 @@ class R2RestrictedRecordNote extends \Zend\View\Helper\AbstractHelper
 {
     protected $enabled;
     protected $collectionRoutes;
-    
+
     /**
      * Constructor
      *

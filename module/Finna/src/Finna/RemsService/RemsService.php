@@ -31,7 +31,6 @@ use VuFind\Auth\Manager;
 use Zend\Config\Config;
 use Zend\Session\Container;
 
-
 /**
  * Resource Entitlement Management System (REMS) service
  *
@@ -55,7 +54,7 @@ class RemsService
     const STATUS_SUBMITTED = 'submitted';
     const STATUS_CLOSED = 'closed';
     const STATUS_DRAFT = 'draft';
-    
+
     /**
      * Configuration
      *
@@ -76,7 +75,7 @@ class RemsService
      * @var Manager
      */
     protected $auth;
-    
+
     /**
      * Constructor.
      *
@@ -100,7 +99,7 @@ class RemsService
      * @param string $lastname   Last name
      * @param array  $formParams Form parameters
      *
-     * @return bool 
+     * @return bool
      */
     public function registerUser(
         $email, $firstname = null, $lastname = null, $formParams = []
@@ -109,7 +108,7 @@ class RemsService
         if ($lastname) {
             $commonName = $commonName ? " $lastname" : $lastname;
         }
-        
+
         // 1. Create user
         $params = [
             'eppn' => $this->getUserId(),
@@ -121,7 +120,7 @@ class RemsService
         } catch (\Exception $e) {
             return $e->getMessage();
         }
-        
+
         // 2. Create draft application
         $catItemId = $this->getCatalogItemId('entitlement');
         $params = ['catalogue-item-ids' => [$catItemId]];
@@ -137,9 +136,8 @@ class RemsService
         }
         $applicationId = $response['application-id'];
 
-
         // 3. Save draft
-        
+
         /*
         $params =  [
             'command' => 'submit',
@@ -147,10 +145,9 @@ class RemsService
             'items' =>  ['1' => 'Test 1', '2' => 'Test 2'],
             'licenses' => ['1' => 'approved', '2' => 'approved']
         ];
-        
+
         $client = $this->getClient($userId, 'applications/save', 'POST', $params);
         */
-
 
         // TODO: use application/transit+json unitl json works...
         // @codingStandardsIgnoreStart
@@ -190,7 +187,7 @@ class RemsService
             null, $this->getSessionKey($this->getCatalogItemId('entitlement'))
         );
 
-        return true;        
+        return true;
     }
 
     /**
@@ -199,7 +196,7 @@ class RemsService
      * @param bool $callApi Call REMS API if permission is not already
      *                      checked and saved to session.
      *
-     * @return bool 
+     * @return bool
      */
     public function checkPermission($callApi = false)
     {
@@ -220,7 +217,7 @@ class RemsService
                 }
                 if (isset($application['status'])) {
                     $appStatus = $application['status'];
-                    switch($appStatus) {
+                    switch ($appStatus) {
                     case RemsService::STATUS_SUBMITTED:
                         $status = $appStatus;
                         break;
@@ -274,11 +271,11 @@ class RemsService
 
         return $applications;
     }
-    
+
     /**
      * Return REMS user id (eppn) of the current authenticated user.
      *
-     * @return string 
+     * @return string
      */
     protected function getUserId()
     {
@@ -288,7 +285,7 @@ class RemsService
         }
         return $user->username;
     }
-    
+
     /**
      * Send a request to REMS api.
      *
@@ -298,7 +295,7 @@ class RemsService
      * @param bool   $adminAction Use admin API user id?
      * @param string $body        Request body
      *
-     * @return bool 
+     * @return bool
      */
     protected function sendRequest(
         $url, $params = [], $method = 'GET', $adminAction = false, $body = null
@@ -308,7 +305,7 @@ class RemsService
             : $this->getUserId();
 
         $contentType = $body['contentType'] ?? 'application/json';
-        
+
         $client = $this->getClient($userId, $url, $method, $params, $contentType);
         if (isset($body['content'])) {
             $client->setRawBody($body['content']);
@@ -323,7 +320,7 @@ class RemsService
 
             return $err;
         };
-        
+
         try {
             $response = $client->send();
         } catch (\Exception $e) {
@@ -377,12 +374,11 @@ class RemsService
         $headers->addHeaderLine('x-rems-api-key', $this->config->General->apiKey);
         $headers->addHeaderLine('x-rems-user-id', $userId);
 
-
         $body = json_encode($bodyParams);
         $client->setRawBody($body);
         $client->getRequest()->getHeaders()
             ->addHeaderLine('Content-Type', $contentType);
-        
+
         $client->setMethod($method);
         return $client;
     }
@@ -427,7 +423,7 @@ class RemsService
     {
         return (int)$this->config->General->catalogItem[$type] ?? null;
     }
-    
+
     /**
      * Map REMS application status
      *

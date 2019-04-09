@@ -28,10 +28,10 @@
  */
 namespace Finna\Search\Factory;
 
-use VuFindSearch\Backend\Solr\Connector;
-use VuFindSearch\Backend\Solr\Response\Json\RecordCollectionFactory;
-
 use Interop\Container\ContainerInterface;
+use VuFindSearch\Backend\Solr\Connector;
+
+use VuFindSearch\Backend\Solr\Response\Json\RecordCollectionFactory;
 
 /**
  * Abstract factory for R2 backends.
@@ -108,5 +108,4 @@ class R2BackendFactory
         $url = $this->R2Config->Index->url;
         return "$url/" . $this->solrCore;
     }
-
 }

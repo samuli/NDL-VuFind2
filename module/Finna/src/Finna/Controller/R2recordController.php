@@ -59,7 +59,7 @@ class R2recordController extends RecordController
 
         return $view;
     }
-    
+
     /**
      * Create a new ViewModel.
      *
@@ -74,7 +74,7 @@ class R2recordController extends RecordController
         $view->driver = $this->loadRecord();
         $view->unrestrictedDriver
             = $this->loadRecordWithRestrictedData() ?? $view->driver;
-        
+
         return $view;
     }
 

@@ -39,7 +39,7 @@ namespace Finna\Controller;
 class R2collectionController extends CollectionController
 {
     use \Finna\Controller\R2ControllerTrait;
-    
+
     /**
      * Type of record to display
      *
