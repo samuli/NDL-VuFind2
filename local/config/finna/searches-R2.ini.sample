@@ -6,4 +6,4 @@ relative_path = searches.ini
 
 ; This section contains global settings affecting search behavior.
 [General]
-default_side_recommend[] = SideFacetsDeferred:Results:CheckboxFacets:facets-nkr
+default_side_recommend[] = SideFacetsDeferred:Results:CheckboxFacets:facets-R2
