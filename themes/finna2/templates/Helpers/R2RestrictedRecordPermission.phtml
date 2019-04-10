@@ -29,7 +29,7 @@ JS;
     <p><?=$this->translate('R2_restricted_record_registered_note_html')?></p>
   </div>
 <?php else: ?>
-  <? if ($this->callApi): ?>
+  <?php if ($this->callApi): ?>
     <?php 
       $setupJS = <<<JS
 $(document).ready(function() {
@@ -46,20 +46,20 @@ $(document).ready(function() {
 });
 JS;
     ?>
-  <? endif ?>
+  <?php endif ?>
   <div class="alert alert-info authorization-notification check-permission R2-status R2-status-not-submitted<?= $this->status === null || $this->status !== 'not-submitted' ? ' hide' : ''?>" data-id="<?=$this->escapeHtmlAttr($this->id)?>">
     <p class="txt"><?= $this->translate('R2_restricted_record_note_html') ?></p>
     <p class="register"><a href="<?= $registerFormUrl ?>" class="btn btn-primary" data-lightbox title="<?=$this->transEsc('R2_register_form_title')?>"><?=$this->translate('R2_register')?></a></p>
   </div>
-  <? if (!$this->translationEmpty("R2_permission_request_status_submitted")): ?>
+  <?php if (!$this->translationEmpty("R2_permission_request_status_submitted")): ?>
     <div class="alert alert-info authorization-notification R2-status R2-status-submitted<?= $this->status === null || $this->status === 'not-submitted' ? ' hide' : ''?>">
       <p class="txt"><?= $this->transEsc('R2_permission_request_status_submitted') ?></p>
     </div>
-  <? endif; ?>
-<? endif; ?>
+  <?php endif; ?>
+<?php endif; ?>
 
 <?php if (!$this->weakLogin && $this->autoOpen && in_array($this->status, [null, \Finna\RemsService\RemsService::STATUS_NOT_SUBMITTED])): ?>
-  <?php    
+  <?php 
   $setupJS .= <<<JS
 $(document).ready(function() {
    finna.R2.initAutoOpen();
@@ -70,6 +70,6 @@ JS;
     
 <?php if ($setupJS): ?>
   <?= $this->headScript()->appendFile('finna-R2.js'); ?>
-  <? $this->headScript()->appendScript($setupJS); ?>  
+  <?php $this->headScript()->appendScript($setupJS); ?>  
 <?php endif ?>
 <!-- END of: finna - Helpers/R2RestrictedRecordPermission.phtml -->
