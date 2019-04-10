@@ -13,7 +13,7 @@
     <p><strong><?= $this->translate('R2_register_weak_loginmethod') ?></strong></p>
   </div>
 <?php elseif (!$this->user): ?>
-  <?php 
+  <?php
     $setupJS = <<<JS
 $(document).ready(function() {
    finna.R2.initModal();
@@ -30,7 +30,7 @@ JS;
   </div>
 <?php else: ?>
   <?php if ($this->callApi): ?>
-    <?php 
+    <?php
       $setupJS = <<<JS
 $(document).ready(function() {
    finna.R2.initModal();
@@ -39,7 +39,7 @@ $(document).ready(function() {
 JS;
     ?>
   <?php else: ?>
-    <?php 
+    <?php
       $setupJS = <<<JS
 $(document).ready(function() {
    finna.R2.initModal();
@@ -59,7 +59,7 @@ JS;
 <?php endif; ?>
 
 <?php if (!$this->weakLogin && $this->autoOpen && in_array($this->status, [null, \Finna\RemsService\RemsService::STATUS_NOT_SUBMITTED])): ?>
-  <?php 
+  <?php
   $setupJS .= <<<JS
 $(document).ready(function() {
    finna.R2.initAutoOpen();
