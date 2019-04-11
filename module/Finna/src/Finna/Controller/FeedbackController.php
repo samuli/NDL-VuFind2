@@ -113,6 +113,28 @@ class FeedbackController extends \VuFind\Controller\FeedbackController
     }
 
     /**
+     * Prefill form sender fields for logged in users.
+     *
+     * @param Form  $form Form
+     * @param array $user User
+     *
+     * @return Form
+     */
+    protected function prefillUserInfo($form, $user)
+    {
+        $form = parent::prefillUserInfo($form, $user);
+        if ($user) {
+            $form->setData(
+                [
+                 'firstname' => $user->firstname,
+                 'lastname' => $user->lastname
+                ]
+            );
+        }
+        return $form;
+    }
+
+    /**
      * Send submitted form data via email or save the data to the database.
      *
      * @param string $recipientName  Recipient name
