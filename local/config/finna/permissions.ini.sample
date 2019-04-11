@@ -162,4 +162,4 @@ permission = feature.Favorites
 require = ALL
 ;authenticationStrategy[] = Shibboleth
 permission[] = access.R2
-;shibboleth[] = "entityid https://testidp2.example.org/idp/shibboleth"
+shibboleth[] = "SHIB_vtjverified true"
