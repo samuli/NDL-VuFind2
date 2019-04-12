@@ -170,6 +170,7 @@ class CPU extends BaseHandler
                 );
                 // Remove ' since that causes the string to be truncated
                 $fineDesc = str_replace("'", ' ', $fineDesc);
+                $fineDesc = substr($fineDesc, 0, 100);
             }
 
             $code = $productCodeMappings[$fineType] ?? $productCode;
