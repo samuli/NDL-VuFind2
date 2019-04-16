@@ -46,57 +46,6 @@ use VuFind\Exception\Auth as AuthException;
 class Shibboleth extends \VuFind\Auth\Shibboleth
 {
     /**
-     * IDP (null for default Shibboleth handler HAKA)
-     * This determines configuration and templates.
-     *
-     * @var string|null
-     */
-    protected $idp = null;
-
-    /**
-     * Set IDP
-     *
-     * @param string $idp IDP
-     *
-     * @return void
-     */
-    public function setIdp($idp)
-    {
-        $this->idp = $idp;
-    }
-
-    /**
-     * Get IDP
-     *
-     * @return null|string
-     */
-    public function getIdp()
-    {
-        return $this->idp;
-    }
-
-    /**
-     * Get configuration (load automatically if not previously set).  Throw an
-     * exception if the configuration is invalid.
-     *
-     * @throws AuthException
-     * @return \Zend\Config\Config
-     */
-    public function getConfig()
-    {
-        if ($this->idp && !$this->configValidated) {
-            // Replace Shibboleth config section with
-            // IDP specific section
-            $section = 'Shibboleth_' . $this->idp;
-            $data = $this->config->toArray();
-            $data['Shibboleth'] = $data[$section];
-            $this->config = new \Zend\Config\Config($data);
-        }
-
-        return parent::getConfig();
-    }
-
-    /**
      * Attempt to authenticate the current user.  Throws exception if login fails.
      *
      * @param \Zend\Http\PhpEnvironment\Request $request Request object containing

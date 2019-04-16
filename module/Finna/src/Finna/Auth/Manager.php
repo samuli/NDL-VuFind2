@@ -91,6 +91,7 @@ class Manager extends \VuFind\Auth\Manager
      *
      * @return string
      */
+    /*
     public function getAuthClassForTemplateRendering()
     {
         $tpl = parent::getAuthClassForTemplateRendering();
@@ -102,7 +103,7 @@ class Manager extends \VuFind\Auth\Manager
             $tpl .= "_$idp";
         }
         return $tpl;
-    }
+        }*/
 
     /**
      * Get the authentication handler.
@@ -111,6 +112,7 @@ class Manager extends \VuFind\Auth\Manager
      *
      * @return AbstractBase
      */
+    /*
     protected function getAuth($name = null)
     {
         $name = empty($name) ? $this->activeAuth : $name;
@@ -119,7 +121,7 @@ class Manager extends \VuFind\Auth\Manager
             $this->auth[$name] = $auth;
         }
         return $this->auth[$name];
-    }
+        }*/
 
     /**
      * Build authentication handler.
@@ -129,6 +131,7 @@ class Manager extends \VuFind\Auth\Manager
      *
      * @return array
      */
+    /*
     protected function buildAuth($method)
     {
         $prefix = 'Shibboleth_';
@@ -147,5 +150,5 @@ class Manager extends \VuFind\Auth\Manager
         }
 
         return [$method, $auth];
-    }
+        }*/
 }

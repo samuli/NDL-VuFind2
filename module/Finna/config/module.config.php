@@ -226,6 +226,7 @@ $config = [
         'factories' => [
             'Finna\Auth\ILSAuthenticator' => 'VuFind\Auth\ILSAuthenticatorFactory',
             'Finna\Auth\Manager' => 'VuFind\Auth\ManagerFactory',
+            'Finna\Auth\PluginManager' => 'VuFind\ServiceManager\AbstractPluginManagerFactory',
             'Finna\Cache\Manager' => 'VuFind\Cache\ManagerFactory',
             'Finna\Config\PluginManager' => 'VuFind\Config\PluginManagerFactory',
             'Finna\Config\SearchSpecsReader' => 'VuFind\Config\YamlReaderFactory',
@@ -254,6 +255,7 @@ $config = [
         ],
         'aliases' => [
             'VuFind\Auth\Manager' => 'Finna\Auth\Manager',
+            'VuFind\Auth\PluginManager' => 'Finna\Auth\PluginManager',
             'VuFind\Auth\ILSAuthenticator' => 'Finna\Auth\ILSAuthenticator',
             'VuFind\Cache\Manager' => 'Finna\Cache\Manager',
             'VuFind\Config\PluginManager' => 'Finna\Config\PluginManager',
@@ -371,6 +373,7 @@ $config = [
                     'Finna\Auth\ILS' => 'VuFind\Auth\ILSFactory',
                     'Finna\Auth\MultiILS' => 'VuFind\Auth\ILSFactory',
                     'Finna\Auth\Shibboleth' => 'VuFind\Auth\ShibbolethFactory',
+                    'Finna\Auth\Suomifi' => 'VuFind\Auth\ShibbolethFactory',                    
                 ],
                 'aliases' => [
                     'VuFind\Auth\ILS' => 'Finna\Auth\ILS',

@@ -1,8 +1,8 @@
-<!-- START of: finna - Auth/Shibboleth/login_suomifi.phtml -->
+<!-- START of: finna - Auth/Suomifi/login_suomifi.phtml -->
 <?php $account = $this->auth()->getManager(); ?>
 <?php $sessionInitiator = $account->getSessionInitiator($this->serverUrl($this->url('myresearch-home'))); ?>
 <div>
-  <div class="login-col shibboleth-login">
+  <div class="login-col shibboleth-login suomifi-login">
     <a href="<?=$this->escapeHtmlAttr($sessionInitiator)?>" data-lightbox-ignore>
       <img src="<?=$this->imageLink('login_suomifi.png') ?>" alt="<?=$this->escapeHtmlAttr($this->translate("Suomifi Login")) ?>">
       <span class="sr-only"><?=$this->transEsc('Suomifi Login')?></span>
@@ -15,7 +15,7 @@
        <?=$this->translate('login_desc_connect_card_html') ?>
       </p>
     </div>
-    <div class="login-description shibboleth">
+    <div class="login-description shibboleth suomifi">
       <?=$this->translate('login_desc_suomifi_html')?>
     </div>
   </div>
@@ -27,5 +27,5 @@
     $language = 'en-gb';
   }
 ?>
-<?=$this->partial("Auth/Shibboleth_suomifi/terms_$language.phtml") ?>
-<!-- END of: finna - Auth/Shibboleth/login_suomifi.phtml -->
+<?=$this->partial("Auth/Suomifi/terms_$language.phtml") ?>
+<!-- END of: finna - Auth/Suomifi/login_suomifi.phtml -->
