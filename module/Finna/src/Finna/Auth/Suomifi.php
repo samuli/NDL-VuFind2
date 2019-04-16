@@ -63,4 +63,41 @@ class Suomifi extends Shibboleth
 
         return parent::getConfig();
     }
+
+    /**
+     * Get the URL to establish a session (needed when the internal VuFind login
+     * form is inadequate).  Returns false when no session initiator is needed.
+     *
+     * @param string $target Full URL where external authentication method should
+     * send user after login (some drivers may override this).
+     *
+     * @return bool|string
+     */
+    public function getSessionInitiator($target)
+    {
+        // Set 'auth_method' query parameter within 'target'
+        // query parameter to Suomifi
+        $url = parent::getSessionInitiator($target);
+
+        $parsed = parse_url($url);
+        parse_str($parsed['query'], $queryParams);
+        $target = $queryParams['target'];
+        $targetParsed = parse_url($target);
+        parse_str($targetParsed['query'], $targetQueryParams);
+
+        if (empty($targetParsed['scheme'])) {
+            return $url;
+        }
+
+        $targetQueryParams['auth_method'] = 'Suomifi';
+        $target
+            = $targetParsed['scheme'] . '://' . $targetParsed['host']
+            . $targetParsed['path'] . '?' . http_build_query($targetQueryParams);
+
+        $queryParams['target'] = $target;
+
+        return
+            $parsed['scheme'] . '://' . $parsed['host']
+            . $parsed['path'] . '?' . http_build_query($queryParams);
+    }
 }
