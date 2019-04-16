@@ -4,8 +4,7 @@
  *
  * PHP version 7
  *
- * Copyright (C) Villanova University 2010.
- * Copyright (C) The National Library of Finland 2015-2019.
+ * Copyright (C) The National Library of Finland 2019.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -22,9 +21,6 @@
  *
  * @category VuFind
  * @package  Authentication
- * @author   Franck Borel <franck.borel@gbv.de>
- * @author   Demian Katz <demian.katz@villanova.edu>
- * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org Main Page
@@ -36,9 +32,6 @@ namespace Finna\Auth;
  *
  * @category VuFind
  * @package  Authentication
- * @author   Franck Borel <franck.borel@gbv.de>
- * @author   Demian Katz <demian.katz@villanova.edu>
- * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org Main Page
@@ -75,9 +68,13 @@ class Suomifi extends Shibboleth
      */
     public function getSessionInitiator($target)
     {
+        $url = parent::getSessionInitiator($target);
+        if (!$url) {
+            return $url;
+        }
+        
         // Set 'auth_method' query parameter within 'target'
         // query parameter to Suomifi
-        $url = parent::getSessionInitiator($target);
 
         $parsed = parse_url($url);
         parse_str($parsed['query'], $queryParams);
@@ -90,6 +87,7 @@ class Suomifi extends Shibboleth
         }
 
         $targetQueryParams['auth_method'] = 'Suomifi';
+
         $target
             = $targetParsed['scheme'] . '://' . $targetParsed['host']
             . $targetParsed['path'] . '?' . http_build_query($targetQueryParams);
