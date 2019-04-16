@@ -187,7 +187,7 @@ class Shibboleth extends \VuFind\Auth\Shibboleth
             && ((bool)$config->hash_username ?? false)
             && $secret = ($config->hash_secret ?? null)
         ) {
-            $val = hash_hmac('sha256', $val, $secret, true);
+            $val = hash_hmac('sha256', $val, $secret, false);
         }
         return $val;
     }
