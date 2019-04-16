@@ -72,7 +72,7 @@ class Suomifi extends Shibboleth
         if (!$url) {
             return $url;
         }
-        
+
         // Set 'auth_method' query parameter within 'target'
         // query parameter to Suomifi
 
