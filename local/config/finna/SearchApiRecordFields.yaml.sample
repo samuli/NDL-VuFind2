@@ -201,7 +201,7 @@ geoCenter:
     - lon
     - lat
 geoLocations:
-  vufind.method: getGeoLocation
+  vufind.method: getGeoLocations
   description: Geographic locations (e.g. points, bounding boxes) in WKT format
   type: array
   items:
@@ -284,6 +284,12 @@ imagesExtended:
   type: array
   items:
     $ref: '#/definitions/Image'
+inscriptions:
+  vufind.method: getInscriptions
+  description: Inscriptions
+  type: array
+  items:
+    type: string
 institutions:
   vufind.method: "Formatter::getInstitutions"
   description: Institutions the record belongs to (see also **buildings**)
