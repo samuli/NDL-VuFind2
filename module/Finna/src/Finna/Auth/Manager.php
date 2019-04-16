@@ -134,7 +134,7 @@ class Manager extends \VuFind\Auth\Manager
         $prefix = 'Shibboleth_';
         $isNonDefaultShibboleth = false !== strpos($method, $prefix);
         if ($isNonDefaultShibboleth) {
-            // Temporarily disable sharing so that ew get a
+            // Temporarily disable sharing so that we get a
             // fresh instance of Shibboleth
             $this->pluginManager->configure(['shared_by_default' => false]);
             $auth = parent::makeAuth('Shibboleth');
