@@ -605,7 +605,7 @@ email = SHIB_mail
 ;home_library = library
 
 ; Shibboleth Suomi.fi is optional.  This section only needs to exist if the
-; Authentication Method is set to Shibboleth_suomifi.
+; Authentication Method is set to Suomifi.
 [Shibboleth_suomifi]
 
 provider_id = "https://testi.apro.tunnistus.fi/idp1"
@@ -656,8 +656,8 @@ logout_attribute       = SHIB_logouturl
 ;cat_username = HTTP_ALEPH_ID
 ;cat_password = HTTP_CAT_PASSWORD
 email = SHIB_mail
-;firstname = HTTP_FIRST_NAME
-;lastname = SHIB_cn
+firstname = SHIB_givenName
+lastname = SHIB_sn
 ;college = HTTP_COLLEGE
 ;major = HTTP_MAJOR
 ;home_library = HTTP_HOME_LIBRARY
