@@ -178,8 +178,17 @@ class Shibboleth extends \VuFind\Auth\Shibboleth
      */
     protected function getServerParam($request, $param)
     {
-        return $request->getServer()->get(
+        $val = $request->getServer()->get(
             $param, $request->getServer()->get("REDIRECT_$param")
         );
+
+        $config = $this->getConfig()->Shibboleth;
+        if ($param === $config->username
+            && ((bool)$config->hash_username ?? false)
+            && $secret = ($config->hash_secret ?? null)
+        ) {
+            $val = hash_hmac('sha256', $val, $secret, false);
+        }
+        return $val;
     }
 }
