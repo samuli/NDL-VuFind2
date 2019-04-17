@@ -58,27 +58,36 @@ trait R2ControllerTrait
             = (bool)$this->params()->fromQuery('collection', false);
         $session = $this->getR2Session();
 
-        $closeForm = function () use ($session) {
+
+        $inLightbox
+            = $this->getRequest()->getQuery('layout', 'no') === 'lightbox'
+               || 'layout/lightbox' == $this->layout()->getTemplate();
+
+        $closeForm = function ($shibbolethAuthenticated = true) use ($session) {
             $recordId = $session->recordId ?? null;
             $collection = $session->collection ?? false;
             unset($session->inLightbox);
             unset($session->recordId);
             unset($session->collection);
 
-            if ($recordId) {
-                return $this->redirect()->toRoute(
-                    $collection
-                    ? 'r2collection-home' : 'r2record-home',
-                    ['id' => $recordId]
-                );
+            if (!$shibbolethAuthenticated) {
+                // Login completed inside lightbox: refresh page
+                $response = $this->getResponse();
+                $response->setStatusCode(205);
+                return '';
             } else {
-                return $this->redirect()->toRoute('search-home');
+                // Login outside lightbox: redirect
+                if ($recordId) {
+                    return $this->redirect()->toRoute(
+                        $collection
+                        ? 'r2collection-home' : 'r2record-home',
+                        ['id' => $recordId]
+                    );
+                } else {
+                    return $this->redirect()->toRoute('search-home');
+                }
             }
         };
-
-        $inLightbox
-            = $this->getRequest()->getQuery('layout', 'no') === 'lightbox'
-               || 'layout/lightbox' == $this->layout()->getTemplate();
 
         // Verify that user is authorized to access restricted R2 data.
         if (!$user = $this->getUser()) {
@@ -87,9 +96,13 @@ trait R2ControllerTrait
             $session->recordId = $recordId;
             $session->collection = $collection;
             return $this->forceLogin();
-        } elseif ($user && !$this->isAuthorized()) {
+        }
+
+        $shibbolethAuthenticated
+            = in_array($user->auth_method, ['suomifi', 'Shibboleth']);
+        if (!$this->isAuthorized()) {
             // Logged but not authorized (wrong login method etc), close form
-            return $closeForm();
+            return $closeForm($shibbolethAuthenticated);
         }
 
         // Authorized. Check user permission from REMS and show
@@ -106,7 +119,7 @@ trait R2ControllerTrait
 
         if (!$showRegisterForm) {
             // Registration has already been submitted, no need to show form.
-            return $closeForm();
+            return $closeForm($shibbolethAuthenticated);
         }
 
         if ($this->formWasSubmitted('submit')) {
