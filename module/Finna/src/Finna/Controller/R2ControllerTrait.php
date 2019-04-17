@@ -59,38 +59,30 @@ trait R2ControllerTrait
         $session = $this->getR2Session();
 
         $closeForm = function () use ($session) {
-            $inLightbox = $session->inLightbox;
             $recordId = $session->recordId ?? null;
             $collection = $session->collection ?? false;
             unset($session->inLightbox);
             unset($session->recordId);
             unset($session->collection);
 
-            if ($inLightbox) {
-                $response = $this->getResponse();
-                $response->setStatusCode(205);
-                return '';
+            if ($recordId) {
+                return $this->redirect()->toRoute(
+                    $collection
+                    ? 'r2collection-home' : 'r2record-home',
+                    ['id' => $recordId]
+                );
             } else {
-                if ($recordId) {
-                    return $this->redirect()->toRoute(
-                        $collection
-                        ? 'r2collection-home' : 'r2record-home',
-                        ['id' => $recordId]
-                    );
-                } else {
-                    return $this->redirect()->toRoute('search-home');
-                }
+                return $this->redirect()->toRoute('search-home');
             }
         };
+
+        $inLightbox
+            = $this->getRequest()->getQuery('layout', 'no') === 'lightbox'
+               || 'layout/lightbox' == $this->layout()->getTemplate();
 
         // Verify that user is authorized to access restricted R2 data.
         if (!$user = $this->getUser()) {
             // Not logged, prompt login
-
-            $inLightbox
-                = $this->getRequest()->getQuery('layout', 'no') === 'lightbox'
-                || 'layout/lightbox' == $this->layout()->getTemplate();
-
             $session->inLightbox = $inLightbox;
             $session->recordId = $recordId;
             $session->collection = $collection;
@@ -161,11 +153,7 @@ trait R2ControllerTrait
                 $formParams
             );
 
-            if ($session->inLightbox ?? false) {
-                // Registration form was filled in lightbox
-                if ($success !== true) {
-                    return $success;
-                }
+            if ($inLightbox) {
                 // Request lightbox to refresh page
                 $response = $this->getResponse();
                 $response->setStatusCode(205);
