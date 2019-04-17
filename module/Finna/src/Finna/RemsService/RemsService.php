@@ -328,7 +328,6 @@ class RemsService
         }
 
         $err = $formatError($response);
-        $this->error("REMS: $err");
 
         if (!$response->isSuccess() || $response->getStatusCode() !== 200) {
             $this->error($err);
