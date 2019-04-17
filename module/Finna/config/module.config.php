@@ -184,10 +184,7 @@ $config = [
             'LocationService' => 'Finna\Controller\LocationServiceController',
             'locationservice' => 'Finna\Controller\LocationServiceController',
             'R2Collection' => 'Finna\Controller\R2collectionController',
-            'r2collection' => 'Finna\Controller\R2collectionController',
             'R2Record' => 'Finna\Controller\R2recordController',
-            'r2record' => 'Finna\Controller\R2recordController',
-            'r2' => 'Finna\Controller\R2Controller',
             'R2' => 'Finna\Controller\R2Controller',
             'MetaLib' => 'Finna\Controller\MetaLibController',
             'metalib' => 'Finna\Controller\MetaLibController',
@@ -565,7 +562,7 @@ $config = [
                     'VuFind\Search\MixedList\Params' => 'Finna\Search\MixedList\Params',
                     'VuFind\Search\Solr\Params' => 'Finna\Search\Solr\Params',
 
-                    'r2' => 'VuFind\Search\Solr\Params',
+                    'R2' => 'VuFind\Search\Solr\Params',
                 ]
             ],
             'search_results' => [
