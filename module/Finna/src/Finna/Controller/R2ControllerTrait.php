@@ -161,15 +161,27 @@ trait R2ControllerTrait
                 $formParams
             );
 
-            if ($success !== true) {
-                return $success;
+            if ($session->inLightbox ?? false) {
+                // Registration form was filled in lightbox
+                if ($success !== true) {
+                    return $success;
+                }
+                // Request lightbox to refresh page
+                $response = $this->getResponse();
+                $response->setStatusCode(205);
+                return '';
+            } else {
+                // Registration outside lightbox, redirect to record/collection
+                if (isset($session->recordId)) {
+                    $route = ($session->collection ?? false)
+                        ? 'r2collection' : 'r2record';
+                    return $this->redirect()->toRoute(
+                        $route, ['id' => $session->recordId]
+                    );
+                } else {
+                    return $this->redirect()->toRoute('search-home');
+                }
             }
-
-            // Request lightbox to refresh page
-            $response = $this->getResponse();
-            $response->setStatusCode(205);
-
-            return '';
         }
 
         // User is authorized, let parent display the registration form
