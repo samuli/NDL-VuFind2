@@ -127,7 +127,7 @@ class RemsService
 
         try {
             $response
-                = $this->sendRequest('v2/applications/create', $params, 'POST');
+                = $this->sendRequest('applications/create', $params, 'POST');
         } catch (\Exception $e) {
             return $e->getMessage();
         }
@@ -137,47 +137,44 @@ class RemsService
         $applicationId = $response['application-id'];
 
         // 3. Save draft
-
-        /*
         $params =  [
-            'command' => 'submit',
-            'catalogue-items' => [$this->getCatalogItemId('registration')],
-            'items' =>  ['1' => 'Test 1', '2' => 'Test 2'],
-            'licenses' => ['1' => 'approved', '2' => 'approved']
+            'application-id' => $applicationId,
+            'field-values' =>  [
+                ['field' => 1, 'value' => $firstname],
+                ['field' => 2, 'value' => $lastname],
+                ['field' => 8, 'value' => $formParams['usage_desc']]
+            ]
         ];
 
-        $client = $this->getClient($userId, 'applications/save', 'POST', $params);
-        */
-
-        // TODO: use application/transit+json unitl json works...
-        // @codingStandardsIgnoreStart
-        $body = sprintf(
-            '["^ ","~:type","~:application.command/save-draft","~:application-id",%d,"~:field-values",["^ ","~i1","%s","~i2","%s","~i3","","~i4","","~i5","","~i6","","~i7","","~i8","%s"],"~:accepted-licenses",["~#set",[1,2]]]',
-            $applicationId,
-            $firstname,
-            $lastname,
-            //$formParams['usage_purpose'],
-            $formParams['usage_desc']
-        );
-        // @codingStandardsIgnoreEnd
-
         try {
-            $response = $this->sendRequest(
-                'applications/command', [], 'POST', false,
-                ['contentType' => 'application/transit+json', 'content' => $body]
-            );
+            $response
+                = $this->sendRequest('applications/save-draft', $params, 'POST');
         } catch (\Exception $e) {
             return $e->getMessage();
         }
 
-        // 4. Submit application
+        // 4. Accept licenses
+        $params =  [
+            'application-id' => $applicationId,
+            'accepted-licenses' => [1,2]
+        ];
+
+        try {
+            $response
+                = $this->sendRequest(
+                    'applications/accept-licenses', $params, 'POST'
+                );
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+        
+        // 5. Submit application
         $params = [
-             'type' => 'application.command/submit',
              'application-id' => $applicationId
         ];
         try {
             $response = $this->sendRequest(
-                'applications/command', $params, 'POST'
+                'applications/submit', $params, 'POST'
             );
         } catch (\Exception $e) {
             return $e->getMessage();
@@ -192,11 +189,12 @@ class RemsService
 
     /**
      * Check permission
+     * Returns an array with keys 'success' and 'status'.
      *
      * @param bool $callApi Call REMS API if permission is not already
      *                      checked and saved to session.
      *
-     * @return bool
+     * @return array
      */
     public function checkPermission($callApi = false)
     {
@@ -209,32 +207,31 @@ class RemsService
 
         try {
             $applications = $this->getApplications();
-            $status = RemsService::STATUS_NOT_SUBMITTED;
-
-            foreach ($applications as $application) {
-                if ($application['catalogItemId'] !== $catItemId) {
-                    continue;
-                }
-                if (isset($application['status'])) {
-                    $appStatus = $application['status'];
-                    switch ($appStatus) {
-                    case RemsService::STATUS_SUBMITTED:
-                        $status = $appStatus;
-                        break;
-                    case RemsService::STATUS_APPROVED:
-                        $status = $appStatus;
-                        break 2;
-                    }
-                }
-            }
-
-            $this->savePermissionToSession($status, $sessionKey);
-            return $status;
         } catch (\Exception $e) {
-            return $e->getMessage();
+            return ['success' => false, 'status' => $e->getMessage()];
         }
 
-        return null;
+        $status = RemsService::STATUS_NOT_SUBMITTED;
+        
+        foreach ($applications as $application) {
+            if ($application['catalogItemId'] !== $catItemId) {
+                continue;
+            }
+            if (isset($application['status'])) {
+                $appStatus = $application['status'];
+                switch ($appStatus) {
+                case RemsService::STATUS_SUBMITTED:
+                    $status = $appStatus;
+                    break;
+                case RemsService::STATUS_APPROVED:
+                    $status = $appStatus;
+                    break 2;
+                }
+            }
+        }
+        
+        $this->savePermissionToSession($status, $sessionKey);
+        return ['success' => true, 'status' => $status];
     }
 
     /**
@@ -246,7 +243,8 @@ class RemsService
      */
     public function getApplications($locale = 'fi')
     {
-        $result = $this->sendRequest('v2/applications');
+        $result = $this->sendRequest('applications');
+                
         $catItemId = $this->getCatalogItemId('entitlement');
 
         $applications = [];
@@ -312,7 +310,7 @@ class RemsService
         }
 
         $formatError = function ($response) use ($client, $params) {
-            $err = "RMS: request failed: " . $client->getRequest()->getUriString()
+            $err = "REMS: request failed: " . $client->getRequest()->getUriString()
             . ', params: ' . var_export($params, true)
             . ', statusCode: ' . $response->getStatusCode() . ': '
             . $response->getReasonPhrase()
@@ -330,6 +328,7 @@ class RemsService
         }
 
         $err = $formatError($response);
+        $this->error("REMS: $err");
 
         if (!$response->isSuccess() || $response->getStatusCode() !== 200) {
             $this->error($err);

@@ -69,6 +69,10 @@ class GetRemsPermission extends \VuFind\AjaxHandler\AbstractBase
      */
     public function handleRequest(Params $params)
     {
-        return $this->formatResponse($this->rems->checkPermission(true));
+        $result = $this->rems->checkPermission(true);
+        return $this->formatResponse(
+            $result['status'],
+            !$result['success'] ? 500 : null
+        );
     }
 }

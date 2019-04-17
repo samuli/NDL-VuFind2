@@ -38,6 +38,7 @@ finna.R2 = (function finnaR2() {
           }
         })
         .fail(function onCheckPermissionFail() {
+          $('.R2-status.status-error').removeClass('hide');
         });
     });
   }

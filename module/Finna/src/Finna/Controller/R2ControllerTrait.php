@@ -103,9 +103,14 @@ trait R2ControllerTrait
         // Authorized. Check user permission from REMS and show
         // registration if needed.
         $rems = $this->serviceLocator->get('Finna\RemsService\RemsService');
+        $permission = $rems->checkPermission(true);
+        if (!$permission['success']) {
+            return 'error';
+        }
+        
         $showRegisterForm
             = RemsService::STATUS_NOT_SUBMITTED
-            === $rems->checkPermission(true);
+            === $permission['status'];
 
         if (!$showRegisterForm) {
             // Registration has already been submitted, no need to show form.

@@ -7,6 +7,9 @@
       . ($this->collection ? '&collection=1' : '');
 ?>
 
+<div class="alert alert-info authorization-notification R2-status status-error error hide">
+  <p><?= $this->translate('R2_restricted_record_error') ?></p>
+</div>
 <?php if ($this->weakLogin): ?>
   <div class="alert alert-info authorization-notification R2-status">
     <p><?= $this->translate('R2_restricted_record_note_html') ?></p>
