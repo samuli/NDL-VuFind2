@@ -540,7 +540,6 @@ $config = [
 
                     // Counterpart for EmptySet Params:
                     'Finna\Search\EmptySet\Options' => 'VuFind\Search\EmptySet\Options',
-
                     'R2' => 'Finna\Search\R2\Options',
                 ]
             ],
@@ -621,7 +620,7 @@ $config = [
                         'VuFind\RecordDriver\NameBasedConfigFactory',
                 ],
                 'aliases' => [
-                    'r2' => 'Finna\RecordDriver\R2',
+                    'R2' => 'Finna\RecordDriver\R2',
                     'SolrAuthEaccpf' => 'Finna\RecordDriver\SolrAuthEaccpf',
                     'SolrEad' => 'Finna\RecordDriver\SolrEad',
                     'SolrEad3' => 'Finna\RecordDriver\SolrEad3',
