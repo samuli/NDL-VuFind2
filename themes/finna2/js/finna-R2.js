@@ -20,6 +20,7 @@ finna.R2 = (function finnaR2() {
   }
   
   function initCheckPermission() {
+    initModal();
     $('div.check-permission').not('.inited').each(function addCheckPermission() {
       var id = $(this).data('id');
 

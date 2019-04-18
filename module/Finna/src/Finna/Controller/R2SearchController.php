@@ -1,6 +1,6 @@
 <?php
 /**
- * Record driver plugin manager
+ * R2 Search and Form Controller
  *
  * PHP version 7
  *
@@ -20,35 +20,54 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category VuFind
- * @package  RecordDrivers
+ * @package  Controller
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     https://vufind.org/wiki/development:plugins:record_drivers Wiki
+ * @link     https://vufind.org/wiki/development:plugins:controllers Wiki
  */
-namespace Finna\RecordDriver;
+namespace Finna\Controller;
 
 /**
- * Copyright (C) The National Library of Finland 2019.
+ * R2 Search and Form Controller
  *
  * @category VuFind
- * @package  RecordDrivers
+ * @package  Controller
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     https://vufind.org/wiki/development:plugins:record_drivers Wiki
+ * @link     https://vufind.org/wiki/development:plugins:controllers Wiki
  */
-class PluginManager extends \VuFind\RecordDriver\PluginManager
+class R2SearchController extends SearchController
 {
     /**
-     * Convenience method to retrieve a populated R2 record driver.
+     * Search class family to use.
      *
-     * @param array $data Raw Solr data
-     *
-     * @return AbstractBase
+     * @var string
      */
-    public function getR2Record($data)
+    protected $searchClassId = 'R2';
+
+    /**
+     * Create a new ViewModel.
+     *
+     * @param array $params Parameters to pass to ViewModel constructor.
+     *
+     * @return ViewModel
+     */
+    protected function createViewModel($params = null)
     {
-        $driver = $this->get('R2');
-        $driver->setRawData($data);
-        return $driver;
+        $view = parent::createViewModel($params);
+        $view->searchClassId = $this->searchClassId;
+        return $view;
+    }
+
+    /**
+     * Results action.
+     *
+     * @return mixed
+     */
+    public function searchAction()
+    {
+        $view = parent::resultsAction();
+        $view->setTemplate('r2search/results');
+        return $view;
     }
 }

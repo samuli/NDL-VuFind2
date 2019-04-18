@@ -42,9 +42,25 @@ use Finna\RemsService\RemsService;
  */
 class R2RestrictedRecordPermission extends \Zend\View\Helper\AbstractHelper
 {
+    /**
+     * Is REMS enabled?
+     *
+     * @var bool
+     */
     protected $enabled;
 
+    /**
+     * REMS service
+     *
+     * @var RemsService
+     */
     protected $rems;
+
+    /**
+     * Is the user authorized to use REMS?
+     *
+     * @var bool
+     */
     protected $authorized;
 
     /**

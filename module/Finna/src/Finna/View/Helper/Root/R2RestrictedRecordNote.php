@@ -38,7 +38,18 @@ namespace Finna\View\Helper\Root;
  */
 class R2RestrictedRecordNote extends \Zend\View\Helper\AbstractHelper
 {
+    /**
+     * Is R2 search enabled?
+     *
+     * @var bool
+     */
     protected $enabled;
+
+    /**
+     * Mapping between record and collection routes
+     *
+     * @var array
+     */
     protected $collectionRoutes;
 
     /**
