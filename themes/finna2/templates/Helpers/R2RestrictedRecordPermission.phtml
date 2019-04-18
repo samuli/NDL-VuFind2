@@ -45,7 +45,7 @@
 <?php
 if (!empty($setupJS)) {
   $script = '$(document).ready(function() {';
-  foreach ($setupJS as $type) {
+  foreach ($setupJS as $type => $mode) {
     switch ($type) {
       case 'modal':
         $script .= 'finna.R2.initModal();';
@@ -54,7 +54,7 @@ if (!empty($setupJS)) {
         $script .= 'finna.R2.initAutoOpen();';
         break;
       case 'checkPermission':
-        $script .= 'finna.R2.checkPermission();';
+        $script .= 'finna.R2.initCheckPermission();';
         break;
     }
   }
