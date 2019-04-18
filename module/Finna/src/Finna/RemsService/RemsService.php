@@ -167,7 +167,7 @@ class RemsService
         } catch (\Exception $e) {
             return $e->getMessage();
         }
-        
+
         // 5. Submit application
         $params = [
              'application-id' => $applicationId
@@ -212,7 +212,7 @@ class RemsService
         }
 
         $status = RemsService::STATUS_NOT_SUBMITTED;
-        
+
         foreach ($applications as $application) {
             if ($application['catalogItemId'] !== $catItemId) {
                 continue;
@@ -229,7 +229,7 @@ class RemsService
                 }
             }
         }
-        
+
         $this->savePermissionToSession($status, $sessionKey);
         return ['success' => true, 'status' => $status];
     }
@@ -244,7 +244,7 @@ class RemsService
     public function getApplications($locale = 'fi')
     {
         $result = $this->sendRequest('applications');
-                
+
         $catItemId = $this->getCatalogItemId('entitlement');
 
         $applications = [];

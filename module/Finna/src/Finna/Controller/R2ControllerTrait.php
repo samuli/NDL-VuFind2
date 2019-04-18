@@ -58,7 +58,6 @@ trait R2ControllerTrait
             = (bool)$this->params()->fromQuery('collection', false);
         $session = $this->getR2Session();
 
-
         $inLightbox
             = $this->getRequest()->getQuery('layout', 'no') === 'lightbox'
                || 'layout/lightbox' == $this->layout()->getTemplate();
@@ -112,7 +111,7 @@ trait R2ControllerTrait
         if (!$permission['success']) {
             return 'error';
         }
-        
+
         $showRegisterForm
             = RemsService::STATUS_NOT_SUBMITTED
             === $permission['status'];
