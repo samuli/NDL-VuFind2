@@ -1,6 +1,8 @@
 ; ---------------------
 ; General settings
 ; ---------------------
+[R2]
+enabled = false
 
 ; This section requires no changes for most installations
 [Index]
