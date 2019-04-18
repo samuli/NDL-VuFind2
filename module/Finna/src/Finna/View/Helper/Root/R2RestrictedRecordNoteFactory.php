@@ -63,7 +63,7 @@ class R2RestrictedRecordNoteFactory implements FactoryInterface
         }
 
         $enabled = $container->get(\VuFind\Config\PluginManager::class)
-            ->get('R2')->General->enabled ?? false;
+            ->get('R2')->R2->enabled ?? false;
 
         return new $requestedName(
             $enabled,
