@@ -45,6 +45,11 @@ use VuFindSearch\ParamBag;
  */
 class Loader extends \VuFind\Record\Loader
 {
+    /**
+     * Default parameters that are passed to the backend when loading a record.
+     *
+     * @var array
+     */
     protected $defaultParams = null;
 
     /**

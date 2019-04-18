@@ -45,6 +45,11 @@ use VuFindSearch\Backend\Solr\Response\Json\RecordCollectionFactory;
 class R2BackendFactory
     extends SolrDefaultBackendFactory
 {
+    /**
+     * R2 configuration.
+     *
+     * @var \Zend\Config\Config
+     */
     protected $R2Config;
 
     /**
