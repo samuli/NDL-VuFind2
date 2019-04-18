@@ -55,8 +55,6 @@ class R2BackendFactory
         parent::__construct();
         $this->facetConfig = 'facets-R2';
         $this->searchConfig = 'searches-R2';
-        $this->searchYaml
-            = $this->R2Config->General->config->searchSpecs ?? $this->searchYaml;
     }
 
     /**
@@ -87,11 +85,16 @@ class R2BackendFactory
     protected function createBackend(Connector $connector)
     {
         $backend = parent::createBackend($connector);
-        $manager = $this->serviceLocator->get('VuFind\RecordDriverPluginManager');
-        $factory = new RecordCollectionFactory(
-            [$manager, 'getR2Record'],
-            'FinnaSearch\Backend\Solr\Response\Json\RecordCollection'
-        );
+        $manager = $this->serviceLocator
+            ->get(\VuFind\RecordDriver\PluginManager::class);
+
+        $callback = function ($data) use ($manager) {
+            $driver = $manager->get('R2');
+            $driver->setRawData($data);
+            return $driver;
+        };
+
+        $factory = new RecordCollectionFactory($callback);
         $backend->setRecordCollectionFactory($factory);
         return $backend;
     }
