@@ -26,10 +26,7 @@
     <p><?=$this->translate('R2_restricted_record_registered_note_html')?></p>
   </div>
 <?php else: ?>
-  <?php $setupJS['modal'] = true; ?>
-  <?php if ($this->callApi): ?>
-    <?php $setupJS['checkPermission'] = true; ?>
-  <?php endif ?>
+  <?php $setupJS[$this->callApi ? 'checkPermission' : 'modal'] = true; ?>
   <div class="alert alert-info authorization-notification check-permission R2-status R2-status-not-submitted<?= $this->status === null || $this->status !== 'not-submitted' ? ' hide' : ''?>" data-id="<?=$this->escapeHtmlAttr($this->id)?>">
     <p class="txt"><?= $this->translate('R2_restricted_record_note_html') ?></p>
     <p class="register"><a href="<?= $registerFormUrl ?>" class="btn btn-primary" data-lightbox title="<?=$this->transEsc('R2_register_form_title')?>"><?=$this->translate('R2_register')?></a></p>
@@ -54,10 +51,10 @@ if (!empty($setupJS)) {
         $script .= 'finna.R2.initModal();';
         break;
       case 'autoOpen':
-        $script .= 'finna.R2.initModal();';
+        $script .= 'finna.R2.initAutoOpen();';
         break;
       case 'checkPermission':
-        $script .= 'finna.R2.checkPermission("{$this->id}");';
+        $script .= 'finna.R2.checkPermission();';
         break;
     }
   }
