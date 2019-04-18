@@ -158,8 +158,8 @@ role[] = loggedin
 permission = feature.Favorites
 
 ; Restricted Solr (R2) Search
-[access.R2]
+[access.R2Restricted]
 require = ALL
-;authenticationStrategy[] = Shibboleth
-permission[] = access.R2
+authenticationStrategy[] = Suomifi
+permission[] = access.R2Restricted
 shibboleth[] = "SHIB_vtjverified true"
