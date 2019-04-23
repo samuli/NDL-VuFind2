@@ -28,6 +28,8 @@
  */
 namespace Finna\Search\R2;
 
+use FinnaSearch\Backend\R2\Connector;
+
 use VuFind\Auth\Manager;
 use VuFindSearch\Backend\BackendInterface;
 
@@ -80,6 +82,7 @@ class AuthorizationListener
      * @param BackendInterface     $backend     Search backend
      * @param Manager              $authManager Authentication manager
      * @param AuthorizationService $authService Authorization service
+     * @param Connector            $connector   Backend connector
      *
      * @return void
      */
@@ -87,7 +90,7 @@ class AuthorizationListener
         BackendInterface $backend,
         Manager $authManager,
         AuthorizationService $authService,
-        $connector
+        Connector $connector
     ) {
         $this->backend = $backend;
         $this->authManager = $authManager;
