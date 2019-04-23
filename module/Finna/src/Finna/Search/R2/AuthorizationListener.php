@@ -124,7 +124,6 @@ class AuthorizationListener
             $params = $event->getParam('params');
             $context = $event->getParam('context');
             $this->connector->setUsername(null);
-            echo $context;
             if ($context !== 'retrieve'
                 || in_array(true, $params->get('R2Restricted') ?? [])
             ) {
