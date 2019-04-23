@@ -1,6 +1,6 @@
 <?php
 /**
- * Solr aspect of the Search Multi-class (Options)
+ * Restricted Solr (R2) facet cache plugin manager
  *
  * PHP version 7
  *
@@ -20,56 +20,37 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category VuFind
- * @package  Search_Solr
+ * @package  Search
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     https://vufind.org Main Page
+ * @link     https://vufind.org/wiki/development:plugins:record_drivers Wiki
  */
-namespace Finna\Search\R2;
+namespace Finna\Search\FacetCache;
 
 /**
- * R2 Search Options
+ * Facet cache plugin manager
  *
  * @category VuFind
- * @package  Search_Solr
+ * @package  Search
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     https://vufind.org Main Page
+ * @link     https://vufind.org/wiki/development:plugins:record_drivers Wiki
  */
-class Options extends \Finna\Search\Solr\Options
+class PluginManager extends \VuFind\Search\FacetCache\PluginManager
 {
     /**
-     * Configuration file to read facet settings from
+     * Constructor
      *
-     * @var string
-     */
-    protected $facetsIni = 'R2';
-
-    /**
-     * Configuration file to read search settings from
+     * Make sure plugins are properly initialized.
      *
-     * @var string
+     * @param mixed $configOrContainerInstance Configuration or container instance
+     * @param array $v3config                  If $configOrContainerInstance is a
+     * container, this value will be passed to the parent constructor.
      */
-    protected $searchIni = 'R2';
-
-    /**
-     * Return the route name for the search results action.
-     *
-     * @return string
-     */
-    public function getSearchAction()
-    {
-        return 'r2-search';
-    }
-
-    /**
-     * Return the route name of the action used for performing advanced searches.
-     * Returns false if the feature is not supported.
-     *
-     * @return string|bool
-     */
-    public function getAdvancedSearchAction()
-    {
-        return 'r2-advanced';
+    public function __construct($configOrContainerInstance = null,
+        array $v3config = []
+    ) {
+        $this->aliases['R2'] = \VuFind\Search\Solr\FacetCache::class;
+        parent::__construct($configOrContainerInstance, $v3config);
     }
 }

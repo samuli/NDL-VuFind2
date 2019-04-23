@@ -67,7 +67,19 @@ class R2SearchController extends SearchController
     public function searchAction()
     {
         $view = parent::resultsAction();
-        $view->setTemplate('r2search/results');
+        $view->setTemplate('search/results');
+        return $view;
+    }
+
+    /**
+     * Handle an advanced search
+     *
+     * @return mixed
+     */
+    public function advancedAction()
+    {
+        $view = parent::advancedAction();
+        $view->setTemplate('search/advanced');
         return $view;
     }
 }
