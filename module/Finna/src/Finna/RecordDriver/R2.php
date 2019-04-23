@@ -65,6 +65,7 @@ class R2 extends SolrEad3
      */
     public function hasRestrictedMetadata()
     {
+        // TODO resolve this from metadata
         return true;
     }
 }
