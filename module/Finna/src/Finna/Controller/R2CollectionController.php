@@ -58,4 +58,21 @@ class R2collectionController extends CollectionController
         $view = $this->handleAutoOpenRegistration($view);
         return $view;
     }
+
+    /**
+     * Create a new ViewModel.
+     *
+     * @param array $params Parameters to pass to ViewModel constructor.
+     *
+     * @return \Zend\View\Model\ViewModel
+     */
+    protected function createViewModel($params = null)
+    {
+        $view = parent::createViewModel($params);
+        $view->driver = $this->loadRecord();
+        $view->unrestrictedDriver
+            = $this->loadRecordWithRestrictedData() ?? $view->driver;
+
+        return $view;
+    }
 }

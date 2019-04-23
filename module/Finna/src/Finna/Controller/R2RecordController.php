@@ -77,31 +77,4 @@ class R2recordController extends RecordController
 
         return $view;
     }
-
-    /**
-     * Load record with restricted metadata.
-     *
-     * @return null|\VuFind\RecordDriver\AbstractBase
-     */
-    public function loadRecordWithRestrictedData()
-    {
-        $auth = $this->serviceLocator->get('ZfcRbac\Service\AuthorizationService');
-        if (!$auth->isGranted('access.R2Restricted')) {
-            return null;
-        }
-
-        $params = [];
-        if ($user = $this->getUser()) {
-            $params['user'] = $user->username;
-        }
-
-        $recordLoader
-            = $this->serviceLocator->build('VuFind\Record\Loader', $params);
-
-        return $recordLoader->load(
-            $this->params()->fromRoute('id', $this->params()->fromQuery('id')),
-            $this->searchClassId,
-            false
-        );
-    }
 }

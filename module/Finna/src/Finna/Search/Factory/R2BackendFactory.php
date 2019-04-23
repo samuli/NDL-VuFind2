@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Abstract factory for R2 backends.
+ * Abstract factory for restricted Solr (R2) backends.
  *
  * PHP version 7
  *
@@ -28,8 +28,11 @@
  */
 namespace Finna\Search\Factory;
 
+use Finna\Search\R2\AuthorizationListener;
 use Interop\Container\ContainerInterface;
+use VuFindSearch\Backend\Solr\Backend;
 use VuFindSearch\Backend\Solr\Connector;
+use VuFindSearch\Backend\Solr\HandlerMap;
 
 use VuFindSearch\Backend\Solr\Response\Json\RecordCollectionFactory;
 
@@ -42,8 +45,7 @@ use VuFindSearch\Backend\Solr\Response\Json\RecordCollectionFactory;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org   Main Site
  */
-class R2BackendFactory
-    extends SolrDefaultBackendFactory
+class R2BackendFactory extends SolrDefaultBackendFactory
 {
     /**
      * R2 configuration.
@@ -51,6 +53,20 @@ class R2BackendFactory
      * @var \Zend\Config\Config
      */
     protected $R2Config;
+
+    /**
+     * Authentication manager
+     *
+     * @var \VuFind\Auth\Manager
+     */
+    protected $authManager;
+
+    /**
+     * Authorization service
+     *
+     * @var \ZfcRbac\Service\AuthorizationService
+     */
+    protected $authService;
 
     /**
      * Constructor
@@ -77,7 +93,59 @@ class R2BackendFactory
     {
         $this->R2Config = $sm->get('VuFind\Config\PluginManager')->get('R2');
         $this->solrCore = $this->R2Config->Index->default_core;
+        $this->authManager = $sm->get(\VuFind\Auth\Manager::class);
+        $this->authService = $sm->get(\ZfcRbac\Service\AuthorizationService::class);
+
         return parent::__invoke($sm, $name, $options);
+    }
+
+    /**
+     * Create the SOLR connector.
+     *
+     * @return Connector
+     */
+    protected function createConnector()
+    {
+        // TODO: refactor this so that we can return a
+        // FinnaSearch\Backend\R2\Connector without overriding so much.
+
+        $config = $this->config->get($this->mainConfig);
+
+        $handlers = [
+            'select' => [
+                'fallback' => true,
+                'defaults' => ['fl' => '*,score'],
+                'appends'  => ['fq' => []],
+            ],
+            'terms' => [
+                'functions' => ['terms'],
+            ],
+        ];
+
+        foreach ($this->getHiddenFilters() as $filter) {
+            array_push($handlers['select']['appends']['fq'], $filter);
+        }
+
+        $connector = new \FinnaSearch\Backend\R2\Connector(
+            $this->getSolrUrl(), new HandlerMap($handlers), $this->uniqueKey
+        );
+        $connector->setTimeout(
+            isset($config->Index->timeout) ? $config->Index->timeout : 30
+        );
+
+        if ($this->logger) {
+            $connector->setLogger($this->logger);
+        }
+        if ($this->serviceLocator->has(\VuFindHttp\HttpService::class)) {
+            $connector->setProxy(
+                $this->serviceLocator->get(\VuFindHttp\HttpService::class)
+            );
+        }
+
+        // Pass API key to connector
+        $connector->setApiKey($this->R2Config->R2->apiKey);
+
+        return $connector;
     }
 
     /**
@@ -102,6 +170,29 @@ class R2BackendFactory
         $factory = new RecordCollectionFactory($callback);
         $backend->setRecordCollectionFactory($factory);
         return $backend;
+    }
+
+    /**
+     * Create listeners.
+     *
+     * @param Backend $backend Backend
+     *
+     * @return void
+     */
+    protected function createListeners(Backend $backend)
+    {
+        parent::createListeners($backend);
+
+        $events = $this->serviceLocator->get('SharedEventManager');
+
+        // R2 authorization listener
+        $authorizationListener = new AuthorizationListener(
+            $backend,
+            $this->authManager,
+            $this->authService,
+            $backend->getConnector()
+        );
+        $authorizationListener->attach($events);
     }
 
     /**

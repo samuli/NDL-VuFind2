@@ -240,4 +240,26 @@ trait R2ControllerTrait
         }
         return true;
     }
+
+    /**
+     * Load record with restricted metadata.
+     *
+     * @return null|\VuFind\RecordDriver\AbstractBase
+     */
+    protected function loadRecordWithRestrictedData()
+    {
+        $params = [];
+        if ($user = $this->getUser()) {
+            $params['R2Restricted'] = true;
+        }
+
+        $recordLoader
+            = $this->serviceLocator->build('VuFind\Record\Loader', $params);
+
+        return $recordLoader->load(
+            $this->params()->fromRoute('id', $this->params()->fromQuery('id')),
+            $this->searchClassId,
+            false
+        );
+    }
 }
