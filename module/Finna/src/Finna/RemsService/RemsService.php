@@ -137,6 +137,9 @@ class RemsService
         $applicationId = $response['application-id'];
 
         // 3. Save draft
+        // TODO
+        // Update this to save data to correct form fields
+        // when REMS form is available
         $params =  [
             'application-id' => $applicationId,
             'field-values' =>  [
