@@ -95,8 +95,8 @@ class Suomifi extends Shibboleth
         $config = $this->getConfig()->Shibboleth;
         if ($param === $config->username
             && ((bool)$config->hash_username ?? false)
-            && $secret = ($config->hash_secret ?? null)
         ) {
+            $secret = $config->hash_secret ?? null;
             if (empty($secret)) {
                 throw new \Exception('hash_secret not configured');
             }
