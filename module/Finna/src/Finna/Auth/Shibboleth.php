@@ -165,21 +165,4 @@ class Shibboleth extends \VuFind\Auth\Shibboleth
 
         return parent::logout($url);
     }
-
-    /**
-     * Get a server parameter taking into account any environment variables
-     * redirected by Apache mod_rewrite.
-     *
-     * @param \Zend\Http\PhpEnvironment\Request $request Request object containing
-     * account credentials.
-     * @param string                            $param   Parameter name
-     *
-     * @return mixed
-     */
-    protected function getServerParam($request, $param)
-    {
-        return $request->getServer()->get(
-            $param, $request->getServer()->get("REDIRECT_$param")
-        );
-    }
 }
