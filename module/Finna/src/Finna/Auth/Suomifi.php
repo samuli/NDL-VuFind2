@@ -98,4 +98,34 @@ class Suomifi extends Shibboleth
             $parsed['scheme'] . '://' . $parsed['host']
             . $parsed['path'] . '?' . http_build_query($queryParams);
     }
+
+    /**
+     * Get a server parameter taking into account any environment variables
+     * redirected by Apache mod_rewrite.
+     *
+     * @param \Zend\Http\PhpEnvironment\Request $request Request object containing
+     * account credentials.
+     * @param string                            $param   Parameter name
+     *
+     * @throws Exception
+     * @return mixed
+     */
+    protected function getServerParam($request, $param)
+    {
+        $val = $request->getServer()->get(
+            $param, $request->getServer()->get("REDIRECT_$param")
+        );
+
+        $config = $this->getConfig()->Shibboleth;
+        if ($param === $config->username
+            && ((bool)$config->hash_username ?? false)
+            && $secret = ($config->hash_secret ?? null)
+        ) {
+            if (empty($secret)) {
+                throw new \Exception('hash_secret not configured');
+            }
+            $val = hash_hmac('sha256', $val, $secret, false);
+        }
+        return $val;
+    }
 }

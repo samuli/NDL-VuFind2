@@ -526,12 +526,6 @@ required_attribute = Shib-Application-ID
 ; Required: the attribute Shibboleth uses to uniquely identify users.
 username              = SHIB_eppn
 
-; Should the username be hashed before saving to User profile
-hash_username = false
-
-; Secret key for hashing usernames
-;hash_secret = "secret"
-
 ; Required: Shibboleth login URL.
 login = "https://www.finna.fi/Shibboleth.sso/Login"
 
@@ -633,7 +627,7 @@ username              = SHIB_eppn
 hash_username = true
 
 ; Secret key for hashing usernames
-hash_secret = "secret"
+hash_secret = ""
 
 ; Required: Shibboleth login URL.
 login = "https://www.finna.fi/Shibboleth.sso/Login"
