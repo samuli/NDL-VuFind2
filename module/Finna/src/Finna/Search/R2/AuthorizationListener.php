@@ -120,8 +120,6 @@ class AuthorizationListener
      */
     public function onSearchPre(EventInterface $event)
     {
-        // headereihin api key, username
-
         $backend = $event->getTarget();
         if ($backend === $this->backend) {
             $params = $event->getParam('params');
