@@ -39,22 +39,20 @@ namespace Finna\Auth;
 class Suomifi extends Shibboleth
 {
     /**
-     * Get configuration (load automatically if not previously set).  Throw an
-     * exception if the configuration is invalid.
+     * Set configuration.
      *
-     * @throws AuthException
-     * @return \Zend\Config\Config
+     * @param \Zend\Config\Config $config Configuration to set
+     *
+     * @return void
      */
-    public function getConfig()
+    public function setConfig($config)
     {
-        if (!$this->configValidated) {
-            // Replace Shibboleth config section with Shibboleth_suomifi
-            $data = $this->config->toArray();
-            $data['Shibboleth'] = $data['Shibboleth_suomifi'];
-            $this->config = new \Zend\Config\Config($data);
-        }
+        // Replace Shibboleth config section with Shibboleth_suomifi
+        $data = $config->toArray();
+        $data['Shibboleth'] = $data['Shibboleth_suomifi'];
+        $config = new \Zend\Config\Config($data);
 
-        return parent::getConfig();
+        parent::setConfig($config);
     }
 
     /**
