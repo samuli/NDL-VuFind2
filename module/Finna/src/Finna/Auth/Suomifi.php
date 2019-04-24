@@ -27,6 +27,8 @@
  */
 namespace Finna\Auth;
 
+use VuFind\Exception\Auth as AuthException;
+
 /**
  * Suomi.fi authentication module.
  *
@@ -85,7 +87,7 @@ class Suomifi extends Shibboleth
      * account credentials.
      * @param string                            $param   Parameter name
      *
-     * @throws Exception
+     * @throws AuthException
      * @return mixed
      */
     protected function getServerParam($request, $param)
@@ -98,7 +100,7 @@ class Suomifi extends Shibboleth
         ) {
             $secret = $config->hash_secret ?? null;
             if (empty($secret)) {
-                throw new \Exception('hash_secret not configured');
+                throw new AuthException('hash_secret not configured');
             }
             $val = hash_hmac('sha256', $val, $secret, false);
         }
