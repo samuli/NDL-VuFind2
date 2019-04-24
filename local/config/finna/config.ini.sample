@@ -552,58 +552,17 @@ email = SHIB_mail
 ;college = HTTP_COLLEGE
 ;major = HTTP_MAJOR
 ;home_library = HTTP_HOME_LIBRARY
-;
-; CAS is optional.  This section only needs to exist if the
-; Authentication Method is set to CAS.
-;[CAS]
 
-; Required: the attribute CAS uses to uniquely identify users.
-;username              = uid
-
-; Required: CAS Hostname.
-;server                = cas.myuniversity.edu
-
-; Required: CAS port.
-;port                 = 443
-
-; Required: CAS context.
-;context                 = /cas
-
-; Required: CAS Certificate Path.
-;CACert = /etc/pki/cert/cert.crt
-
-; Required: CAS login URL.
-;login                 = https://cas.myuniversity.edu/cas/login
-
-
-; Required: CAS logout URL.
-;logout                = https://cas.myuniversity.edu/cas/logout
-
-; Optional: CAS logging.
-;debug              = false
-;log                = /tmp/casdebug
-
-; Optional: URL to forward to after CAS login (if omitted,
-; defaultLoggedInModule from [Site] section will be used).
-;target                = http://lib.myuniversity.edu/vufind/MyResearch/Home
-
-; Some or all of the following entries may be uncommented to map CAS
-; attributes to user database columns:
-;cat_username = acctSyncUserID
-;cat_password = catPassword
-;email = mail
-;firstname = givenName
-;lastname = sn
-;college = college
-;major = major1
-;home_library = library
 
 ; Shibboleth Suomi.fi is optional.  This section only needs to exist if the
 ; Authentication Method is set to Suomifi.
 [Shibboleth_suomifi]
 
+; Optional: provider_id parameter to pass along to Shibboleth login.
 provider_id = "https://testi.apro.tunnistus.fi/idp1"
 
+; Optional: you may set attribute names and values to be used as a filter;
+; users will only be logged into VuFind if they match these filters.
 userattribute_1 = "Shib-Identity-Provider"
 userattribute_value_1  = "https:\\/\\/testi.apro.tunnistus.fi\\/idp1"
 
@@ -613,8 +572,6 @@ userattribute_value_1 = "true"
 ; Attribute required to be set for Shibboleth login to be attempted
 required_attribute = Shib-Application-ID
 
-; Optional: you may set attribute names and values to be used as a filter;
-; users will only be logged into VuFind if they match these filters.
 ;userattribute_1       = entitlement
 ;userattribute_value_1 = urn:mace:dir:entitlement:common-lib-terms
 ;userattribute_2       = unscoped-affiliation
@@ -641,9 +598,6 @@ logout_attribute       = SHIB_logouturl
 ; Optional: URL to forward to after Shibboleth login (if omitted,
 ; defaultLoggedInModule from [Site] section will be used).
 ;target                = http://shib.myuniversity.edu/vufind/MyResearch/Home
-
-; Optional: provider_id parameter to pass along to Shibboleth login.
-;provider_id           = https://idp.example.edu/shibboleth-idp
 
 ; Some or all of the following entries may be uncommented to map Shibboleth
 ; attributes to user database columns:
