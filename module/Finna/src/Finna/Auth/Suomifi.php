@@ -90,9 +90,7 @@ class Suomifi extends Shibboleth
      */
     protected function getServerParam($request, $param)
     {
-        $val = $request->getServer()->get(
-            $param, $request->getServer()->get("REDIRECT_$param")
-        );
+        $val = parent::getServerParam($request, $param);
 
         $config = $this->getConfig()->Shibboleth;
         if ($param === $config->username
