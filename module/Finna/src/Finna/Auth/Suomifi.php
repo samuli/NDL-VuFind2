@@ -70,31 +70,11 @@ class Suomifi extends Shibboleth
         if (!$url) {
             return $url;
         }
-
-        // Set 'auth_method' query parameter within 'target'
-        // query parameter to Suomifi
-
-        $parsed = parse_url($url);
-        parse_str($parsed['query'], $queryParams);
-        $target = $queryParams['target'];
-        $targetParsed = parse_url($target);
-        parse_str($targetParsed['query'], $targetQueryParams);
-
-        if (empty($targetParsed['scheme'])) {
-            return $url;
-        }
-
-        $targetQueryParams['auth_method'] = 'Suomifi';
-
-        $target
-            = $targetParsed['scheme'] . '://' . $targetParsed['host']
-            . $targetParsed['path'] . '?' . http_build_query($targetQueryParams);
-
-        $queryParams['target'] = $target;
-
-        return
-            $parsed['scheme'] . '://' . $parsed['host']
-            . $parsed['path'] . '?' . http_build_query($queryParams);
+        // Set 'auth_method' to Suomifi
+        $url = str_replace(
+            'auth_method%3DShibboleth', 'auth_method%3DSuomifi', $url
+        );
+        return $url;
     }
 
     /**
