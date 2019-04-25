@@ -36,7 +36,7 @@ namespace Finna\RecordDriver;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:record_drivers Wiki
  */
-class R2 extends SolrEad3
+class R2Ead3 extends SolrEad3
 {
     /**
      * Used for identifying search backends

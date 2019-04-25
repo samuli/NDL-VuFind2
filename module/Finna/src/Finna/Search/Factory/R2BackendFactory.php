@@ -162,7 +162,7 @@ class R2BackendFactory extends SolrDefaultBackendFactory
             ->get(\VuFind\RecordDriver\PluginManager::class);
 
         $callback = function ($data) use ($manager) {
-            $driver = $manager->get('R2');
+            $driver = $manager->get('R2Ead3');
             $driver->setRawData($data);
             return $driver;
         };

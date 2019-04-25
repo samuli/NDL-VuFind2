@@ -367,7 +367,7 @@ class SolrEad extends \VuFind\RecordDriver\SolrDefault
     {
         $urls = [];
         $source = $this->getDataSource();
-        $config = $this->recordConfig->Record;
+        $config = $this->recordConfig->Record ?? null;
         if (isset($config->ead_document_order_link_template[$source])
             && !$this->isDigitized()
             && in_array('1/Document/ArchiveItem/', $this->getFormats())
