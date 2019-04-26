@@ -591,6 +591,10 @@ class SolrEad3 extends SolrEad
      */
     public function getRestrictedAlternative()
     {
+        $xml = $this->getXmlRecord();
+        if (!isset($xml->accessrestrict)) {
+            return false;
+        }
         return ['route' => 'r2record', 'id' => $this->getUniqueID()];
     }
 

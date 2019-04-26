@@ -65,7 +65,7 @@ class R2Ead3 extends SolrEad3
      */
     public function hasRestrictedMetadata()
     {
-        // TODO resolve this from metadata
-        return true;
+        $xml = $this->getXmlRecord();
+        return isset($xml->accessrestrict);
     }
 }
