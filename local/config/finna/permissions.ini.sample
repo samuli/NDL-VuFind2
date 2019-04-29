@@ -162,4 +162,3 @@ permission = feature.Favorites
 require = ALL
 authenticationStrategy[] = Suomifi
 permission[] = access.R2Restricted
-shibboleth[] = "SHIB_vtjverified true"
