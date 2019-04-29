@@ -554,8 +554,8 @@ email = SHIB_mail
 ;home_library = HTTP_HOME_LIBRARY
 
 
-; Shibboleth Suomi.fi is optional.  This section only needs to exist if the
-; Authentication Method is set to Suomifi.
+; Shibboleth Suomi.fi is optional.
+; This section is only needed if Suomi.fi is to be used as an authentication method.
 [Shibboleth_suomifi]
 
 ; Provider_id parameter to pass along to Shibboleth login.
