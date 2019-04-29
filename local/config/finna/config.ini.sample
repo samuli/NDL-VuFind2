@@ -558,24 +558,22 @@ email = SHIB_mail
 ; Authentication Method is set to Suomifi.
 [Shibboleth_suomifi]
 
-; Optional: provider_id parameter to pass along to Shibboleth login.
+; Provider_id parameter to pass along to Shibboleth login.
+
+; Production
+; provider_ id = ""
+
+; Development
 provider_id = "https://testi.apro.tunnistus.fi/idp1"
 
-; Optional: you may set attribute names and values to be used as a filter;
-; users will only be logged into VuFind if they match these filters.
 userattribute_1 = "Shib-Identity-Provider"
 userattribute_value_1  = "https:\\/\\/testi.apro.tunnistus.fi\\/idp1"
 
-userattribute_1 = "SHIB_vtjverified"
-userattribute_value_1 = "true"
+userattribute_2 = "SHIB_vtjverified"
+userattribute_value_2 = "true"
 
 ; Attribute required to be set for Shibboleth login to be attempted
 required_attribute = Shib-Application-ID
-
-;userattribute_1       = entitlement
-;userattribute_value_1 = urn:mace:dir:entitlement:common-lib-terms
-;userattribute_2       = unscoped-affiliation
-;userattribute_value_2 = member
 
 ; Required: the attribute Shibboleth uses to uniquely identify users.
 username              = SHIB_eppn

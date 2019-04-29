@@ -1,11 +1,11 @@
-<!-- START of: finna - Auth/Suomifi/login_suomifi.phtml -->
+<!-- START of: finna - Auth/Suomifi/login.phtml -->
 <?php $account = $this->auth()->getManager(); ?>
 <?php $sessionInitiator = $account->getSessionInitiator($this->serverUrl($this->url('myresearch-home'))); ?>
 <div>
   <div class="login-col shibboleth-login suomifi-login">
     <a href="<?=$this->escapeHtmlAttr($sessionInitiator)?>" data-lightbox-ignore>
-      <img src="<?=$this->imageLink('login_suomifi.png') ?>" alt="<?=$this->escapeHtmlAttr($this->translate("Suomifi Login")) ?>">
-      <span class="sr-only"><?=$this->transEsc('Suomifi Login')?></span>
+      <img src="<?=$this->imageLink('login_suomifi.png') ?>" alt="<?=$this->escapeHtmlAttr($this->translate("Suomi.fi Login")) ?>">
+      <span class="sr-only"><?=$this->transEsc('Suomi.fi Login')?></span>
     </a>
   </div>
   <div class="login-col">
@@ -28,4 +28,4 @@
   }
 ?>
 <?=$this->partial("Auth/Suomifi/terms_$language.phtml") ?>
-<!-- END of: finna - Auth/Suomifi/login_suomifi.phtml -->
+<!-- END of: finna - Auth/Suomifi/login.phtml -->
