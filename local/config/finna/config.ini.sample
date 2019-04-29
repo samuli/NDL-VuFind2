@@ -564,7 +564,7 @@ email = SHIB_mail
 ; provider_ id = ""
 
 ; Development
-provider_id = "https://testi.apro.tunnistus.fi/idp1"
+; provider_id = "https://testi.apro.tunnistus.fi/idp1"
 
 userattribute_1 = "Shib-Identity-Provider"
 userattribute_value_1  = "https:\\/\\/testi.apro.tunnistus.fi\\/idp1"
