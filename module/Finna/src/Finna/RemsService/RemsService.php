@@ -280,9 +280,8 @@ class RemsService
      */
     protected function getUserId()
     {
-        // TODO remove organisation prefix?
         if (!$user = $this->auth->isLoggedIn()) {
-            throw new Exception('REMS: user not logged');
+            throw new \Exception('REMS: user not logged');
         }
         return $user->username;
     }
@@ -312,26 +311,29 @@ class RemsService
             $client->setRawBody($body['content']);
         }
 
-        $formatError = function ($response) use ($client, $params) {
+        $formatError = function ($exception, $response) use ($client, $params) {
             $err = "REMS: request failed: " . $client->getRequest()->getUriString()
-            . ', params: ' . var_export($params, true)
-            . ', statusCode: ' . $response->getStatusCode() . ': '
-            . $response->getReasonPhrase()
-            . ', response content: ' . $response->getBody();
-
+            . ', params: ' . var_export($params, true);
+            if ($response !== null) {
+                $err .= ', statusCode: ' . $response->getStatusCode() . ': '
+                    . $response->getReasonPhrase()
+                    . ', response content: ' . $response->getBody();
+            }
+            if ($exception !== null) {
+                $err .= ', exception: ' . $exception->getMessage();
+            }
             return $err;
         };
 
         try {
             $response = $client->send();
         } catch (\Exception $e) {
-            $err = $formatError($response);
+            $err = $formatError($e, null);
             $this->error($err);
             throw new \Exception($err);
         }
 
-        $err = $formatError($response);
-        $this->error("REMS: $err");
+        $err = $formatError(null, $response);
 
         if (!$response->isSuccess() || $response->getStatusCode() !== 200) {
             $this->error($err);
