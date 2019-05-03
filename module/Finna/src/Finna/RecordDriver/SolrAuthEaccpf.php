@@ -41,6 +41,7 @@ namespace Finna\RecordDriver;
  */
 class SolrAuthEacCpf extends \VuFind\RecordDriver\SolrAuthDefault
 {
+    use SolrFinna;
     use XmlReaderTrait;
 
     /**
@@ -80,10 +81,12 @@ class SolrAuthEacCpf extends \VuFind\RecordDriver\SolrAuthDefault
     public function getTitle()
     {
         $record = $this->getXmlRecord();
-        if (isset($record->cpfDescription->identity->nameEntry->part[0])) {
-            return (string)$record->cpfDescription->identity->nameEntry->part[0];
-        }
-        return null;
+        $title
+            = $record->cpfDescription->identity->nameEntryParallel->nameEntry
+                ->part[0]
+            ?? null;
+
+        return $title ? (string)$title : null;
     }
 
     /**

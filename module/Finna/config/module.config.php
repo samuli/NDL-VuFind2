@@ -144,6 +144,7 @@ $config = [
     'controllers' => [
         'factories' => [
             'Finna\Controller\AjaxController' => 'VuFind\Controller\AjaxControllerFactory',
+            'Finna\Controller\AuthorityRecordController' => 'VuFind\Controller\AbstractBaseWithConfigFactory',
             'Finna\Controller\BarcodeController' => 'VuFind\Controller\AbstractBaseFactory',
             'Finna\Controller\BrowseController' => 'VuFind\Controller\AbstractBaseWithConfigFactory',
             'Finna\Controller\CartController' => 'VuFind\Controller\CartControllerFactory',
@@ -172,6 +173,7 @@ $config = [
             'Finna\Controller\ListController' => 'Finna\Controller\ListControllerFactory',
         ],
         'aliases' => [
+            'AuthorityRecord' => 'Finna\Controller\AuthorityRecordController',
             'Barcode' => 'Finna\Controller\BarcodeController',
             'barcode' => 'Finna\Controller\BarcodeController',
             'Comments' => 'Finna\Controller\CommentsController',
@@ -617,6 +619,8 @@ $config = [
             ],
             'recordtab' => [
                 'factories' => [
+                    'Finna\RecordTab\AuthorityRecordsAuthor' => 'Finna\RecordTab\AuthorityRecordsFactory',
+                    'Finna\RecordTab\AuthorityRecordsTopic' => 'Finna\RecordTab\AuthorityRecordsFactory',
                     'Finna\RecordTab\DescriptionFWD' => 'Finna\RecordTab\Factory::getDescriptionFWD',
                     'Finna\RecordTab\Distribution' => 'Finna\RecordTab\Factory::getDistribution',
                     'Finna\RecordTab\InspectionDetails' => 'Finna\RecordTab\Factory::getInspectionDetails',
@@ -631,6 +635,8 @@ $config = [
                     'componentparts' => 'Finna\RecordTab\ComponentParts',
                 ],
                 'aliases' => [
+                    'authorityrecordsauthor' => 'Finna\RecordTab\AuthorityRecordsAuthor',
+                    'authorityrecordstopic' => 'Finna\RecordTab\AuthorityRecordsTopic',
                     'componentparts' => 'Finna\RecordTab\ComponentParts',
                     'descriptionFWD' => 'Finna\RecordTab\DescriptionFWD',
                     'distribution' => 'Finna\RecordTab\Distribution',
@@ -679,6 +685,15 @@ $config = [
                     'Preview' => 'preview',
                     'Details' => 'StaffViewArray',
                 ],
+                'defaultTab' => null,
+            ],
+            'Finna\RecordDriver\SolrAuthEacCpf' => [
+                'tabs' => [
+                     'AuthorityRecordsAuthor' => 'AuthorityRecordsAuthor',
+                     'AuthorityRecordsTopic' => 'AuthorityRecordsTopic',
+                     'UserComments' => 'UserComments',
+                     'Details' => 'StaffViewArray',
+                 ],
                 'defaultTab' => null,
             ],
             'Finna\RecordDriver\SolrDefault' => [
@@ -787,7 +802,8 @@ $config = [
 ];
 
 $recordRoutes = [
-   'metalibrecord' => 'MetaLibRecord'
+    'authorityrecord' => 'AuthorityRecord',
+    'metalibrecord' => 'MetaLibRecord'
 ];
 
 // Define dynamic routes -- controller => [route name => action]

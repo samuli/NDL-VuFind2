@@ -1,0 +1,25 @@
+<!-- START of: finna - RecordTab/authorityrecords.phtml -->
+<?php
+$results = $this->tab->loadRecords($this->driver);
+$resultCnt = $results->getResultTotal();
+$i = 0;
+?>
+<div>
+  <?php foreach ($results->getResults() as $current): ?>
+  <div id="result<?=$i++ ?>" class="result condensed-list-view clearfix<?=$current->supportsAjaxStatus()?' ajaxItem':''?>">
+    <span class="sr-only"><?=$this->transEsc('Search Result');?> <?=$i ?></span>
+    <?=$this->record($current)->getSearchResult('condensed')?>
+  </div>
+  <?php endforeach ?>
+</div>
+<?php if ($resultCnt): ?>
+  <div>
+    <p><a href="<?= $this->url('search-results') . $results->getUrlQuery() ?>"><?= $this->translate(
+         'show_all_results', [
+           '%%total%%' => $this->localizedNumber($results->getResultTotal())
+         ]
+     );?></a>
+    </p>
+  </div>
+<?php endif ?>
+<!-- END of: finna - RecordTab/authorityrecords.phtml -->
