@@ -66,7 +66,6 @@ class AuthorityRecordsBase extends \VuFind\RecordTab\AbstractBase
     public function isActive()
     {
         return true;
-        //        return !empty($this->getRecordDriver()->tryMethod('getAuhotrityAuthorIds'));
     }
 
     /**
@@ -82,7 +81,7 @@ class AuthorityRecordsBase extends \VuFind\RecordTab\AbstractBase
     /**
      * Load records that are linked to this authority record.
      *
-     * @param $driver RecordDriver Record
+     * @param \VuFind\RecordDriver\DefaultRecord $driver Driver
      *
      * @return array
      */
