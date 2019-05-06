@@ -27,6 +27,8 @@
  */
 namespace Finna\Controller;
 
+use Zend\ServiceManager\ServiceLocatorInterface;
+
 /**
  * Authority Record Controller
  *
@@ -44,4 +46,18 @@ class AuthorityRecordController extends RecordController
      * @var string
      */
     protected $searchClassId = 'SolrAuth';
+
+    /**
+     * Constructor
+     *
+     * @param ServiceLocatorInterface $sm Service locator
+     */
+    public function __construct(ServiceLocatorInterface $sm)
+    {
+        $this->serviceLocator = $sm;
+        $config = $sm->get(\VuFind\Config\PluginManager::class)->get('config');
+        if (!($config->Authority->enabled ?? false)) {
+            throw new \Exception('Authority page is not enabled');
+        }
+    }
 }
