@@ -28,6 +28,8 @@
  */
 namespace FinnaSearch\Backend\R2;
 
+use VuFindSearch\ParamBag;
+
 use Zend\Http\Client as HttpClient;
 
 /**
@@ -49,22 +51,31 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
     protected $username;
 
     /**
-     * API key
+     * API username
      *
      * @var string
      */
-    protected $apiKey;
+    protected $apiUser;
 
     /**
-     * Set API key
+     * API password
      *
-     * @param string $key Key
+     * @var string
+     */
+    protected $apiPassword;
+
+    /**
+     * Set API user and password for authentication
+     *
+     * @param string $user     User
+     * @param string $password Password
      *
      * @return void
      */
-    public function setApiKey($key)
+    public function setApiAuthentication($user, $password)
     {
-        $this->apiKey = $key;
+        $this->apiUser = $user;
+        $this->apiPassword = $password;
     }
 
     /**
@@ -80,24 +91,6 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
     }
 
     /**
-     * Create the HTTP client.
-     *
-     * @param string $url    Target URL
-     * @param string $method Request method
-     *
-     * @return HttpClient
-     */
-    protected function createClient($url, $method)
-    {
-        $client = parent::createClient($url, $method);
-        if ($this->apiKey) {
-            $client->getRequest()->getHeaders()
-                ->addHeaderLine('api-key', $this->apiKey);
-        }
-        return $client;
-    }
-
-    /**
      * Send request the SOLR and return the response.
      *
      * @param HttpClient $client Prepared HTTP client
@@ -110,26 +103,23 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
      */
     protected function send(HttpClient $client)
     {
-        if (!$this->apiKey) {
-            throw new \Exception('R2 search API key not configured');
+        if (!$this->apiUser || !$this->apiPassword) {
+            throw new \Exception('R2 search API username/password not configured');
         }
 
         $headers = $client->getRequest()->getHeaders();
-        foreach (['apiKey' => 'api-key', 'username' => 'user-id']
-                 as $key => $header
-        ) {
-            $headers->removeHeader(new \Zend\Http\Header\GenericHeader($header));
-            if ($val = $this->{$key}) {
-                $headers->addHeaderLine($header, $val);
-            }
+        $headers->removeHeader(new \Zend\Http\Header\GenericHeader('x-user-id'));
+
+        if ($this->username) {
+            $headers->addHeaderLine('x-user-id', $this->username);
         }
         $client->setHeaders($headers);
+        $client->setAuth($this->apiUser, $this->apiPassword);
 
         $this->debug(
             sprintf(
-                '=> R2 Search headers: api-key: %s, user-id: %s',
-                $client->getHeader('api-key'),
-                $client->getHeader('user-id')
+                '=> R2 Search headers: x-user-id: %s',
+                $client->getHeader('x-user-id')
             )
         );
 

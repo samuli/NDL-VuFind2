@@ -143,7 +143,9 @@ class R2BackendFactory extends SolrDefaultBackendFactory
         }
 
         // Pass API key to connector
-        $connector->setApiKey($this->R2Config->R2->apiKey);
+        $connector->setApiAuthentication(
+            $this->R2Config->R2->apiUser, $this->R2Config->R2->apiKey
+        );
 
         return $connector;
     }
