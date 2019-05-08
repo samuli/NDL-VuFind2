@@ -99,4 +99,15 @@ class SolrAuthEacCpf extends \VuFind\RecordDriver\SolrAuthDefault
     public function setPreferredLanguage($language)
     {
     }
+
+    /**
+     * Get an array of all the formats associated with the record.
+     *
+     * @return array
+     */
+    public function getFormats()
+    {
+        return ['authority/' . $this->fields['record_type'] ?? ''];
+    }
+
 }

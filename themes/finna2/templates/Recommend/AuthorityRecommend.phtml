@@ -1,0 +1,23 @@
+<?php
+  $results = $this->recommend->getResults();
+  $recommendations = $this->recommend->getRecommendations();
+  $driver = $recommendations[0] ?? null;
+?>
+<?php if ($driver): ?>
+  <div class="authoritybox">
+    <div class="title-container">
+      <h2 class="search-title">
+        <a class="title" href="<?= $this->url('authorityrecord', ['id' => $driver->getUniqueID()])?>">
+          <?=$this->record($driver)->getTitleHtml()?><span class="sr-only"> <?=$this->transEsc('To the record')?></span>
+            </a>
+          </h2>
+    </div>
+    <div class="dateyeartype">
+      <div class="resultItemFormat"><?=$this->record($driver)->getFormatList() ?></div>
+    </div>
+    <?php $searchUrl = $this->url('authority-search') . $results->getUrlQuery()->removeAllFilters(); ?>
+      <div>
+        <a href="<?=$searchUrl?>"><?= $this->translate('show_all_results', ['%%total%%' => $this->localizedNumber(count($recommendations))])?></a>
+      </div>
+  </div>
+<?php endif; ?>

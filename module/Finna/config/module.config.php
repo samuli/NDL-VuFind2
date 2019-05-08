@@ -494,9 +494,11 @@ $config = [
                 'factories' => [
                     'VuFind\Recommend\CollectionSideFacets' => 'Finna\Recommend\Factory::getCollectionSideFacets',
                     'VuFind\Recommend\SideFacets' => 'Finna\Recommend\Factory::getSideFacets',
+                    'Finna\Recommend\AuthorityRecommend' => 'VuFind\Recommend\InjectResultsManagerFactory',
                     'Finna\Recommend\SideFacetsDeferred' => 'Finna\Recommend\Factory::getSideFacetsDeferred',
                 ],
                 'aliases' => [
+                    'authorityrecommend' => 'Finna\Recommend\AuthorityRecommend',
                     'sidefacetsdeferred' => 'Finna\Recommend\SideFacetsDeferred',
                 ]
             ],
