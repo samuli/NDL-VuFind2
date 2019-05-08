@@ -111,7 +111,7 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
         $headers->removeHeader(new \Zend\Http\Header\GenericHeader('x-user-id'));
 
         if ($this->username) {
-            $headers->addHeaderLine('x-user-id', $this->username);
+            $headers->addHeaderLine('x-user-id', urldecode($this->username));
         }
         $client->setHeaders($headers);
         $client->setAuth($this->apiUser, $this->apiPassword);
