@@ -97,9 +97,13 @@ class Authority extends \Zend\View\Helper\AbstractHelper
             : $this->datasourceConfig[$recordSource]['authority']['*'];
         $authorityId = "$authSrc.$id";
 
+        $type = ($this->config->Authority->authority_page ?? false)
+            ? 'author-id' : 'author';
+        $lookfor = $type === 'author-id' ? $authorityId : $label;
+
         $record = $this->getView()->plugin('record');
         $record = $record($driver);
-        $url = $record->getLink($type, $id);
+        $url = $record->getLink($type, $lookfor);
         return $record->renderTemplate(
             'authority-link.phtml',
             [
