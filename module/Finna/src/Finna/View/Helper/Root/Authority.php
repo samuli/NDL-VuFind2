@@ -81,7 +81,9 @@ class Authority extends \Zend\View\Helper\AbstractHelper
     public function link($url, $label, $id, $type,
         \VuFind\RecordDriver\AbstractBase $driver
     ) {
-        if (empty($this->config->Authority->enabled)) {
+        if (!($this->config->Authority->enabled ?? false)
+            || !($this->config->Authority->authority_info ?? false)
+        ) {
             return null;
         }
         $recordSource = $driver->getDatasource();

@@ -1551,3 +1551,11 @@ url = "https://my.surveypal.com/Finnasurvey"
 ; Authority support is disabled by default. Uncomment the following line to enable
 ; it.
 ;enabled = true
+
+; The following options are valid only when 'enabled' is set to true
+
+; Uncomment to enable Authority page
+;authoriy_page = true
+; Uncomment to enable Authority info (displayed beside author links)
+;authority_info = true
+

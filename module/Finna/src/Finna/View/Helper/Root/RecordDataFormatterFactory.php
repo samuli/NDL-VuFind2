@@ -886,10 +886,12 @@ class RecordDataFormatterFactory
                 if (isset($values['role'])) {
                     $label = $values['role'];
                     $label = "CreatorRoles::$label";
+                    // Unset so that role is not appended to name
+                    unset($values['role']);
                 }
                 $final[] = [
                     'label' => $label,
-                    'values' => [$type => $values],
+                    'values' => [ 0 => $values],
                     'options' => [
                         'pos' => $pos++,
                         'renderType' => 'RecordDriverTemplate',
