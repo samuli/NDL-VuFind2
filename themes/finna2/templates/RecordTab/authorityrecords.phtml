@@ -13,8 +13,16 @@ $i = 0;
   <?php endforeach ?>
 </div>
 <?php if ($resultCnt): ?>
+  <?php
+    $urlQuery = $results->getUrlQuery();
+    $params = $urlQuery->getParamArray();
+    $lookfor = $params['lookfor'];
+    unset($params['lookfor']);
+    $params['filter'] = [$lookfor];
+    $queryString = $urlQuery->buildQueryString($params);
+  ?>
   <div>
-    <p><a href="<?= $this->url('search-results') . $results->getUrlQuery() ?>"><?= $this->translate(
+    <p><a href="<?= $this->url('search-results') . '?' . $queryString ?>"><?= $this->translate(
          'show_all_results', [
            '%%total%%' => $this->localizedNumber($results->getResultTotal())
          ]

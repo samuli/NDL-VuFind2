@@ -51,6 +51,22 @@ namespace Finna\Recommend;
 class AuthorityRecommend extends \VuFind\Recommend\AuthorityRecommend
 {
     /**
+     * Perform a search of the authority index.
+     *
+     * @param array $params Array of request parameters.
+     *
+     * @return array
+     */
+    protected function performSearch($params)
+    {
+        if (empty($this->lookfor)) {
+            // Do not show recommendations for empty search
+            return [];
+        }
+        return parent::performSearch($params);
+    }
+    
+    /**
      * Add main headings from records that match search terms on use_for/see_also.
      *
      * @return void
