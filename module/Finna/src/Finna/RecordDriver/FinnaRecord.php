@@ -160,4 +160,15 @@ trait FinnaRecord
     {
         return false;
     }
+
+    /**
+     * Is restricted metadata included with the record, i.e. does the user
+     * have permissions to access restricted metadata.
+     *
+     * @return bool
+     */
+    public function isRestrictedMetadataIncluded()
+    {
+        return false;
+    }
 }

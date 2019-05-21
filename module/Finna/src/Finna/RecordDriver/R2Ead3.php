@@ -68,4 +68,16 @@ class R2Ead3 extends SolrEad3
         $xml = $this->getXmlRecord();
         return isset($xml->accessrestrict);
     }
+
+    /**
+     * Is restricted metadata included with the record, i.e. does the user
+     * have permissions to access restricted metadata.
+     *
+     * @return bool
+     */
+    public function isRestrictedMetadataIncluded()
+    {
+        $xml = $this->getXmlRecord();
+        return $this->fields['display_restriction_id_str'] === '10';
+    }
 }

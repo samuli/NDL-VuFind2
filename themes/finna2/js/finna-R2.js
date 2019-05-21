@@ -34,7 +34,6 @@ finna.R2 = (function finnaR2() {
         .done(function onCheckPermissionDone(result) {
           var status = result.data;
           if (status !== null) {            
-            $('.R2-status').toggleClass('hide', true);
             $('.R2-status-' + status).removeClass('hide');
           }
         })

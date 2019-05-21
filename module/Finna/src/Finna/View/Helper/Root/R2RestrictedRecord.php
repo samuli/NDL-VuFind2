@@ -128,6 +128,7 @@ class R2RestrictedRecord extends \Zend\View\Helper\AbstractHelper
         } elseif ($driver->hasRestrictedMetadata()) {
             $user = $params['user'] ?? null;
             $autoOpen = $params['autoOpen'] ?? false;
+            $restrictedMetadataIncluded = $driver->isRestrictedMetadataIncluded();
 
             // R2 record with restricted metadata
             $params = [
@@ -135,25 +136,9 @@ class R2RestrictedRecord extends \Zend\View\Helper\AbstractHelper
                 'user' => $user,
                 'autoOpen' => $autoOpen,
                 'id' => $driver->getUniqueID(),
-                'collection' => $driver->isCollection()
+                'collection' => $driver->isCollection(),
+                'restrictedMetadataIncluded' => $restrictedMetadataIncluded
             ];
-
-            if ($user !== false) {
-                $status = $this->rems->checkPermission(false);
-
-                // TODO allow new submit if permission has been closed?
-                $notSubmitted = in_array(
-                    $status,
-                    [null,
-                     RemsService::STATUS_CLOSED,
-                     RemsService::STATUS_NOT_SUBMITTED]
-                );
-                $params += [
-                    'status' => $status,
-                    'notSubmitted' => $notSubmitted,
-                    'callApi' => $status === null
-                ];
-            }
 
             return $this->getView()->render(
                 'Helpers/R2RestrictedRecordPermission.phtml', $params
