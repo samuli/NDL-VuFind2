@@ -109,5 +109,4 @@ class SolrAuthEacCpf extends \VuFind\RecordDriver\SolrAuthDefault
     {
         return ['authority/' . $this->fields['record_type'] ?? ''];
     }
-
 }

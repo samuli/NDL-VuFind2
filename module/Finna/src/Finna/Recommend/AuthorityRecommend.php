@@ -65,7 +65,7 @@ class AuthorityRecommend extends \VuFind\Recommend\AuthorityRecommend
         }
         return parent::performSearch($params);
     }
-    
+
     /**
      * Add main headings from records that match search terms on use_for/see_also.
      *
@@ -73,7 +73,7 @@ class AuthorityRecommend extends \VuFind\Recommend\AuthorityRecommend
      */
     protected function addUseForHeadings()
     {
-        
+
         // Build an advanced search request that prevents Solr from retrieving
         // records that would already have been retrieved by a search of the biblio
         // core, i.e. it only returns results where $lookfor IS found in in the

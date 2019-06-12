@@ -63,6 +63,7 @@ class RecordFactory implements FactoryInterface
         }
         $helper = new Record(
             $container->get(\VuFind\Config\PluginManager::class)->get('config'),
+            $container->get(\VuFind\Config\PluginManager::class)->get('datasources'),
             $container->get(\VuFind\Record\Loader::class)
         );
         if ('cli' !== php_sapi_name()) {

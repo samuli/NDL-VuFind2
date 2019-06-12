@@ -1556,6 +1556,6 @@ url = "https://my.surveypal.com/Finnasurvey"
 
 ; Uncomment to enable Authority page
 ;authoriy_page = true
-; Uncomment to enable Authority info (displayed beside author links)
+; Uncomment to enable Authority info (displayed beside author links on record page)
 ;authority_info = true
 

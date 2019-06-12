@@ -44,6 +44,13 @@ namespace Finna\View\Helper\Root;
 class Record extends \VuFind\View\Helper\Root\Record
 {
     /**
+     * Datasource configuration
+     *
+     * @var \Zend\Config\Config
+     */
+    protected $datasourceConfig;
+
+    /**
      * Record loader
      *
      * @var \VuFind\Record\Loader
@@ -60,13 +67,16 @@ class Record extends \VuFind\View\Helper\Root\Record
     /**
      * Constructor
      *
-     * @param \Zend\Config\Config   $config VuFind configuration
-     * @param \VuFind\Record\Loader $loader Record loader
+     * @param \Zend\Config\Config   $config           VuFind configuration
+     * @param \Zend\Config\Config   $datasourceConfig Datasource configuration
+     * @param \VuFind\Record\Loader $loader           Record loader
      */
     public function __construct(\Zend\Config\Config $config,
+        \Zend\Config\Config $datasourceConfig,
         \VuFind\Record\Loader $loader
     ) {
         parent::__construct($config);
+        $this->datasourceConfig = $datasourceConfig;
         $this->loader = $loader;
     }
 
@@ -175,9 +185,24 @@ class Record extends \VuFind\View\Helper\Root\Record
      */
     public function getLink($type, $lookfor, $params = [])
     {
+        if (is_array($lookfor)) {
+            $lookfor = $lookfor['name'];
+        }
         $searchAction = !empty($this->getView()->browse)
             ? 'browse-' . $this->getView()->browse : '';
         $params = $params ?? [];
+
+        // Attempt to switch Author search link to Authority page link.
+        if ($type === 'author'
+            && isset($params['id'])
+            && $this->isAuthorityPageEnabled()
+        ) {
+            if ($authId = $this->getAuthorityId($type, $params['id'])) {
+                $lookfor = $authId;
+                $type = 'author-id';
+            }
+        }
+
         $params = array_merge(
             $params,
             [
@@ -194,6 +219,86 @@ class Record extends \VuFind\View\Helper\Root\Record
             ->getCurrentHiddenFilterParams($this->driver->getSourceIdentifier());
 
         return $result;
+    }
+
+    /**
+     * Render a link to the authority page or fallback to Author search.
+     * This returns an a-tag.
+     *
+     * @param string $type    Link type
+     * @param string $lookfor Link label or string to search for at link
+     *                        when authority functionality id disabled.
+     * @param string $id      Authority record id
+     * @param array  $params  Optional array of parameters for the link template
+     *
+     * @return string
+     */
+    public function getAuthorityLinkElement(
+        $type, $lookfor, $id = null, $params = []
+    ) {
+        $url = $this->getLink($type, $lookfor, $params + ['id' => $id]);
+        $authId = $this->getAuthorityId($type, $id);
+
+        $elementParams = [
+           'url' => trim($url),
+           'label' => $lookfor,
+           'id' => $authId,
+           'authorityPage' => $this->isAuthorityPageEnabled(),
+           'showInlineInfo' => !empty($params['showInlineInfo'])
+             && $this->isAuthorityEnabled()
+             && !empty($this->config->Authority->authority_info),
+           'recordSource' => $this->driver->getDataSource(),
+           'type' => $type
+        ];
+
+        foreach (['role', 'date'] as $field) {
+            if (!empty($params[$field]) && $val = ($data[$field] ?? null)) {
+                $elementParams[$field] = $val;
+            }
+        }
+
+        return $this->renderTemplate(
+            'authority-link-element.phtml', $elementParams
+        );
+    }
+
+    /**
+     * Is authority functionality enabled?
+     *
+     * @return bool
+     */
+    protected function isAuthorityEnabled()
+    {
+        return $this->config->Authority->enabled ?? false;
+    }
+
+    /**
+     * Is authority page enabled?
+     *
+     * @return bool
+     */
+    protected function isAuthorityPageEnabled()
+    {
+        return $this->isAuthorityEnabled()
+            && ($this->config->Authority->authority_page ?? false);
+    }
+
+    /**
+     * Format authority id by prefixing the given id with authority record source.
+     *
+     * @param string $type Authority type (e.g. author)
+     * @param string $id   Authority id
+     *
+     * @return string
+     */
+    protected function getAuthorityId($type, $id)
+    {
+        $recordSource = $this->driver->getDatasource();
+        $authSrc = $this->datasourceConfig[$recordSource]['authority'][$type]
+            ?? $this->datasourceConfig[$recordSource]['authority']['*']
+            ?? null;
+
+        return $authSrc ? "$authSrc.$id" : null;
     }
 
     /**
