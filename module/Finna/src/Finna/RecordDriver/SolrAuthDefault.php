@@ -1,10 +1,11 @@
 <?php
 /**
- * Authority records record tabs (topic relation)
+ * Default model for Solr authority records -- used when a more specific
+ * model based on the recordtype field cannot be found.
  *
  * PHP version 7
  *
- * Copyright (C) The National Library of Finland 2019.
+ * Copyright (C) The National Library of Finland 2013-2019.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -20,23 +21,24 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category VuFind
- * @package  RecordTabs
+ * @package  RecordDrivers
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org/wiki/vufind2:record_tabs Wiki
+ * @link     http://vufind.org/wiki/vufind2:record_drivers Wiki
  */
-namespace Finna\RecordTab;
+namespace Finna\RecordDriver;
 
 /**
- * Authority records record tabs (topic relation)
+ * Default model for Solr authority records -- used when a more specific
+ * model based on the recordtype field cannot be found.
  *
  * @category VuFind
- * @package  RecordTabs
+ * @package  RecordDrivers
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org/wiki/vufind2:record_tabs Wiki
+ * @link     http://vufind.org/wiki/vufind2:record_drivers Wiki
  */
-class AuthorityRecordsTopic extends AuthorityRecordsBase
+class SolrAuthDefault extends \VuFind\RecordDriver\SolrAuthDefault
 {
-    protected $relation = ['topic'];
+    use SolrFinna;
 }

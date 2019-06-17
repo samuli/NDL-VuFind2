@@ -75,7 +75,7 @@ class AuthorityRecordsBase extends \VuFind\RecordTab\AbstractBase
      */
     public function getDescription()
     {
-        return 'authority_records_' . $this->relation;
+        return 'authority_records_' . $this->relation[0];
     }
 
     /**
@@ -88,7 +88,22 @@ class AuthorityRecordsBase extends \VuFind\RecordTab\AbstractBase
     public function loadRecords($driver)
     {
         $id = $driver->getUniqueID();
-        $query = ['lookfor' => $this->relation . "_id_str_mv:\"$id\""];
-        return $this->searchRunner->run($query);
+        $query = implode(
+            ' OR ', array_map(
+                function ($relation) use ($id) {
+                    return "(${relation}_id_str_mv:\"$id\")";
+                },
+                $this->relation
+            )
+        );
+        return $this->searchRunner->run(
+            ['lookfor' => $query],
+            'Solr',
+            function ($runner, $params, $searchId) {
+                $params->setLimit(100);
+                $params->setPage(1);
+                $params->setSort('main_date_str desc', true);
+            }
+        );
     }
 }

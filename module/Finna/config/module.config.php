@@ -609,6 +609,7 @@ $config = [
                     'SolrQdc' => 'Finna\RecordDriver\SolrQdc',
 
                     'VuFind\RecordDriver\EDS' => 'Finna\RecordDriver\EDS',
+                    'VuFind\RecordDriver\SolrAuthDefault' => 'Finna\RecordDriver\SolrAuthDefault',
                     'VuFind\RecordDriver\SolrDefault' => 'Finna\RecordDriver\SolrDefault',
                     'VuFind\RecordDriver\SolrMarc' => 'Finna\RecordDriver\SolrMarc',
                     'VuFind\RecordDriver\Primo' => 'Finna\RecordDriver\Primo',
@@ -689,7 +690,7 @@ $config = [
                 ],
                 'defaultTab' => null,
             ],
-            'Finna\RecordDriver\SolrAuthEacCpf' => [
+            'Finna\RecordDriver\SolrAuthDefault' => [
                 'tabs' => [
                      'AuthorityRecordsAuthor' => 'AuthorityRecordsAuthor',
                      'AuthorityRecordsTopic' => 'AuthorityRecordsTopic',

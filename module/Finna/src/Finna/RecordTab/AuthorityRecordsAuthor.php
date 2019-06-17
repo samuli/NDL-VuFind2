@@ -38,5 +38,5 @@ namespace Finna\RecordTab;
  */
 class AuthorityRecordsAuthor extends AuthorityRecordsBase
 {
-    protected $relation = 'author';
+    protected $relation = ['author', 'author2', 'author_corporate'];
 }
