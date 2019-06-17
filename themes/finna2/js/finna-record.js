@@ -4,7 +4,8 @@ finna.record = (function finnaRecord() {
     var description = $('#description_text');
     if (description.length) {
       var id = description.data('id');
-      var url = VuFind.path + '/AJAX/JSON?method=getDescription&id=' + id;
+      var source = description.data('source') || 'Solr';
+      var url = VuFind.path + '/AJAX/JSON?method=getDescription&id=' + id + '&source=' + source;
       $.getJSON(url)
         .done(function onGetDescriptionDone(response) {
           if (response.data.html.length > 0) {
