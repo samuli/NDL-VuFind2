@@ -234,8 +234,9 @@ class Record extends \VuFind\View\Helper\Root\Record
      * @return string
      */
     public function getAuthorityLinkElement(
-        $type, $lookfor, $id = null, $params = []
+        $type, $lookfor, $data, $params = []
     ) {
+        $id = $data['id'] ?? null;
         $url = $this->getLink($type, $lookfor, $params + ['id' => $id]);
         $authId = $this->getAuthorityId($type, $id);
 
@@ -243,7 +244,7 @@ class Record extends \VuFind\View\Helper\Root\Record
            'url' => trim($url),
            'label' => $lookfor,
            'id' => $authId,
-           'authorityPage' => $this->isAuthorityPageEnabled(),
+           'authorityPage' => $id && $this->isAuthorityPageEnabled(),
            'showInlineInfo' => !empty($params['showInlineInfo'])
              && $this->isAuthorityEnabled()
              && !empty($this->config->Authority->authority_info),
@@ -251,10 +252,12 @@ class Record extends \VuFind\View\Helper\Root\Record
            'type' => $type
         ];
 
-        foreach (['role', 'date'] as $field) {
-            if (!empty($params[$field]) && $val = ($data[$field] ?? null)) {
-                $elementParams[$field] = $val;
-            }
+        if (isset($params['role'])) {
+            $elementParams['roleName'] = $data['roleName'] ?? null;
+            $elementParams['role'] = $data['role'] ?? null;
+        }
+        if (isset($params['date'])) {
+            $elementParams['date'] = $data['date'] ?? null;
         }
 
         return $this->renderTemplate(
@@ -548,5 +551,20 @@ class Record extends \VuFind\View\Helper\Root\Record
     public function getRenderedUrls()
     {
         return $this->renderedUrls;
+    }
+
+    /**
+     * Render a search result for the specified view mode.
+     *
+     * @param string $view View mode to use.
+     *
+     * @return string
+     */
+    public function getSearchResult($view, $params = [])
+    {
+        $params += ['driver' => $this->driver];
+        return $this->renderTemplate(
+            'result-' . $view . '.phtml', $params
+        );
     }
 }

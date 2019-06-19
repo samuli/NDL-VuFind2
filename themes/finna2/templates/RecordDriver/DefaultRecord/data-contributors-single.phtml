@@ -1,5 +1,5 @@
 <?php //Don't add START and END comments ?>
-<?=$this->record($this->driver)->getAuthorityLinkElement('author', $this->author['name'], $this->author['id'] ?? null, ['date' => true, 'role' => true, 'showInlineInfo' => true])?>
+<?=$this->record($this->driver)->getAuthorityLinkElement('author', $this->author['name'], $this->author, ['date' => true, 'role' => true, 'showInlineInfo' => true])?>
 <?php if (!empty($author['description'])): ?>
   <span class="author-description"> (<?=$this->escapeHtml($author['description'])?>)</span>
 <?php endif; ?>

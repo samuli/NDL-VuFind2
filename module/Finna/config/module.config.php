@@ -697,7 +697,13 @@ $config = [
                 'tabs' => [
                      'AuthorityRecordsAuthor' => 'AuthorityRecordsAuthor',
                      'AuthorityRecordsTopic' => 'AuthorityRecordsTopic',
-                     'UserComments' => 'UserComments',
+                     'Details' => 'StaffViewArray',
+                 ],
+                'defaultTab' => null,
+            ],
+            'Finna\RecordDriver\SolrAuthForward' => [
+                'tabs' => [
+                     'AuthorityRecordsAuthor' => 'AuthorityRecordsAuthor',
                      'Details' => 'StaffViewArray',
                  ],
                 'defaultTab' => null,
