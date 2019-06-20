@@ -102,7 +102,7 @@ class AuthorityRecordsBase extends \VuFind\RecordTab\AbstractBase
             function ($runner, $params, $searchId) {
                 $params->setLimit(100);
                 $params->setPage(1);
-                $params->setSort('main_date_str desc', true);
+                $params->setSort('title', true);
             }
         );
     }
