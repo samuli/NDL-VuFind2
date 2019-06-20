@@ -50,6 +50,16 @@ class SolrAuthDefault extends \VuFind\RecordDriver\SolrAuthDefault
     protected $sourceIdentifier = 'SolrAuth';
 
     /**
+     * Is this an authority index record?
+     *
+     * @return bool
+     */
+    public function isAuthorityRecord()
+    {
+        return true;
+    }
+
+    /**
      * Return birth date and place.
      *
      * @return string
