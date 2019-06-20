@@ -952,8 +952,11 @@ class RecordDataFormatterFactory
     public function getDefaultAuthoritySpecs()
     {
         $spec = new SpecBuilder();
-        $spec->setLine('Title', 'getTitle');
         $spec->setLine('Other Titles', 'getAlternativeTitles');
+        $spec->setLine('Date of birth', 'getBirthDate');
+        $spec->setLine('Date of death', 'getDeathDate');
+        $spec->setLine('Awards', 'getAwards');
+
         return $spec->getArray();
     }
 }

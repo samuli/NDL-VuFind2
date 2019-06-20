@@ -41,4 +41,41 @@ namespace Finna\RecordDriver;
 class SolrAuthDefault extends \VuFind\RecordDriver\SolrAuthDefault
 {
     use SolrFinna;
+
+    /**
+     * Used for identifying search backends
+     *
+     * @var string
+     */
+    protected $sourceIdentifier = 'SolrAuth';
+
+    /**
+     * Return birth date and place.
+     *
+     * @return string
+     */
+    public function getBirthDate()
+    {
+        return null;
+    }
+
+    /**
+     * Return death date and place.
+     *
+     * @return string
+     */
+    public function getDeathDate()
+    {
+        return null;
+    }
+
+    /**
+     * Return awards.
+     *
+     * @return string[]
+     */
+    public function getAwards()
+    {
+        return [];
+    }
 }

@@ -1,5 +1,12 @@
 <!-- START of: finna - RecordTab/authorityrecords.phtml -->
 <?php
+  $script = <<<JS
+$(document).ready(function() {
+  finna.layout.initCondensedList();
+});
+JS;
+  echo $this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, $script, 'SET');
+
 $results = $this->tab->loadRecords($this->driver);
 $resultCnt = $results->getResultTotal();
 $i = 0;

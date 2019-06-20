@@ -831,6 +831,7 @@ finna.layout = (function finnaLayout() {
   var my = {
     getOrganisationPageLink: getOrganisationPageLink,
     isTouchDevice: isTouchDevice,
+    initCondensedList: initCondensedList,
     initTruncate: initTruncate,
     initLocationService: initLocationService,
     initHierarchicalFacet: initHierarchicalFacet,
