@@ -63,6 +63,10 @@ class ParamsFactory extends \VuFind\Search\Params\ParamsFactory
         $helper
             = $container->get(\VuFind\Search\Solr\HierarchicalFacetHelper::class);
         $converter = $container->get(\VuFind\Date\Converter::class);
-        return parent::__invoke($container, $requestedName, [$helper, $converter]);
+        $searchRunner = $container->get(\VuFind\Search\SearchRunner::class);
+        return parent::__invoke(
+            $container, $requestedName,
+            [$helper, $converter, $searchRunner]
+        );
     }
 }

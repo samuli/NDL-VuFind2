@@ -91,15 +91,26 @@ class Params extends \VuFind\Search\Solr\Params
     protected $hierarchicalFacetLimit = null;
 
     /**
+     * Search runner for performing authority index lookups.
+     *
+     * @var \VuFind\Search\SearchRunner
+     */
+    protected $searchRunner = null;
+
+    /**
      * Constructor
      *
      * @param \VuFind\Search\Base\Options  $options       Options to use
      * @param \VuFind\Config\PluginManager $configLoader  Config loader
      * @param HierarchicalFacetHelper      $facetHelper   Hierarchical facet helper
      * @param \VuFind\Date\Converter       $dateConverter Date converter
+     * @param \VuFind\Search\SearchRunner  $searchRunner  Search runner
      */
-    public function __construct($options, \VuFind\Config\PluginManager $configLoader,
-        HierarchicalFacetHelper $facetHelper, \VuFind\Date\Converter $dateConverter
+    public function __construct($options,
+        \VuFind\Config\PluginManager $configLoader,
+        HierarchicalFacetHelper $facetHelper,
+        \VuFind\Date\Converter $dateConverter,
+        \VuFind\Search\SearchRunner $searchRunner
     ) {
         parent::__construct($options, $configLoader, $facetHelper);
 
@@ -110,6 +121,8 @@ class Params extends \VuFind\Search\Solr\Params
         if (isset($config->SpecialFacets->newItems)) {
             $this->newItemsFacets = $config->SpecialFacets->newItems->toArray();
         }
+
+        $this->searchRunner = $searchRunner;
     }
 
     /**
@@ -552,7 +565,8 @@ class Params extends \VuFind\Search\Solr\Params
             $result = parent::formatFilterListEntry(
                 $field, $value, $operator, $translate
             );
-            return $this->formatDateRangeFilterListEntry($result, $field, $value);
+            $result = $this->formatDateRangeFilterListEntry($result, $field, $value);
+            return $this->formatAuthorIdFilterListEntry($result, $field, $value);
         }
 
         $domain = $this->getOptions()->getTextDomainForTranslatedFacet($field);
@@ -572,6 +586,60 @@ class Params extends \VuFind\Search\Solr\Params
         }
 
         return compact('value', 'displayText', 'field', 'operator');
+    }
+
+    /**
+     * Get a user-friendly string to describe the provided facet field.
+     *
+     * @param string $field   Facet field name.
+     * @param string $value   Facet value.
+     * @param string $default Default field name (null for default behavior).
+     *
+     * @return string         Human-readable description of field.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function getFacetLabel($field, $value = null, $default = null)
+    {
+        if ($id = $this->parseAuthorIdFilter($value)) {
+            return 'authority_id_label';
+        }
+        return parent::getFacetLabel($field, $value, $default);
+    }
+
+    protected function formatAuthorIdFilterListEntry($filter, $field, $value)
+    {
+        $pat = '/^\(author_id_str_mv:"([a-z0-9_.:]*)"\) OR \(/';
+        if (!preg_match($pat, $value, $matches)) {
+            return $filter;
+        }
+
+        $displayText = $matches[1];
+
+        $results = $this->searchRunner->run(
+            ['lookfor' => 'id:' . $displayText],
+            'SolrAuth',
+            function ($runner, $params, $searchId) {
+                $params->setLimit(1);
+            }
+        );
+
+        if ($results->getResultTotal()) {
+            $displayText = $results->getResults()[0]->getTitle();
+        }
+
+        $filter['displayText'] = $displayText;
+
+        return $filter;
+    }
+
+    protected function parseAuthorIdFilter($filter)
+    {
+        $pat = '/^\(author_id_str_mv:"([a-z0-9_.:]*)"\) OR \(/';
+        if (!preg_match($pat, $filter, $matches)) {
+            return null;
+        }
+        return $matches[1];
     }
 
     /**
