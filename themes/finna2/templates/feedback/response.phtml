@@ -5,11 +5,21 @@
   $title = $form->getTitle();
   $title = !empty($title)
     ? $this->transEsc($title) : null;
+  if ($title) {
+    $this->headTitle($title);
+  }
 ?>
+
+<?php if ($this->lightbox): ?>
+  <?php if ($title): ?>
+    <h2><?=$title?></h2>
+  <?php endif; ?>
+  <p><?= $this->translate($form->getSubmitResponse()) ?></p>
+<?php else: ?>
 <div class="feedback-content">
   <?php if ($title): ?>
-    <?php $this->headTitle($title); ?>
     <h1><?=$title?></h1>
   <?php endif; ?>
   <p><?= $this->translate($form->getSubmitResponse()) ?></p>
 </div>
+<?php endif; ?>

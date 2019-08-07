@@ -77,6 +77,14 @@ class FeedbackController extends \VuFind\Controller\FeedbackController
     {
         $view = parent::formAction();
 
+        // Set record driver (used by FeedbackRecord form)
+        $data = $this->getRequest()->getQuery('data', []);
+        if ($id = ($this->getRequest()->getPost('record_id', $this->getRequest()->getQuery('record_id')))) {
+            $view->form->setRecord($this->getRecordLoader()->load($id));
+            $data['record_id'] = $id;
+        }
+        $view->form->setData($data);
+
         if (!$this->submitOk) {
             return $view;
         }
@@ -130,6 +138,30 @@ class FeedbackController extends \VuFind\Controller\FeedbackController
         }
         $form = $this->serviceLocator->get(\VuFind\Form\Form::class);
         $form->setFormId($formId);
+
+        if ($formId === 'FeedbackRecord') {
+            // Resolve recipient email from datasource configuration
+            // when sending feedback on a record
+            if ($id = ($this->getRequest()->getPost(
+                'record_id',
+                $this->getRequest()->getQuery('record_id')
+            ))
+            ) {
+                $driver = $this->getRecordLoader()->load($id);
+                $dataSource = $driver->getDataSource();
+                $dataSources = $this->serviceLocator
+                    ->get(\VuFind\Config\PluginManager::class)->get('datasources');
+                $inst = $dataSources->$dataSource ?? null;
+                $recipientEmail = isset($inst->feedbackEmail) ?
+                    $inst->feedbackEmail : null;
+                if ($recipientEmail == null) {
+                    throw new \Exception(
+                        'Error sending record feedback:'
+                        . 'Recipient Email Unset (see datasources.ini)'
+                    );
+                }
+            }
+        }
 
         if ($form->useEmailHandler()) {
             return parent::sendEmail(...func_get_args());
