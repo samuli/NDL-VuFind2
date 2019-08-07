@@ -92,7 +92,7 @@ class Form extends \VuFind\Form\Form
      *
      * @var \Zend\View\HelperPluginManager
      */
-    protected $viewHelperManager;
+    protected $viewHelperManager = null;
 
     /**
      * Record driver
@@ -201,6 +201,10 @@ class Form extends \VuFind\Form\Form
     public function getHelp()
     {
         $help = parent::getHelp();
+
+        if (!$this->viewHelperManager) {
+            throw new \Exception('ViewHelperManager not defined');
+        }
 
         $transEsc = $this->viewHelperManager->get('transEsc');
         $translationEmpty = $this->viewHelperManager->get('translationEmpty');
