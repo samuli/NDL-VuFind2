@@ -84,7 +84,8 @@ class FeedbackController extends \VuFind\Controller\FeedbackController
             $this->getRequest()->getQuery('record_id')
         ))
         ) {
-            $view->form->setRecord($this->getRecordLoader()->load($id));
+            list($source, $recId) = explode('|', $id, 2);
+            $view->form->setRecord($this->getRecordLoader()->load($recId, $source));
             $data['record_id'] = $id;
         }
         $view->form->setData($data);
@@ -151,7 +152,8 @@ class FeedbackController extends \VuFind\Controller\FeedbackController
                 $this->getRequest()->getQuery('record_id')
             ))
             ) {
-                $driver = $this->getRecordLoader()->load($id);
+                list($source, $recId) = explode('|', $id, 2);
+                $driver = $this->getRecordLoader()->load($recId, $source);
                 $dataSource = $driver->getDataSource();
                 $dataSources = $this->serviceLocator
                     ->get(\VuFind\Config\PluginManager::class)->get('datasources');

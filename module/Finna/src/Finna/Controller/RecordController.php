@@ -63,7 +63,8 @@ class RecordController extends \VuFind\Controller\RecordController
             ['query' => [
                 'data' => $data,
                 'layout' => $this->getRequest()->getQuery('layout', false),
-                'record_id' => $driver->getUniqueID()
+                'record_id'
+                => $driver->getSourceIdentifier() . '|' . $driver->getUniqueID()
             ]]
         );
     }
