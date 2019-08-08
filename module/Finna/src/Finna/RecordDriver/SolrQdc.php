@@ -127,6 +127,30 @@ class SolrQdc extends \VuFind\RecordDriver\SolrDefault
             $urls[$size] = $url;
         }
 
+        // Attempt to find a PDF file to be converted to a coverimage
+        if (empty($urls)) {
+            foreach ($this->getSimpleXML()->file as $node) {
+                $attributes = $node->attributes();
+                if ((string)$attributes->bundle !== 'ORIGINAL') {
+                    continue;
+                }
+                $mimes = ['application/pdf'];
+                if (isset($attributes->type)) {
+                    if (!in_array($attributes->type, $mimes)) {
+                        continue;
+                    }
+                }
+                $url = isset($attributes->href)
+                    ? (string)$attributes->href : (string)$node;
+
+                if (!preg_match('/\.(pdf)$/i', $url)) {
+                    continue;
+                }
+                $urls['small'] = $urls['large'] = $url;
+                break;
+            }
+        }
+
         $xml = $this->getSimpleXML();
         $rights['copyright'] = !empty($xml->rights) ? (string)$xml->rights : '';
         $rights['link'] = $this->getRightsLink(

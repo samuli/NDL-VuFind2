@@ -676,6 +676,9 @@ coverimages     = NatLibFi,OpenLibrary
 ; The path is relative to the base of your theme directory.
 noCoverAvailableImage = images/noCover2.gif
 
+; Should pdf files be converted to cover images?
+convertPdfToCoverimage = false
+
 ; How long book summaries are cached locally in minutes. Default is one day
 summarycachetime = 1440
 
