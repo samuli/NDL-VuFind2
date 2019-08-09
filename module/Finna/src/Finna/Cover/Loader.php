@@ -368,7 +368,7 @@ class Loader extends \VuFind\Cover\Loader
         $tempFile = str_replace('.jpg', uniqid(), $this->localFile);
         $finalFile = $cache ? $this->localFile : $tempFile . '.jpg';
 
-        $pdfFile = preg_match('/\.(pdf)$/i', $url);
+        $pdfFile = preg_match('/\.pdf$/i', $url);
         $convertPdf = $this->config->Content->convertPdfToCoverImage ?? false;
         if ($pdfFile && !$convertPdf) {
             return false;
@@ -395,7 +395,7 @@ class Loader extends \VuFind\Cover\Loader
             throw new \Exception("Unable to write to image directory.");
         }
 
-        if (preg_match('/\.(pdf)$/i', $url)) {
+        if (preg_match('/\.pdf$/i', $url)) {
             // Convert pdf to jpg
             try {
                 $im = new \Imagick();
