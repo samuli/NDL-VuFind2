@@ -383,16 +383,8 @@ class Loader extends \VuFind\Cover\Loader
             $this->debug("Failed to retrieve image from $url");
             return false;
         }
-
-        $image = file_get_contents($tempFile);
-
-        if ('' == $image) {
+        if (!$result->getContentLength()) {
             return false;
-        }
-
-        // Write image data to disk:
-        if (!@file_put_contents($tempFile, $image)) {
-            throw new \Exception("Unable to write to image directory.");
         }
 
         if (preg_match('/\.pdf$/i', $url)) {
@@ -411,7 +403,6 @@ class Loader extends \VuFind\Cover\Loader
                 $im->setFormat('jpg');
                 $im->writeImage($tempFile);
                 $im->clear();
-                $image = file_get_contents($tempFile);
             } catch (\Exception $e) {
                 $this->debug(
                     get_class($e) . ' during conversion from pdf to jpg'
@@ -420,6 +411,8 @@ class Loader extends \VuFind\Cover\Loader
                 return false;
             }
         }
+
+        $image = file_get_contents($tempFile);
 
         // Try to create a GD image and rewrite as JPEG, fail if we can't:
         if (!($imageGD = @imagecreatefromstring($image))) {
