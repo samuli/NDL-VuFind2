@@ -369,7 +369,7 @@ class Loader extends \VuFind\Cover\Loader
         $finalFile = $cache ? $this->localFile : $tempFile . '.jpg';
 
         $pdfFile = preg_match('/\.(pdf)$/i', $url);
-        $convertPdf = $this->config->Content->convertPdfToCoverimage ?? false;
+        $convertPdf = $this->config->Content->convertPdfToCoverImage ?? false;
         if ($pdfFile && !$convertPdf) {
             return false;
         }
