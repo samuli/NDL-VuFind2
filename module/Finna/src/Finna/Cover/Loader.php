@@ -411,7 +411,6 @@ class Loader extends \VuFind\Cover\Loader
                 $im->setFormat('jpg');
                 $im->writeImage($tempFile);
                 $im->clear();
-                $im->destroy();
                 $image = file_get_contents($tempFile);
             } catch (\Exception $e) {
                 $this->debug(
