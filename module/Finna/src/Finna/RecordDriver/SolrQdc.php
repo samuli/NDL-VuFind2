@@ -100,11 +100,13 @@ class SolrQdc extends \VuFind\RecordDriver\SolrDefault
      *   - description Human readable description (array)
      *   - link        Link to copyright info
      *
-     * @param string $language Language for copyright information
+     * @param string $language   Language for copyright information
+     * @param bool   $includePdf Whether to include first PDF file when no image
+     * links are found
      *
      * @return mixed
      */
-    public function getAllImages($language = 'fi')
+    public function getAllImages($language = 'fi', $includePdf = true)
     {
         $result = [];
         $urls = [];
@@ -128,7 +130,7 @@ class SolrQdc extends \VuFind\RecordDriver\SolrDefault
         }
 
         // Attempt to find a PDF file to be converted to a coverimage
-        if (empty($urls)) {
+        if ($includePdf && empty($urls)) {
             foreach ($this->getSimpleXML()->file as $node) {
                 $attributes = $node->attributes();
                 if ((string)$attributes->bundle !== 'ORIGINAL') {

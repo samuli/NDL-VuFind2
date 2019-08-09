@@ -285,14 +285,16 @@ class Record extends \VuFind\View\Helper\Root\Record
      * @param string $language   Language for description and rights
      * @param bool   $thumbnails Whether to include thumbnail links if no image links
      * are found
+     * @param bool   $includePdf Whether to include first PDF file when no image
+     * links are found
      *
      * @return array
      */
-    public function getAllImages($language, $thumbnails = true)
+    public function getAllImages($language, $thumbnails = true, $includePdf = true)
     {
         $sizes = ['small', 'medium', 'large', 'master'];
         $recordId = $this->driver->getUniqueID();
-        $images = $this->driver->tryMethod('getAllImages', [$language]);
+        $images = $this->driver->tryMethod('getAllImages', [$language, $includePdf]);
         if (null === $images) {
             $images = [];
         }
@@ -336,13 +338,15 @@ class Record extends \VuFind\View\Helper\Root\Record
     /**
      * Return number of record images.
      *
-     * @param string $size Size of requested image
+     * @param string $size       Size of requested image
+     * @param bool   $includePdf Whether to include first PDF file when no image
+     * links are found
      *
      * @return int
      */
-    public function getNumOfRecordImages($size)
+    public function getNumOfRecordImages($size, $includePdf = true)
     {
-        $images = $this->driver->trymethod('getAllImages', ['']);
+        $images = $this->driver->trymethod('getAllImages', ['', $includePdf]);
         return count($images);
     }
 
