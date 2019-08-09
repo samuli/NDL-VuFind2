@@ -89,6 +89,30 @@ class RecordImage extends \Zend\View\Helper\AbstractHelper
     public function getLargeImage(
         $index = 0, $params = [], $canonical = false, $includePdf = true
     ) {
+        $image = $this->getLargeImageWithInfo(...func_get_args());
+        return $image['url'] ?? false;
+    }
+
+    /**
+     * Return URL to large record image with additional information.
+     *
+     * Returns an array with keys:
+     * - 'url' string Image URL
+     * - 'pdf' bool   Whether the image URL is a PDF file
+     *
+     * @param int   $index      Record image index.
+     * @param array $params     Optional array of image parameters.
+     *                          See RecordImage::render.
+     * @param bool  $canonical  Whether to return a canonical URL instead of relative
+     * @param boo   $includePdf Whether to include first PDF file when no image
+     * links are found
+     *
+     * @return mixed array with image data or false if no
+     * image with the given index was found.
+     */
+    public function getLargeImageWithInfo(
+        $index = 0, $params = [], $canonical = false, $includePdf = true
+    ) {
         $images = $this->record->getAllImages(
             $this->view->layout()->userLang, $includePdf
         );
@@ -100,9 +124,12 @@ class RecordImage extends \Zend\View\Helper\AbstractHelper
             ?? $images[$index]['urls']['medium'];
         $imageParams = array_merge($imageParams, $params);
 
-        return $urlHelper(
+        $url = $urlHelper(
             'cover-show', [], $canonical ? ['force_canonical' => true] : []
         ) . '?' . http_build_query($imageParams);
+        $pdf = $images[$index]['pdf'] ?? false;
+
+        return compact('url', 'pdf');
     }
 
     /**
@@ -118,22 +145,46 @@ class RecordImage extends \Zend\View\Helper\AbstractHelper
      */
     public function getMasterImage($index = 0, $params = [], $canonical = false)
     {
+        $image = $this->getMasterImageWithInfo($index, $params, $canonical);
+        return $image['url'] ?? false;
+    }
+
+    /**
+     * Return URL to master record image with additional information.
+     *
+     * Returns an array with keys:
+     * - 'url' string Image URL
+     * - 'pdf' bool   Whether the image URL is a PDF file
+     *
+     * @param int   $index     Record image index.
+     * @param array $params    Optional array of image parameters.
+     *                         See RecordImage::render.
+     * @param bool  $canonical Whether to return a canonical URL instead of relative
+     *
+     * @return mixed array with image data or false if no
+     * image with the given index was found.
+     */
+    public function getMasterImageWithInfo(
+        $index = 0, $params = [], $canonical = false
+    ) {
         $images = $this->record->getAllImages($this->view->layout()->userLang);
         if (!isset($images[$index])) {
             return false;
         }
         if (!isset($images[$index]['urls']['master'])) {
             // Fall back to large image
-            return $this->getLargeImage($index, $params, $canonical);
+            return $this->getLargeImageWithInfo($index, $params, $canonical);
         }
         $urlHelper = $this->getView()->plugin('url');
 
         $imageParams = $images[$index]['urls']['master'];
         $imageParams = array_merge($imageParams, $params);
 
-        return $urlHelper(
+        $url = $urlHelper(
             'cover-show', [], $canonical ? ['force_canonical' => true] : []
         ) . '?' . http_build_query($imageParams);
+        $pdf = $images[$index]['pdf'] ?? false;
+        return compact('url', 'pdf');
     }
 
     /**

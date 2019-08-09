@@ -111,6 +111,7 @@ class SolrQdc extends \VuFind\RecordDriver\SolrDefault
         $result = [];
         $urls = [];
         $rights = [];
+        $pdf = false;
         foreach ($this->getSimpleXML()->file as $node) {
             $attributes = $node->attributes();
             $size = $attributes->bundle == 'THUMBNAIL' ? 'small' : 'large';
@@ -149,6 +150,7 @@ class SolrQdc extends \VuFind\RecordDriver\SolrDefault
                     continue;
                 }
                 $urls['small'] = $urls['large'] = $url;
+                $pdf = true;
                 break;
             }
         }
@@ -168,7 +170,8 @@ class SolrQdc extends \VuFind\RecordDriver\SolrDefault
             $result[] = [
                 'urls' => $urls,
                 'description' => '',
-                'rights' => $rights
+                'rights' => $rights,
+                'pdf' => $pdf
             ];
         }
         return $result;
