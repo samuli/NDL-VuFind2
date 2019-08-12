@@ -58,16 +58,27 @@ class Record extends \VuFind\View\Helper\Root\Record
     protected $renderedUrls = [];
 
     /**
+     * Record image helper
+     *
+     * @var \Finna\View\Helper\Root\RecordImage
+     */
+    protected $recordImageHelper;
+
+    /**
      * Constructor
      *
-     * @param \Zend\Config\Config   $config VuFind configuration
-     * @param \VuFind\Record\Loader $loader Record loader
+     * @param \Zend\Config\Config                 $config      VuFind configuration
+     * @param \VuFind\Record\Loader               $loader      Record loader
+     * @param \Finna\View\Helper\Root\RecordImage $recordImage Record image helper
      */
-    public function __construct(\Zend\Config\Config $config,
-        \VuFind\Record\Loader $loader
+    public function __construct(
+        \Zend\Config\Config $config,
+        \VuFind\Record\Loader $loader,
+        \Finna\View\Helper\Root\RecordImage $recordImage
     ) {
         parent::__construct($config);
         $this->loader = $loader;
+        $this->recordImageHelper = $recordImage;
     }
 
     /**
@@ -277,6 +288,24 @@ class Record extends \VuFind\View\Helper\Root\Record
             ];
         }
         return $params;
+    }
+
+    /**
+     * Allow record image to be downloaded?
+     * If record image is converted from PDF, downloading is allowed only
+     * for configured record formats.
+     *
+     * @return boolean
+     */
+    public function allowRecordImageDownload()
+    {
+        $master = $this->recordImageHelper->getMasterImageWithInfo(0);
+        if (!$master['pdf']) {
+            return true;
+        }
+        $formats = $this->config->Content->pdfCoverImageDownload ?? '';
+        $formats = explode(',', $formats);
+        return array_intersect($formats, $this->driver->getFormats());
     }
 
     /**

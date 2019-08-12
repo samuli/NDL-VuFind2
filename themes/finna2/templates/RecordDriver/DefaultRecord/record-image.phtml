@@ -20,7 +20,7 @@
           $translatedFormat = $this->transEsc(end($formats));
           $rights = $image['rights'];
         ?>
-        <?php if (!($image['pdf'] ?? false)): ?>
+        <?php if ($this->record($this->driver)->allowRecordImageDownload()): ?>
           <div class="image-link">
             <?php if (isset($rights['copyright']) && $rights['copyright'] !== $this->transEsc('usage_F')): ?>
               <div class="open-link">
