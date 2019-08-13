@@ -755,4 +755,33 @@ class RecordController extends \VuFind\Controller\RecordController
         );
         return $view;
     }
+
+    /**
+     * ProcessSave -- store the results of the Save action.
+     *
+     * @return mixed
+     */
+    protected function processSave()
+    {
+        $result = parent::processSave();
+
+        $view = $this->createViewModel();
+        if ($this->layout()->getTemplate() === 'layout/lightbox') {
+            // Close modal with JS and prevent lightbox from reloading the page
+            // (this would reset the page scroll position)
+            $response = $this->getResponse();
+            $response->setStatusCode(200);
+            $response->getHeaders()->clearHeaders();
+            $response->setContent(
+                '<script type="text/javascript">'
+                . '$(document).ready(function() {'
+                . 'setTimeout(function() { VuFind.modal("hide");}, 10);'
+                . '});'
+                . '</script>'
+            );
+            return $response;
+        }
+
+        return $result;
+    }
 }
