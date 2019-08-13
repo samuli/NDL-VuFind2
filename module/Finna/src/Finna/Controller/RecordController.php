@@ -755,4 +755,30 @@ class RecordController extends \VuFind\Controller\RecordController
         );
         return $view;
     }
+
+    /**
+     * ProcessSave -- store the results of the Save action.
+     *
+     * @return mixed
+     */
+    protected function processSave()
+    {
+        $result = parent::processSave();
+        $view = $this->createViewModel();
+        if ($this->layout()->getTemplate() === 'layout/lightbox') {
+            if ($this->flashMessenger()->hasErrorMessages()) {
+                return $result;
+            }
+            // Return HTTP 204 so that lightbox does not get re-rendered
+            // and we can close the modal in lighbox-onsubmitdone.
+            // Clear success flashmessages so that they dont get shown in
+            // the following modal.
+            $this->flashMessenger()->clearMessagesFromNamespace('success');
+            $this->flashMessenger()->clearCurrentMessages('success');
+            $response = $this->getResponse();
+            $response->setStatusCode(204);
+            return $response;
+        }
+        return $result;
+    }
 }

@@ -192,7 +192,9 @@ VuFind.register('lightbox', function Lightbox() {
         }
         if (_onSubmitDone) {
           _evalCallback(_onSubmitDone, jQuery.Event("lightboxOnSubmitDone"), null);
-        } else {
+        }
+        if (jq_xhr.status !== 204) {
+          // Render only when not explicitly instructed otherwise
           render(content);
         }
       })
