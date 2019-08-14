@@ -769,8 +769,7 @@ class RecordController extends \VuFind\Controller\RecordController
             if ($this->flashMessenger()->hasErrorMessages()) {
                 return $result;
             }
-            // Return HTTP 204 so that lightbox does not get re-rendered
-            // and we can close the modal in lighbox-onsubmitdone.
+            // Return HTTP 204 so that the modal gets closed.
             // Clear success flashmessages so that they dont get shown in
             // the following modal.
             $this->flashMessenger()->clearMessagesFromNamespace('success');
