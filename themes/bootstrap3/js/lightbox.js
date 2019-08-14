@@ -190,10 +190,6 @@ VuFind.register('lightbox', function Lightbox() {
           VuFind.refreshPage();
           return;
         }
-        if (jq_xhr.status === 204) {
-          // No content, close lightbox
-          close();
-        }
         render(content);
       })
       .fail(function lbAjaxFail(deferred, errorType, msg) {
