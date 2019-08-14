@@ -158,12 +158,17 @@ trait R2ControllerTrait
             $email = !empty($user->email)
                 ? $user->email : $params['email'];
 
-            $success = $rems->registerUser(
-                $email,
-                $firstname,
-                $lastname,
-                $formParams
-            );
+            try {
+                $rems->registerUser(
+                    $email,
+                    $firstname,
+                    $lastname,
+                    $formParams
+                );
+            } catch (\Exception $e) {
+                $this->flashMessenger()->addErrorMessage('R2_register_error');
+                $this->flashMessenger()->addErrorMessage($e->getMessage());
+            }
 
             if ($inLightbox) {
                 // Request lightbox to refresh page

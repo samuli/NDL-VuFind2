@@ -99,7 +99,8 @@ class RemsService
      * @param string $lastname   Last name
      * @param array  $formParams Form parameters
      *
-     * @return bool
+     * @throws Exception
+     * @return void
      */
     public function registerUser(
         $email, $firstname = null, $lastname = null, $formParams = []
@@ -115,22 +116,14 @@ class RemsService
             'mail' => $email,
             'commonName' => $commonName
         ];
-        try {
-            $this->sendRequest('users/create', $params, 'POST', true);
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-
+        $this->sendRequest('users/create', $params, 'POST', true);
+        
         // 2. Create draft application
         $catItemId = $this->getCatalogItemId('entitlement');
         $params = ['catalogue-item-ids' => [$catItemId]];
 
-        try {
-            $response
-                = $this->sendRequest('applications/create', $params, 'POST');
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
+        $response = $this->sendRequest('applications/create', $params, 'POST');
+
         if (!isset($response['application-id'])) {
             return 'REMS: error creating draft application';
         }
@@ -143,45 +136,23 @@ class RemsService
         $params =  [
             'application-id' => $applicationId,
             'field-values' =>  [
-                ['field' => 1, 'value' => $firstname],
-                ['field' => 2, 'value' => $lastname],
-                ['field' => 8, 'value' => $formParams['usage_desc']]
+                ['field' => 58, 'value' => $firstname],
+                ['field' => 59, 'value' => $lastname],
+                ['field' => 60, 'value' => $email],
+                ['field' => 61, 'value' => $formParams['usage_purpose']],
+                ['field' => 62, 'value' => $formParams['usage_desc']]
             ]
         ];
 
-        try {
-            $response
-                = $this->sendRequest('applications/save-draft', $params, 'POST');
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
-
-        // 4. Accept licenses
-        $params =  [
-            'application-id' => $applicationId,
-            'accepted-licenses' => [1,2]
-        ];
-
-        try {
-            $response
-                = $this->sendRequest(
-                    'applications/accept-licenses', $params, 'POST'
-                );
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
+        $response = $this->sendRequest('applications/save-draft', $params, 'POST');
 
         // 5. Submit application
         $params = [
              'application-id' => $applicationId
         ];
-        try {
-            $response = $this->sendRequest(
-                'applications/submit', $params, 'POST'
-            );
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
+        $response = $this->sendRequest(
+            'applications/submit', $params, 'POST'
+        );
 
         $this->savePermissionToSession(
             null, $this->getSessionKey($this->getCatalogItemId('entitlement'))
