@@ -4,7 +4,6 @@ VuFind.register('lightbox', function Lightbox() {
   var _originalUrl = false;
   var _currentUrl = false;
   var _lightboxTitle = '';
-  var _onSubmitDone = false;
   var refreshOnClose = false;
   var _modalParams = {};
   // Elements
@@ -190,13 +189,11 @@ VuFind.register('lightbox', function Lightbox() {
           VuFind.refreshPage();
           return;
         }
-        if (_onSubmitDone) {
-          _evalCallback(_onSubmitDone, jQuery.Event("lightboxOnSubmitDone"), null);
+        if (jq_xhr.status === 204) {
+          // No content, close lightbox
+          close();
         }
-        if (jq_xhr.status !== 204) {
-          // Render only when not explicitly instructed otherwise
-          render(content);
-        }
+        render(content);
       })
       .fail(function lbAjaxFail(deferred, errorType, msg) {
         showAlert(VuFind.translate('error_occurred') + '<br/>' + msg, 'danger');
@@ -270,7 +267,6 @@ VuFind.register('lightbox', function Lightbox() {
    * Form data options:
    *
    * data-lightbox-onsubmit = on submit, run named function
-   * data-lightbox-onsubmitdone = on submit done, run named function
    * data-lightbox-onclose  = on close, run named function
    * data-lightbox-title = Lightbox title (overrides any title the page provides)
    *
@@ -309,10 +305,6 @@ VuFind.register('lightbox', function Lightbox() {
       if (ret === false || ret === true) {
         return ret;
       }
-    }
-    // On submit done behavior
-    if ('string' === typeof $(form).data('lightbox-onsubmitdone')) {
-      _onSubmitDone = $(form).data('lightbox-onsubmitdone');
     }
     // onclose behavior
     if ('string' === typeof $(form).data('lightboxOnclose')) {
@@ -390,7 +382,6 @@ VuFind.register('lightbox', function Lightbox() {
     _currentUrl = false;
     _lightboxTitle = '';
     _modalParams = {};
-    _onSubmitDone = false;
   }
   function init() {
     _modal = $('#modal');
