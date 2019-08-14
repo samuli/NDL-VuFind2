@@ -96,6 +96,7 @@ VuFind.register('lightbox', function Lightbox() {
     }
     // Fill HTML
     _html(finalHTML);
+    VuFind.modal('show');
     // Attach capturing events
     _modalBody.find('a').click(_constrainLink);
     // Handle submit buttons attached to a form as well as those in a form. Store
