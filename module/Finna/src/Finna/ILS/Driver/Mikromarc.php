@@ -4,7 +4,7 @@
  *
  * PHP version 7
  *
- * Copyright (C) The National Library of Finland 2017-2018.
+ * Copyright (C) The National Library of Finland 2017-2019.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -25,6 +25,7 @@
  * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @author   Konsta Raunio <konsta.raunio@helsinki.fi>
+ * @author   Juha Luoma <juha.luoma@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development:plugins:ils_drivers Wiki
  */
@@ -42,6 +43,7 @@ use VuFind\Exception\ILS as ILSException;
  * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @author   Konsta Raunio <konsta.raunio@helsinki.fi>
+ * @author   Juha Luoma <juha.luoma@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development:plugins:ils_drivers Wiki
  */
@@ -159,16 +161,18 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
      * This is responsible for retrieving the holding information of a certain
      * record.
      *
-     * @param string $id     The record id to retrieve the holdings for
-     * @param array  $patron Patron data
+     * @param string $id      The record id to retrieve the holdings for
+     * @param array  $patron  Patron data
+     * @param array  $options Extra options
      *
-     * @return mixed     On success, an associative array with the following keys:
-     * id, availability (boolean), status, location, reserve, callnumber, duedate,
-     * number, barcode.
+     * @throws \VuFind\Exception\ILS
+     * @return array         On success, an associative array with the following
+     * keys: id, availability (boolean), status, location, reserve, callnumber,
+     * duedate, number, barcode.
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function getHolding($id, array $patron = null)
+    public function getHolding($id, array $patron = null, array $options = [])
     {
         return $this->getItemStatusesForBiblio($id, $patron);
     }
@@ -1478,8 +1482,8 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
         $statuses = [];
         $organisationTotal = [];
         foreach ($result as $i => $item) {
-            $status = $item['ItemStatus'];
-            if ($status == 'Discarded') {
+            $statusCode = $this->getItemStatusCode($item);
+            if ($statusCode === 'Withdrawn') {
                 continue;
             }
 
@@ -1494,7 +1498,6 @@ class Mikromarc extends \VuFind\ILS\Driver\AbstractBase implements
             );
 
             $available = $item['ItemStatus'] === 'AvailableForLoan';
-            $statusCode = $this->getItemStatusCode($item);
             $organisationTotal[$unit['branch']] = [
                'reservations' => $item['ReservationQueueLength']
             ];

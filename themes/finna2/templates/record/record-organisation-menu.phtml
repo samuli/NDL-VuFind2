@@ -3,6 +3,7 @@
    $currentSourceTranslated = $this->transEsc("source_$currentSource", null, $currentSource);
    $mergedData = $this->driver->tryMethod('getMergedRecordData');
    $recordType = $this->driver->tryMethod('getRecordType');
+   $sector = $this->driver->tryMethod('getSector');
 ?>
 <div class="recordProvidedBy">
   <h2 class="record-organisation-header">
@@ -27,7 +28,7 @@
         <?php if (isset($currentSource['moreinfoLink'])): ?>
           <li><a href="<?=$currentSource['moreinfoLink']?>"><?=$this->transEsc('More information about organisation')?></a></li>
         <?php endif; ?>
-          <?php if ($this->organisationInfo() && $organisationInfoId = $this->driver->getOrganisationInfoId()): ?><li class="organisation-page-link" data-organisation="<?=$organisationInfoId?>" data-organisation-name="<?=$this->escapeHtmlAttr($currentSourceTranslated)?>"></li><?php endif; ?>
+          <?php if ($this->organisationInfo() && $organisationInfoId = $this->driver->getOrganisationInfoId()): ?><li class="organisation-page-link" data-organisation="<?=$organisationInfoId?>" data-organisation-name="<?=$this->escapeHtmlAttr($currentSourceTranslated)?>"data-organisation-sector=<?=$sector?>></li><?php endif; ?>
           <li><a href="<?=$this->recordLink()->getActionUrl($this->driver, 'Feedback')?>" data-lightbox class="btn btn-primary feedback-record"><?=$this->transEsc('Send feedback on record')?></a></li>
         </ul>
       </li>
@@ -38,8 +39,7 @@
         <div class="truncate-field other-organisation-links" data-rows="5">
         <?php foreach ($mergedData['records'] as $current): ?>
           <?php if ($current['source'] != $currentSource) : ?>
-          <?php // We should use RecordLink() helper below to create the record URL, but this is much faster. We can get away with it here, but this is not generally acceptable. ?>
-          <a href="<?=$this->escapeHtmlAttr($this->url('record') . urlencode($current['id'])) ?>" title="<?=$this->escapeHtmlAttr($this->translate("source_{$current['source']}", null, $current['source'])) ?>">
+          <a href="<?=$this->recordLink()->getUrl($current['id']) ?>" title="<?=$this->escapeHtmlAttr($this->translate("source_{$current['source']}", null, $current['source'])) ?>">
             <?=$this->transEsc("source_{$current['source']}", null, $current['source']) ?>
           </a>
           <?php endif; ?>

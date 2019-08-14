@@ -9,7 +9,7 @@
   $thumbnailAlignment = $this->record($this->driver)->getThumbnailAlignment('result');
   if ($img):
     ob_start(); ?>
-    <?=$img->render('list', ['medium' => ['w' => 250]]) ?>
+    <?=$img->render('list', ['small' => ['w' => 100, 'h' => 100], 'medium' => ['w' => 250]]) ?>
     <?php $thumbnail = ob_get_contents(); ?>
   <?php ob_end_clean(); ?>
 <?php endif;?>
@@ -98,7 +98,7 @@
       <div class="media condensed-collapse-data">
         <?php if (!$database && !$ejournal): ?>
           <?php if ($thumbnail && $thumbnailAlignment == 'left'): ?>
-            <div class="media-<?=$thumbnailAlignment ?> resultThumb hidden-xs">
+            <div class="media-left resultThumb">
               <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueID())?>" class="hiddenId" />
               <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getSourceIdentifier())?>" class="hiddenSource" />
                   <?=$thumbnail ?>
@@ -222,7 +222,7 @@
                     <div class="hierarchyTreeLink">
                       <input type="hidden" value="<?=$this->escapeHtmlAttr($hierarchyID)?>" class="hiddenHierarchyId" />
                       <i class="fa fa-sitemap"></i>
-                      <a class="hierarchyTreeLinkText" data-lightbox href="<?=$this->recordLink()->getTabUrl($this->driver, 'HierarchyTree')?>?hierarchy=<?=urlencode($hierarchyID)?>#tabnav" title="<?=$this->transEsc('hierarchy_tree')?>" data-lightbox-href="<?=$this->recordLink()->getTabUrl($this->driver, 'AjaxTab')?>?hierarchy=<?=urlencode($hierarchyID)?>" data-lightbox-post="tab=hierarchytree">
+                      <a class="hierarchyTreeLinkText" data-lightbox href="<?=$this->recordLink()->getTabUrl($this->driver, 'HierarchyTree', ['hierarchy' => $hierarchyID])?>#tabnav" title="<?=$this->transEsc('hierarchy_tree')?>" data-lightbox-href="<?=$this->recordLink()->getTabUrl($this->driver, 'AjaxTab', ['hierarchy' => $hierarchyID])?>" data-lightbox-post="tab=hierarchytree">
                           <?=$this->transEsc('hierarchy_view_context')?><?php if (count($trees) > 1): ?>: <?=$this->escapeHtml($hierarchyTitle)?><?php endif; ?>
                       </a>
                     </div>
@@ -230,8 +230,8 @@
                 <?php endif; ?>
             </div>
         </div>
-        <?php if ($thumbnail): ?>
-          <div class="media-right resultThumb <?= $thumbnailAlignment == 'right' ? '' : 'hidden-sm hidden-md hidden-lg'?>">
+        <?php if ($thumbnail && $thumbnailAlignment === 'right'): ?>
+          <div class="media-right resultThumb">
             <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueID())?>" class="hiddenId" />
             <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getSourceIdentifier())?>" class="hiddenSource" />
             <?=$thumbnail ?>

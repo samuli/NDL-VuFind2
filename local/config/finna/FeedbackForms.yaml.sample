@@ -108,6 +108,7 @@ forms:
           - feedback_category_general
           - feedback_category_metadata
           - feedback_category_services
+          - feedback_category_accessibility
           - feedback_category_usability
           - feedback_category_technical
         label: Subject
@@ -130,16 +131,46 @@ forms:
           - Yes
           - No
 
+  # Record feedback form
+  FeedbackRecord:
+    allowLocalOverride: true
+    title: Send feedback on record
+    enabled: true
+    useCaptcha: false
+    #sendMethod: "database"
+    
+    onlyForLoggedUsers: false
+    emailSubject: "Palautetta Finnasta tietueesta: %%record%%"
+    response: Thank you for your feedback.
+    senderInfoRequired: false 
+    senderInfoHelp: feedback_info
+    hideSenderInfo: true
+    help:
+      pre: feedback_record_instructions_html
+
+    fields:
+      - name: category
+        type: select
+        options:
+          - feedback_category_general
+          - feedback_category_accessibility
+        label: Subject
+      - name: from
+        type: email
+        label: email_from
+        required: true
+      - name: message
+        type: textarea
+        label: feedback_message
+        required: true
+
+  # R2 register user form
   R2Register:
     allowLocalOverride: false
     title: "R2_register_form_title"
     enabled: false
     useCaptcha: false
     onlyForLoggedUsers: true
-    response: Thank you for your feedback.
-    senderInfoRequired: false 
-    senderInfoHelp: feedback_info
-    hideSenderInfo: true
     hideRecipientInfo: true
     help:
       pre: R2_register_form_help_pre
@@ -172,4 +203,22 @@ forms:
       - name: usage_desc
         type: textarea
         label: R2_register_form_usage_desc
-        
+
+    help:
+      pre: feedback_record_instructions_html
+
+    fields:
+      - name: category
+        type: select
+        options:
+          - feedback_category_general
+          - feedback_category_accessibility
+        label: Subject
+      - name: from
+        type: email
+        label: email_from
+        required: true
+      - name: message
+        type: textarea
+        label: feedback_message
+        required: true

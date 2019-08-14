@@ -133,6 +133,16 @@ $config = [
                         'action'     => 'Feedback',
                     ]
                 ]
+            ],
+            'record-preview' => [
+                'type' => 'Zend\Router\Http\Literal',
+                'options' => [
+                    'route'    => '/RecordPreview',
+                    'defaults' => [
+                        'controller' => 'Record',
+                        'action'     => 'PreviewForm',
+                    ]
+                ],
             ]
         ],
     ],
@@ -318,8 +328,8 @@ $config = [
                         'Finna\AjaxHandler\GetFacetDataFactory',
                     'Finna\AjaxHandler\GetFeed' =>
                         'Finna\AjaxHandler\GetFeedFactory',
-                    'Finna\AjaxHandler\GetImagePopup' =>
-                        'Finna\AjaxHandler\GetImagePopupFactory',
+                    'Finna\AjaxHandler\GetImageInformation' =>
+                        'Finna\AjaxHandler\GetImageInformationFactory',
                     'Finna\AjaxHandler\GetOrganisationInfo' =>
                         'Finna\AjaxHandler\GetOrganisationInfoFactory',
                     'Finna\AjaxHandler\GetOrganisationPageFeed' =>
@@ -359,7 +369,7 @@ $config = [
                     'getDescription' => 'Finna\AjaxHandler\GetDescription',
                     'getDateRangeVisual' => 'Finna\AjaxHandler\GetDateRangeVisual',
                     'getFeed' => 'Finna\AjaxHandler\GetFeed',
-                    'getImagePopup' => 'Finna\AjaxHandler\GetImagePopup',
+                    'getImageInformation' => 'Finna\AjaxHandler\GetImageInformation',
                     'getOrganisationPageFeed' => 'Finna\AjaxHandler\GetOrganisationPageFeed',
                     'getMyLists' => 'Finna\AjaxHandler\GetUserLists',
                     'getOrganisationInfo' => 'Finna\AjaxHandler\GetOrganisationInfo',
@@ -684,113 +694,6 @@ $config = [
                     'similardeferred' => 'Finna\Related\SimilarDeferred',
                     'workexpressions' => 'Finna\Related\WorkExpressions',
                 ]
-            ],
-        ],
-        'recorddriver_collection_tabs' => [
-            'Finna\RecordDriver\SolrEad' => [
-                'tabs' => [
-                    'CollectionList' => 'CollectionList',
-                    'HierarchyTree' => 'CollectionHierarchyTree',
-                    'UserComments' => 'UserComments',
-                    'Details' => 'StaffViewArray',
-                ],
-                'defaultTab' => null,
-            ],
-        ],
-        'recorddriver_tabs' => [
-            'Finna\RecordDriver\EDS' => [
-                'tabs' => [
-                    'TOC' => 'TOC', 'UserComments' => 'UserComments',
-                    'Reviews' => 'Reviews', 'Excerpt' => 'Excerpt',
-                    'Preview' => 'preview',
-                    'Details' => 'StaffViewArray',
-                ],
-                'defaultTab' => null,
-            ],
-            'Finna\RecordDriver\SolrDefault' => [
-                'tabs' => [
-                    'Holdings' => 'HoldingsILS',
-                    'ComponentParts' => 'ComponentParts',
-                    'TOC' => 'TOC', 'UserComments' => 'UserComments',
-                    'Reviews' => 'Reviews', 'Excerpt' => 'Excerpt',
-                    'Preview' => 'preview',
-                    'HierarchyTree' => 'HierarchyTree', 'Map' => 'Map',
-                    'Details' => 'StaffViewArray',
-                ],
-                'defaultTab' => null,
-            ],
-            'Finna\RecordDriver\SolrMarc' => [
-                'tabs' => [
-                    'Holdings' => 'HoldingsILS',
-                    'ComponentParts' => 'ComponentParts',
-                    'TOC' => 'TOC', 'UserComments' => 'UserComments',
-                    'Reviews' => 'Reviews', 'Excerpt' => 'Excerpt',
-                    'Preview' => 'preview',
-                    'HierarchyTree' => 'HierarchyTree', 'Map' => 'Map',
-                    'Details' => 'StaffViewMARC',
-                ],
-                'defaultTab' => null,
-            ],
-            'Finna\RecordDriver\SolrEad' => [
-                'tabs' => [
-                    'HierarchyTree' => 'HierarchyTree',
-                    'UserComments' => 'UserComments',
-                    'Reviews' => 'Reviews',
-                    'Map' => 'Map',
-                    'Details' => 'StaffViewArray',
-                ],
-                'defaultTab' => null,
-            ],
-            'Finna\RecordDriver\SolrEad3' => [
-                'tabs' => [
-                    'LocationsEad3' => 'LocationsEad3',
-                    'HierarchyTree' => 'HierarchyTree',
-                    'UserComments' => 'UserComments',
-                    'Reviews' => 'Reviews',
-                    'Map' => 'Map',
-                    'Details' => 'StaffViewArray',
-                ],
-                'defaultTab' => null,
-            ],
-            'Finna\RecordDriver\SolrForward' => [
-                'tabs' => [
-                    'UserComments' => 'UserComments',
-                    'Reviews' => 'Reviews',
-                    'Map' => 'Map',
-                    'PressReview' => 'PressReview',
-                    'Music' => 'Music',
-                    'Distribution' => 'Distribution',
-                    'InspectionDetails' => 'InspectionDetails',
-                    'DescriptionFWD' => 'DescriptionFWD',
-                    'ItemDescription' => 'ItemDescription',
-                    'Details' => 'StaffViewArray',
-                ],
-                'defaultTab' => null,
-            ],
-            'Finna\RecordDriver\SolrLido' => [
-                'tabs' => [
-                    'UserComments' => 'UserComments',
-                    'Reviews' => 'Reviews',
-                    'Map' => 'Map',
-                    'Details' => 'StaffViewArray',
-                ],
-                'defaultTab' => null,
-            ],
-            'Finna\RecordDriver\SolrQdc' => [
-                'tabs' => [
-                    'UserComments' => 'UserComments',
-                    'Reviews' => 'Reviews',
-                    'Map' => 'Map',
-                    'Details' => 'StaffViewArray',
-                ],
-                'defaultTab' => null,
-            ],
-            'Finna\RecordDriver\Primo' => [
-                'tabs' => [
-                    'UserComments' => 'UserComments',
-                    'Details' => 'StaffViewArray'
-                ],
-                'defaultTab' => null,
             ],
         ],
     ],
