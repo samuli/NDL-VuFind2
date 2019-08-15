@@ -62,7 +62,19 @@ trait R2ControllerTrait
             = $this->getRequest()->getQuery('layout', 'no') === 'lightbox'
                || 'layout/lightbox' == $this->layout()->getTemplate();
 
-        $closeForm = function ($shibbolethAuthenticated = true) use ($session) {
+        $getRedirect = function () use ($recordId, $collection) {
+            $recordId
+                ? $this->redirect()->toRoute(
+                    $collection
+                    ? 'r2collection-home' : 'r2record-home',
+                    ['id' => $recordId]
+                )
+                : $this->redirect()->toRoute('search-home');
+        };
+
+        $closeForm = function ($shibbolethAuthenticated = true) use (
+            $session, $getRedirect
+        ) {
             $recordId = $session->recordId ?? null;
             $collection = $session->collection ?? false;
             unset($session->inLightbox);
@@ -76,15 +88,7 @@ trait R2ControllerTrait
                 return '';
             } else {
                 // Login outside lightbox: redirect
-                if ($recordId) {
-                    return $this->redirect()->toRoute(
-                        $collection
-                        ? 'r2collection-home' : 'r2record-home',
-                        ['id' => $recordId]
-                    );
-                } else {
-                    return $this->redirect()->toRoute('search-home');
-                }
+                return $getRedirect();
             }
         };
 
@@ -109,7 +113,10 @@ trait R2ControllerTrait
         $rems = $this->serviceLocator->get('Finna\RemsService\RemsService');
         $permission = $rems->checkPermission(true);
         if (!$permission['success']) {
-            return 'error';
+            if ($msg = $permission['status'] ?? null) {
+                $this->flashMessenger()->addErrorMessage("REMS error: $msg");
+            }
+            return $getRedirect();
         }
 
         $showRegisterForm
