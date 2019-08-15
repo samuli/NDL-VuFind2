@@ -77,6 +77,6 @@ class R2Ead3 extends SolrEad3
      */
     public function isRestrictedMetadataIncluded()
     {
-        return $this->fields['display_restriction_id_str'] === '10';
+        return ($this->fields['display_restriction_id_str'] ?? false) === '10';
     }
 }
