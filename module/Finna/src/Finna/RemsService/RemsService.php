@@ -233,7 +233,7 @@ class RemsService
             foreach ($application['application/resources'] as $catItem) {
                 if ($catItem['catalogue-item/id'] === $catItemId) {
                     $titles = $catItem['catalogue-item/title'];
-                    $title = $titles[$locale] ?? $titles['fi'];
+                    $title = $titles[$locale] ?? $titles['default'] ?? '';
                     break;
                 }
             }
