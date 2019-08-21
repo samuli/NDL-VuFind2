@@ -765,7 +765,7 @@ class RecordController extends \VuFind\Controller\RecordController
     {
         $result = parent::processSave();
         $view = $this->createViewModel();
-        if ($this->layout()->getTemplate() === 'layout/lightbox') {
+        if ($this->inLightbox()) {
             if ($this->flashMessenger()->hasErrorMessages()) {
                 return $result;
             }
