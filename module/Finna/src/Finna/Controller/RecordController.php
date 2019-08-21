@@ -764,7 +764,6 @@ class RecordController extends \VuFind\Controller\RecordController
     protected function processSave()
     {
         $result = parent::processSave();
-        $view = $this->createViewModel();
         if ($this->inLightbox()) {
             if ($this->flashMessenger()->hasErrorMessages()) {
                 return $result;
