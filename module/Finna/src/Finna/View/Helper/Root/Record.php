@@ -72,6 +72,13 @@ class Record extends \VuFind\View\Helper\Root\Record
     protected $recordImageHelper;
 
     /**
+     * Url helper
+     *
+     * @var \Finna\View\Helper\Root\Url
+     */
+    protected $urlHelper;
+
+    /**
      * Constructor
      *
      * @param \Zend\Config\Config                 $config           VuFind configuration
@@ -80,17 +87,20 @@ class Record extends \VuFind\View\Helper\Root\Record
      * @param \VuFind\Record\Loader               $loader           Record loader
      * @param \Finna\View\Helper\Root\RecordImage $recordImage      Record image
      * helper
+     * @param \Finna\View\Helper\Root\Url         $urlHelper        Url helper
      */
     public function __construct(
         \Zend\Config\Config $config,
         \Zend\Config\Config $datasourceConfig,
         \VuFind\Record\Loader $loader,
-        \Finna\View\Helper\Root\RecordImage $recordImage
+        \Finna\View\Helper\Root\RecordImage $recordImage,
+        \Finna\View\Helper\Root\Url $urlHelper
     ) {
         parent::__construct($config);
         $this->datasourceConfig = $datasourceConfig;
         $this->loader = $loader;
         $this->recordImageHelper = $recordImage;
+        $this->urlHelper = $urlHelper;
     }
 
     /**
@@ -204,6 +214,7 @@ class Record extends \VuFind\View\Helper\Root\Record
         $searchAction = !empty($this->getView()->browse)
             ? 'browse-' . $this->getView()->browse : '';
         $params = $params ?? [];
+        $filter = null;
 
         // Attempt to switch Author search link to Authority page link.
         if ($type === 'author'
@@ -211,7 +222,7 @@ class Record extends \VuFind\View\Helper\Root\Record
             && $this->isAuthorityPageEnabled()
         ) {
             if ($authId = $this->getAuthorityId($type, $params['id'])) {
-                $lookfor = $authId;
+                $filter = $this->urlHelper->getRecordsByAuthorFilter($authId);
                 $type = 'author-id';
             }
         }
@@ -221,7 +232,8 @@ class Record extends \VuFind\View\Helper\Root\Record
             [
                 'driver' => $this->driver,
                 'lookfor' => $lookfor,
-                'searchAction' => $searchAction
+                'searchAction' => $searchAction,
+                'filter' => $filter
             ]
         );
         $result = $this->renderTemplate(

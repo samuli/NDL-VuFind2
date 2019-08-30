@@ -27,6 +27,7 @@
  */
 namespace Finna\View\Helper\Root;
 
+use Finna\Search\Factory\UrlQueryHelperFactory;
 use Interop\Container\ContainerInterface;
 use Zend\ServiceManager\Factory\FactoryInterface;
 
@@ -65,7 +66,8 @@ class RecordFactory implements FactoryInterface
             $container->get(\VuFind\Config\PluginManager::class)->get('config'),
             $container->get(\VuFind\Config\PluginManager::class)->get('datasources'),
             $container->get(\VuFind\Record\Loader::class),
-            $container->get('ViewHelperManager')->get('recordImage')
+            $container->get('ViewHelperManager')->get('recordImage'),
+            $container->get('ViewHelperManager')->get('url')
         );
         if ('cli' !== php_sapi_name()) {
             $helper->setCoverRouter(

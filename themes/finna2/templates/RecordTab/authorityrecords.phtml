@@ -24,13 +24,9 @@ $i = 0;
     $urlQuery = $results->getUrlQuery();
     $params = $urlQuery->getParamArray();
     $lookfor = $params['lookfor'];
-    unset($params['lookfor']);
-    unset($params['sort']);
-    $params['filter'] = [$lookfor];
-    $queryString = $urlQuery->buildQueryString($params);
   ?>
   <div>
-    <p><a href="<?= $this->url('search-results') . '?' . $queryString ?>"><?= $this->translate(
+    <p><a href="<?= $this->url('search-results') . '?filter[]=' . urlencode($lookfor) ?>"><?= $this->translate(
          'show_all_results', [
            '%%total%%' => $this->localizedNumber($results->getResultTotal())
          ]
