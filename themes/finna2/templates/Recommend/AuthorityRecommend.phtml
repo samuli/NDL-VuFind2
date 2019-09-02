@@ -12,8 +12,9 @@ $that = $this;
     <?php $summ = $record->getSummary(); if (!empty($summ)): ?>
     <div class="truncate-field wide recordSummary">
       <p class="summary">
-      <?php foreach ($summ as $field): ?>
-        <?=$this->escapeHtml($field)?><br/>
+       <?php foreach ($summ as $field): ?>
+        <?// NOTE: the driver is responsible for returning only safe tags ?>
+        <?=$field?><br/>
       <?php endforeach; ?>
       </p>
     </div>
