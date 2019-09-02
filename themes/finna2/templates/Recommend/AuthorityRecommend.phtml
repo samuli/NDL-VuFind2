@@ -1,23 +1,59 @@
 <?php
-  $results = $this->recommend->getResults();
-  $recommendations = $this->recommend->getRecommendations();
-  $driver = $recommendations[0] ?? null;
+$data = $this->recommend->getRecommendations();
+$results = $this->recommend->getResults();
+$that = $this;
 ?>
-<?php if ($driver): ?>
+
+<?php if ($params->hasAuthorIdFilter()): ?>
   <div class="authoritybox">
-    <div class="title-container">
-      <h2 class="search-title">
-        <a class="title" href="<?= $this->url('authorityrecord', ['id' => $driver->getUniqueID()])?>">
-          <?=$this->record($driver)->getTitleHtml()?><span class="sr-only"> <?=$this->transEsc('To the record')?></span>
-            </a>
-          </h2>
+    <?php $record = $data[0]; ?>
+    <h3 property="name" class="record-title"><?=$this->escapeHtml($record->getTitle())?></h3>
+    <div class="resultItemFormat"><strong><?=$this->record($record)->getFormatList() ?></strong></div>
+    <?php $summ = $record->getSummary(); if (!empty($summ)): ?>
+    <div class="truncate-field wide recordSummary">
+      <p class="summary">
+      <?php foreach ($summ as $field): ?>
+        <?=$this->escapeHtml($field)?><br/>
+      <?php endforeach; ?>
+      </p>
     </div>
-    <div class="dateyeartype">
-      <div class="resultItemFormat"><?=$this->record($driver)->getFormatList() ?></div>
-    </div>
-    <?php $searchUrl = $this->url('authority-search') . $results->getUrlQuery()->removeAllFilters(); ?>
-      <div>
-        <a href="<?=$searchUrl?>"><?= $this->translate('show_all_results', ['%%total%%' => $this->localizedNumber(count($recommendations))])?></a>
-      </div>
+    <?php endif; ?>
+    <?php
+      $formatter = $this->recordDataFormatter();
+      $coreFields = $formatter->getDefaults('authority');
+      $coreFields = $formatter->getData($record, $coreFields);
+    ?>
+    <?php if (!empty($coreFields)): ?>
+      <table class="table table-finna-record record-details">
+        <?=$this->record($record)->renderTemplate('core-fields.phtml', ['coreFields' => $coreFields]);?>
+      </table>
+    <?php endif; ?>
   </div>
+<?php else: ?>
+  <?php
+    $displayQuery = $results->getParams()->getDisplayQuery();
+    if (!$displayQuery) {
+      return;
+    }
+    $that = $this;
+    $searchIndex = $this->contextParams['searchIndex'] ?? null;
+    $hiddenFilters = $searchIndex
+        ? $this->searchTabs()->getCurrentHiddenFilterParams($searchIndex)
+        : '';
+    $callback = function ($record) use ($displayQuery, $hiddenFilters, $that) {
+        // Generate a new search URL that replaces the user's current term
+        // with the authority term:
+        $id = $record->getUniqueId();
+        $authoritySearchUrl = $that->url(null) . '?filter[]=' . urlencode($that->url()->getRecordsByAuthorFilter($id)) . $hiddenFilters;
+        $html = '<span class="authority-page-link"><a class="authority-page" href="' . $authoritySearchUrl . '">' . $that->escapeHtml($record->getBreadCrumb()) . '</a></span>';
+        return $html;
+    };
+    $content = implode(', ', array_map($callback, $data));
+    if (!empty($content)) {
+      echo('<div class="authoritybox">');
+      echo('<div><strong>' . $this->transEsc($this->recommend->getHeader()) . ':</strong></div>');
+      echo("<div>$content</div>");
+      echo('</div>');
+    }
+  ?>
 <?php endif; ?>

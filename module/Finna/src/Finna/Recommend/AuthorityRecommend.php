@@ -51,19 +51,38 @@ namespace Finna\Recommend;
 class AuthorityRecommend extends \VuFind\Recommend\AuthorityRecommend
 {
     /**
-     * Perform a search of the authority index.
-     *
-     * @param array $params Array of request parameters.
+     * Get recommendations (for use in the view).
      *
      * @return array
      */
-    protected function performSearch($params)
+    public function getRecommendations()
     {
-        if (empty($this->lookfor)) {
-            // Do not show recommendations for empty search
-            return [];
+        return array_unique($this->recommendations, SORT_REGULAR);
+    }
+
+    /**
+     * Called at the end of the Search Params objects' initFromRequest() method.
+     * This method is responsible for setting search parameters needed by the
+     * recommendation module and for reading any existing search parameters that may
+     * be needed.
+     *
+     * @param \VuFind\Search\Base\Params $params  Search parameter object
+     * @param \Zend\StdLib\Parameters    $request Parameter object representing user
+     * request.
+     *
+     * @return void
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function init($params, $request)
+    {
+        if ($id = $params->getAuthorIdFilter()) {
+            $this->lookfor = 'id:' . $id;
+            $this->header = 'Author';
+        } else {
+            // Save user search query:
+            $this->lookfor = $request->get('lookfor');
         }
-        return parent::performSearch($params);
     }
 
     /**
@@ -73,32 +92,9 @@ class AuthorityRecommend extends \VuFind\Recommend\AuthorityRecommend
      */
     protected function addUseForHeadings()
     {
-
-        // Build an advanced search request that prevents Solr from retrieving
-        // records that would already have been retrieved by a search of the biblio
-        // core, i.e. it only returns results where $lookfor IS found in in the
-        // "Heading" search and IS NOT found in the "MainHeading" search defined
-        // in authsearchspecs.yaml.
-        $params = [
-            'join' => 'AND',
-            'bool0' => ['AND'],
-            'lookfor0' => [$this->lookfor],
-            'type0' => ['Heading'],
-            'bool1' => ['NOT'],
-            'lookfor1' => [$this->lookfor],
-            'type1' => ['MainHeading']
-        ];
-
-        $this->recommendations = $this->performSearch($params);
-    }
-
-    /**
-     * Get recommendations (for use in the view).
-     *
-     * @return array
-     */
-    public function getRecommendations()
-    {
-        return $this->recommendations;
+        $params = ['lookfor' => $this->lookfor, 'type' => 'MainHeading'];
+        foreach ($this->performSearch($params) as $result) {
+            $this->recommendations[] = $result;
+        }
     }
 }

@@ -768,8 +768,14 @@ class SolrForward extends \VuFind\RecordDriver\SolrDefault
                 && (empty($requiredValue)
                 || $attributes->{$attribute} == $requiredValue)
             ) {
+                $authId = isset($agent->AgentIdentifier)
+                    ? (string)$agent->AgentIdentifier->IDTypeName . ':' .
+                    (string)$agent->AgentIdentifier->IDValue
+                    : null;
+
                 $item = [
-                    'name' => (string)$agent->AgentName
+                    'name' => (string)$agent->AgentName,
+                    'id' => $authId
                 ];
                 $agentAttrs = $agent->AgentName->attributes();
                 foreach ($includeAttrs as $key => $attr) {

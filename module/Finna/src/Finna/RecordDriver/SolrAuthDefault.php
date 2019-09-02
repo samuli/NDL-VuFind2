@@ -88,4 +88,14 @@ class SolrAuthDefault extends \VuFind\RecordDriver\SolrAuthDefault
     {
         return [];
     }
+
+    /**
+     * Get an array of all the formats associated with the record.
+     *
+     * @return array
+     */
+    public function getFormats()
+    {
+        return [$this->fields['record_type']];
+    }
 }

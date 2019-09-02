@@ -406,4 +406,40 @@ trait FinnaParams
     {
         // NOOP for backwards-compatibility
     }
+
+    /**
+     * Check if author_id filter is active.
+     *
+     * @return boolean
+     */
+    public function hasAuthorIdFilter()
+    {
+        foreach ($this->getFilterList() as $key => $val) {
+            if ($key === 'authority_id_label') {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Return id of active author_id filter.
+     *
+     * @return mixed null|string
+     */
+    public function getAuthorIdFilter()
+    {
+        foreach ($this->getFilterList() as $key => $val) {
+            if ($key === 'authority_id_label') {
+                $filter = $val[0]['value'] ?? null;
+                if (!$filter) {
+                    return null;
+                }
+                $parts = explode(' ', $filter);
+                list($key, $val) = explode(':', substr($parts[0], 1, -1), 2);
+                return $val;
+            }
+        }
+        return null;
+    }
 }
