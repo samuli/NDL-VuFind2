@@ -69,10 +69,14 @@ class Factory
      */
     public static function getSideFacets(ServiceManager $sm)
     {
-        return new SideFacets(
+        $sidefacets = new SideFacets(
             $sm->get(\VuFind\Config\PluginManager::class),
             $sm->get(\VuFind\Search\Solr\HierarchicalFacetHelper::class)
         );
+        $sidefacets->setAuthorityIdFacetHelper(
+            $sm->get(\Finna\Search\Solr\AuthorityIdFacetHelper::class)
+        );
+        return $sidefacets;
     }
 
     /**

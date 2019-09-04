@@ -47,11 +47,11 @@ class Url extends \VuFind\View\Helper\Root\Url
      */
     public function getRecordsByAuthorFilter($id)
     {
-        $relations = ['author', 'author2', 'author_corporate'];
+        $relations = ['author2', 'author_corporate'];
         $lookfor = implode(
             ' OR ', array_map(
                 function ($relation) use ($id) {
-                    return "(${relation}_id_str_mv:\"$id\")";
+                    return "(${relation}_id_str_mv:\"{$id}\")";
                 },
                 $relations
             )

@@ -5,33 +5,37 @@ $that = $this;
 ?>
 
 <?php if ($params->hasAuthorIdFilter()): ?>
-  <div class="authoritybox">
-    <?php $record = $data[0]; ?>
-    <h3 property="name" class="record-title"><?=$this->escapeHtml($record->getTitle())?></h3>
-    <div class="resultItemFormat"><strong><?=$this->record($record)->getFormatList() ?></strong></div>
-    <?php $summ = $record->getSummary(); if (!empty($summ)): ?>
-    <div class="truncate-field wide recordSummary">
-      <p class="summary">
-       <?php foreach ($summ as $field): ?>
-        <?// NOTE: the driver is responsible for returning only safe tags ?>
-        <?=$field?><br/>
-      <?php endforeach; ?>
-      </p>
+  <?php // Authority info for a single author (when author-id filter is active) ?>
+  <?php if (!empty($data)): ?>
+    <div class="authoritybox">
+      <?php $record = $data[0]; ?>
+      <h3 property="name" class="record-title"><?=$this->escapeHtml($record->getTitle())?></h3>
+      <div class="resultItemFormat"><strong><?=$this->record($record)->getFormatList() ?></strong></div>
+      <?php $summ = $record->getSummary(); if (!empty($summ)): ?>
+      <div class="truncate-field wide recordSummary">
+        <p class="summary">
+         <?php foreach ($summ as $field): ?>
+          <?// NOTE: the driver is responsible for returning only safe tags ?>
+          <?=$field?><br/>
+        <?php endforeach; ?>
+        </p>
+      </div>
+      <?php endif; ?>
+      <?php
+        $formatter = $this->recordDataFormatter();
+        $coreFields = $formatter->getDefaults('authority');
+        $coreFields = $formatter->getData($record, $coreFields);
+      ?>
+      <?php if (!empty($coreFields)): ?>
+        <table class="table table-finna-record record-details">
+          <?=$this->record($record)->renderTemplate('core-fields.phtml', ['coreFields' => $coreFields]);?>
+        </table>
+      <?php endif; ?>
     </div>
-    <?php endif; ?>
-    <?php
-      $formatter = $this->recordDataFormatter();
-      $coreFields = $formatter->getDefaults('authority');
-      $coreFields = $formatter->getData($record, $coreFields);
-    ?>
-    <?php if (!empty($coreFields)): ?>
-      <table class="table table-finna-record record-details">
-        <?=$this->record($record)->renderTemplate('core-fields.phtml', ['coreFields' => $coreFields]);?>
-      </table>
-    <?php endif; ?>
-  </div>
+  <?php endif; ?>
 <?php else: ?>
   <?php
+    // Authority recommendations when no author-id filter is active.
     $displayQuery = $results->getParams()->getDisplayQuery();
     if (!$displayQuery) {
       return;
