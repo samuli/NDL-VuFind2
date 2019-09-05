@@ -58,4 +58,9 @@ class Url extends \VuFind\View\Helper\Root\Url
         );
         return $lookfor;
     }
+
+    public function getRecordsByAuthorRoleFilter($role)
+    {
+        return "author2_id_role_str_mv:\"{$role}\"";
+    }
 }

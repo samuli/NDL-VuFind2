@@ -132,10 +132,13 @@ class AuthorityIdFacetHelper
 
         $records = $this->recordLoader->loadBatchForSource($ids, 'SolrAuth', true);
         foreach ($facetList as &$facet) {
-            list($id, $role) = explode('###', $facet['displayText'], 2);            
+            list($id, $role) = $this->extractRole($facet['displayText']);
             foreach ($records as $record) {
                 if ($record->getUniqueId() === $id) {
-                    $facet['displayText'] = $this->formatDisplayText($record, $role);
+                    list($displayText, $role)
+                        = $this->formatDisplayText($record, $role);
+                    $facet['displayText'] = $displayText;
+                    $facet['role'] = $role;
                     continue;
                 }
             }
@@ -151,15 +154,26 @@ class AuthorityIdFacetHelper
      *
      * @return string
      */
-    public function formatFacet($value)
+    public function formatFacet($value, $extendedInfo = false)
+    {
+        $id = $value;
+        $role = null;
+        list($id, $role) = $this->extractRole($value);
+        $record = $this->recordLoader->load($id, 'SolrAuth', true);
+        list($displayText, $role) = $this->formatDisplayText($record, $role);
+        return $extendedInfo
+            ? ['id' => $id, 'displayText' => $displayText, 'role' => $role]
+            : $displayText;
+    }
+
+    protected function extractRole($value)
     {
         $id = $value;
         $role = null;
         if (strpos($value, '###') !== false) {
             list($id, $role) = explode('###', $value, 2);
         }
-        $record = $this->recordLoader->load($id, 'SolrAuth', true);
-        return $this->formatDisplayText($record, $role);
+        return [$id, $role];
     }
 
     /**
@@ -179,6 +193,6 @@ class AuthorityIdFacetHelper
             );
             $displayText .= " ($role)";
         }
-        return $displayText;
+        return [$displayText, $role];
     }
 }

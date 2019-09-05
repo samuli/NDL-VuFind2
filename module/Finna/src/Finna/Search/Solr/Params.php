@@ -105,6 +105,8 @@ class Params extends \VuFind\Search\Solr\Params
      */
     protected $authorityIdFacetHelper = null;
 
+    protected $facetFilters = [];
+
     /**
      * Constructor
      *
@@ -302,6 +304,10 @@ class Params extends \VuFind\Search\Solr\Params
                     }
                 }
             }
+        }
+
+        foreach ($this->facetFilters as $filter => $value) {
+            $result->add($filter, $value);
         }
 
         return $result;
@@ -551,6 +557,12 @@ class Params extends \VuFind\Search\Solr\Params
     public function setHierarchicalFacetLimit($limit)
     {
         $this->hierarchicalFacetLimit = $limit;
+    }
+
+    public function addFacetFilter($field, $value, $prefix = true)
+    {
+        $key = $prefix ? 'prefix' : 'contains';
+        $this->facetFilters["f.{$field}.facet.{$key}"] = $value;
     }
 
     /**

@@ -78,6 +78,13 @@ class Record extends \VuFind\View\Helper\Root\Record
      *
      * @var \Finna\View\Helper\Root\Url
      */
+    protected $authorityIdFacetHelper;
+
+    /**
+     * Url helper
+     *
+     * @var \Finna\View\Helper\Root\Url
+     */
     protected $urlHelper;
 
     /**
@@ -110,12 +117,14 @@ class Record extends \VuFind\View\Helper\Root\Record
         \Zend\Config\Config $datasourceConfig,
         \VuFind\Record\Loader $loader,
         \Finna\View\Helper\Root\RecordImage $recordImage,
+        \Finna\Search\Solr\AuthorityIdFacetHelper $authorityIdFacetHelper,
         \Finna\View\Helper\Root\Url $urlHelper
     ) {
         parent::__construct($config);
         $this->datasourceConfig = $datasourceConfig;
         $this->loader = $loader;
         $this->recordImageHelper = $recordImage;
+        $this->authorityIdFacetHelper = $authorityIdFacetHelper;
         $this->urlHelper = $urlHelper;
     }
 
@@ -235,12 +244,15 @@ class Record extends \VuFind\View\Helper\Root\Record
         // Attempt to switch Author search link to Authority page link.
         if ($type === 'author'
             && isset($params['id'])
-            && $this->isAuthorityPageEnabled()
         ) {
             if ($authId = $this->getAuthorityId($type, $params['id'])) {
                 $filter = $this->urlHelper->getRecordsByAuthorFilter($authId);
                 $type = 'author-id';
             }
+        } elseif ($type === 'author-id-role' && isset($params['role'])) {
+            $authorInfo = $this->authorityIdFacetHelper->formatFacet($params['role'], true);
+            $filter = $this->urlHelper->getRecordsByAuthorRoleFilter($params['role']);
+            $type = 'author-id-role';
         }
 
         $params = array_merge(
@@ -339,12 +351,16 @@ class Record extends \VuFind\View\Helper\Root\Record
      */
     protected function getAuthorityId($type, $id)
     {
-        $recordSource = $this->driver->getDatasource();
+        $recordSource = $this->driver->getDataSource();
         $authSrc = $this->datasourceConfig[$recordSource]['authority'][$type]
             ?? $this->datasourceConfig[$recordSource]['authority']['*']
             ?? null;
+        return $authSrc ? $this->getAuthorityIdForSource($id, $authSrc) : null;
+    }
 
-        return $authSrc ? "$authSrc.$id" : null;
+    protected function getAuthorityIdForSource($id, $source)
+    {
+        return "$source.$id";
     }
 
     /**

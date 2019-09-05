@@ -30,6 +30,9 @@
  */
 namespace Finna\Recommend;
 
+use Finna\Search\Solr\AuthorityIdFacetHelper;
+use Zend\StdLib\Parameters;
+
 /**
  * AuthorityRecommend Module
  *
@@ -50,6 +53,11 @@ namespace Finna\Recommend;
  */
 class AuthorityRecommend extends \VuFind\Recommend\AuthorityRecommend
 {
+    protected $authorId = null;
+    protected $request;
+    protected $roles = null;
+    protected $authorityIdFacetHelper = null;
+
     /**
      * Get recommendations (for use in the view).
      *
@@ -77,12 +85,44 @@ class AuthorityRecommend extends \VuFind\Recommend\AuthorityRecommend
     public function init($params, $request)
     {
         if ($id = $params->getAuthorIdFilter()) {
-            $this->lookfor = 'id:' . $id;
+            $this->authorId = $id;
+            $this->lookfor = "id:\"{$id}\"";
             $this->header = 'Author';
+            $this->request = $request;
         } else {
             // Save user search query:
             $this->lookfor = $request->get('lookfor');
         }
+    }
+
+    /**
+     * Get recommendations (for use in the view).
+     *
+     * @return array
+     */
+    public function setAuthorityIdFacetHelper($helper)
+    {
+        $this->authorityIdFacetHelper = $helper;
+    }
+
+    /**
+     * Called after the Search Results object has performed its main search.  This
+     * may be used to extract necessary information from the Search Results object
+     * or to perform completely unrelated processing.
+     *
+     * @param \VuFind\Search\Base\Results $results Search results object
+     *
+     * @return void
+     */
+    public function process($results)
+    {
+        parent::process($results);
+        $this->addRoles();
+    }
+
+    public function getRoles()
+    {
+        return $this->roles;
     }
 
     /**
@@ -95,6 +135,40 @@ class AuthorityRecommend extends \VuFind\Recommend\AuthorityRecommend
         $params = ['lookfor' => $this->lookfor, 'type' => 'MainHeading'];
         foreach ($this->performSearch($params) as $result) {
             $this->recommendations[] = $result;
+        }
+    }
+
+    protected function addRoles()
+    {
+        if (!$this->authorId) {
+            return;
+        }
+
+        try {
+            $results = $this->resultsManager->get('Solr');
+            $params = $results->getParams();
+            $params->initFromRequest($this->request);
+            $params->addFacet(AuthorityIdFacetHelper::AUTHOR_ID_ROLE_FACET);
+            $params->addFacetFilter(AuthorityIdFacetHelper::AUTHOR_ID_ROLE_FACET, $this->authorId, false);
+            foreach ($this->filters as $filter) {
+                $authParams->addHiddenFilter($filter);
+            }
+            $facets = $results->getFacetList();
+            if (!isset($facets[AuthorityIdFacetHelper::AUTHOR_ID_ROLE_FACET])) {
+                return;
+            }
+
+            $roles = $facets[AuthorityIdFacetHelper::AUTHOR_ID_ROLE_FACET]['list'] ?? [];;
+            if ($this->authorityIdFacetHelper) {
+                foreach ($roles as &$role) {
+                    $authorityInfo = $this->authorityIdFacetHelper->formatFacet($role['displayText'], true);
+                    $role['displayText'] = $authorityInfo['displayText'];
+                    $role['role'] = $authorityInfo['role'];
+                }
+            }
+            $this->roles = $roles;
+        } catch (RequestErrorException $e) {
+            return;
         }
     }
 }

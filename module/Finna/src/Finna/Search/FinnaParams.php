@@ -415,7 +415,7 @@ trait FinnaParams
     public function hasAuthorIdFilter()
     {
         foreach ($this->getFilterList() as $key => $val) {
-            if ($key === 'authority_id_label') {
+            if ($key === 'authority_id_label' || $key === 'Author role') {
                 return true;
             }
         }
@@ -430,14 +430,21 @@ trait FinnaParams
     public function getAuthorIdFilter()
     {
         foreach ($this->getFilterList() as $key => $val) {
-            if ($key === 'authority_id_label') {
+            $authorRoleFilter = $key === 'Author role';
+            $authorIdFilter = $key === 'authority_id_label';
+            if ($authorIdFilter || $authorRoleFilter) {
                 $filter = $val[0]['value'] ?? null;
                 if (!$filter) {
                     return null;
                 }
-                $parts = explode(' ', $filter);
-                list($key, $val) = explode(':', substr($parts[0], 1, -1), 2);
-                return $val;
+                if ($authorIdFilter) {
+                    $parts = explode(' ', $filter);
+                    list($key, $val) = explode(':', substr($parts[0], 1, -1), 2);
+                    return substr(trim($val), 1, -1);
+                } else {
+                    list($id, $role) = explode('###', $filter);
+                    return $id;
+                }
             }
         }
         return null;

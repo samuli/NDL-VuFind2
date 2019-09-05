@@ -98,4 +98,16 @@ class SolrAuthDefault extends \VuFind\RecordDriver\SolrAuthDefault
     {
         return [$this->fields['record_type']];
     }
+
+    /**
+     * Get data source id
+     *
+     * @return string
+     */
+    public function getDataSource()
+    {
+        return isset($this->fields['datasource_str_mv'])
+            ? ((array)$this->fields['datasource_str_mv'])[0]
+            : '';
+    }
 }

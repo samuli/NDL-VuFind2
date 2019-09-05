@@ -11,6 +11,13 @@ $that = $this;
       <?php $record = $data[0]; ?>
       <h3 property="name" class="record-title"><?=$this->escapeHtml($record->getTitle())?></h3>
       <div class="resultItemFormat"><strong><?=$this->record($record)->getFormatList() ?></strong></div>
+      <?php if ($roles = $this->recommend->getRoles()): ?>
+      <ul>
+        <?php foreach ($roles as $role): ?>
+          <li><a href="<?=$this->record($record)->getLink('author-id-role', null, ['id' => $record->getUniqueID(), 'role' => $role['value']])?>"><?=$role['role']?> (<?=$role['count']?>)</a></li>
+        <?php endforeach; ?>
+      </ul>
+      <?php endif; ?>
       <?php $summ = $record->getSummary(); if (!empty($summ)): ?>
       <div class="truncate-field wide recordSummary">
         <p class="summary">

@@ -1,10 +1,10 @@
 <?php
 /**
- * Record helper factory.
+ * Recommendation module plugin manager
  *
  * PHP version 7
  *
- * Copyright (C) The National Library of Finland 2018.
+ * Copyright (C) Villanova University 2010.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -20,27 +20,27 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category VuFind
- * @package  View_Helpers
- * @author   Ere Maijala <ere.maijala@helsinki.fi>
+ * @package  Recommendations
+ * @author   Demian Katz <demian.katz@villanova.edu>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     https://vufind.org/wiki/development Wiki
+ * @link     https://vufind.org/wiki/development:plugins:recommendation_modules Wiki
  */
-namespace Finna\View\Helper\Root;
+namespace Finna\Recommend;
 
-use Finna\Search\Factory\UrlQueryHelperFactory;
 use Interop\Container\ContainerInterface;
-use Zend\ServiceManager\Factory\FactoryInterface;
+use VuFind\Search\Results\PluginManager as ResultsManager;
 
 /**
- * Record helper factory.
+ * Recommendation module plugin manager
  *
  * @category VuFind
- * @package  View_Helpers
- * @author   Ere Maijala <ere.maijala@helsinki.fi>
+ * @package  Recommendations
+ * @author   Demian Katz <demian.katz@villanova.edu>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     https://vufind.org/wiki/development Wiki
+ * @link     https://vufind.org/wiki/development:plugins:recommendation_modules Wiki
  */
-class RecordFactory implements FactoryInterface
+class AuthorityRecommendFactory
+    implements \Zend\ServiceManager\Factory\FactoryInterface
 {
     /**
      * Create an object
@@ -55,26 +55,21 @@ class RecordFactory implements FactoryInterface
      * @throws ServiceNotCreatedException if an exception is raised when
      * creating a service.
      * @throws ContainerException if any other error occurs
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function __invoke(ContainerInterface $container, $requestedName,
         array $options = null
     ) {
         if (!empty($options)) {
-            throw new \Exception('Unexpected options sent to factory.');
+            throw new \Exception('Unexpected options passed to factory.');
         }
-        $helper = new Record(
-            $container->get(\VuFind\Config\PluginManager::class)->get('config'),
-            $container->get(\VuFind\Config\PluginManager::class)->get('datasources'),
-            $container->get(\VuFind\Record\Loader::class),
-            $container->get('ViewHelperManager')->get('recordImage'),
-            $container->get(\Finna\Search\Solr\AuthorityIdFacetHelper::class),
-            $container->get('ViewHelperManager')->get('url')
+        $recommend = new $requestedName(
+            $container->get(ResultsManager::class)
         );
-        if ('cli' !== php_sapi_name()) {
-            $helper->setCoverRouter(
-                $container->get(\VuFind\Cover\Router::class)
-            );
-        }
-        return $helper;
+        $recommend->setAuthorityIdFacetHelper(
+            $container->get(\Finna\Search\Solr\AuthorityIdFacetHelper::class)
+        );
+        return $recommend;
     }
 }
