@@ -39,6 +39,13 @@ namespace Finna\Search\Solr;
 class AuthorityIdFacetHelper
 {
     /**
+     * Facet label for author-id-role facet.
+     *
+     * @var string
+     */
+    public const AUTHOR_ID_FACET_LABEL = 'Toimija';
+
+    /**
      * Index field for author-ids.
      *
      * @var string

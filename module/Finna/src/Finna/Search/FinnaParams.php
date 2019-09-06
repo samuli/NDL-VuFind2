@@ -27,6 +27,8 @@
  */
 namespace Finna\Search;
 
+use Finna\Search\Solr\AuthorityIdFacetHelper;
+
 use VuFind\Search\QueryAdapter;
 
 /**
@@ -415,7 +417,11 @@ trait FinnaParams
     public function hasAuthorIdFilter()
     {
         foreach ($this->getFilterList() as $key => $val) {
-            if ($key === 'authority_id_label' || $key === 'Author role') {
+            if (in_array(
+                $key,
+                ['authority_id_label', AuthorityIdFacetHelper::AUTHOR_ID_FACET_LABEL]
+            )
+            ) {
                 return true;
             }
         }
@@ -430,7 +436,8 @@ trait FinnaParams
     public function getAuthorIdFilter()
     {
         foreach ($this->getFilterList() as $key => $val) {
-            $authorRoleFilter = $key === 'Author role';
+            $authorRoleFilter
+                = $key === AuthorityIdFacetHelper::AUTHOR_ID_FACET_LABEL;
             $authorIdFilter = $key === 'authority_id_label';
             if ($authorIdFilter || $authorRoleFilter) {
                 $filter = $val[0]['value'] ?? null;
