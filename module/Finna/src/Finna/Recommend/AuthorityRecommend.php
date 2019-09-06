@@ -148,8 +148,28 @@ class AuthorityRecommend extends \VuFind\Recommend\AuthorityRecommend
             $results = $this->resultsManager->get('Solr');
             $params = $results->getParams();
             $params->initFromRequest($this->request);
+
+            // Remove existing author-id filter so that we get all
+            // author roles when faceting.
+            $authorIdFilters = $params->getAuthorIdFilter(true, true);
+            if ($authorIdFilters) {
+                foreach ($authorIdFilters as $filter) {
+                    $filterItem
+                        = sprintf(
+                            '%s:%s',
+                            AuthorityIdFacetHelper::AUTHOR_ID_ROLE_FACET,
+                            $filter
+                        );
+                    // Remove AND & OR filters
+                    $params->removeFilter($filterItem);
+                    $params->removeFilter("~$filterItem");
+                }
+            }
+
             $params->addFacet(AuthorityIdFacetHelper::AUTHOR_ID_ROLE_FACET);
-            $params->addFacetFilter(AuthorityIdFacetHelper::AUTHOR_ID_ROLE_FACET, $this->authorId, false);
+            $params->addFacetFilter(
+                AuthorityIdFacetHelper::AUTHOR_ID_ROLE_FACET, $this->authorId, false
+            );
             foreach ($this->filters as $filter) {
                 $authParams->addHiddenFilter($filter);
             }
@@ -158,7 +178,7 @@ class AuthorityRecommend extends \VuFind\Recommend\AuthorityRecommend
                 return;
             }
 
-            $roles = $facets[AuthorityIdFacetHelper::AUTHOR_ID_ROLE_FACET]['list'] ?? [];;
+            $roles = $facets[AuthorityIdFacetHelper::AUTHOR_ID_ROLE_FACET]['list'] ?? [];
             if ($this->authorityIdFacetHelper) {
                 foreach ($roles as &$role) {
                     $authorityInfo = $this->authorityIdFacetHelper->formatFacet($role['displayText'], true);
