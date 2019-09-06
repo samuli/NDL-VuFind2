@@ -14,7 +14,15 @@ $that = $this;
       <?php if ($roles = $this->recommend->getRoles()): ?>
       <ul>
         <?php foreach ($roles as $role): ?>
-          <li><a href="<?=$this->record($record)->getLink('author-id-role', null, ['id' => $record->getUniqueID(), 'role' => $role['value']])?>"><?=$role['role']?> (<?=$role['count']?>)</a></li>
+          <li>
+          <?php if (!$role['enabled']): ?>
+          <a href="<?=$this->record($record)->getLink('author-id-role', null, ['id' => $record->getUniqueID(), 'role' => $role['value']])?>">
+          <?php endif; ?>
+          <?=$role['role']?> (<?=$role['count']?>)
+          <?php if (!$role['enabled']): ?>
+          </a>
+          <?php endif; ?>
+        </li>
         <?php endforeach; ?>
       </ul>
       <?php endif; ?>

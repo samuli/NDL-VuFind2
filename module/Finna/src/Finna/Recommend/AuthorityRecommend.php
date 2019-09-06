@@ -184,6 +184,7 @@ class AuthorityRecommend extends \VuFind\Recommend\AuthorityRecommend
                     $authorityInfo = $this->authorityIdFacetHelper->formatFacet($role['displayText'], true);
                     $role['displayText'] = $authorityInfo['displayText'];
                     $role['role'] = $authorityInfo['role'];
+                    $role['enabled'] = in_array($role['value'], $authorIdFilters);
                 }
             }
             $this->roles = $roles;
