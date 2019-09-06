@@ -43,7 +43,7 @@ class AuthorityIdFacetHelper
      *
      * @var string
      */
-    public const AUTHOR_ID_FACET_LABEL = 'Toimija';
+    public const AUTHOR_ID_FACET_LABEL = 'Author role';
 
     /**
      * Index field for author-ids.
