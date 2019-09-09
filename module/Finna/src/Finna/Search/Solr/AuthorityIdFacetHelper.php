@@ -50,7 +50,14 @@ class AuthorityIdFacetHelper
      *
      * @var string
      */
-    const AUTHOR_ID_FACET = 'author2_id_str_mv';
+    const AUTHOR_ID_FACET = 'author_id_str_mv';
+
+    /**
+     * Index field for author2-ids.
+     *
+     * @var string
+     */
+    const AUTHOR2_ID_FACET = 'author2_id_str_mv';
 
     /**
      * Index field for author id-role combinations
@@ -97,10 +104,12 @@ class AuthorityIdFacetHelper
     public function formatFacetSet($facetSet)
     {
         //die(var_export($facetSet, true));
-        if (!isset($facetSet[AuthorityIdFacetHelper::AUTHOR_ID_ROLE_FACET])) {
-            return $facetSet;
+        foreach ($this->getAuthorIdFacets() as $field) {
+            if (isset($facetSet[$field])) {
+                return $this->processFacets($facetSet);
+            }
         }
-        return $this->processFacets($facetSet);
+        return $facetSet;
     }
 
     /**
@@ -113,7 +122,7 @@ class AuthorityIdFacetHelper
      */
     public function formatFacets($field, $facets)
     {
-        if ($field !== AuthorityIdFacetHelper::AUTHOR_ID_ROLE_FACET) {
+        if (!in_array($field, $this->getAuthorIdFacets())) {
             return $facets;
         }
         $result = $this->processFacets([$field => ['list' => $facets]]);
@@ -129,37 +138,55 @@ class AuthorityIdFacetHelper
      */
     protected function processFacets($facetSet)
     {
-        $ids = [];
-        $facetList
-            = $facetSet[AuthorityIdFacetHelper::AUTHOR_ID_ROLE_FACET]['list'] ?? [];
-        foreach ($facetList as $facet) {
-            list($id, $role) = explode('###', $facet['displayText'], 2);
-            $ids[] = $id;
-        }
+        foreach ($this->getAuthorIdFacets() as $field) {
+            $ids = [];
+            $facetList
+                = $facetSet[$field]['list'] ?? [];
+            foreach ($facetList as $facet) {
+                list($id, $role) = explode('###', $facet['displayText'], 2);
+                $ids[] = $id;
+            }
 
-        $records = $this->recordLoader->loadBatchForSource($ids, 'SolrAuth', true);
-        foreach ($facetList as &$facet) {
-            list($id, $role) = $this->extractRole($facet['displayText']);
-            foreach ($records as $record) {
-                if ($record->getUniqueId() === $id) {
-                    list($displayText, $role)
-                        = $this->formatDisplayText($record, $role);
-                    $facet['displayText'] = $displayText;
-                    $facet['role'] = $role;
-                    continue;
+            $records = $this->recordLoader->loadBatchForSource($ids, 'SolrAuth', true);
+            foreach ($facetList as &$facet) {
+                list($id, $role) = $this->extractRole($facet['displayText']);
+                foreach ($records as $record) {
+                    if ($record->getUniqueId() === $id) {
+                        list($displayText, $role)
+                            = $this->formatDisplayText($record, $role);
+                        $facet['displayText'] = $displayText;
+                        $facet['role'] = $role;
+                        continue;
+                    }
                 }
             }
+            $facetSet[$field]['list'] = $facetList;
         }
-        $facetSet[AuthorityIdFacetHelper::AUTHOR_ID_ROLE_FACET]['list'] = $facetList;
         return $facetSet;
+    }
+
+    /**
+     * Return authority id index fields.
+     *
+     * @return array
+     */
+    public function getAuthorIdFacets()
+    {
+        return [
+            AuthorityIdFacetHelper::AUTHOR_ID_ROLE_FACET,
+            AuthorityIdFacetHelper::AUTHOR_ID_FACET,
+            AuthorityIdFacetHelper::AUTHOR2_ID_FACET
+        ];
     }
 
     /**
      * Format facet value (display text).
      *
-     * @param string $value Facet value
+     * @param string  $value        Facet value
+     * @param boolean $extendedInfo Wheter to return an array with
+     * 'id', 'displayText' and 'role' fields.
      *
-     * @return string
+     * @return mixed string|array
      */
     public function formatFacet($value, $extendedInfo = false)
     {
@@ -173,6 +200,13 @@ class AuthorityIdFacetHelper
             : $displayText;
     }
 
+    /**
+     * Parse authority id and role.
+     *
+     * @param string $value Authority id-role
+     *
+     * @return array
+     */
     protected function extractRole($value)
     {
         $id = $value;

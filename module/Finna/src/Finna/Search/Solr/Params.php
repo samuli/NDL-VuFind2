@@ -649,7 +649,10 @@ class Params extends \VuFind\Search\Solr\Params
         if ($id = $this->parseAuthorIdFilter($value, false)) {
             // Author id filter  (OR query with <field>:<author-id> pairs)
             $displayText = $this->authorityIdFacetHelper->formatFacet($id);
-        } elseif ($filter['field'] === AuthorityIdFacetHelper::AUTHOR_ID_ROLE_FACET
+        } elseif (in_array(
+            $filter['field'],
+            $this->authorityIdFacetHelper->getAuthorIdFacets()
+        )
         ) {
             // Author id-role facet (<field>:<author-id>###<role>)
             $displayText = $this->authorityIdFacetHelper->formatFacet($displayText);
@@ -671,7 +674,7 @@ class Params extends \VuFind\Search\Solr\Params
     {
         $field = $idRoleFilter
             ? AuthorityIdFacetHelper::AUTHOR_ID_ROLE_FACET
-            : AuthorityIdFacetHelper::AUTHOR_ID_FACET;
+            : AuthorityIdFacetHelper::AUTHOR2_ID_FACET;
 
         $pat = sprintf('/\(%s:"([a-z0-9_.:]*)"\) OR \(/', $field);
         if (!preg_match($pat, $filter, $matches)) {
