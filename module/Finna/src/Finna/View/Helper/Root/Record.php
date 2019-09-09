@@ -251,7 +251,10 @@ class Record extends \VuFind\View\Helper\Root\Record
             }
         } elseif ($type === 'author-id-role' && isset($params['role'])) {
             $authorInfo = $this->authorityIdFacetHelper->formatFacet($params['role'], true);
-            $filter = $this->urlHelper->getRecordsByAuthorRoleFilter($params['role']);
+            $filter = [
+                $this->urlHelper->getRecordsByAuthorRoleFilter($params['role']),
+                $this->urlHelper->getRecordsByAuthorFilter($params['id'])
+            ];
             $type = 'author-id-role';
         }
 

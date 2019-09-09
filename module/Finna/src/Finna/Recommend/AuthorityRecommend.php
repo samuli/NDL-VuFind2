@@ -154,15 +154,17 @@ class AuthorityRecommend extends \VuFind\Recommend\AuthorityRecommend
             $authorIdFilters = $params->getAuthorIdFilter(true, true);
             if ($authorIdFilters) {
                 foreach ($authorIdFilters as $filter) {
-                    $filterItem
-                        = sprintf(
-                            '%s:%s',
-                            AuthorityIdFacetHelper::AUTHOR_ID_ROLE_FACET,
-                            $filter
-                        );
-                    // Remove AND & OR filters
-                    $params->removeFilter($filterItem);
-                    $params->removeFilter("~$filterItem");
+                    foreach ($this->authorityIdFacetHelper->getAuthorIdFacets() as $authorIdField) {
+                        $filterItem
+                            = sprintf(
+                                '%s:%s',
+                                $authorIdField,
+                                $filter
+                            );
+                        // Remove AND & OR filters
+                        $params->removeFilter($filterItem);
+                        $params->removeFilter("~$filterItem");
+                    }
                 }
             }
 

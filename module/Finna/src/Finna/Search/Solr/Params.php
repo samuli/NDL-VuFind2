@@ -628,7 +628,8 @@ class Params extends \VuFind\Search\Solr\Params
      */
     public function getFacetLabel($field, $value = null, $default = null)
     {
-        if ($id = $this->parseAuthorIdFilter($value, false)) {
+        if ($field === AuthorityIdFacetHelper::AUTHOR2_ID_FACET
+        ) {
             return 'authority_id_label';
         }
         return parent::getFacetLabel($field, $value, $default);
@@ -676,7 +677,9 @@ class Params extends \VuFind\Search\Solr\Params
             ? AuthorityIdFacetHelper::AUTHOR_ID_ROLE_FACET
             : AuthorityIdFacetHelper::AUTHOR2_ID_FACET;
 
-        $pat = sprintf('/\(%s:"([a-z0-9_.:]*)"\) OR \(/', $field);
+        //$pat = sprintf('/\(%s:"([a-z0-9_.:]*)"\) OR \(/', $field);
+        $pat = sprintf('/%s:"([a-z0-9_.:]*)"/', $field);
+
         if (!preg_match($pat, $filter, $matches)) {
             return null;
         }

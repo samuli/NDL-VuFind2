@@ -47,7 +47,9 @@ class Url extends \VuFind\View\Helper\Root\Url
      */
     public function getRecordsByAuthorFilter($id)
     {
-        $relations = ['author2', 'author_corporate'];
+        return "author2_id_str_mv:\"{$id}\"";
+        /*
+        $relations = ['author2', 'author_corporate_str_mv'];
         $lookfor = implode(
             ' OR ', array_map(
                 function ($relation) use ($id) {
@@ -57,6 +59,7 @@ class Url extends \VuFind\View\Helper\Root\Url
             )
         );
         return $lookfor;
+        */
     }
 
     public function getRecordsByAuthorRoleFilter($role)

@@ -419,7 +419,7 @@ trait FinnaParams
         foreach ($this->getFilterList() as $key => $val) {
             if (in_array(
                 $key,
-                ['authority_id_label', AuthorityIdFacetHelper::AUTHOR_ID_FACET_LABEL]
+                ['authority_id_label', 'Author', AuthorityIdFacetHelper::AUTHOR_ID_FACET_LABEL]
             )
             ) {
                 return true;
@@ -442,8 +442,8 @@ trait FinnaParams
             }
 
             $authorRoleFilter
-                = $key === AuthorityIdFacetHelper::AUTHOR_ID_FACET_LABEL;
-            $authorIdFilter = $key === 'authority_id_label';
+                = in_array($key, ['Author', AuthorityIdFacetHelper::AUTHOR_ID_FACET_LABEL]);
+            $authorIdFilter = in_array($key, ['Author', 'authority_id_label']);
             if ($authorIdFilter || $authorRoleFilter) {
                 foreach ($val as $filterItem) {
                     $filter = $filterItem['value'] ?? null;
@@ -451,9 +451,12 @@ trait FinnaParams
                         continue;
                     }
                     if ($authorIdFilter) {
+                        $result[] = $filter;
+                        /*
                         $parts = explode(' ', $filter);
                         list($key, $val) = explode(':', substr($parts[0], 1, -1), 2);
                         $result[] = substr(trim($val), 1, -1);
+                        */
                     } else {
                         if ($role) {
                             $result[] = $filter;
