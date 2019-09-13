@@ -170,7 +170,9 @@ class AuthorityRecommend extends \VuFind\Recommend\AuthorityRecommend
 
             $params->addFacet(AuthorityIdFacetHelper::AUTHOR_ID_ROLE_FACET);
             $params->addFacetFilter(
-                AuthorityIdFacetHelper::AUTHOR_ID_ROLE_FACET, $this->authorId, false
+                AuthorityIdFacetHelper::AUTHOR_ID_ROLE_FACET,
+                "{$this->authorId}###",
+                false
             );
             foreach ($this->filters as $filter) {
                 $authParams->addHiddenFilter($filter);
