@@ -158,19 +158,27 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
      *   - description Human readable description (array)
      *   - link        Link to copyright info
      *
-     * @param string $language Language for copyright information
+     * @param string $language   Language for copyright information
+     * @param bool   $includePdf Whether to include first PDF file when no image
+     * links are found
      *
      * @return array
      */
-    public function getAllImages($language = 'fi')
+    public function getAllImages($language = 'fi', $includePdf = true)
     {
-        $result = [];
-        foreach ($this->getMarcRecord()->getFields('856') as $url) {
-            $type = $url->getSubfield('q');
-            if ($type) {
-                $type = $type->getData();
-                if (strcasecmp('image', $type) == 0 || 'image/jpeg' == $type) {
-                    $address = $url->getSubfield('u');
+        $getUrls = function ($pdf = false) use ($includePdf) {
+            $result = [];
+            foreach ($this->getMarcRecord()->getFields('856') as $url) {
+                $isImage = false;
+                $type = $url->getSubfield('q');
+                if ($type) {
+                    $type = $type->getData();
+                    $isImage = strcasecmp('image', $type) == 0
+                        || 'image/jpeg' == $type;
+                }
+                $address = $url->getSubfield('u');
+                $isPdf = $includePdf && preg_match('/\.pdf$/i', $address);
+                if ($isImage || $isPdf) {
                     if ($address && $this->urlAllowed($address->getData())) {
                         $address = $address->getData();
                         $result[] = [
@@ -178,13 +186,24 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
                                 'small' => $address,
                                 'medium' => $address,
                                 'large' => $address
-                            ],
+                             ],
                             'description' => '',
-                            'rights' => []
+                            'rights' => [],
+                            'pdf' => $isPdf
                         ];
+                        if ($isPdf) {
+                            break;
+                        }
                     }
                 }
             }
+            return $result;
+        };
+
+        $result = $getUrls();
+        if ($includePdf && empty($result)) {
+            // Attempt to find a PDF file to be converted to a coverimage
+            $result = array_merge($result, $getUrls(true));
         }
         return $result;
     }
@@ -315,7 +334,7 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
 
     /**
      * Get dissertation note for the record.
-     * Use field 502 if available. If not use local field 509
+     * Use field 502 if available. If not, use local field 509 or 920.
      *
      * @return string dissertation notes
      */
@@ -323,7 +342,12 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
     {
         $notes = $this->getFirstFieldValue('502', ['a', 'b', 'c']);
         if (!$notes) {
+            // 509 used in Voyager
             $notes = $this->getFirstFieldValue('509', ['a', 'b', 'c']);
+        }
+        if (!$notes) {
+            // 920 used in Alma
+            $notes = $this->getFirstFieldValue('920', ['a', 'b', 'c']);
         }
         return $notes;
     }

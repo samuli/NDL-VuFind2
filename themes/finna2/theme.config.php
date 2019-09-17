@@ -140,7 +140,6 @@ return [
     'css' => [
         'vendor/bootstrap-datepicker3.min.css',
         'vendor/bootstrap-rating.min.css',
-        'vendor/bootstrap-multiselect.min.css',
         'vendor/bootstrap-slider.min.css',
         'vendor/dataTables.bootstrap.min.css',
         'vendor/L.Control.Locate.min.css',
@@ -203,7 +202,6 @@ return [
         'vendor/bootstrap-datepicker.en-GB.min.js',
         'vendor/bootstrap-datepicker.fi.min.js',
         'vendor/bootstrap-datepicker.sv.min.js',
-        'vendor/bootstrap-multiselect.min.js',
         'vendor/bootstrap-rating.min.js',
         'vendor/bootstrap-slider.min.js',
         'vendor/classList.js',
@@ -230,6 +228,7 @@ return [
         'vendor/priority-nav.min.js',
         'vendor/leaflet.min.js',
         'vendor/leaflet.draw.min.js',
+        'finna-multiselect.js'
     ],
     'less' => [
         'active' => false
