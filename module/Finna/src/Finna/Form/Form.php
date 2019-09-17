@@ -446,7 +446,7 @@ class Form extends \VuFind\Form\Form
 
         if ($formId === Form::R2_REGISTER_FORM) {
             // Set email and name fields to readonly if defined in profile
-            $fields = ['email', 'firstname', 'lastname'];
+            $fields = ['firstname', 'lastname'];
             foreach ($fields as $field) {
                 if (empty($this->user->{$field})) {
                     continue;

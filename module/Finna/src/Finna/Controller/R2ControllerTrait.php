@@ -162,8 +162,7 @@ trait R2ControllerTrait
             $lastname = !empty($user->lastname)
                 ? $user->lastname : $params['lastname'];
 
-            $email = !empty($user->email)
-                ? $user->email : $params['email'];
+            $email = $params['email'];
 
             try {
                 $rems->registerUser(
