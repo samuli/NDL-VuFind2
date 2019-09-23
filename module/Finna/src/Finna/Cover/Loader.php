@@ -383,7 +383,7 @@ class Loader extends \VuFind\Cover\Loader
         }
 
         // Attempt to pull down the image:
-        $client = $this->httpService->createClient($url);
+        $client = $this->httpService->createClient($url, 'GET', 20);
         $client->setStream($tempFile);
         $result = $client->send();
 
