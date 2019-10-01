@@ -72,7 +72,7 @@ class Suomifi extends Shibboleth
     public function logout($url)
     {
         $this->remsService->closeOpenApplications();
-        parent::logout($url);
+        return parent::logout($url);
     }
 
     /**
