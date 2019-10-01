@@ -255,7 +255,7 @@ class RemsService
                 'comment' => $comment
             ];
             try {
-                $this->sendRequest('applicatons/close', $params, 'POST', true);
+                $this->sendRequest('applications/close', $params, 'POST', true);
             } catch (\Exception $e) {
             }
         }
