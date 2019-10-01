@@ -55,6 +55,10 @@ class RemsService
     const STATUS_CLOSED = 'closed';
     const STATUS_DRAFT = 'draft';
 
+    const TYPE_ADMIN = 0;
+    const TYPE_APPROVER = 1;
+    const TYPE_USER = 2;
+
     /**
      * Configuration
      *
@@ -116,7 +120,7 @@ class RemsService
             'mail' => $email,
             'commonName' => $commonName
         ];
-        $this->sendRequest('users/create', $params, 'POST', true);
+        $this->sendRequest('users/create', $params, 'POST', RemsService::TYPE_ADMIN);
         
         // 2. Create draft application
         $catItemId = $this->getCatalogItemId('entitlement');
@@ -180,7 +184,9 @@ class RemsService
         }
 
         try {
-            $applications = $this->getApplications();
+            $applications = $this->getApplications(
+                [RemsService::STATUS_SUBMITTED, RemsService::STATUS_APPROVED]
+            );
         } catch (\Exception $e) {
             return ['success' => false, 'status' => $e->getMessage()];
         }
@@ -211,13 +217,25 @@ class RemsService
     /**
      * Return applications
      *
-     * @param string $locale Local for title
+     * @param array $statuses application statuses
      *
      * @return array
      */
-    public function getApplications($locale = 'fi')
+    public function getApplications($statuses = [])
     {
-        $result = $this->sendRequest('applications');
+        $params = [];
+        if ($statuses) {
+            $params['query'] = implode(
+                ' or ', array_map(
+                    function ($status) {
+                        return "application/state:application.state/{$status}";
+                    },
+                    $statuses
+                )
+            );
+        }
+
+        $result = $this->sendRequest('applications', $params);
 
         $catItemId = $this->getCatalogItemId('entitlement');
 
@@ -233,7 +251,7 @@ class RemsService
             foreach ($application['application/resources'] as $catItem) {
                 if ($catItem['catalogue-item/id'] === $catItemId) {
                     $titles = $catItem['catalogue-item/title'];
-                    $title = $titles[$locale] ?? $titles['default'] ?? '';
+                    $title = $titles['fi'] ?? $titles['default'] ?? '';
                     break;
                 }
             }
@@ -244,9 +262,10 @@ class RemsService
         return $applications;
     }
 
-    public function closeOpenApplications($comment = 'log-out')
+    public function closeOpenApplications($comment = 'logout')
     {
-        foreach ($this->getApplications() as $application) {
+        $applications = $this->getApplications([RemsService::STATUS_APPROVED]);
+        foreach ($applications as $application) {
             if ($application['status'] !== RemsService::STATUS_APPROVED) {
                 continue;
             }
@@ -255,7 +274,10 @@ class RemsService
                 'comment' => $comment
             ];
             try {
-                $this->sendRequest('applications/close', $params, 'POST', true);
+                $this->sendRequest(
+                    'applications/close', null, 'POST', RemsService::TYPE_APPROVER,
+                    ['content' => json_encode($params)]
+                );
             } catch (\Exception $e) {
             }
         }
@@ -286,11 +308,28 @@ class RemsService
      * @return bool
      */
     protected function sendRequest(
-        $url, $params = [], $method = 'GET', $adminAction = false, $body = null
+        $url, $params = [], $method = 'GET',
+        $userType = RemsService::TYPE_USER, $body = null
     ) {
-        $userId = $adminAction
-            ? $this->config->General->apiAdminUser
-            : $this->getUserId();
+        $userId = null;
+
+        switch ($userType) {
+        case RemsService::TYPE_USER:
+            $userId = $this->getUserId();
+            break;
+        case RemsService::TYPE_APPROVER:
+            $userId = $this->config->General->apiApproverUser;
+            break;
+        case RemsService::TYPE_ADMIN:
+            $userId = $this->config->General->apiAdminUser;
+            break;
+        }
+
+        if ($userId === null) {
+            $err = "Invalid userType: $userType for url: $url";
+            $this->error($err);
+            throw new \Exception($err);
+        }
 
         $contentType = $body['contentType'] ?? 'application/json';
 
