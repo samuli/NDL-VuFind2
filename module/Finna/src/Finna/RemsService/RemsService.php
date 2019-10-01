@@ -244,6 +244,23 @@ class RemsService
         return $applications;
     }
 
+    public function closeOpenApplications($comment = 'log-out')
+    {
+        foreach ($this->getApplications() as $application) {
+            if ($application['status'] !== RemsService::STATUS_APPROVED) {
+                continue;
+            }
+            $params = [
+                'application-id' => $application['id'],
+                'comment' => $comment
+            ];
+            try {
+                $this->sendRequest('applicatons/close', $params, 'POST', true);
+            } catch (\Exception $e) {
+            }
+        }
+    }
+
     /**
      * Return REMS user id (eppn) of the current authenticated user.
      *

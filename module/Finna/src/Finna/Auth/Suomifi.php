@@ -41,6 +41,41 @@ use VuFind\Exception\Auth as AuthException;
 class Suomifi extends Shibboleth
 {
     /**
+     * REMS service
+     *
+     * @var \Finna\RemsService\RemsService
+     */
+    protected $remsService;
+
+    /**
+     * Constructor
+     *
+     * @param \Zend\Session\ManagerInterface $sessionManager Session manager
+     * @param \Finna\RemsService\RemsService $remsService    REMS service
+     */
+    public function __construct(
+        \Zend\Session\ManagerInterface $sessionManager,
+        \Finna\RemsService\RemsService $remsService
+    ) {
+        $this->sessionManager = $sessionManager;
+        $this->remsService = $remsService;
+    }
+
+    /**
+     * Perform cleanup at logout time.
+     *
+     * @param string $url URL to redirect user to after logging out.
+     *
+     * @return string     Redirect URL (usually same as $url, but modified in
+     * some authentication modules).
+     */
+    public function logout($url)
+    {
+        $this->remsService->closeOpenApplications();
+        parent::logout($url);
+    }
+
+    /**
      * Set configuration.
      *
      * @param \Zend\Config\Config $config Configuration to set
