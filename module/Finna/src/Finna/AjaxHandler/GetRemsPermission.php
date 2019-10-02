@@ -71,7 +71,11 @@ class GetRemsPermission extends \VuFind\AjaxHandler\AbstractBase
     {
         $result = $this->rems->checkPermission(true);
         return $this->formatResponse(
-            $result['status'],
+            [
+                'status' => $result['status'],
+                'allowRegister' => $result['status']
+                    === \Finna\RemsService\RemsService::STATUS_NOT_SUBMITTED
+            ],
             !$result['success'] ? 500 : null
         );
     }

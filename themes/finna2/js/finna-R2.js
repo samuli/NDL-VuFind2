@@ -1,5 +1,6 @@
 /*global finna, VuFind */
 finna.R2 = (function finnaR2() {
+  var autoOpen = false;
 
   function initModal() {
     // Transform form h1-element to a h2 so that the modal gets a proper title bar
@@ -15,12 +16,18 @@ finna.R2 = (function finnaR2() {
     });
   }
 
-  function initAutoOpen() {
+  function initAutoOpenRegistration() {
+    this.autoOpen = true;
+  }
+
+  function openRegistration() {
     $('.R2-status .register .btn-primary').trigger('click');
+    this.autoOpen = false;
   }
   
   function initCheckPermission() {
     initModal();
+    var self = this;
     $('div.check-permission').not('.inited').each(function addCheckPermission() {
       var id = $(this).data('id');
 
@@ -32,9 +39,12 @@ finna.R2 = (function finnaR2() {
         dataType: 'json'
       })
         .done(function onCheckPermissionDone(result) {
-          var status = result.data;
+          var status = result.data.status;
           if (status !== null) {            
             $('.R2-status-' + status).removeClass('hide');
+          }
+          if (result.data.allowRegister && self.autoOpen) {
+            self.openRegistration();
           }
         })
         .fail(function onCheckPermissionFail() {
@@ -44,7 +54,8 @@ finna.R2 = (function finnaR2() {
   }
   
   var my = {
-    initAutoOpen: initAutoOpen,
+    initAutoOpenRegistration: initAutoOpenRegistration,
+    openRegistration: openRegistration,
     initCheckPermission: initCheckPermission,
     initModal: initModal
   };
