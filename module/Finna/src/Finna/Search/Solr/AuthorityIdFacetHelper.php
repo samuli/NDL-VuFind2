@@ -143,7 +143,7 @@ class AuthorityIdFacetHelper
             $facetList
                 = $facetSet[$field]['list'] ?? [];
             foreach ($facetList as $facet) {
-                list($id, $role) = explode('###', $facet['displayText'], 2);
+                list($id, $role) = $this->extractRole($facet['displayText']);
                 $ids[] = $id;
             }
 
