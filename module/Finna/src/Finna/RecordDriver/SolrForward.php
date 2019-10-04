@@ -83,6 +83,7 @@ class SolrForward extends \VuFind\RecordDriver\SolrDefault
         'D01' => 'fmp',
         'D02' => 'drt',
         'E01' => 'act',
+        'E10' => 'pro',
         'F01' => 'cng',
         'F02' => 'flm'
     ];
@@ -95,10 +96,14 @@ class SolrForward extends \VuFind\RecordDriver\SolrDefault
     protected $elonetRoleMap = [
         'dialogi' => 'aud',
         'lavastus' => 'std',
+        'lavastaja' => 'std',
         'puvustus' => 'cst',
         'tuotannon suunnittelu' => 'prs',
         'tuotantopäällikkö' => 'pmn',
         'muusikko' => 'mus',
+        'selostaja' => 'spk',
+        'valokuvaaja' => 'pht',
+        'valonmääritys' => 'lgd',
         'äänitys' => 'rce'
     ];
 
@@ -1473,7 +1478,11 @@ class SolrForward extends \VuFind\RecordDriver\SolrDefault
             ? $this->roleMap[$normalizedRelator] : $relator;
 
         $attributes = $agent->Activity->attributes();
-        if (in_array($normalizedRelator, ['A00', 'A99'])) {
+        if (in_array(
+            $normalizedRelator,
+            ['A00', 'A08', 'A99', 'D99', 'E04', 'E99']
+        )
+        ) {
             if (!empty($attributes->{'elokuva-elolevittaja'})
             ) {
                 return null;
