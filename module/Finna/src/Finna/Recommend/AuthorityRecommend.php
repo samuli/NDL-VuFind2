@@ -30,7 +30,7 @@
  */
 namespace Finna\Recommend;
 
-use Finna\Search\Solr\AuthorityIdFacetHelper;
+use Finna\Search\Solr\AuthorityHelper;
 use Zend\StdLib\Parameters;
 
 /**
@@ -56,7 +56,20 @@ class AuthorityRecommend extends \VuFind\Recommend\AuthorityRecommend
     protected $authorId = null;
     protected $request;
     protected $roles = null;
-    protected $authorityIdFacetHelper = null;
+    protected $authorityHelper = null;
+
+    /**
+     * Constructor
+     *
+     * @param \VuFind\Search\Results\PluginManager $results Results plugin manager
+     */
+    public function __construct(
+        \VuFind\Search\Results\PluginManager $results,
+        \Finna\Search\Solr\AuthorityHelper $authorityHelper
+    ) {
+        $this->resultsManager = $results;
+        $this->authorityHelper = $authorityHelper;
+    }
 
     /**
      * Get recommendations (for use in the view).
@@ -93,16 +106,6 @@ class AuthorityRecommend extends \VuFind\Recommend\AuthorityRecommend
             // Save user search query:
             $this->lookfor = $request->get('lookfor');
         }
-    }
-
-    /**
-     * Get recommendations (for use in the view).
-     *
-     * @return array
-     */
-    public function setAuthorityIdFacetHelper($helper)
-    {
-        $this->authorityIdFacetHelper = $helper;
     }
 
     /**
@@ -154,7 +157,7 @@ class AuthorityRecommend extends \VuFind\Recommend\AuthorityRecommend
             $authorIdFilters = $params->getAuthorIdFilter(true, true);
             if ($authorIdFilters) {
                 foreach ($authorIdFilters as $filter) {
-                    foreach ($this->authorityIdFacetHelper->getAuthorIdFacets() as $authorIdField) {
+                    foreach ($this->authorityHelper->getAuthorIdFacets() as $authorIdField) {
                         $filterItem
                             = sprintf(
                                 '%s:%s',
@@ -168,24 +171,24 @@ class AuthorityRecommend extends \VuFind\Recommend\AuthorityRecommend
                 }
             }
 
-            $params->addFacet(AuthorityIdFacetHelper::AUTHOR_ID_ROLE_FACET);
+            $params->addFacet(AuthorityHelper::AUTHOR_ID_ROLE_FACET);
             $params->addFacetFilter(
-                AuthorityIdFacetHelper::AUTHOR_ID_ROLE_FACET,
-                "{$this->authorId}###",
+                AuthorityHelper::AUTHOR_ID_ROLE_FACET,
+                $this->authorityHelper->getAuthorIdRole($this->authorId),
                 false
             );
             foreach ($this->filters as $filter) {
                 $authParams->addHiddenFilter($filter);
             }
             $facets = $results->getFacetList();
-            if (!isset($facets[AuthorityIdFacetHelper::AUTHOR_ID_ROLE_FACET])) {
+            if (!isset($facets[AuthorityHelper::AUTHOR_ID_ROLE_FACET])) {
                 return;
             }
 
-            $roles = $facets[AuthorityIdFacetHelper::AUTHOR_ID_ROLE_FACET]['list'] ?? [];
-            if ($this->authorityIdFacetHelper) {
+            $roles = $facets[AuthorityHelper::AUTHOR_ID_ROLE_FACET]['list'] ?? [];
+            if ($this->authorityHelper) {
                 foreach ($roles as &$role) {
-                    $authorityInfo = $this->authorityIdFacetHelper->formatFacet($role['displayText'], true);
+                    $authorityInfo = $this->authorityHelper->formatFacet($role['displayText'], true);
                     $role['displayText'] = $authorityInfo['displayText'];
                     $role['role'] = $authorityInfo['role'];
                     $role['enabled'] = in_array($role['value'], $authorIdFilters);

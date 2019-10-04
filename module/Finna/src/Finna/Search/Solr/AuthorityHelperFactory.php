@@ -39,7 +39,7 @@ use Zend\ServiceManager\Factory\FactoryInterface;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org   Main Site
  */
-class AuthorityIdFacetHelperFactory implements FactoryInterface
+class AuthorityHelperFactory implements FactoryInterface
 {
     /**
      * Create an object

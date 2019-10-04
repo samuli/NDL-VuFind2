@@ -621,7 +621,7 @@ class SearchController extends \VuFind\Controller\SearchController
     {
         $view = parent::facetListAction();
         $facetHelper = $this->serviceLocator->get(
-            \Finna\Search\Solr\AuthorityIdFacetHelper::class
+            \Finna\Search\Solr\AuthorityHelper::class
         );
         $view->data = $facetHelper->formatFacets($view->facet, $view->data);
         return $view;

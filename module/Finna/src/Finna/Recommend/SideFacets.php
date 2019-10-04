@@ -30,6 +30,7 @@
  */
 namespace Finna\Recommend;
 
+use VuFind\Search\Solr\HierarchicalFacetHelper;
 use VuFind\I18n\Translator\TranslatorAwareInterface;
 use VuFind\I18n\Translator\TranslatorAwareTrait;
 
@@ -53,11 +54,11 @@ class SideFacets extends \VuFind\Recommend\SideFacets
     use SideFacetsTrait;
 
     /**
-     * Hierarchical facet helper
+     * Authority helper
      *
-     * @var HierarchicalFacetHelper
+     * @var \Finna\Search\Solr\AuthorityHelper
      */
-    protected $authorityIdFacetHelper;
+    protected $authorityHelper;
 
     /**
      * Display the map under region facet
@@ -69,15 +70,21 @@ class SideFacets extends \VuFind\Recommend\SideFacets
     ];
 
     /**
-     * Set authorityId facet helper.
+     * Constructor
      *
-     * @param \Finna\Search\Solr\AuthorityIdFacethelper $helper Helper
-     *
-     * @return void
+     * @param \VuFind\Config\PluginManager       $configLoader    Configuration loader
+     * @param \Finna\Search\Solr\AuthorityHelper $authorityHelper Authority helper
+     * @param HierarchicalFacetHelper            $facetHelper     Helper for handling
+     * hierarchical facets
      */
-    public function setAuthorityIdFacetHelper($helper)
-    {
-        $this->authorityIdFacetHelper = $helper;
+    public function __construct(
+        \VuFind\Config\PluginManager $configLoader,
+        \Finna\Search\Solr\AuthorityHelper $authorityHelper,
+        HierarchicalFacetHelper $facetHelper = null
+    ) {
+        parent::__construct($configLoader);
+        $this->hierarchicalFacetHelper = $facetHelper;
+        $this->authorityHelper = $authorityHelper;
     }
 
     /**
@@ -170,6 +177,6 @@ class SideFacets extends \VuFind\Recommend\SideFacets
     public function getFacetSet()
     {
         $facetSet = parent::getFacetSet();
-        return $this->authorityIdFacetHelper->formatFacetSet($facetSet);
+        return $this->authorityHelper->formatFacetSet($facetSet);
     }
 }

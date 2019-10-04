@@ -74,11 +74,11 @@ class Record extends \VuFind\View\Helper\Root\Record
     protected $recordImageHelper;
 
     /**
-     * Url helper
+     * Authority helper
      *
-     * @var \Finna\View\Helper\Root\Url
+     * @var \Finna\Search\Solr\AuthorityHelper
      */
-    protected $authorityIdFacetHelper;
+    protected $authorityHelper;
 
     /**
      * Url helper
@@ -110,6 +110,7 @@ class Record extends \VuFind\View\Helper\Root\Record
      * @param \VuFind\Record\Loader               $loader           Record loader
      * @param \Finna\View\Helper\Root\RecordImage $recordImage      Record image
      * helper
+     * @param \Finna\Search\Solr\AuthorityHelper  $authorityHelper  Authority helper
      * @param \Finna\View\Helper\Root\Url         $urlHelper        Url helper
      */
     public function __construct(
@@ -117,14 +118,14 @@ class Record extends \VuFind\View\Helper\Root\Record
         \Zend\Config\Config $datasourceConfig,
         \VuFind\Record\Loader $loader,
         \Finna\View\Helper\Root\RecordImage $recordImage,
-        \Finna\Search\Solr\AuthorityIdFacetHelper $authorityIdFacetHelper,
+        \Finna\Search\Solr\AuthorityHelper $authorityHelper,
         \Finna\View\Helper\Root\Url $urlHelper
     ) {
         parent::__construct($config);
         $this->datasourceConfig = $datasourceConfig;
         $this->loader = $loader;
         $this->recordImageHelper = $recordImage;
-        $this->authorityIdFacetHelper = $authorityIdFacetHelper;
+        $this->authorityHelper = $authorityHelper;
         $this->urlHelper = $urlHelper;
     }
 
@@ -250,7 +251,7 @@ class Record extends \VuFind\View\Helper\Root\Record
                 $type = 'author-id';
             }
         } elseif ($type === 'author-id-role' && isset($params['role'])) {
-            $authorInfo = $this->authorityIdFacetHelper->formatFacet($params['role'], true);
+            $authorInfo = $this->authorityHelper->formatFacet($params['role'], true);
             $filter = [
                 $this->urlHelper->getRecordsByAuthorRoleFilter($params['role']),
                 $this->urlHelper->getRecordsByAuthorFilter($params['id'])

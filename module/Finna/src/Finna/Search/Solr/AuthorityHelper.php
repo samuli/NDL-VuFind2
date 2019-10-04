@@ -36,7 +36,7 @@ namespace Finna\Search\Solr;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org   Main Site
  */
-class AuthorityIdFacetHelper
+class AuthorityHelper
 {
     /**
      * Facet label for author-id-role facet.
@@ -173,9 +173,9 @@ class AuthorityIdFacetHelper
     public function getAuthorIdFacets()
     {
         return [
-            AuthorityIdFacetHelper::AUTHOR_ID_ROLE_FACET,
-            AuthorityIdFacetHelper::AUTHOR_ID_FACET,
-            AuthorityIdFacetHelper::AUTHOR2_ID_FACET
+            AuthorityHelper::AUTHOR_ID_ROLE_FACET,
+            AuthorityHelper::AUTHOR_ID_FACET,
+            AuthorityHelper::AUTHOR2_ID_FACET
         ];
     }
 
@@ -199,6 +199,24 @@ class AuthorityIdFacetHelper
             ? ['id' => $id, 'displayText' => $displayText, 'role' => $role]
             : $displayText;
     }
+    
+    /**
+     * Get delimeter used to separate author id and role.
+     *
+     * @param string $id   Id
+     * @param string $role Role
+     *
+     * @return string
+     */
+    public function getAuthorIdRole($id, $role = null)
+    {
+        $result = $id . $this->getAuthorRoleSeparator();
+        if ($role) {
+            $result .= $role;
+        }
+        return $result;
+        
+    }
 
     /**
      * Parse authority id and role.
@@ -207,12 +225,13 @@ class AuthorityIdFacetHelper
      *
      * @return array
      */
-    protected function extractRole($value)
+    public function extractRole($value)
     {
         $id = $value;
         $role = null;
-        if (strpos($value, '###') !== false) {
-            list($id, $role) = explode('###', $value, 2);
+        $separator = $this->getAuthorRoleSeparator();
+        if (strpos($value, $separator) !== false) {
+            list($id, $role) = explode($separator, $value, 2);
         }
         return [$id, $role];
     }
@@ -235,5 +254,15 @@ class AuthorityIdFacetHelper
             $displayText .= " ($role)";
         }
         return [$displayText, $role];
+    }
+
+    /**
+     * Get delimeter used to separate author id and role.
+     *
+     * @return string
+     */
+    protected function getAuthorRoleSeparator()
+    {
+        return chr(9);
     }
 }

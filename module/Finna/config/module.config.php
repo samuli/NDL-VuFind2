@@ -270,7 +270,7 @@ $config = [
             'Finna\RecordTab\PluginManager' => 'VuFind\ServiceManager\AbstractPluginManagerFactory',
             'Finna\Role\PermissionManager' => 'VuFind\Role\PermissionManagerFactory',
             'Finna\Search\Memory' => 'VuFind\Search\MemoryFactory',
-            'Finna\Search\Solr\AuthorityIdFacetHelper' => 'Finna\Search\Solr\AuthorityIdFacetHelperFactory',
+            'Finna\Search\Solr\AuthorityHelper' => 'Finna\Search\Solr\AuthorityHelperFactory',
             'Finna\Search\Solr\HierarchicalFacetHelper' => 'Zend\ServiceManager\Factory\InvokableFactory',
             'Finna\Favorites\FavoritesService' => 'Finna\Favorites\FavoritesServiceFactory',
 

@@ -28,7 +28,7 @@
  */
 namespace Finna\Search\Solr;
 
-use Finna\Search\Solr\AuthorityIdFacetHelper;
+use Finna\Search\Solr\AuthorityHelper;
 use VuFind\Solr\Utils;
 
 /**
@@ -101,28 +101,27 @@ class Params extends \VuFind\Search\Solr\Params
     /**
      * Helper for formatting authority id filter display texts.
      *
-     * @var AuthorityIdFacetHelper
+     * @var AuthorityHelper
      */
-    protected $authorityIdFacetHelper = null;
+    protected $authorityHelper = null;
 
     protected $facetFilters = [];
 
     /**
      * Constructor
      *
-     * @param \VuFind\Search\Base\Options  $options                Options to use
-     * @param \VuFind\Config\PluginManager $configLoader           Config loader
-     * @param HierarchicalFacetHelper      $facetHelper            Hierarchical
+     * @param \VuFind\Search\Base\Options  $options         Options to use
+     * @param \VuFind\Config\PluginManager $configLoader    Config loader
+     * @param HierarchicalFacetHelper      $facetHelper     Hierarchical
      * facet helper
-     * @param AuthorityIdFacetHelper       $authorityIdFacetHelper Authority id
-     * facet helper
-     * @param \VuFind\Date\Converter       $dateConverter          Date converter
-     * @param \VuFind\Search\SearchRunner  $searchRunner           Search runner
+     * @param AuthorityHelper              $authorityHelper Authority helper
+     * @param \VuFind\Date\Converter       $dateConverter   Date converter
+     * @param \VuFind\Search\SearchRunner  $searchRunner    Search runner
      */
     public function __construct($options,
         \VuFind\Config\PluginManager $configLoader,
         HierarchicalFacetHelper $facetHelper,
-        AuthorityIdFacetHelper $authorityIdFacetHelper,
+        AuthorityHelper $authorityHelper,
         \VuFind\Date\Converter $dateConverter,
         \VuFind\Search\SearchRunner $searchRunner
     ) {
@@ -137,7 +136,7 @@ class Params extends \VuFind\Search\Solr\Params
         }
 
         $this->searchRunner = $searchRunner;
-        $this->authorityIdFacetHelper = $authorityIdFacetHelper;
+        $this->authorityHelper = $authorityHelper;
     }
 
     /**
@@ -566,6 +565,51 @@ class Params extends \VuFind\Search\Solr\Params
     }
 
     /**
+     * Return id of active author_id filter.
+     *
+     * @return mixed null|string
+     */
+    public function getAuthorIdFilter($all = false, $role = false)
+    {
+        $result = [];
+        foreach ($this->getFilterList() as $key => $val) {
+            if (!$all && !empty($result)) {
+                break;
+            }
+
+            $authorRoleFilter
+                = in_array($key, ['Author', AuthorityHelper::AUTHOR_ID_FACET_LABEL]);
+            $authorIdFilter = in_array($key, ['Author', 'authority_id_label']);
+            if ($authorIdFilter || $authorRoleFilter) {
+                foreach ($val as $filterItem) {
+                    $filter = $filterItem['value'] ?? null;
+                    if (!$filter) {
+                        continue;
+                    }
+                    if ($authorIdFilter) {
+                        $result[] = $filter;
+                        /*
+                        $parts = explode(' ', $filter);
+                        list($key, $val) = explode(':', substr($parts[0], 1, -1), 2);
+                        $result[] = substr(trim($val), 1, -1);
+                        */
+                    } else {
+                        if ($role) {
+                            $result[] = $filter;
+                            continue;
+                        }
+                        list($id, $role) = $this->authorityHelper->extractRole($filter);
+                        $result[] = $id;
+                    }
+                }
+            }
+        }
+        return !empty($result)
+            ? $all ? $result : $result[0]
+            : null;
+    }
+
+    /**
      * Format a single filter for use in getFilterList().
      *
      * @param string $field     Field name
@@ -611,7 +655,7 @@ class Params extends \VuFind\Search\Solr\Params
         }
 
         $displayText
-            = $this->authorityIdFacetHelper->formatFacet($field, $displayText);
+            = $this->authorityHelper->formatFacet($field, $displayText);
         return compact('value', 'displayText', 'field', 'operator');
     }
 
@@ -628,11 +672,25 @@ class Params extends \VuFind\Search\Solr\Params
      */
     public function getFacetLabel($field, $value = null, $default = null)
     {
-        if ($field === AuthorityIdFacetHelper::AUTHOR2_ID_FACET
+        if ($field === AuthorityHelper::AUTHOR2_ID_FACET
         ) {
             return 'authority_id_label';
         }
         return parent::getFacetLabel($field, $value, $default);
+    }
+
+    public function hasAuthorIdFilter()
+    {
+        foreach ($this->getFilterList() as $key => $val) {
+            if (in_array(
+                $key,
+                ['authority_id_label', 'Author', AuthorityHelper::AUTHOR_ID_FACET_LABEL]
+            )
+            ) {
+                return true;
+            }
+        }
+        return false;
     }
 
     /**
@@ -649,14 +707,13 @@ class Params extends \VuFind\Search\Solr\Params
         $displayText = $filter['displayText'];
         if ($id = $this->parseAuthorIdFilter($value, false)) {
             // Author id filter  (OR query with <field>:<author-id> pairs)
-            $displayText = $this->authorityIdFacetHelper->formatFacet($id);
+            $displayText = $this->authorityHelper->formatFacet($id);
         } elseif (in_array(
             $filter['field'],
-            $this->authorityIdFacetHelper->getAuthorIdFacets()
+            $this->authorityHelper->getAuthorIdFacets()
         )
         ) {
-            // Author id-role facet (<field>:<author-id>###<role>)
-            $displayText = $this->authorityIdFacetHelper->formatFacet($displayText);
+            $displayText = $this->authorityHelper->formatFacet($displayText);
         }
         $filter['displayText'] = $displayText;
         return $filter;
@@ -674,8 +731,8 @@ class Params extends \VuFind\Search\Solr\Params
     protected function parseAuthorIdFilter($filter, $idRoleFilter = false)
     {
         $field = $idRoleFilter
-            ? AuthorityIdFacetHelper::AUTHOR_ID_ROLE_FACET
-            : AuthorityIdFacetHelper::AUTHOR2_ID_FACET;
+            ? AuthorityHelper::AUTHOR_ID_ROLE_FACET
+            : AuthorityHelper::AUTHOR2_ID_FACET;
 
         //$pat = sprintf('/\(%s:"([a-z0-9_.:]*)"\) OR \(/', $field);
         $pat = sprintf('/%s:"([a-z0-9_.:]*)"/', $field);

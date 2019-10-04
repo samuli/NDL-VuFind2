@@ -27,8 +27,6 @@
  */
 namespace Finna\Search;
 
-use Finna\Search\Solr\AuthorityIdFacetHelper;
-
 use VuFind\Search\QueryAdapter;
 
 /**
@@ -407,69 +405,5 @@ trait FinnaParams
     public function activateAllFacets()
     {
         // NOOP for backwards-compatibility
-    }
-
-    /**
-     * Check if author_id filter is active.
-     *
-     * @return boolean
-     */
-    public function hasAuthorIdFilter()
-    {
-        foreach ($this->getFilterList() as $key => $val) {
-            if (in_array(
-                $key,
-                ['authority_id_label', 'Author', AuthorityIdFacetHelper::AUTHOR_ID_FACET_LABEL]
-            )
-            ) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    /**
-     * Return id of active author_id filter.
-     *
-     * @return mixed null|string
-     */
-    public function getAuthorIdFilter($all = false, $role = false)
-    {
-        $result = [];
-        foreach ($this->getFilterList() as $key => $val) {
-            if (!$all && !empty($result)) {
-                break;
-            }
-
-            $authorRoleFilter
-                = in_array($key, ['Author', AuthorityIdFacetHelper::AUTHOR_ID_FACET_LABEL]);
-            $authorIdFilter = in_array($key, ['Author', 'authority_id_label']);
-            if ($authorIdFilter || $authorRoleFilter) {
-                foreach ($val as $filterItem) {
-                    $filter = $filterItem['value'] ?? null;
-                    if (!$filter) {
-                        continue;
-                    }
-                    if ($authorIdFilter) {
-                        $result[] = $filter;
-                        /*
-                        $parts = explode(' ', $filter);
-                        list($key, $val) = explode(':', substr($parts[0], 1, -1), 2);
-                        $result[] = substr(trim($val), 1, -1);
-                        */
-                    } else {
-                        if ($role) {
-                            $result[] = $filter;
-                            continue;
-                        }
-                        list($id, $role) = explode('###', $filter);
-                        $result[] = $id;
-                    }
-                }
-            }
-        }
-        return !empty($result)
-            ? $all ? $result : $result[0]
-            : null;
     }
 }

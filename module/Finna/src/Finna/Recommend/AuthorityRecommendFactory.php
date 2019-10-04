@@ -64,12 +64,9 @@ class AuthorityRecommendFactory
         if (!empty($options)) {
             throw new \Exception('Unexpected options passed to factory.');
         }
-        $recommend = new $requestedName(
-            $container->get(ResultsManager::class)
+        return new $requestedName(
+            $container->get(ResultsManager::class),
+            $container->get(\Finna\Search\Solr\AuthorityHelper::class)
         );
-        $recommend->setAuthorityIdFacetHelper(
-            $container->get(\Finna\Search\Solr\AuthorityIdFacetHelper::class)
-        );
-        return $recommend;
     }
 }

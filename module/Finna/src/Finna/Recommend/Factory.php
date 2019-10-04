@@ -56,6 +56,7 @@ class Factory
     {
         return new CollectionSideFacets(
             $sm->get(\VuFind\Config\PluginManager::class),
+            $sm->get(\Finna\Search\Solr\AuthorityHelper::class),
             $sm->get(\VuFind\Search\Solr\HierarchicalFacetHelper::class)
         );
     }
@@ -71,10 +72,8 @@ class Factory
     {
         $sidefacets = new SideFacets(
             $sm->get(\VuFind\Config\PluginManager::class),
+            $sm->get(\Finna\Search\Solr\AuthorityHelper::class),
             $sm->get(\VuFind\Search\Solr\HierarchicalFacetHelper::class)
-        );
-        $sidefacets->setAuthorityIdFacetHelper(
-            $sm->get(\Finna\Search\Solr\AuthorityIdFacetHelper::class)
         );
         return $sidefacets;
     }
@@ -88,6 +87,9 @@ class Factory
      */
     public static function getSideFacetsDeferred(ServiceManager $sm)
     {
-        return new SideFacetsDeferred($sm->get(\VuFind\Config\PluginManager::class));
+        return new SideFacetsDeferred(
+            $sm->get(\VuFind\Config\PluginManager::class),
+            $sm->get(\Finna\Search\Solr\AuthorityHelper::class)
+        );
     }
 }
