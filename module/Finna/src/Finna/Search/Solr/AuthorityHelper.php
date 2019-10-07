@@ -263,6 +263,6 @@ class AuthorityHelper
      */
     protected function getAuthorRoleSeparator()
     {
-        return chr(9);
+        return '###';
     }
 }
