@@ -201,7 +201,7 @@ class AuthorityHelper
     }
     
     /**
-     * Get delimeter used to separate author id and role.
+     * Get string with author id and role.
      *
      * @param string $id   Id
      * @param string $role Role

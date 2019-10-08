@@ -166,4 +166,30 @@ class UrlQueryHelper extends \VuFind\Search\UrlQueryHelper
         unset($params['page']);
         return '?' . $this->buildQueryString($params, $escape);
     }
+
+    public function setAuthorIdWithRole($id, $role)
+    {
+        list($id, $role) = explode('###', $role);
+
+        $params = $this->urlParams;
+
+        $filters = [];
+        foreach (($params['filter'] ?? []) as $filter) {
+            list($field, $authId) = $this->parseFilter($filter);
+            $authId = substr($authId, 1, -1);
+
+            if (strpos($authId, '###') !== false) {
+                list($authId, $authRole) = explode('###', $authId, 2);
+            }
+
+            //if (!in_array($field, ['author2_id_str_mv', 'author2_id_role_str_mv']) ||
+            if (!in_array($field, ['author2_id_str_mv', 'author2_id_role_str_mv'])) { // || $id !== $authId) {
+                $filters[] = $filter;
+            }
+        }
+        $filters[] = "author2_id_role_str_mv:{$id}###{$role}";
+        $params['filter'] = $filters;
+
+        return '?' . $this->buildQueryString($params, true);
+    }
 }

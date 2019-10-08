@@ -4,19 +4,33 @@ $results = $this->recommend->getResults();
 $that = $this;
 ?>
 
+<div class="authority-recommend">
+
 <?php if ($params->hasAuthorIdFilter()): ?>
   <?php // Authority info for a single author (when author-id filter is active) ?>
-  <?php if (!empty($data)): ?>
-    <div class="authoritybox">
-      <?php $record = $data[0]; ?>
+<?php if (!empty($data)): ?>
+   <div class="tabs-table">
+     <ul class="nav nav-tabs">
+       <?php foreach ($data as $ind => $record): ?>
+         <li data-id="<?= $this->escapeHtmlAttr($record->getUniqueID())?>" <?= $ind === 0 ? ' class="active"' : ''?>>
+           <a><?=$this->escapeHtml($record->getTitle())?></a>
+         </li>
+       <?php endforeach; ?>
+     </ul>
+   </div>   
+
+   <?php foreach ($data as $ind => $record): ?>
+   
+   <div class="authoritybox<?= $ind > 0 ? ' hide' : ''?>" data-id="<?= $this->escapeHtmlAttr($record->getUniqueID())?>">
       <h3 property="name" class="record-title"><?=$this->escapeHtml($record->getTitle())?></h3>
       <div class="resultItemFormat"><strong><?=$this->record($record)->getFormatList() ?></strong></div>
-      <?php if ($roles = $this->recommend->getRoles()): ?>
+      <?php if ($roles = $this->recommend->getRoles($record->getUniqueID())): ?>
       <ul>
-        <?php foreach ($roles as $role): ?>
+          <?php foreach ($roles as $role): ?>
           <li>
-          <?php if (!$role['enabled']): ?>
-          <a href="<?=$this->record($record)->getLink('author-id-role', null, ['id' => $record->getUniqueID(), 'role' => $role['value']])?>">
+              <?php if (!$role['enabled']): ?>
+
+          <a href="<?=$results->getUrlQuery()->setAuthorIdWithRole($record->getUniqueID(), $role['value'])?>">
           <?php endif; ?>
           <?=$role['role']?> (<?=$role['count']?>)
           <?php if (!$role['enabled']): ?>
@@ -46,7 +60,21 @@ $that = $this;
           <?=$this->record($record)->renderTemplate('core-fields.phtml', ['coreFields' => $coreFields]);?>
         </table>
       <?php endif; ?>
-    </div>
+   </div>
+   <?php endforeach; ?>
+
+   <script type="text/javascript">
+   $('.authority-recommend .nav-tabs li').on('click', function(ev) {
+     var self = $(this);
+     var id = self.data('id');
+     var parent = self.closest('.authority-recommend');
+     parent.find('.nav-tabs li').toggleClass('active', false);
+     self.addClass('active');
+     parent.find('.authoritybox').hide();
+     parent.find('.authoritybox[data-id="' + id + '"]').toggleClass('hide', false).show();
+   });
+   </script>
+
   <?php endif; ?>
 <?php else: ?>
   <?php
@@ -77,3 +105,4 @@ $that = $this;
     }
   ?>
 <?php endif; ?>
+</div>

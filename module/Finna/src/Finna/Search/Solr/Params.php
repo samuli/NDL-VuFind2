@@ -569,7 +569,7 @@ class Params extends \VuFind\Search\Solr\Params
      *
      * @return mixed null|string
      */
-    public function getAuthorIdFilter($all = false, $role = false)
+    public function getAuthorIdFilter($all = false, $includeRole = false)
     {
         $result = [];
         foreach ($this->getFilterList() as $key => $val) {
@@ -594,7 +594,7 @@ class Params extends \VuFind\Search\Solr\Params
                         $result[] = substr(trim($val), 1, -1);
                         */
                     } else {
-                        if ($role) {
+                        if ($includeRole) {
                             $result[] = $filter;
                             continue;
                         }
