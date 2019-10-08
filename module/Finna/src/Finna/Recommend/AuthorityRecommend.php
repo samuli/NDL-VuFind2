@@ -180,9 +180,11 @@ class AuthorityRecommend extends \VuFind\Recommend\AuthorityRecommend
                 $params = $results->getParams();
                 $params->initFromRequest($this->request);
 
+                $authorIdFilters = $params->getAuthorIdFilter(true, true);
+
                 // Remove existing author-id filter so that we get all
                 // author roles when faceting.
-                $authorIdFilters = $params->getAuthorIdFilter(true, true);
+                /*
                 
                 if ($authorIdFilters) {
                     foreach ($authorIdFilters as $filter) {
@@ -198,7 +200,7 @@ class AuthorityRecommend extends \VuFind\Recommend\AuthorityRecommend
                             $params->removeFilter("~$filterItem");
                         }
                     }
-                }
+                    }*/
                 
                 $params->addFacet(AuthorityHelper::AUTHOR_ID_ROLE_FACET);
                 $paramsCopy = clone $params;
