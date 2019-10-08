@@ -183,7 +183,7 @@ class UrlQueryHelper extends \VuFind\Search\UrlQueryHelper
             }
 
             //if (!in_array($field, ['author2_id_str_mv', 'author2_id_role_str_mv']) ||
-            if (!in_array($field, ['author2_id_str_mv', 'author2_id_role_str_mv'])) { // || $id !== $authId) {
+            if (!in_array($field, ['author2_id_str_mv', 'author2_id_role_str_mv']) || $id !== $authId) {
                 $filters[] = $filter;
             }
         }
