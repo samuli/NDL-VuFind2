@@ -1,5 +1,18 @@
 /*global VuFind, finna */
 finna.authority = (function finnaAuthority() {
+  function initAuthorityRecommendTabs()
+  {
+    $('div.authority-recommend .nav-tabs li').on('click', function(ev) {
+     var self = $(this);
+     var id = self.data('id');
+     var parent = self.closest('.authority-recommend');
+     parent.find('.nav-tabs li').toggleClass('active', false);
+     self.addClass('active');
+     parent.find('.authoritybox').hide();
+     parent.find('.authoritybox[data-id="' + id + '"]').toggleClass('hide', false).show();
+   });
+  }
+
   function initInlineInfoLinks()
   {
     $('div.authority').each(function initAuthority() {
@@ -38,7 +51,8 @@ finna.authority = (function finnaAuthority() {
   var my = {
     init: function init() {
       initInlineInfoLinks();
-    }
+    },
+    initAuthorityRecommendTabs: initAuthorityRecommendTabs
   };
 
   return my;

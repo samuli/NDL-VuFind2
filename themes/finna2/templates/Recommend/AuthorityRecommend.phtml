@@ -5,79 +5,72 @@ $that = $this;
 ?>
 
 <div class="authority-recommend">
-
-<?php if ($params->hasAuthorIdFilter()): ?>
-  <?php // Authority info for a single author (when author-id filter is active) ?>
-<?php if (!empty($data)): ?>
-   <div class="tabs-table">
-     <ul class="nav nav-tabs">
-       <?php foreach ($data as $ind => $record): ?>
-         <li data-id="<?= $this->escapeHtmlAttr($record->getUniqueID())?>" <?= $ind === 0 ? ' class="active"' : ''?>>
-           <a><?=$this->escapeHtml($record->getTitle())?></a>
-         </li>
-       <?php endforeach; ?>
-     </ul>
-   </div>   
-
-   <?php foreach ($data as $ind => $record): ?>
-   
-   <div class="authoritybox<?= $ind > 0 ? ' hide' : ''?>" data-id="<?= $this->escapeHtmlAttr($record->getUniqueID())?>">
-      <h3 property="name" class="record-title"><?=$this->escapeHtml($record->getTitle())?></h3>
-      <div class="resultItemFormat"><strong><?=$this->record($record)->getFormatList() ?></strong></div>
-      <?php if ($roles = $this->recommend->getRoles($record->getUniqueID())): ?>
-      <ul>
-          <?php foreach ($roles as $role): ?>
-          <li>
-              <?php if (!$role['enabled']): ?>
-
-          <a href="<?=$results->getUrlQuery()->setAuthorIdWithRole($record->getUniqueID(), $role['value'])?>">
-          <?php endif; ?>
-          <?=$role['role']?> (<?=$role['count']?>)
-          <?php if (!$role['enabled']): ?>
-          </a>
-          <?php endif; ?>
-        </li>
-        <?php endforeach; ?>
-      </ul>
-      <?php endif; ?>
-      <?php $summ = $record->getSummary(); if (!empty($summ)): ?>
-      <div class="truncate-field wide recordSummary">
-        <p class="summary">
-         <?php foreach ($summ as $field): ?>
-          <?// NOTE: the driver is responsible for returning only safe tags ?>
-          <?=$field?><br/>
-        <?php endforeach; ?>
-        </p>
-      </div>
+  <?php if ($params->hasAuthorIdFilter()): ?>
+    <?php // Authority info for active authors (when author-id filter(s) is active) ?>
+    <?php if (!empty($data)): ?>
+      <?php if(count($data) > 1): ?>
+        <div class="tabs-table">
+          <ul class="nav nav-tabs">
+            <?php foreach ($data as $ind => $record): ?>
+              <li data-id="<?= $this->escapeHtmlAttr($record->getUniqueID())?>" <?= $ind === 0 ? ' class="active"' : ''?>>
+                <a><?=$this->escapeHtml($record->getTitle())?></a>
+              </li>
+            <?php endforeach; ?>
+          </ul>
+        </div>
+        <?php
+          $js = <<<JS
+$(document).ready(function(){
+  finna.authority.initAuthorityRecommendTabs();
+});
+JS;
+          $this->headScript()->appendScript($js);
+        ?>
       <?php endif; ?>
       <?php
         $formatter = $this->recordDataFormatter();
         $coreFields = $formatter->getDefaults('authority');
-        $coreFields = $formatter->getData($record, $coreFields);
       ?>
-      <?php if (!empty($coreFields)): ?>
-        <table class="table table-finna-record record-details">
-          <?=$this->record($record)->renderTemplate('core-fields.phtml', ['coreFields' => $coreFields]);?>
-        </table>
-      <?php endif; ?>
-   </div>
-   <?php endforeach; ?>
-
-   <script type="text/javascript">
-   $('.authority-recommend .nav-tabs li').on('click', function(ev) {
-     var self = $(this);
-     var id = self.data('id');
-     var parent = self.closest('.authority-recommend');
-     parent.find('.nav-tabs li').toggleClass('active', false);
-     self.addClass('active');
-     parent.find('.authoritybox').hide();
-     parent.find('.authoritybox[data-id="' + id + '"]').toggleClass('hide', false).show();
-   });
-   </script>
-
-  <?php endif; ?>
-<?php else: ?>
-  <?php
+      <?php foreach ($data as $ind => $record): ?>
+        <div class="authoritybox<?= $ind > 0 ? ' hide' : ''?>" data-id="<?= $this->escapeHtmlAttr($record->getUniqueID())?>">
+          <h3 property="name" class="record-title"><?=$this->escapeHtml($record->getTitle())?></h3>
+          <div class="resultItemFormat"><strong><?=$this->record($record)->getFormatList() ?></strong></div>
+          <?php if ($roles = $this->recommend->getRoles($record->getUniqueID())): ?>
+            <ul>
+            <?php foreach ($roles as $role): ?>
+              <li>
+                <?php if (!$role['enabled']): ?>
+                <a href="<?=$results->getUrlQuery()->setAuthorIdWithRole($record->getUniqueID(), $role['value'])?>">
+                <?php endif; ?>
+                  <?=$role['role']?> (<?=$role['count']?>)
+                <?php if (!$role['enabled']): ?>
+                </a>
+                <?php endif; ?>
+              </li>
+            <?php endforeach; ?>
+            </ul>
+          <?php endif; ?>
+          <?php $summ = $record->getSummary(); if (!empty($summ)): ?>
+          <div class="truncate-field wide recordSummary">
+            <p class="summary">
+            <?php foreach ($summ as $field): ?>
+              <?// NOTE: the driver is responsible for returning only safe tags ?>
+              <?=$field?><br/>
+            <?php endforeach; ?>
+            </p>
+          </div>
+          <?php endif; ?>
+          <?php $coreFields = $formatter->getData($record, $coreFields); ?>
+          <?php if (!empty($coreFields)): ?>
+            <table class="table table-finna-record record-details">
+              <?=$this->record($record)->renderTemplate('core-fields.phtml', ['coreFields' => $coreFields]);?>
+            </table>
+          <?php endif; ?>
+        </div>
+      <?php endforeach; ?>
+    <?php endif; ?>
+  <?php else: ?>
+    <?php
     // Authority recommendations when no author-id filter is active.
     $displayQuery = $results->getParams()->getDisplayQuery();
     if (!$displayQuery) {
@@ -103,6 +96,6 @@ $that = $this;
       echo("<div>$content</div>");
       echo('</div>');
     }
-  ?>
-<?php endif; ?>
+    ?>
+  <?php endif; ?>
 </div>
