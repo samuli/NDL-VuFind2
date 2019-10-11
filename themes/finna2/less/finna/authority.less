@@ -47,12 +47,18 @@ a.authority-page {
 }
 .authority-recommend {
   .authoritybox {
-    border: 1px solid @gray-lighter;
+      border: 1px solid @gray-lighter;
+    .record-details th {
+      width: 20%;
+    }
+    .resultItemFormat {
+      margin-bottom: 0.3em;
+      i {
+        font-size: 1.3em;
+      }
+    }
     h3 {
       margin-bottom: 0.3em;
-    }
-    .roles {
-      margin-top: 1em;
     }
   }
   .tabs-table {
@@ -110,7 +116,7 @@ a.authority-page {
             word-break: break-word;
           }
           i {
-            font-size: 1.4em;
+            font-size: 1.3em;
             color: @link-color;
           }
         }

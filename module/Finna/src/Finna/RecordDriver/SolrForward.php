@@ -910,6 +910,7 @@ class SolrForward extends \VuFind\RecordDriver\SolrDefault
                 $name = (string)$nameAttrs->{'elokuva-elokreditoimatontekija-nimi'};
             }
 
+            $authType = (string)$agent->AgentIdentifier->IDTypeName;
             $authId = (string)$agent->AgentIdentifier->IDTypeName . ':' .
                 (string)$agent->AgentIdentifier->IDValue;
 
@@ -918,6 +919,7 @@ class SolrForward extends \VuFind\RecordDriver\SolrDefault
                 'name' => $name,
                 'role' => $role,
                 'id' => $authId,
+                'type' => $authType,
                 'roleName' => $roleName,
                 'description' => $description,
                 'uncredited' => $uncredited,

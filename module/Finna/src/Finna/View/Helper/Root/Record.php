@@ -306,7 +306,8 @@ class Record extends \VuFind\View\Helper\Root\Record
              && $this->isAuthorityEnabled()
              && !empty($this->config->Authority->authority_info),
            'recordSource' => $this->driver->getDataSource(),
-           'type' => $type
+           'type' => $type,
+           'authorityType' => $params['authorityType'] ?? null
         ];
 
         if (isset($params['role'])) {
