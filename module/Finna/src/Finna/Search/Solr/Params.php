@@ -578,7 +578,7 @@ class Params extends \VuFind\Search\Solr\Params
             }
 
             $authorRoleFilter
-                = in_array($key, ['Author', AuthorityHelper::AUTHOR_ID_FACET_LABEL]);
+                = in_array($key, ['Author']);
             $authorIdFilter = in_array($key, ['Author', 'authority_id_label']);
             if ($authorIdFilter || $authorRoleFilter) {
                 foreach ($val as $filterItem) {
@@ -684,7 +684,7 @@ class Params extends \VuFind\Search\Solr\Params
         foreach ($this->getFilterList() as $key => $val) {
             if (in_array(
                 $key,
-                ['authority_id_label', 'Author', AuthorityHelper::AUTHOR_ID_FACET_LABEL]
+                ['authority_id_label', 'Author']
             )
             ) {
                 return true;

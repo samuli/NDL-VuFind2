@@ -39,13 +39,6 @@ namespace Finna\Search\Solr;
 class AuthorityHelper
 {
     /**
-     * Facet label for author-id-role facet.
-     *
-     * @var string
-     */
-    public const AUTHOR_ID_FACET_LABEL = 'Author role';
-
-    /**
      * Index field for author-ids.
      *
      * @var string
