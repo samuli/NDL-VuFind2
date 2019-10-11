@@ -118,6 +118,6 @@ class SolrAuthDefault extends \VuFind\RecordDriver\SolrAuthDefault
      */
     protected function isPerson()
     {
-        return $this->getRecordType() === 'Personal Name';
+        return $this->fields['record_type'] === 'Personal Name';
     }
 }
