@@ -78,7 +78,24 @@ class AuthorityRecommend extends \VuFind\Recommend\AuthorityRecommend
      */
     public function getRecommendations()
     {
-        return array_unique($this->recommendations, SORT_REGULAR);
+        if (!$this->authorId) {
+            return array_unique($this->recommendations, SORT_REGULAR);
+        }
+
+        // Make sure that authority records are sorted in the same order
+        // as active filters
+        $sorted = [];
+        $rest = [];
+        foreach ($this->recommendations as $r) {
+            $pos = array_search($r->getUniqueID(), $this->authorId);
+            if (false === $pos) {
+                $rest[] = $r;
+            } else {
+                $sorted[$pos] = $r;
+            }
+        }
+        ksort($sorted);
+        return array_merge($sorted, $rest);
     }
 
     /**
