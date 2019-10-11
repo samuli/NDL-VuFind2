@@ -15,7 +15,7 @@ $that = $this;
             <?php foreach ($data as $ind => $record): ?>
               <? $formats = $record->getFormats(); ?>
               <li data-id="<?= $this->escapeHtmlAttr($record->getUniqueID())?>" <?= $ind === $activeInd ? ' class="active"' : ''?> aria-label="<?=$this->escapeHtmlAttr($this->translate('authority_' . $formats[0])) ?>">
-                <a><?=$this->escapeHtml($record->getTitle())?></a>
+                  <a><i class="fa fa-authority-<?=$this->escapeHtmlAttr($this->record($record)->getFormatClass($formats[0]))?>"></i> <?=$this->escapeHtml($record->getTitle())?></a>
               </li>
             <?php endforeach; ?>
           </ul>
