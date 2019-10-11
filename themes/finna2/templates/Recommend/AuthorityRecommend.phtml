@@ -1,5 +1,6 @@
 <?php
 $data = $this->recommend->getRecommendations();
+$activeInd = count($data) ? count($data)-1 : 0;
 $results = $this->recommend->getResults();
 $that = $this;
 ?>
@@ -13,7 +14,7 @@ $that = $this;
           <ul class="nav nav-tabs">
             <?php foreach ($data as $ind => $record): ?>
               <? $formats = $record->getFormats(); ?>
-              <li data-id="<?= $this->escapeHtmlAttr($record->getUniqueID())?>" <?= $ind === 0 ? ' class="active"' : ''?> aria-label="<?=$this->escapeHtmlAttr($this->translate('authority_' . $formats[0])) ?>">
+              <li data-id="<?= $this->escapeHtmlAttr($record->getUniqueID())?>" <?= $ind === $activeInd ? ' class="active"' : ''?> aria-label="<?=$this->escapeHtmlAttr($this->translate('authority_' . $formats[0])) ?>">
                 <a><?=$this->escapeHtml($record->getTitle())?></a>
               </li>
             <?php endforeach; ?>
@@ -34,7 +35,7 @@ JS;
           $formatter = $this->recordDataFormatter();
           $coreFields = $formatter->getDefaults('authority');
         ?>
-        <div class="authoritybox<?= $ind > 0 ? ' hide' : ''?>" data-id="<?= $this->escapeHtmlAttr($record->getUniqueID())?>">
+        <div class="authoritybox<?= $ind !== $activeInd ? ' hide' : ''?>" data-id="<?= $this->escapeHtmlAttr($record->getUniqueID())?>">
           <h3 property="name" class="record-title"><?=$this->escapeHtml($record->getTitle())?></h3>
           <div class="resultItemFormat"><?=$this->translate('authority_' . $formats[0])?></div>
           <?php if ($roles = $this->recommend->getRoles($record->getUniqueID())): ?>
@@ -53,7 +54,7 @@ JS;
             </ul>
           <?php endif; ?>
           <?php $summ = $record->getSummary(); if (!empty($summ)): ?>
-          <div class="wide recordSummary<?= $ind === 0 ? ' truncate-field' : ''?>" data-rows="5">
+          <div class="wide recordSummary<?= $ind === $activeInd ? ' truncate-field' : ''?>" data-rows="5">
             <p class="summary">
             <?php foreach ($summ as $field): ?>
               <?// NOTE: the driver is responsible for returning only safe tags ?>
