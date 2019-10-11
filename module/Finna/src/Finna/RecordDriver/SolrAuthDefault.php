@@ -110,4 +110,14 @@ class SolrAuthDefault extends \VuFind\RecordDriver\SolrAuthDefault
             ? ((array)$this->fields['datasource_str_mv'])[0]
             : '';
     }
+
+    /**
+     * Is this a Person authority record?
+     *
+     * @return boolean
+     */
+    protected function isPerson()
+    {
+        return $this->getRecordType() === 'Personal Name';
+    }
 }

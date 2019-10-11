@@ -77,10 +77,16 @@ class SolrAuthForward extends SolrAuthDefault
     /**
      * Return birth date and place.
      *
+     * @param boolean $force Return established date for corporations?
+     *
      * @return string
      */
-    public function getBirthDate()
+    public function getBirthDate($force = false)
     {
+        if (!$this->isPerson() && !$force) {
+            return '';
+        }
+
         if ($date = $this->getAgentDate('birth')) {
             return $this->formatDateAndPlace($date);
         }
@@ -90,14 +96,46 @@ class SolrAuthForward extends SolrAuthDefault
     /**
      * Return death date and place.
      *
+     * @param boolean $force Return terminated date for corporations?
+     *
      * @return string
      */
-    public function getDeathDate()
+    public function getDeathDate($force = false)
     {
+        if (!$this->isPerson() && !$force) {
+            return '';
+        }
+
         if ($date = $this->getAgentDate('death')) {
             return $this->formatDateAndPlace($date);
         }
         return '';
+    }
+
+    /**
+     * Return corporation establishment date date and place.
+     *
+     * @return string
+     */
+    public function getEstablishedDate()
+    {
+        if ($this->isPerson()) {
+            return '';
+        }
+        return $this->getBirthDate(true);
+    }
+
+    /**
+     * Return corporation termination date date and place.
+     *
+     * @return string
+     */
+    public function getTerminatedDate()
+    {
+        if ($this->isPerson()) {
+            return '';
+        }
+        return $this->getDeathDate(true);
     }
 
     /**

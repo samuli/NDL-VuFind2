@@ -955,6 +955,8 @@ class RecordDataFormatterFactory
         $spec->setLine('Other Titles', 'getAlternativeTitles');
         $spec->setLine('Date of birth', 'getBirthDate');
         $spec->setLine('Date of death', 'getDeathDate');
+        $spec->setLine('Established', 'getEstablishedDate');
+        $spec->setLine('Terminated', 'getTerminatedDate');
         $spec->setLine('Awards', 'getAwards');
 
         return $spec->getArray();

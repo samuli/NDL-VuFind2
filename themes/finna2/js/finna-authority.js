@@ -9,7 +9,15 @@ finna.authority = (function finnaAuthority() {
      parent.find('.nav-tabs li').toggleClass('active', false);
      self.addClass('active');
      parent.find('.authoritybox').hide();
-     parent.find('.authoritybox[data-id="' + id + '"]').toggleClass('hide', false).show();
+
+     var box = parent.find('.authoritybox[data-id="' + id + '"]');
+     box.toggleClass('hide', false).show();
+
+     var summary = box.find('.recordSummary');
+     if (!summary.hasClass('truncate-field')) {
+       summary.addClass('truncate-field');
+       finna.layout.initTruncate(box);
+     }
    });
   }
 
