@@ -2,23 +2,44 @@
 finna.authority = (function finnaAuthority() {
   function initAuthorityRecommendTabs()
   {
-    $('div.authority-recommend .nav-tabs li').on('click', function(ev) {
+    $('div.authority-recommend .nav-tabs li').click(function onTabClick() {
      var self = $(this);
      var id = self.data('id');
+     if (self.hasClass('active')) {
+       return;
+     }
      var parent = self.closest('.authority-recommend');
+     var authoritybox = parent.find('.authoritybox');
      parent.find('.nav-tabs li').toggleClass('active', false);
      self.addClass('active');
-     parent.find('.authoritybox').hide();
 
-     var box = parent.find('.authoritybox[data-id="' + id + '"]');
-     box.toggleClass('hide', false).show();
+    var spinner = parent.find('li.spinner');
+    spinner.toggleClass('hide', false).show();
 
-     var summary = box.find('.recordSummary');
-     if (!summary.hasClass('truncate-field')) {
-       summary.addClass('truncate-field');
-       finna.layout.initTruncate(box);
-     }
-   });
+     $.getJSON(
+       VuFind.path + '/AJAX/JSON',
+       {
+         method: 'getAuthorityInfo',
+         id: id,
+         type: 'foo',
+         source: 'kavi',
+         context: 'recommend',
+         searchId: parent.data('search-id')
+       }
+     )
+        .done(function onGetAuthorityInfoDone(response) {
+          authoritybox.html(typeof response.data.html !== 'undefined' ? response.data.html : '--');
+          var summary = authoritybox.find('.recordSummary');
+          finna.layout.initTruncate(authoritybox);
+
+
+          spinner.hide();
+        })
+        .fail(function onGetAuthorityInfoFail() {
+          authoritybox.text(VuFind.translate('error_occurred'));
+          spinner.hide();
+        });
+    });
   }
 
   function initInlineInfoLinks()

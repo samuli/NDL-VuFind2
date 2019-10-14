@@ -27,7 +27,10 @@
  */
 namespace Finna\AjaxHandler;
 
+use Finna\Recommend\AuthorityRecommend;
+
 use VuFind\Record\Loader;
+use VuFind\Search\Results\PluginManager;
 use VuFind\Session\Settings as SessionSettings;
 use VuFindSearch\ParamBag;
 
@@ -46,13 +49,6 @@ use Zend\View\Renderer\RendererInterface;
 class GetAuthorityInfo extends \VuFind\AjaxHandler\AbstractBase
 {
     /**
-     * Record loader
-     *
-     * @var Loader
-     */
-    protected $loader;
-
-    /**
      * View renderer
      *
      * @var RendererInterface
@@ -60,18 +56,52 @@ class GetAuthorityInfo extends \VuFind\AjaxHandler\AbstractBase
     protected $renderer;
 
     /**
+     * AuthorityRecommend
+     *
+     * @var AuthorityRecommend
+     */
+    protected $authorityRecommend;
+
+    /**
+     * Search Results manager
+     *
+     * @var \VuFind\Search\Results\PluginManager
+     */
+    protected $resultsManager;
+
+    /**
+     * Search table
+     *
+     * @var \VuFind\Db\Table\Search
+     */
+    protected $searchTable;
+
+    /**
+     * Session
+     *
+     * @var \Zend\Session\Container
+     */
+    protected $session;
+
+    /**
      * Constructor
      *
-     * @param SessionSettings   $ss       Session settings
-     * @param Loader            $loader   Record loader
      * @param RendererInterface $renderer View renderer
+     * @param
+     * @param 
      */
-    public function __construct(SessionSettings $ss, Loader $loader,
-        RendererInterface $renderer
+    public function __construct(
+        RendererInterface $renderer,
+        \Finna\Recommend\AuthorityRecommend $authorityRecommend,
+        \VuFind\Search\Results\PluginManager $resultsManager,
+        \VuFInd\Db\Table\Search $searchTable,
+        \Zend\Session\Container $session
     ) {
-        $this->sessionSettings = $ss;
-        $this->loader = $loader;
         $this->renderer = $renderer;
+        $this->authorityRecommend = $authorityRecommend;
+        $this->resultsManager = $resultsManager;
+        $this->searchTable = $searchTable;
+        $this->session = $session;
     }
 
     /**
@@ -83,8 +113,6 @@ class GetAuthorityInfo extends \VuFind\AjaxHandler\AbstractBase
      */
     public function handleRequest(Params $params)
     {
-        $this->disableSessionWrites();  // avoid session write timing bug
-
         $id = $params->fromQuery('id');
         $source = $params->fromQuery('source');
         $type = $params->fromQuery('type');
@@ -93,19 +121,37 @@ class GetAuthorityInfo extends \VuFind\AjaxHandler\AbstractBase
             return $this->formatResponse('', self::STATUS_HTTP_BAD_REQUEST);
         }
 
-        $params = new ParamBag();
-        $params->set('authorityType', $type);
-        $params->set('recordSource', $source);
-        try {
-            $driver = $this->loader->load(
-                $id, 'SolrAuth', false, $params
+        $searchId = $params->fromPost('searchId', $params->fromQuery('searchId'));
+        $search = $this->searchTable->select(['id' => $searchId])->current();
+        if (empty($search)) {
+            return $this->formatResponse(
+                'Search not found', self::STATUS_HTTP_BAD_REQUEST
             );
-        } catch (\VuFind\Exception\RecordMissing $e) {
-            return $this->formatResponse('');
         }
 
+        $minSO = $search->getSearchObject();
+        $savedSearch = $minSO->deminify($this->resultsManager);
+        $searchParams = $savedSearch->getParams();
+
+        $this->authorityRecommend->init($searchParams, $request);
+        $this->authorityRecommend->process($savedSearch);
+        $recommendations = $this->authorityRecommend->getRecommendations();
+
+        $authority = end($recommendations);
+        foreach ($recommendations as $rec) {
+            if ($rec->getUniqueID() === $id) {
+                $authority = $rec;
+                break;
+            }
+        }
+
+        $this->session->activeId = $id;
+        $this->session->ids = $searchParams->getAuthorIdFilter(true);
+
         $html = $this->renderer->partial(
-            'ajax/authority.phtml', ['driver' => $driver]
+            'ajax/authority-recommend.phtml',
+            ['recommend' => $this->authorityRecommend,
+             'params' => $searchParams, 'authority' => $authority]
         );
 
         return $this->formatResponse(compact('html'));

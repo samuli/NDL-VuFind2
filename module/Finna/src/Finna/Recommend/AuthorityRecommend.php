@@ -57,7 +57,8 @@ class AuthorityRecommend extends \VuFind\Recommend\AuthorityRecommend
     protected $request;
     protected $roles = null;
     protected $authorityHelper = null;
-
+    protected $session = null;
+    
     /**
      * Constructor
      *
@@ -65,10 +66,12 @@ class AuthorityRecommend extends \VuFind\Recommend\AuthorityRecommend
      */
     public function __construct(
         \VuFind\Search\Results\PluginManager $results,
-        \Finna\Search\Solr\AuthorityHelper $authorityHelper
+        \Finna\Search\Solr\AuthorityHelper $authorityHelper,
+        $session
     ) {
         $this->resultsManager = $results;
         $this->authorityHelper = $authorityHelper;
+        $this->session = $session;
     }
 
     /**
@@ -98,6 +101,11 @@ class AuthorityRecommend extends \VuFind\Recommend\AuthorityRecommend
         return array_merge($sorted, $rest);
     }
 
+    public function getActiveRecommendation()
+    {
+        return $this->session->activeId ?? null;
+    }
+    
     /**
      * Called at the end of the Search Params objects' initFromRequest() method.
      * This method is responsible for setting search parameters needed by the
@@ -116,6 +124,11 @@ class AuthorityRecommend extends \VuFind\Recommend\AuthorityRecommend
     {
         if ($ids = $params->getAuthorIdFilter(true)) {
             $this->authorId = $ids;
+            if ($this->session->ids && $this->session->ids !== $ids) {
+                // Reset active authority if filters have been changed.
+                // This activated the last selected authority in the UI.
+                $this->session->activeId = null;
+            }
             $this->lookfor = implode(' OR ', array_map(function($id) { return "(id:\"{$id}\")"; }, $ids));
             $this->header = 'Author';
             $this->request = $request;
@@ -190,35 +203,14 @@ class AuthorityRecommend extends \VuFind\Recommend\AuthorityRecommend
         }
 
         try {
-            $resultsOrig = $this->resultsManager->get('Solr');
+            $resultsOrig = $this->results;
 
             foreach ($this->authorId as $id) {
                 $results = clone $resultsOrig;
                 $params = $results->getParams();
-                $params->initFromRequest($this->request);
 
                 $authorIdFilters = $params->getAuthorIdFilter(true, true);
 
-                // Remove existing author-id filter so that we get all
-                // author roles when faceting.
-                /*
-                
-                if ($authorIdFilters) {
-                    foreach ($authorIdFilters as $filter) {
-                        foreach ($this->authorityHelper->getAuthorIdFacets() as $authorIdField) {
-                            $filterItem
-                                = sprintf(
-                                    '%s:%s',
-                                    $authorIdField,
-                                    $filter
-                                );
-                            // Remove AND & OR filters
-                            $params->removeFilter($filterItem);
-                            $params->removeFilter("~$filterItem");
-                        }
-                    }
-                    }*/
-                
                 $params->addFacet(AuthorityHelper::AUTHOR_ID_ROLE_FACET);
                 $paramsCopy = clone $params;
                 
@@ -227,21 +219,26 @@ class AuthorityRecommend extends \VuFind\Recommend\AuthorityRecommend
                     $this->authorityHelper->getAuthorIdRole($id),
                     false
                 );
-                
+
                 $results->setParams($paramsCopy);
+                $results->performAndProcessSearch();
                 $facets = $results->getFacetList();
-                
+
                 if (!isset($facets[AuthorityHelper::AUTHOR_ID_ROLE_FACET])) {
                     continue;
                 }
                 
-                $roles = $facets[AuthorityHelper::AUTHOR_ID_ROLE_FACET]['list'] ?? [];
+                $roles
+                    = $facets[AuthorityHelper::AUTHOR_ID_ROLE_FACET]['list'] ?? [];
                 if ($this->authorityHelper) {
                     foreach ($roles as &$role) {
-                        $authorityInfo = $this->authorityHelper->formatFacet($role['displayText'], true);
+                        $authorityInfo = $this->authorityHelper->formatFacet(
+                            $role['displayText'], true
+                        );
                         $role['displayText'] = $authorityInfo['displayText'];
                         $role['role'] = $authorityInfo['role'];
-                        $role['enabled'] = in_array($role['value'], $authorIdFilters);
+                        $role['enabled']
+                            = in_array($role['value'], $authorIdFilters);
                     }
                 }
                 $this->roles[$id] = $roles;

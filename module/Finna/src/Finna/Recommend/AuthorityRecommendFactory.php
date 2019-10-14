@@ -66,7 +66,10 @@ class AuthorityRecommendFactory
         }
         return new $requestedName(
             $container->get(ResultsManager::class),
-            $container->get(\Finna\Search\Solr\AuthorityHelper::class)
+            $container->get(\Finna\Search\Solr\AuthorityHelper::class),
+            new \Zend\Session\Container(
+                'Authority', $container->get(\Zend\Session\SessionManager::class)
+            )
         );
     }
 }

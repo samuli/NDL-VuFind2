@@ -63,10 +63,19 @@ class GetAuthorityInfoFactory
         if (!empty($options)) {
             throw new \Exception('Unexpected options passed to factory.');
         }
+
+        $recommendManager = $container->get(\VuFind\Recommend\PluginManager::class);
+        $resultsManager = $container->get(\VuFind\Search\Results\PluginManager::class);
+        $tablePluginManager = $container->get(\VuFind\Db\Table\PluginManager::class);
+
         $result = new $requestedName(
-            $container->get('VuFind\Session\Settings'),
-            $container->get('VuFind\Record\Loader'),
-            $container->get('ViewRenderer')
+            $container->get('ViewRenderer'),
+            $recommendManager->get('authorityrecommend'),
+            $resultsManager,
+            $tablePluginManager->get(\VuFind\Db\Table\Search::class),
+            new \Zend\Session\Container(
+                'Authority', $container->get(\Zend\Session\SessionManager::class)
+            )
         );
         return $result;
     }
