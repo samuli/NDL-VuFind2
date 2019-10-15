@@ -1,8 +1,24 @@
 /*global VuFind, finna */
 finna.authority = (function finnaAuthority() {
+  function toggleAuthorityInfoCollapse(mode)
+  {
+    var authorityRecommend = $('.authority-recommend');
+    var tabs = authorityRecommend.find('ul.nav-tabs');
+    var authoritybox = authorityRecommend.find('.authoritybox');
+    if (typeof mode !== 'undefined') {
+      authoritybox.toggleClass('hide', mode);
+    } else {
+      authoritybox.toggleClass('hide');
+    }
+    var collapsed = authoritybox.hasClass('hide');
+    tabs.toggleClass('collapsed', mode);
+    authorityRecommend.find('li.toggle').toggleClass('collapsed', mode);
+    $.cookie('collapseAuthorityInfo', collapsed, {path: VuFind.path});
+  }
+
   function initAuthorityRecommendTabs()
   {
-    $('div.authority-recommend .nav-tabs li').click(function onTabClick() {
+    $('div.authority-recommend .nav-tabs li').not('.toggle').click(function onTabClick() {
      var self = $(this);
      var id = self.data('id');
      if (self.hasClass('active')) {
@@ -13,8 +29,8 @@ finna.authority = (function finnaAuthority() {
      parent.find('.nav-tabs li').toggleClass('active', false);
      self.addClass('active');
 
-    var spinner = parent.find('li.spinner');
-    spinner.toggleClass('hide', false).show();
+     var spinner = parent.find('li.spinner');
+     spinner.toggleClass('hide', false).show();
 
      $.getJSON(
        VuFind.path + '/AJAX/JSON',
@@ -31,14 +47,17 @@ finna.authority = (function finnaAuthority() {
           authoritybox.html(typeof response.data.html !== 'undefined' ? response.data.html : '--');
           var summary = authoritybox.find('.recordSummary');
           finna.layout.initTruncate(authoritybox);
-
-
           spinner.hide();
+          toggleAuthorityInfoCollapse(false);
         })
         .fail(function onGetAuthorityInfoFail() {
           authoritybox.text(VuFind.translate('error_occurred'));
           spinner.hide();
+          toggleAuthorityInfoCollapse(false);
         });
+    });
+    $('div.authority-recommend .nav-tabs li.toggle').click(function onToggle() {
+      toggleAuthorityInfoCollapse();
     });
   }
 

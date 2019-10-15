@@ -58,6 +58,7 @@ class AuthorityRecommend extends \VuFind\Recommend\AuthorityRecommend
     protected $roles = null;
     protected $authorityHelper = null;
     protected $session = null;
+    protected $cookieManager = null;
     
     /**
      * Constructor
@@ -67,11 +68,13 @@ class AuthorityRecommend extends \VuFind\Recommend\AuthorityRecommend
     public function __construct(
         \VuFind\Search\Results\PluginManager $results,
         \Finna\Search\Solr\AuthorityHelper $authorityHelper,
-        $session
+        $session,
+        $cookieManager
     ) {
         $this->resultsManager = $results;
         $this->authorityHelper = $authorityHelper;
         $this->session = $session;
+        $this->cookieManager = $cookieManager;
     }
 
     /**
@@ -104,6 +107,11 @@ class AuthorityRecommend extends \VuFind\Recommend\AuthorityRecommend
     public function getActiveRecommendation()
     {
         return $this->session->activeId ?? null;
+    }
+
+    public function collapseAuthorityInfo()
+    {
+        return $this->cookieManager->get('collapseAuthorityInfo') === 'true';
     }
     
     /**

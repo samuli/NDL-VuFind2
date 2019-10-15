@@ -69,7 +69,8 @@ class AuthorityRecommendFactory
             $container->get(\Finna\Search\Solr\AuthorityHelper::class),
             new \Zend\Session\Container(
                 'Authority', $container->get(\Zend\Session\SessionManager::class)
-            )
+            ),
+            $container->get(\VuFind\Cookie\CookieManager::class)
         );
     }
 }
