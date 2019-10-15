@@ -1,7 +1,12 @@
+@iconFontSize: 1.3em;
 
 a.authority-page {
   &::after {
     margin-left: 5px;
+  }
+  i {
+    vertical-align: middle;
+    font-size: @iconFontSize;
   }
 }
 .authority {
@@ -53,7 +58,8 @@ a.authority-page {
     .resultItemFormat {
       margin-bottom: 0.3em;
       i {
-        font-size: 1.3em;
+        vertical-align: middle;
+        font-size: @iconFontSize;
       }
     }
     h3 {
@@ -122,7 +128,6 @@ a.authority-page {
             word-break: break-word;
           }
           i {
-            //font-size: 1.3em;
             color: @link-color;
             vertical-align: middle;
             font-size: 1.8em;
