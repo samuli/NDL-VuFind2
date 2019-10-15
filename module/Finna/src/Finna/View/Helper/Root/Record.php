@@ -297,6 +297,10 @@ class Record extends \VuFind\View\Helper\Root\Record
         $url = $this->getLink($type, $lookfor, $params + ['id' => $id]);
         $authId = $this->getAuthorityId($type, $id);
 
+        $authorityType = $params['authorityType'] ?? null;
+        $authorityType
+            = $this->config->Authority->typeMap->{$authorityType} ?? $authorityType;
+
         $elementParams = [
            'url' => trim($url),
            'label' => $lookfor,
@@ -307,7 +311,8 @@ class Record extends \VuFind\View\Helper\Root\Record
              && !empty($this->config->Authority->authority_info),
            'recordSource' => $this->driver->getDataSource(),
            'type' => $type,
-           'authorityType' => $params['authorityType'] ?? null
+           'authorityType' => $authorityType,
+           'record' => $this->driver
         ];
 
         if (isset($params['role'])) {

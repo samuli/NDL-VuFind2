@@ -1,7 +1,8 @@
 <?php
 $data = $this->recommend->getRecommendations();
 $activeRecord = $activeInd = null;
-if ($activeId = $this->recommend->getActiveRecommendation()) {
+if ($data) {
+  if ($activeId = $this->recommend->getActiveRecommendation()) {
     foreach ($data as $ind => $rec) {
         if ($activeId === $rec->getUniqueID()) {
             $activeInd = $ind;
@@ -9,10 +10,11 @@ if ($activeId = $this->recommend->getActiveRecommendation()) {
             break;
         }
     }
-}
-if (!$activeRecord) {
+  }
+  if (!$activeRecord) {
     $activeInd = count($data) ? count($data)-1 : 0;
     $activeRecord = $data[$activeInd];
+  }
 }
 $results = $this->recommend->getResults();
 $that = $this;
@@ -69,8 +71,9 @@ JS;
         // Generate a new search URL that replaces the user's current term
         // with the authority term:
         $id = $record->getUniqueId();
+        $formats = $record->getFormats();
         $authoritySearchUrl = $that->url(null) . '?filter[]=' . urlencode($that->url()->getRecordsByAuthorFilter($id)) . $hiddenFilters;
-        $html = '<span class="authority-page-link"><a class="authority-page" href="' . $authoritySearchUrl . '">' . $that->escapeHtml($record->getBreadCrumb()) . '</a></span>';
+        $html = '<span class="authority-page-link"><a class="authority-page" href="' . $authoritySearchUrl . '"><i class="fa fa-authority-' . $this->escapeHtmlAttr($this->record($record)->getFormatClass($formats[0])) . '"></i> ' . $that->escapeHtml($record->getBreadCrumb()) . '</a></span>';
         return $html;
     };
     $content = implode(', ', array_map($callback, $data));

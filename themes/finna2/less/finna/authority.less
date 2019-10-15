@@ -1,9 +1,8 @@
+
 a.authority-page {
-    &::after {
-        font-family: icomoon;
-        content: "\e00e";
-        margin-left: 5px;
-    }
+  &::after {
+    margin-left: 5px;
+  }
 }
 .authority {
   + br {
@@ -46,7 +45,7 @@ a.authority-page {
   }
 }
 .authority-recommend {
-  .authoritybox {
+    .authoritybox {
       border: 1px solid @gray-lighter;
     .record-details th {
       width: 20%;
@@ -66,6 +65,7 @@ a.authority-page {
       margin-top: 0;
       margin-bottom: 0;
       border-bottom: none;
+      position: relative;
       display: flex;
       @media(max-width: @screen-xs-max) {
         padding-top: 10px;
@@ -103,6 +103,12 @@ a.authority-page {
             border: none;
           }
         }
+        &.spinner {
+          margin-left: 0;
+          position: absolute;
+          right: 0px;
+          bottom: 20px;
+        }
         > a {
           background-color: @main-tabs-background-color;
           padding: 5px 10px;
@@ -120,9 +126,6 @@ a.authority-page {
             color: @link-color;
             vertical-align: middle;
             font-size: 1.8em;
-            &.fa-spinner {
-              margin-left: 0;
-            }
           }
         }
       }

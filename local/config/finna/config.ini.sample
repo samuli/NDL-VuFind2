@@ -1570,3 +1570,7 @@ url = "https://my.surveypal.com/Finnasurvey"
 ; Uncomment to enable Authority info (displayed beside author links on record page)
 ;authority_info = true
 
+; Mapping to Finna authority record types
+; typeMap[elonet_henkilo] = Personal Name
+; typeMap[elonet_kokoonpano] = Group Name
+; typeMap[elonet_yhtio] = Corporate Name

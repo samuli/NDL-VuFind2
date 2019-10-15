@@ -57,7 +57,7 @@ if ($img):
             <?=$this->escapeHtml($this->organisationDisplayName($this->driver)) ?>
               <?php $originationExt = $this->driver->tryMethod('getOriginationExtended'); $origination = $this->driver->getOrigination(); if ($originationExt || $origination): ?>
               <br/><span class="archive-label"><?=$this->transEsc('Archive Origination')?>:</span>
-              <?=$this->record($this->driver)->getAuthorityLinkElement('author', $originationExt['name'] ?? $origination, $originationExt ?? null)?>
+              <?=$this->record($this->driver)->getAuthorityLinkElement('author', $originationExt['name'] ?? $origination, $originationExt ?? null, ['authorityType' => $originationExt['type'] ?? null])?>
             <?php endif; ?>
             <?php if (!($fondsOrCollection = in_array('Document/ArchiveFonds', $this->driver->getFormats()) || in_array('Document/ArchiveCollection', $this->driver->getFormats()))): ?>
               <?php $parentSource = $this->driver->getSourceIdentifier(); ?>
