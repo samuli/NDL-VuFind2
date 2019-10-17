@@ -188,9 +188,8 @@ class Form extends \VuFind\Form\Form
         $recipients = parent::getRecipient();
 
         if (! $this->useEmailHandler()) {
-            // Return a single "receiver" when responses are saved to
-            // the database so that the response does not get saved multiple
-            // timmes (once/receiver).
+            // Return a single "receiver" so that the response does not
+            // get saved multiple times to the database.
             return [$recipients[0]];
         }
 
