@@ -55,7 +55,7 @@ class Suomifi extends Shibboleth
      */
     public function __construct(
         \Zend\Session\ManagerInterface $sessionManager,
-        \Finna\RemsService\RemsService $remsService
+        $remsService = null
     ) {
         $this->sessionManager = $sessionManager;
         $this->remsService = $remsService;
@@ -71,7 +71,9 @@ class Suomifi extends Shibboleth
      */
     public function logout($url)
     {
-        $this->remsService->closeOpenApplications();
+        if ($this->remsService) {
+            $this->remsService->onLogoutPre();
+        }
         return parent::logout($url);
     }
 

@@ -60,9 +60,16 @@ class SuomifiFactory extends \VuFind\Auth\ShibbolethFactory
         if (!empty($options)) {
             throw new \Exception('Unexpected options sent to factory.');
         }
+
+        $config
+            = $container->get(\VuFind\Config\PluginManager::class)->get('config');
+        $rems = ((bool)$config->{'Shibboleth_suomifi'}->use_rems) ?? false
+            ? $container->get(\Finna\RemsService\RemsService::class)
+            : null;
+
         return new $requestedName(
             $container->get(\Zend\Session\SessionManager::class),
-            $container->get(\Finna\RemsService\RemsService::class)
+            $rems
         );
     }
 }

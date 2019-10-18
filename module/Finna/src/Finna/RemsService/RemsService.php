@@ -262,6 +262,13 @@ class RemsService
         return $applications;
     }
 
+    /**
+     * Close all open applications.
+     *
+     * @param string $comment Comment that is attached to the application.
+     *
+     * @return void
+     */
     public function closeOpenApplications($comment = 'logout')
     {
         $applications = $this->getApplications([RemsService::STATUS_APPROVED]);
@@ -279,6 +286,9 @@ class RemsService
                     ['content' => json_encode($params)]
                 );
             } catch (\Exception $e) {
+                $this->error(
+                    'Error closing open applications on logout: ' . $e->getMessage()
+                );
             }
         }
     }
@@ -377,6 +387,16 @@ class RemsService
         }
 
         return $response;
+    }
+
+    /**
+     * Callback after logout has been requested.
+     *
+     * @return void
+     */
+    public function onLogoutPre()
+    {
+        $this->closeOpenApplications();
     }
 
     /**

@@ -561,6 +561,9 @@ email = SHIB_mail
 ; Shibboleth Suomi.fi is optional.
 ; This section is only needed if Suomi.fi is to be used as an authentication method.
 [Shibboleth_suomifi]
+; Is Resource Entitlement Management System (REMS) service enabled?
+; If enabled, RemsService::onLogoutPre is called when logout has been requested.
+use_rems = true
 
 ; Provider_id parameter to pass along to Shibboleth login.
 
