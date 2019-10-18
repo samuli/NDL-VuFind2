@@ -1,0 +1,17 @@
+; Inherit main configuration
+[Parent_Config]
+relative_path = ../finna/searches.ini
+;override_full_sections = ""
+
+; ---------------------
+; Search settings
+; ---------------------
+
+; This section contains global settings affecting search behavior.
+[General]
+; These are the default recommendations modules to use when no specific setting
+; are found in the [TopRecommendations], [SideRecommendations] or
+; [NoResultsRecommendations] sections below.
+; See the comments above those sections for details on legal settings.  You may
+; repeat these lines to load multiple recommendations.
+default_side_recommend[] = SideFacetsDeferred:Results:CheckboxFacets:facets-R2

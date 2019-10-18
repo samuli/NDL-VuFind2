@@ -43,14 +43,14 @@ class Options extends \Finna\Search\Solr\Options
      *
      * @var string
      */
-    protected $facetsIni = 'R2';
+    protected $facetsIni = 'facets-R2';
 
     /**
      * Configuration file to read search settings from
      *
      * @var string
      */
-    protected $searchIni = 'R2';
+    protected $searchIni = 'searches-R2';
 
     /**
      * Return the route name for the search results action.

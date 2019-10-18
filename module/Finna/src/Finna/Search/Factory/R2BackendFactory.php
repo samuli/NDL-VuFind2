@@ -74,7 +74,7 @@ class R2BackendFactory extends SolrDefaultBackendFactory
     public function __construct()
     {
         parent::__construct();
-        $this->facetConfig = 'facets-R2';
+        $this->facetConfig = 'facets-R2s';
         $this->searchConfig = 'searches-R2';
     }
 
@@ -144,7 +144,7 @@ class R2BackendFactory extends SolrDefaultBackendFactory
 
         // Pass API key to connector
         $connector->setApiAuthentication(
-            $this->R2Config->R2->apiUser, $this->R2Config->R2->apiKey
+            $this->R2Config->General->apiUser, $this->R2Config->General->apiKey
         );
 
         return $connector;
