@@ -3,6 +3,7 @@
 ; ------------------------------------------
 [R2]
 enabled = false
+apiUser =
 apiKey =
 
 ; This section requires no changes for most installations
