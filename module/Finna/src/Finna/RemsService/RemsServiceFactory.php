@@ -1,9 +1,10 @@
 <?php
 /**
- * Record loader factory.
+ * Organisation info factory.
  *
  * PHP version 7
  *
+ * Copyright (C) Villanova University 2019.
  * Copyright (C) The National Library of Finland 2019.
  *
  * This program is free software; you can redistribute it and/or modify
@@ -20,25 +21,28 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category VuFind
- * @package  Record
- * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
- * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org   Main Site
- */
-namespace Finna\Record;
-
-use Interop\Container\ContainerInterface;
-
-/**
- * Record loader factory.
- *
- * @category VuFind
- * @package  Record
- * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
+ * @package  Service
+ * @author   Demian Katz <demian.katz@villanova.edu>
+ * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development Wiki
  */
-class LoaderFactory extends \VuFind\Record\LoaderFactory
+namespace Finna\RemsService;
+
+use Interop\Container\ContainerInterface;
+use Zend\ServiceManager\Factory\FactoryInterface;
+
+/**
+ * Organisation info factory.
+ *
+ * @category VuFind
+ * @package  Service
+ * @author   Demian Katz <demian.katz@villanova.edu>
+ * @author   Ere Maijala <ere.maijala@helsinki.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     https://vufind.org/wiki/development Wiki
+ */
+class RemsServiceFactory implements FactoryInterface
 {
     /**
      * Create an object
@@ -57,11 +61,18 @@ class LoaderFactory extends \VuFind\Record\LoaderFactory
     public function __invoke(ContainerInterface $container, $requestedName,
         array $options = null
     ) {
-        $loader = parent::__invoke($container, $requestedName);
-        $loader->setPreferredLanguage(
-            $container->get('VuFind\Translator')->getLocale()
+        if (!empty($options)) {
+            throw new \Exception('Unexpected options passed to factory.');
+        }
+
+        $sessionContainer = new \Zend\Session\Container(
+            'rems_permission', $container->get(\Zend\Session\SessionManager::class)
         );
-        $loader->setDefaultParams($options);
-        return $loader;
+        return new $requestedName(
+            $container->get(\VuFind\Config\PluginManager::class)
+                ->get('Rems'),
+            $sessionContainer,
+            $container->get('VuFind\Auth\Manager')
+        );
     }
 }

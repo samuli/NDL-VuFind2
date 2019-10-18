@@ -1,6 +1,6 @@
 <?php
 /**
- * Record loader factory.
+ * Factory for Suomi.fi authentication module.
  *
  * PHP version 7
  *
@@ -20,25 +20,25 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category VuFind
- * @package  Record
- * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
- * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org   Main Site
- */
-namespace Finna\Record;
-
-use Interop\Container\ContainerInterface;
-
-/**
- * Record loader factory.
- *
- * @category VuFind
- * @package  Record
+ * @package  Authentication
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development Wiki
  */
-class LoaderFactory extends \VuFind\Record\LoaderFactory
+namespace Finna\Auth;
+
+use Interop\Container\ContainerInterface;
+
+/**
+ * Factory for Suomi.fi authentication module.
+ *
+ * @category VuFind
+ * @package  Authentication
+ * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
+ * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
+ * @link     https://vufind.org/wiki/development Wiki
+ */
+class SuomifiFactory extends \VuFind\Auth\ShibbolethFactory
 {
     /**
      * Create an object
@@ -57,11 +57,12 @@ class LoaderFactory extends \VuFind\Record\LoaderFactory
     public function __invoke(ContainerInterface $container, $requestedName,
         array $options = null
     ) {
-        $loader = parent::__invoke($container, $requestedName);
-        $loader->setPreferredLanguage(
-            $container->get('VuFind\Translator')->getLocale()
+        if (!empty($options)) {
+            throw new \Exception('Unexpected options sent to factory.');
+        }
+        return new $requestedName(
+            $container->get(\Zend\Session\SessionManager::class),
+            $container->get(\Finna\RemsService\RemsService::class)
         );
-        $loader->setDefaultParams($options);
-        return $loader;
     }
 }

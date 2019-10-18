@@ -1,5 +1,5 @@
 <!-- START of: finna - RecordTab/staffviewarray.phtml -->
-<?php $rawFieldData = $this->driver->getRawData(); ?>
+<?php $rawFieldData = ($this->unrestrictedDriver ?? $this->driver)->getRawData(); ?>
 <?php if (!empty($rawFieldData['fullrecord']) && strncmp($rawFieldData['fullrecord'], '<', 1) == 0): ?>
 <pre id="record-data">
 <?php

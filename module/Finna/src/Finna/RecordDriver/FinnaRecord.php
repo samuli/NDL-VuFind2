@@ -167,6 +167,40 @@ trait FinnaRecord
     }
 
     /**
+     * Get alternative restricted version of this record.
+     * Returns false or an array with keys:
+     * - route Route to restricted record
+     * - id    Restricted record id
+     *
+     * @return mixed
+     */
+    public function getRestrictedAlternative()
+    {
+        return false;
+    }
+
+    /**
+     * Does this record contain restricted metadata?
+     *
+     * @return bool
+     */
+    public function hasRestrictedMetadata()
+    {
+        return false;
+    }
+
+    /**
+     * Is restricted metadata included with the record, i.e. does the user
+     * have permissions to access restricted metadata.
+     *
+     * @return bool
+     */
+    public function isRestrictedMetadataIncluded()
+    {
+        return false;
+    }
+
+    /**
      * Get user id from db
      *
      * @param int $user_id user user_id

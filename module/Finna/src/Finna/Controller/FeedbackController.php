@@ -42,6 +42,8 @@ use Finna\Form\Form;
  */
 class FeedbackController extends \VuFind\Controller\FeedbackController
 {
+    use R2ControllerTrait;
+
     /**
      * True if form was submitted successfully.
      *
@@ -75,6 +77,10 @@ class FeedbackController extends \VuFind\Controller\FeedbackController
      */
     public function formAction()
     {
+        if (null !== ($view = $this->processR2RegisterForm())) {
+            return $view;
+        }
+
         $view = parent::formAction();
 
         // Set record driver (used by FeedbackRecord form)
@@ -117,6 +123,28 @@ class FeedbackController extends \VuFind\Controller\FeedbackController
         $post->set('message', $post->get('comments'));
 
         return $this->forwardTo('Feedback', 'Form');
+    }
+
+    /**
+     * Prefill form sender fields for logged in users.
+     *
+     * @param Form  $form Form
+     * @param array $user User
+     *
+     * @return Form
+     */
+    protected function prefillUserInfo($form, $user)
+    {
+        $form = parent::prefillUserInfo($form, $user);
+        if ($user) {
+            $form->setData(
+                [
+                 'firstname' => $user->firstname,
+                 'lastname' => $user->lastname
+                ]
+            );
+        }
+        return $form;
     }
 
     /**

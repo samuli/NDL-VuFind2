@@ -1,0 +1,945 @@
+; ------------------------------------------
+; General settings for R2 restricted search
+; ------------------------------------------
+[R2]
+enabled = false
+apiKey =
+
+; This section requires no changes for most installations
+[Index]
+engine          = Solr
+;url             = https://solr.finna.fi/solr
+url             = "http://localhost:8080/solr"
+
+local           = /data/vufind-solr
+default_core    = biblio
+; This setting needs to match the <maxBooleanClauses> setting in your solrconfig.xml
+; file; when VuFind has to look up large numbers of records using ID values, it may
+; have to restrict the size of its result set based on this limitation.
+maxBooleanClauses = 1024
+; This is the timeout in seconds when communicating with the Solr server.
+timeout = 30
+; Whether to shuffle Solr URLs when an array of them is defined. Default is false.
+;shuffle = true
+; List of regexp filters that block invalid searches
+;search_filters[] = "(.[,\s]){30,}"
+;search_filters[] = "[^\s,.\-]{100,}"
+
+; Facet settings
+
+; The order of display is as shown below
+; The name of the index field is on the left
+; The display name of the field is on the right
+[Results]
+;sector_str_mv      = Sector
+;institution        = Institution
+building           = Organisation
+;building_sub_str_mv = Department
+format             = Format
+;format_ext_str_mv  = Format
+
+; Use callnumber-first for LC call numbers, dewey-hundreds for Dewey Decimal:
+;callnumber-first    = "Call Number"
+;dewey-hundreds      = "Call Number"
+;hierarchy_top_title = Collections
+author_facet        = Author
+language            = Language
+original_lng_str_mv = original_work_language
+subtitle_lng_str_mv = subtitle_language
+main_date_str       = "Year"
+search_daterange_mv = "Main Year"
+major_genre_str_mv  = "Major Genre"
+genre_facet         = Genre
+era_facet           = Era
+geographic_facet    = Region
+;publishDate         = "adv_search_year"  ; share year string w/advanced search page
+topic_facet         = Topic
+usage_rights_str_mv = "Usage Rights"
+hierarchy_parent_title = component_part_is_part_of
+first_indexed       = "New Items in Index"
+category_str_mv     = category_facet_heading
+
+[CheckboxFacets]
+;edition:1st* = "First Edition"     ; Contrived hypothetical example
+online_boolean:1 = online_material_facet_html
+;free_online_boolean:1 = free_online_material_facet_html
+;source_available_str_mv:* = available_locally_facet_html
+
+
+
+; ---------------------
+; Search settings
+; ---------------------
+
+; This section contains global settings affecting search behavior.
+[General]
+default_handler      = AllFields    ; Search handler to use if none is specified
+
+; This setting controls the default sort order of search results if no search-
+; specific setting was present in the [DefaultSortingByType] section below; the
+; selected option should be one of the options present in the [Sorting] section
+; below.
+default_sort         = "relevance,id asc"
+
+; This setting controls the sort order to be used for empty search when relevance
+; sort is selected. Since relevance doesn't have a meaningful function with an empty
+; search, this can be set to e.g. "title".
+empty_search_relevance_override = "last_indexed desc,id asc"
+
+; This setting controls the default view for search results; the selected option
+; should be one of the options present in the [Views] section below.
+default_view         = list
+
+; This setting controls the view options list type. If this is set true, view options
+; will be shown as icons instead of dropdown list.
+view_options_icons   = true
+
+; This section controls the result limit options for search results. default_limit
+; sets the default number of results per page. limit_options is a comma-separated
+; list of numbers to be presented to the end-user. If only one limit is required,
+; set default_limit and leave limit_options commented out.
+; WARNING: using large limits may require you to raise your PHP memory limits to
+; avoid errors.
+default_limit        = 20
+default_limit_grid   = 50
+default_limit_condensed = 100;
+limit_options        = 20,50,100
+
+; If this setting is true, boolean operators in searches (AND/OR/NOT) will only
+; be recognized if they are ALL UPPERCASE.  If set to false, they will be
+; recognized regardless of case.  If set to a comma-separated list of operators
+; (e.g. "AND,NOT") then only the listed operators will be case-sensitive.
+case_sensitive_bools = true
+
+; If this setting is true, range operators in searches ([a TO b] or {a TO b})
+; will only be recognized if the word "TO" is ALL UPPERCASE.  Additionally, the
+; edges of the range may be treated in a case sensitive manner.  If set to false,
+; ranges will be recognized regardless of case -- this will allow better matching
+; at the cost of a bit of extra server-side processing.
+case_sensitive_ranges = true
+
+; These are the default recommendations modules to use when no specific setting
+; are found in the [TopRecommendations], [SideRecommendations] or
+; [NoResultsRecommendations] sections below.
+; See the comments above those sections for details on legal settings.  You may
+; repeat these lines to load multiple recommendations.
+default_top_recommend[] = TopFacets:ResultsTop
+default_side_recommend[] = SideFacetsDeferred:Results:CheckboxFacets:facets
+default_noresults_recommend[] = SwitchType
+default_noresults_recommend[] = SwitchQuery
+default_noresults_recommend[] = SpellingSuggestions
+
+; Set this to true in order to highlight keywords from the search query when they
+; appear in fields displayed in search results.
+highlighting = true
+
+; Set this to restrict the list of fields that will be highlighted (the hl.fl
+; Solr parameter); default = '*' for all fields:
+highlighting_fields = "author,author2,author_additional,author_fuller,container_title,contents,culture,description,dewey-full,edition,era,genre,geographic,institution,isbn,issn,language,lccn,material,measurements,publication_place_txt_mv,publisher,series,series2,title,title_alt,title_full,title_new,title_old,topic"
+
+; Set this to true in order to include a text snippet in the search results when
+; a keyword match is found in a field that is not normally displayed as part of
+; the listing.  For finer control over which fields are used for snippets, see
+; the record driver code (web/RecordDrivers/IndexRecord.php).
+;
+; For control over snippet captions, see the [Snippet_Captions] section below.
+snippets = true
+
+; When you filter a search using facets, VuFind will present a checkbox that can
+; be used to apply those filters to the next search you perform.  This setting
+; controls its default state: on (true) or off (false).
+retain_filters_by_default = false
+
+; Whether to hide merged component parts
+hide_component_parts = true
+
+; Maximum result to display
+result_limit = 100000
+
+[Cache]
+; This controls whether the parsed searchspecs.yaml file will be stored to
+; improve search performance; legal options are APC (use APC cache), File (store
+; on disk) or false (do not cache).
+type = File
+
+; This section shows which search types will display in the basic search box at
+; the top of most pages.  The name of each setting below corresponds with a
+; search handler (either DisMax or from conf/searchspecs.yaml).  The value of
+; each setting is the text to display on screen.  All on-screen text will be run
+; through the translator, so be sure to update language files if necessary.  The
+; order of these settings will be maintained in the drop-down list in the UI.
+;
+; Note: The search type of "tag" is a special case that gets handled differently
+;       because tags are not stored in the same index as everything else.  Treat
+;       this as a reserved word if you create your own custom search handlers.
+[Basic_Searches]
+AllFields           = "All Fields"
+Title               = Title
+;JournalTitle        = "Journal Title"
+Author              = Author
+Subject             = Subject
+;CallNumber          = "Call Number"
+;Classification      = Classification
+;ISN                 = "ISBN/ISSN"
+;tag                 = Tag
+
+; This section defines which search options will be included on the advanced
+; search screen.  All the notes above [Basic_Searches] also apply here.
+[Advanced_Searches]
+AllFields           = adv_search_all
+Title               = adv_search_title
+;JournalTitle        = adv_search_journaltitle
+Author              = adv_search_author
+Subject             = adv_search_subject
+;CallNumber          = adv_search_callnumber
+Holdings            = adv_search_callnumber
+Classification      = adv_search_classification
+ISN                 = adv_search_isn
+publisher           = adv_search_publisher
+Series              = adv_search_series
+year                = adv_search_year
+toc                 = adv_search_toc
+PublicationPlace    = adv_search_publication_place
+
+; This section defines the sort options available on standard search results.
+; Values on the left of the equal sign are either the reserved term "relevance"
+; or the name of a Solr index to use for sorting; asc and desc modifiers may be
+; used in combination with index names, but not relevance.  To allow secondary
+; sorting, you may include a comma-separated list of options (for example,
+; "year desc,title asc"), but this list may NOT include the special "relevance"
+; value.  Values on the right of the equal sign are text that will be run
+; through the translation module and displayed on screen.
+;
+; Note: "year", "author" and "title" are special shortcut aliases for the
+;       "publishDateSort", "author_sort" and "title_sort" Solr fields; you can use
+;       either form in this file.
+[Sorting]
+relevance,id asc = sort_relevance
+main_date_str desc = sort_year
+main_date_str asc = "sort_year asc"
+
+; Use the "callnumber" line for LC or the "dewey-sort" line for Dewey Decimal.
+; If you want to enable both systems for sorting, you can uncomment both lines,
+; but you will need to add some custom text to distinguish between the two.
+callnumber = sort_callnumber
+;dewey-sort = sort_callnumber
+
+author = sort_author
+title = sort_title
+last_indexed desc,id asc = sort_last_indexed
+
+; This section allows you to specify the default sort order for specific types of
+; searches.  Each key in this section should correspond with a key in the
+; [Basic_Searches] section above.  Each value should correspond with a key in the
+; [Sorting] section above.  Any search type that is not listed here will be sorted
+; using the default_sort setting in the [General] section above.
+[DefaultSortingByType]
+CallNumber = callnumber
+
+; These settings control which fields are available to sort on in the collections
+; module.
+[CollectionModuleSort]
+hierarchy_sequence_str = sort_sequence
+title = sort_title
+main_date_str desc = sort_year
+main_date_str asc = "sort_year asc"
+author = sort_author
+
+; Each search type defined in searchspecs.yaml can have one or more "recommendations
+; modules" associated with it in the following sections.  These plug-ins will cause
+; boxes of suggestions to appear beside (in [SideRecommendations]) or above (in
+; [TopRecommendations]) the search results.  The special [NoResultsRecommendations]
+; are only displayed for empty search results.  You can repeat the line to display a
+; series of recommendations boxes in a particular section -- just be sure to include
+; brackets ("[]") after the search type name.  If you do not want recommendations
+; for a particular search type, set the value to "false" in either or both sections.
+; Any search types not listed here will use the default value -- see the
+; default_top_recommend and default_side_recommend settings in the [General]
+; section above.  It is legal to set the default options to false if you want no
+; default value.
+;
+; Available modules recommended for use in the side area:
+;
+; CatalogResults:[GET parameter]:[result limit]
+;       Display catalog search results matching the terms found in the specified
+;       GET parameter (default = "lookfor"), limited to a specified number of
+;       matches (default = 5).  This is designed for use with non-catalog modules.
+; EuropeanaResults:[url]:[requestParam]:[limit]:[unwanted data providers]
+;       Display search results from Europeana.eu API. [url] is the base search URL
+;       default "api.europeana.eu/api/opensearch.rss" [requestParam] parameter name
+;       for passing lookup value in url, default is "searchTerms" [limit] defaults to
+;       5, is the number of result items to display [unwanted data providers] comma
+;       separated list of dataproviders to ignore results from; useful for excluding
+;       own results that are also in Europeana. An API key must be set in config.ini
+;       (see europeanaAPI setting in [Content] section).
+; EuropeanaResultsDeferred: [url]:[requestParam][limit]:[unwanted data providers]
+;       See EuropeanaResults, but this version uses AJAX.
+; ExpandFacets:[ini section]:[ini name]
+;       Display facets listed in the specified section of the specified ini file;
+;       if [ini name] is left out, it defaults to "facets."  Rather than using
+;       facets to limit the existing search, this module uses them to start a new
+;       search showing all records matching the selected facet value.
+; FacetCloud:[ini section]:[ini name]
+;       Same functionality as ExpandFacets, but with a more compact interface to
+;       allow the display of more values.
+; OpenLibrarySubjects:[GET parameter]:[limit]:[date filter]:[Subject types]
+;       Display full-text, public scans from the Open Library (OL) Subjects API.
+;       [GET parameter] (default = "lookfor"), [limit] (default = 5),
+;       [date filter] The name of a date filter (from facet settings) to apply to
+;           searches.  Defaults to "publishDate" if blank; set to "false" to disable.
+;       [Subject types] (default = "topic") comma-separated list of subject types to
+;           test. Open Library distinguishes between the following subject types:
+;           topic,place,person,time
+;       Note: an API call will be made for each type until valid data is returned
+;           which will slow down the loading of the main VuFind result set,
+;           see OpenLibrarySubjectsDeferred
+; OpenLibrarySubjectsDeferred:[GET parameter]:[limit]:[date filter]:[Subject types]
+;       The same as OpenLibrarySubjects but uses AJAX to make the API calls after the
+;           main result set has loaded
+; SideFacets:[regular facet section]:[checkbox facet section]:[ini name]
+;       Display the specified facets, where [ini name] is the name of an ini file
+;       in your config directory (defaults to "facets" if not supplied),
+;       [regular facet section] is the name of a section of the ini file containing
+;       standard facet settings (defaults to "Results" if not specified),
+;       and [checkbox facet section] is the name of a section of the ini file
+;       containing checkbox facet settings (leave blank for no checkbox facets).
+;       Checkbox facets are normally in filter => label format; prefix the section
+;       name with ~ to reverse this and use label => filter format (useful if your
+;       filters contain values that are illegal in configuration keys -- e.g. []).
+; SummonBestBets:[GET parameter]
+;       Display Summon-generated "best bets" recommendations matching the terms found
+;       in the specified GET parameter.  NOTE: If you are using this module with a
+;       Summon search, the [GET parameter] setting will be ignored and the actual
+;       current Summon search will be used instead.  The parameter only needs to be
+;       specified when combining this module with a non-Summon-based search module.
+; SummonDatabases:[GET parameter]
+;       Display Summon-generated database recommendations matching the terms found
+;       in the specified GET parameter.  NOTE: If you are using this module with a
+;       Summon search, the [GET parameter] setting will be ignored and the actual
+;       current Summon search will be used instead.  The parameter only needs to be
+;       specified when combining this module with a non-Summon-based search module.
+; SummonResults:[GET parameter]:[result limit]
+;       Display Summon search results matching the terms found in the specified
+;       GET parameter (default = "lookfor"), limited to a specified number of
+;       matches (default = 5).
+; SummonResultsDeferred:[GET parameter]:[result limit]
+;       Same as SummonResults, but loaded via AJAX.
+; SummonTopics:[GET parameter]
+;       Display Summon-generated topic recommendations matching the terms found
+;       in the specified GET parameter.  NOTE: If you are using this module with a
+;       Summon search, the [GET parameter] setting will be ignored and the actual
+;       current Summon search will be used instead.  The parameter only needs to be
+;       specified when combining this module with a non-Summon-based search module.
+; WebResults:[GET parameter]:[result limit]
+;       Display website search results matching the terms found in the specified
+;       GET parameter (default = "lookfor"), limited to a specified number of
+;       matches (default = 5).  This requires the website Solr core to be active.
+;
+; Available modules recommended for use in the top area:
+;
+; AuthorFacets
+;       Display author names based on the search term.
+; AuthorInfo:[use_viaf]
+;       Load author information from external providers based on the current search
+;       and the "authors" setting in the [Content] section of config.ini.
+;       The [use_viaf] setting may be set to true to use the VIAF web service in
+;       combination with your Solr authority index to pick more appropriate authors;
+;       this defaults to false if unset.  If you do not have local authority records
+;       to draw on, the OCLC FAST data works well with the [use_viaf] option; see:
+;       http://vufind.org/wiki/open_data_sources#oclc_fast
+; AuthorityRecommend:[field1]:[query1]:[field2]:[query2]:...:[field-n]:[query-n]
+;       Displays see and see also results to user based on search of Authority Index.
+;       Any number of filter queries may be specified as parameters to limit which
+;       set of authority records is used for recommendations; for example:
+;           AuthorityRecommend:record_type:Heading* OR Topical*:source:LCNAF
+;       limits record_type to strings starting with "Heading" or "Topical" and
+;       limits source to LCNAF.  A special field name of "__resultlimit__" may be
+;       used to suppress authority results when the result set contains more items
+;       than the number specified as the corresponding value (e.g. if you configure
+;       AuthorityRecommend:__resultlimit__:50 then authority recommendations will
+;       only display on result screens displaying fewer than 50 hits; by default,
+;       recommendations will always display). Filtering is optional.
+; PubDateVisAjax:[zooming]:[facet field 1]:[facet field 2]:...:[facet field n]
+;       Display a visualization of publication dates for each of the specified facet
+;       fields.  This is designed for a field containing four-digit years.  Zooming
+;       is set to either true or false and controls whether or not selecting part of
+;       the graph zooms in to greater detail.
+; TopFacets:[ini section]:[ini name]
+;       Display facets listed in the specified section of the specified ini file;
+;       if [ini name] is left out, it defaults to "facets."
+; WorldCatIdentities
+;       Use the WorldCat Identities API to find names and related subjects based
+;       on the current search.
+; WorldCatTerms:[vocabulary]
+;       Use the WorldCat Terminologies API to find Library of Congress Subject
+;       Headings related to the current search.  [vocabulary] is the vocabulary to
+;       use for recommendations; default is "lcsh" but other options include "fast",
+;       "mesh", etc.  See http://tspilot.oclc.org/resources/ for details.
+;
+; Available modules recommended for use in the "no results" area:
+;
+; SwitchQuery:[backend]:[checks to skip]
+;       This module analyzes the user's query and offers suggestions for ways to
+;       improve it. [backend] is the name of the search backend currently in use,
+;       which will help with accurate analysis (default = Solr). [checks to skip]
+;       is a comma-separated list of checks to disable; see the check*() methods
+;       in the module's code for a complete list of available checks.
+; SwitchType:[field]:[field description]
+;       If the current search type is not the same as [field], display a link
+;       suggesting that the user try switching to [field].  [field description]
+;       is the human-readable description of [field].  Default values are
+;       'AllFields' and 'All Fields' respectively.
+;
+; You can build your own recommendations modules if you wish.  See the developer's
+; guide here:
+;
+;       http://vufind.org/wiki/vufind2:recommendation_modules
+[SideRecommendations]
+; No search-specific settings by default -- add your own here.
+;Subject[]          = SideFacets
+;Subject[]          = OpenLibrarySubjectsDeferred:lookfor:5:true:topic,place,person,time
+
+[TopRecommendations]
+;Author[]            = AuthorFacets
+;Author[]           = WorldCatIdentities
+;Subject[]          = WorldCatTerms
+;Author[]            = WikipediaDeferred:Author
+
+[NoResultsRecommendations]
+
+; These settings control the top and side recommendations within the special Author
+; module (the page accessed by clicking on an author's name within the search
+; results).  The Author module ignores the default_top_recommend and
+; default_side_recommend settings and only uses this section.
+[AuthorModuleRecommendations]
+;top[] = TopFacets:ResultsTop
+;side[] = SideFacets:Results:CheckboxFacets
+;top[] = AuthorInfo
+;side[] = "ExpandFacets:Author"
+
+
+; These settings control the top and side recommendations within the special Collection
+; module (the page accessed by viewing a record which is a collection).
+; The Collection module ignores the default_top_recommend and
+; default_side_recommend settings and only uses this section.
+[CollectionModuleRecommendations]
+top[] = PubDateVisAjax:true:main_date_str
+;side[] = SideFacets:Results:CheckboxFacets
+side[]  = CollectionSideFacets
+
+; This section controls the "New Items" search.
+[NewItem]
+; Comma-separated list of date ranges to offer to the user (i.e. 1,5,30 = one day
+; old, or five days old, or thirty days old).  Be careful about raising the maximum
+; age too high -- searching very long date ranges may put a load on your ILS.
+ranges = 1,5,30
+; This setting controls the maximum number of pages of results that will show up
+; when doing a new item search.  It is necessary to limit the number of results to
+; avoid getting a "too many boolean clauses" error from the Solr index (see notes
+; at http://vufind.org/jira/browse/VUFIND-128 for more details).  However, if you
+; set the value too low, you may get the same results no matter which range setting
+; is selected!
+result_pages = 10
+; This setting can be used to automatically apply filter queries to the New Item
+; results.  For example, you might want to filter out certain content types.  You
+; can add multiple filters by repeating the "filter[] =" line, or you can skip
+; filtering entirely by leaving the line commented out.
+; filter[] = "format:Book"
+
+; This section controls RSS feed behavior
+[RSS]
+; If set, this setting will override sort settings associated with RSS feeds.  This
+; allows you to ensure that newly added or changed items in your index appear at
+; the top of the feed.  Use "first_indexed desc" if you only want newly-added items
+; to be listed first.  Use "last_indexed desc" if you want newly-added-or-changed
+; items.  Comment out the whole setting if you do not want custom RSS sorting.
+; IMPORTANT: In order for first_indexed and last_indexed sorting to work properly,
+;            you need to index record change dates; see the Wiki page at
+;            http://vufind.org/wiki/tracking_record_changes
+sort = "last_indexed desc,id asc"
+
+; The following two sections control the behavior of the autocomplete drop-downs
+; associated with search boxes.  The [Autocomplete] section contains global default
+; settings, while the [Autocomplete_Types] section allows you to associate different
+; autocomplete handlers with different search handlers.
+;
+; The available autocomplete handlers are:
+;
+; None
+;       Do not provide any suggestions.  You should use this handler if you want to
+;       disable suggestions for one search type while still providing suggestions
+;       for other search types.  To disable suggestions completely, it is better to
+;       use the "enabled" setting in the [Autocomplete] section.
+; SolrAuth:[Search Handler]:[Display Field]:[Sort Field]:[Filters]
+;       See Solr below -- this handler behaves exactly the same, except
+;       it uses the Solr authority data index rather than the bibliographic index,
+;       and its default [Display Field] value is "heading".
+; Solr:[Search Handler]:[Display Field]:[Sort Field]:[Filters]
+;       Perform a wildcarded search against [Search Handler], using the contents of
+;       [Display Field] (a comma-separated, priority-ordered field list) as
+;       suggestions and sorting by [Sort Field].  Any additional parameters at the
+;       end of the string are treated as an alternating sequence of field names and
+;       values for use as filters against the suggestion list.  All parameters are
+;       optional.  If omitted, [Search Handler] will use the default Solr field,
+;       [Display Field] will use "title", [Sort Field] will use relevance and no
+;       filters will be applied.
+; SolrCN
+;       A customized version of Solr designed for smart handling of
+;       call numbers using the custom CallNumber search handler.
+; Tag
+;       Provide suggestions from the local database of tags.
+;
+; You can build your own autocomplete modules if you wish.  See the developer's
+; guide here:
+;
+;       http://vufind.org/wiki/vufind2:autosuggesters
+[Autocomplete]
+; Set this to false to disable all autocomplete behavior
+enabled = true
+; This handler will be used for all search types not covered by [Autocomplete_Types]
+;default_handler = Solr
+default_handler = "Solr::title,author,author2"
+; Maximum number of suggestions
+suggestions = 5
+
+; In this section, set the key equal to a search handler from searchspecs.yaml and
+; the value equal to an autocomplete handler in order to customize autocompletion
+; behavior when that search type is selected.
+[Autocomplete_Types]
+Title = "Solr:Title"
+JournalTitle = "Solr:JournalTitle"
+Author = "Solr:Author:author,author2"
+Subject = "Solr:Subject:topic,genre,geographic,era"
+CallNumber = "SolrCN"
+ISN = "Solr:ISN:isbn,issn"
+;tag = "Tag"
+Browse_Database = "Solr:Title:title:title:format:0/Database/"
+Browse_Journal = "Solr:Title:title:title:format:1/Journal/eSerial/"
+
+; The following options control (optional) autocomplete sections
+; that are displayed in the following order after the search suggestions:
+;
+; 1. Filters
+;   Static links to filtered search results using the current search term.
+;   The links are displayed even when no suggestions are found, but only when
+;   Preserve filters -option is not selected (to prevent conflicting
+;   filter settings that return no results).
+;
+;   filters[] = [operator][field]:[value]&[operator][field]:[value]|[label]|[tab1&tab2]
+;
+;   Each filter link consists of the following options delimited by '|':
+;     - [operator][field]:[value] filter items delimited by '&'
+;     - [label] Filter label translation key.
+;               Note: the key should not contain special characters (for example whitespace, punctuation, '-').
+;     - [tab] Search tabs where the filter should be displayed, delimited by '&'.
+;             If none specified, the filter is shown on all tabs.
+;   Example:
+;     filters[] = "building:2/JYU/100/3/|coursebooks|Solr"
+;     filters[] = "tlevel:peer_reviewed&tlevel:online_resources|primo_fulltext|Primo"
+;
+; 2. Facets
+;   Facets for the returned search suggestions.
+;
+;   facets[] = [facet]||[filters]|[limit]|[tab1&tab2]
+;
+;   Each facet consists of the following options delimited by '|':
+;     - [facet]   Facet field
+;     - [filters] Optional restriction for an acceptable facet value
+;     - [limit]   Optional maximum number of values to be displayed
+;     - [tab]     Search tabs where the facet should be displayed, delimited by '&'.
+;                 If none specified, the facet is shown on all tabs.
+;
+;   Examples:
+;     facets[] = "online_boolean"
+;     facets[] = "building|2/JYU/100/3/"
+;     facets[] = "format|0/Book/"
+;     facets[] = "format||3|Solr"
+;
+;   Facet value translation can be overridden by defining a translation key "autocomplete_[facet]:[value]",
+;   for example "autocomplete_building:2/JYU/100/3/"
+;
+; 3. Phrase search
+;   Search option for performing a phrase earch using the current search term.
+;
+;   phrase = 0|1
+;
+; 4. Search handlers
+;   Search handlers for performing a search using the current search term and selected handler.
+;
+;   handlers[] = "[handler]|[label]"
+;
+;   Each handler consists of the following options delimited by '|':
+;     - [handler] Handler
+;     - [label]   Handler label translation key.
+;                 Note: the key should not contain special characters (for example whitespace, punctuation, '-').
+;
+;   Example:
+;     handlers[] = "Title|autocomplete_handler_title"
+
+[Autocomplete_Sections]
+; Suggestions
+; filters[] = <operator><field>:<value>&<operator><field><value>|label|tab1&tab2
+; facets[] = facet|label|filters|limit|tab1&tab2
+; phrase = label
+; handlers[] = handler|label|tab1&tab2
+
+;filters[] = "building:2/JYU/100/3|coursebooks|Solr"
+;filters[] = "~format:0/Book/&~format:0/PhysicalObject/|physical_objects|Solr"
+filters[] = "tlevel:peer_reviewed&tlevel:online_resources|autocomplete_primo_fulltext|Primo"
+
+facets[] = "online_boolean"
+facets[] = "format||3"
+
+;facets[] = "building|2/JYU/100/3/"
+;facets[] = "format|0/Book/&0/Sound/"
+
+phrase = 1
+
+handlers[] = "Title|autocomplete_handler_title"
+handlers[] = "Author|autocomplete_handler_author"
+handlers[] = "Subject|autocomplete_handler_subject"
+
+; When snippets are enabled, this section can be used to display captions based on
+; the Solr fields from which the snippets were obtained.  Keys are the names of Solr
+; fields and values are strings to display to the user.  Note that all displayed
+; strings are subject to translation and should be accounted for in the language
+; files found in web/lang if you are in a multilingual environment.  Fields that are
+; not listed in this section will be displayed without captions, so you can comment
+; out the whole section to disable captions.
+[Snippet_Captions]
+author2 = "Other Authors"
+contents = "Table of Contents"
+topic = "Subjects"
+container_title = "Journal Title"
+
+; This section allows sharding to be used to pull in content from additional Solr
+; servers.  All servers used in sharding must contain the same index fields needed
+; to satisfy queries sent to them AND they must all include different ID numbers!
+; Leave this commented out to disable sharding.
+; To use sharding, simply fill in lines using the format:
+; [display name of shard] = [URL of shard (without http://)]
+;[IndexShards]
+;Library Catalog = localhost:8080/solr/biblio
+;Website = localhost:8080/solr/website
+
+; This section allows you to set preferences for shards display.  You only need to
+; set these if you want to use shards.  See also the [StripFields] section below
+; if your shards have non-identical schemas.
+;[ShardPreferences]
+; This setting controls whether or not to display checkboxes to allow the user to
+; select which shard(s) to search (default if commented out = false)
+;showCheckboxes = true
+; These lines determine which shards are searched by default if the user hasn't
+; specified preferences using checkboxes (default if commented out = all shards):
+;defaultChecked[] = "Library Catalog"
+;defaultChecked[] = "Website"
+
+; Fields must be stripped if you have a field in your main index which is missing
+; from any index includable by shards.  This section can be ignored if you are
+; not using sharding or if all of your shards have identical schemas.
+;
+; Put in the fields to strip here in the following format:
+; shard name = fieldname,another fieldname,...
+[StripFields]
+
+; This section defines the view options available on standard search results.
+; If only one view is required, set default_view under [General] above, and
+; leave this section commented out.
+;[Views]
+;list = List
+;grid = Grid
+;condensed = Condensed
+
+; This section allows for adding hidden filters. Each filter will be translated
+; to format 'key:"value"' and added by Solr.php as a hidden filter (a facet that
+; is always applied but is not seen by the user).  This is useful if you use a
+; shared Solr index and need to display different subsets in different contexts
+; (for example, a union catalog with separate VuFind instances each member).
+[HiddenFilters]
+;institution = "MyInstitution"
+
+; This section is an alternative to [HiddenFilters] when you need to create more
+; advanced types of filters -- i.e. complex boolean queries.  Keys are ignored,
+; but increasing numeric values (1, 2, 3...) are recommended.  Values are fully-
+; formed filter queries.
+[RawHiddenFilters]
+;0 = "format:\"Book\" OR format:\"Journal\""
+;1 = "language:\"English\" OR language:\"French\""
+
+; This section is an extension to [RawHiddenFilters] when you need to create
+; additional advanced types of filters -- i.e. complex boolean queries -- applied
+; only when the API functions are used (in addition to any HiddenFilters or
+; RawHiddenFilters. Keys are ignored, but increasing numeric values (1, 2, 3...) are
+; recommended.  Values are fully-formed filter queries.
+[ApiHiddenFilters]
+;0 = "format:\"Book\""
+
+; This section defines how records are handled when being fetched from Solr.
+[Records]
+; Boolean value indicating if deduplication is enabled. Defaults to false.
+deduplication = true
+; Priority order (descending) for record sources (record ID prefixes separated
+; from the actual record by period, e.g. testsrc.12345)
+;sources = alli,testsrc
+
+[PrimaryLanguages]
+lang[] = "fin"
+lang[] = "swe"
+lang[] = "eng"
+
+; This section defines settings used to fetch similar records.
+[MoreLikeThis]
+; Boolean value indicating whether the newer MoreLikeThis query handler should be
+; used instead of the traditional MoreLikeThis component (default). Only the
+; MoreLikeThis query handler supports sharded indexes, but as of this writing, the
+; traditional component offers more nuanced relevance ranking. Results from these
+; methods may differ.
+;useMoreLikeThisHandler = true
+; If the MoreLikeThis handler is used, this setting can be used to adjust its
+; behavior. See https://cwiki.apache.org/confluence/display/solr/Other+Parsers#OtherParsers-MoreLikeThisQueryParser
+; for more information regarding the possible parameters.
+;params = "qf=title,title_short,callnumber-label,topic,language,author,publishDate mintf=1 mindf=1";
+; This setting can be used to limit the maximum number of suggestions. Default is 5.
+;count = 5
+
+
+; ---------------------
+; Facet settings
+; ---------------------
+
+; The order of display is as shown below
+; The name of the index field is on the left
+; The display name of the field is on the right
+[Results]
+sector_str_mv      = Sector
+;institution        = Institution
+building           = Organisation
+;building_sub_str_mv = Department
+format             = Format
+;format_ext_str_mv  = Format
+
+; Use callnumber-first for LC call numbers, dewey-hundreds for Dewey Decimal:
+;callnumber-first    = "Call Number"
+;dewey-hundreds      = "Call Number"
+;hierarchy_top_title = Collections
+author_facet        = Author
+language            = Language
+original_lng_str_mv = original_work_language
+subtitle_lng_str_mv = subtitle_language
+main_date_str       = "Year"
+search_daterange_mv = "Main Year"
+major_genre_str_mv  = "Major Genre"
+genre_facet         = Genre
+era_facet           = Era
+geographic_facet    = Region
+;publishDate         = "adv_search_year"  ; share year string w/advanced search page
+topic_facet         = Topic
+usage_rights_str_mv = "Usage Rights"
+hierarchy_parent_title = component_part_is_part_of
+first_indexed       = "New Items in Index"
+category_str_mv     = category_facet_heading
+
+; Facets that will appear at the top of search results when the TopFacets
+; recommendations module is used.  See the [TopRecommendations] section of
+; searches.ini for more details.
+[ResultsTop]
+;topic_facet        = "Suggested Topics"
+
+; This section is used to identify facets for special treatment by the SideFacets
+; recommendations module.
+[SpecialFacets]
+; Any fields listed below will be treated as year-based date ranges rather than plain
+; facets:
+dateRange[] = publishDate
+; Any fields listed below will be treated as year/month/day-based date ranges rather
+; than plain facets:
+;fullDateRange[] = example_field_date
+; Any fields listed below will be treated as numeric ranges rather than plain facets:
+;numericRange[] = example_field_str
+; Any fields listed below will be treated as free-form ranges rather than plain
+; facets:
+;genericRange[] = example_field_str
+; Any fields listed below will be treated as hierarchical facets
+; (see https://wiki.apache.org/solr/HierarchicalFaceting but note that we always
+; use a trailing slash to avoid ambiquities)
+hierarchical[] = building
+hierarchical[] = format
+hierarchical[] = sector_str_mv
+hierarchical[] = category_str_mv
+hierarchical[] = format_ext_str_mv
+; Sort options for hierarchical facets:
+; How hierarchical facets are sorted. Default is result count, but alternative ways
+; can be specified:
+; top = Sort the top level list alphabetically, others by result count (useful e.g.
+;       for a large number of building facets where top level is organization and
+;       second level the library branch)
+; all = Sort all levels alphabetically
+hierarchicalFacetSortOptions[building] = top
+; How hierarchical facet values are displayed in the records:
+; single = Display only the deepest level (default)
+; full   = Display full hierarchy for each entry
+;hierarchicalFacetDisplayStyles[format] = full
+; Separator used when display hierarchical facet levels (default is "/")
+;hierarchicalFacetSeparators[format] = " > "
+; Any fields listed below will be treated as new items facets
+newItems[] = first_indexed
+; Date visualisations
+dateVis[] = main_date_str
+dateRangeVis = search_daterange_mv:main_date_str
+
+; Finna geographical facet
+finna_geographic[] = geographic_facet:center_coords
+
+; This section is reserved for special boolean facets.  These are displayed
+; as checkboxes.  If the box is checked, the filter on the left side of the
+; equal sign is applied.  If the box is not checked, the filter is not applied.
+; The value on the right side of the equal sign is the text to display to the
+; user.  It will be run through the translation code, so be sure to update the
+; language files appropriately.
+;
+; Leave the section empty if you do not need checkbox facets.
+[CheckboxFacets]
+;edition:1st* = "First Edition"     ; Contrived hypothetical example
+online_boolean:1 = online_material_facet_html
+free_online_boolean:1 = free_online_material_facet_html
+;source_available_str_mv:* = available_locally_facet_html
+
+; These settings affect the way the [Results] facets are displayed
+; If using facets at the top of search results you have more room for text.
+[Results_Settings]
+; By default, how many values should we show for each facet? (-1 for no limit)
+facet_limit        = 30
+; Override facet_limit on a per-field basis using this array:
+;facet_limit_by_field[format] = 50
+
+; By default, the side facets will only show 6 facets and then the "show more"
+; button. This can get configured with the showMore settings.
+; You can use the * to set a new default setting.
+showMore[*] = 6
+; Or you can set a facet specific value by using the facet name as index.
+;showMore['format'] = 10
+
+; Show more facets in a lightbox (paginated, no limit)
+; If false, facets expand in side bar to show facets up to the above limit
+; If "more", facets expand and offer an option at the bottom to open the lightbox
+; If true, facets immediately open in the lightbox
+showMoreInLightbox[*] = more
+lightboxLimit = 100 ; page size for the lightbox
+
+; Rows and columns for table used by top facets
+top_rows = 2
+top_cols = 3
+; Should we show "exclude" links for some or all of the facets? Set to * for
+; all facets, use a comma-separated list to show for some of the facets, set
+; to false or omit to disable "exclude" links
+;exclude = *
+; Should we OR together facets rather than ANDing them? Set to * for
+; all facets, use a comma-separated list to apply to some of the facets, set
+; to false or omit to disable ORed facets.
+orFacets = *
+; Do we want any facets to be collapsed by default?
+collapsedFacets = sector_str_mv,building,author_facet,language,original_lng_str_mv,subtitle_lng_str_mv,main_date_str,search_daterange_mv,genre_facet,era_facet,geographic_facet,topic_facet,hierarchy_parent_title,first_indexed,category_str_mv,usage_rights_str_mv,major_genre_str_mv
+
+; This can be used to sort specific facet fields alphabetically by index value
+; (which normally results in alphabetical order).
+; Please note: This sorts natively in the Solr index using untranslated values,
+; so if you are using facet translation, your values may not always display in
+; the expected order.
+sorted_by_index[] = usage_rights_str_mv
+
+; The author home screen has different facets
+[Author]
+topic_facet = "Related Subjects"
+
+; The Collection screen has different facets
+[Collection]
+geographic_facet       = Location
+topic_facet            = Subjects
+author_facet           = Author
+hierarchy_parent_title = "Sub Collection"
+genre_facet            = Genre
+era_facet              = Era
+publishDate            = "adv_search_year"  ; share year string w/advanced search page
+
+[Collection_Keyword]
+search                 = true
+
+; These facets will be displayed as limiters on the advanced search search screen
+; NOTE: To make changes take effect immediately, you may need to clear VuFind's
+; cache after changing this section.
+[Advanced]
+;callnumber-first = "Call Number"
+language         = Language
+format           = Format
+;hierarchy_top_title   = Collections
+
+; Most of these settings affect the way the [Advanced] facets are displayed; the
+; translated_facets setting affects facets globally.
+[Advanced_Settings]
+facet_limit      = -1      ; how many values should we show for each facet?
+; Should we OR together facets rather than ANDing them? Set to * for
+; all facets, use a comma-separated list to apply to some of the facets, set
+; to false or omit to disable ORed facets.
+orFacets = *
+
+; The facets listed under the [Advanced] section above will be used as limiters on
+; the advanced search screen and will be displayed uniformly as multi-select boxes.
+; Some facet types don't lend themselves to this format, and they can be turned on
+; by inclusion in the comma-separated list below, or turned off by being excluded.
+; Currently, just two values are supported: "illustrated", for the "illustrated/not
+; illustrated" radio button limiter and "daterange" for the publication year range
+; control.
+special_facets   = "daterange"
+
+; Any facets named in the list below will have their values run through the
+; translation code; unlisted facets will displayed as-is without translation.  For
+; translated facets, be sure that all of the necessary strings are included in the
+; language files found in the web/lang directory.  By default, no facets are
+; translated -- uncomment or add lines below to turn on this feature.
+translated_facets[] = institution
+translated_facets[] = building
+translated_facets[] = building_sub_str_mv:department
+translated_facets[] = format
+translated_facets[] = language
+translated_facets[] = genre_facet
+translated_facets[] = sector_str_mv
+translated_facets[] = first_indexed
+translated_facets[] = original_lng_str_mv
+translated_facets[] = subtitle_lng_str_mv
+translated_facets[] = category_str_mv
+translated_facets[] = usage_rights_str_mv
+translated_facets[] = major_genre_str_mv
+translated_facets[] = format_ext_str_mv
+
+; Prefix to be used in facet translation to avoid mixing facet strings with other
+; translated content
+facet_translation_prefix = "facet_"
+
+; These facets will be displayed on the Home Page.  If this section is omitted,
+; the [Advanced] section will be used instead.
+[HomePage]
+;callnumber-first = "Call Number"
+;language         = Language
+;format           = Format
+;hierarchy_top_title   = Collections
+
+; These settings affect the way the [HomePage] facets are displayed
+; NOTE: To make changes take effect immediately, you may need to clear VuFind's
+; cache after changing this section.
+[HomePage_Settings]
+; how many values should we load for each facet?  depending on the column layout
+; of the homepage facet lists, we may not display all loaded values for every facet
+facet_limit      = -1
+
+; Facet filters can be specified to limit hierarchical facet display to given values.
+; If no values are specified on a facet level, all items for the level are displayed.
+;[FacetFilters]
+;building[]=0/NLF/
+;building[]=0/JYU/
+;building[]=1/NLF/arto/
+;building[]=1/JYU/100/
+
+; Geographical facet settings, settings for map under the region facet
+[Geographical]
+;Map selection enabled?
+map_selection = ""

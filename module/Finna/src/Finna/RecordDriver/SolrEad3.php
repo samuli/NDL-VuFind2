@@ -582,6 +582,23 @@ class SolrEad3 extends SolrEad
     }
 
     /**
+     * Get alternative restricted version of this record.
+     * Returns false or an array with keys:
+     * - route Route to restricted record
+     * - id    Restricted record id
+     *
+     * @return mixed
+     */
+    public function getRestrictedAlternative()
+    {
+        $xml = $this->getXmlRecord();
+        if (!isset($xml->accessrestrict)) {
+            return false;
+        }
+        return ['route' => 'r2record', 'id' => $this->getUniqueID()];
+    }
+
+    /**
      * Get all subject headings associated with this record.  Each heading is
      * returned as an array of chunks, increasing from least specific to most
      * specific.

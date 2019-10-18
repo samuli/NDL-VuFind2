@@ -24,6 +24,9 @@
             break;
         case 'authority':
             $this->searchClassId = 'SolrAuth';
+           break;
+        case 'r2search':
+            $this->searchClassId = 'R2';
             break;
         default:
             $this->searchClassId = 'Solr';
@@ -59,6 +62,7 @@
          || ($module === 'eds' && $action === 'search' && $this->searchType != 'advanced')
          || ($module === 'summon' && $action === 'search' && $this->searchType != 'advanced')
          || ($module == 'combined' && $action == 'results')
+         || ($module === 'r2search' && $action === 'results' && $this->searchType != 'advanced')
       ) {
          $this->layout()->finnaMainTabs = $this->context($this)->renderInContext('search/searchTabs', ['searchTabs' => $searchTabs['tabs'], 'hiddenFilters' => $hiddenFilters]);
          $this->layout()->searchTabs = $searchTabs;
@@ -202,7 +206,7 @@
         <a href="<?=$this->url($advSearch)?>" class="btn btn-link btn-advanced <?=($module === 'record') ? 'visible-lg' : 'hidden-xs'?>"><i class="fa fa-search-adv"></i><?=$this->transEsc("Advanced Search")?></a>
       <?php endif; ?>
       <?php
-        $searchTypes = ['search' => 'local', 'primo' => 'pci', 'eds' => 'eds', 'summon' => 'summon'];
+        $searchTypes = ['search' => 'local', 'primo' => 'pci', 'eds' => 'eds', 'r2search' => 'R2', 'summon' => 'summon'];
         if (isset($searchTypes[$module]) && !$this->translationEmpty('tooltip_' . $searchTypes[$module] . '_search_html')) {
           $tooltipClass = 'tooltip-search-' . $searchTypes[$module];
           $tooltipText = $this->transEsc('tooltip_' . $searchTypes[$module] . '_search_html');

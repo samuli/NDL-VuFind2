@@ -1,6 +1,6 @@
 <?php
 /**
- * Record loader factory.
+ * Restricted Solr (R2) Collection Controller
  *
  * PHP version 7
  *
@@ -20,48 +20,59 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category VuFind
- * @package  Record
+ * @package  Controller
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org   Main Site
  */
-namespace Finna\Record;
-
-use Interop\Container\ContainerInterface;
+namespace Finna\Controller;
 
 /**
- * Record loader factory.
+ * Restricted Solr (R2) Collection Controller
  *
  * @category VuFind
- * @package  Record
+ * @package  Controller
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     https://vufind.org/wiki/development Wiki
+ * @link     http://vufind.org   Main Site
  */
-class LoaderFactory extends \VuFind\Record\LoaderFactory
+class R2collectionController extends CollectionController
 {
+    use \Finna\Controller\R2ControllerTrait;
+
     /**
-     * Create an object
+     * Type of record to display
      *
-     * @param ContainerInterface $container     Service manager
-     * @param string             $requestedName Service being created
-     * @param null|array         $options       Extra options (optional)
-     *
-     * @return object
-     *
-     * @throws ServiceNotFoundException if unable to resolve the service.
-     * @throws ServiceNotCreatedException if an exception is raised when
-     * creating a service.
-     * @throws ContainerException if any other error occurs
+     * @var string
      */
-    public function __invoke(ContainerInterface $container, $requestedName,
-        array $options = null
-    ) {
-        $loader = parent::__invoke($container, $requestedName);
-        $loader->setPreferredLanguage(
-            $container->get('VuFind\Translator')->getLocale()
-        );
-        $loader->setDefaultParams($options);
-        return $loader;
+    protected $searchClassId = 'R2';
+
+    /**
+     * Home (default) action -- forward to requested (or default) tab.
+     *
+     * @return mixed
+     */
+    public function homeAction()
+    {
+        $view = parent::homeAction();
+        $view = $this->handleAutoOpenRegistration($view);
+        return $view;
+    }
+
+    /**
+     * Create a new ViewModel.
+     *
+     * @param array $params Parameters to pass to ViewModel constructor.
+     *
+     * @return \Zend\View\Model\ViewModel
+     */
+    protected function createViewModel($params = null)
+    {
+        $view = parent::createViewModel($params);
+        $view->driver = $this->loadRecord();
+        $view->unrestrictedDriver
+            = $this->loadRecordWithRestrictedData() ?? $view->driver;
+
+        return $view;
     }
 }

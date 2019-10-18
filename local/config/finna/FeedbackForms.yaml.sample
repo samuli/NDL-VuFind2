@@ -179,3 +179,62 @@ forms:
         type: textarea
         label: feedback_message
         required: true
+
+  # R2 register user form
+  R2Register:
+    allowLocalOverride: false
+    title: "R2_register_form_title"
+    enabled: false
+    useCaptcha: false
+    onlyForLoggedUsers: true
+    hideRecipientInfo: true
+    help:
+      pre: R2_register_form_help_pre
+
+    fields:
+      - name: license
+        type: checkbox
+        options:
+          - R2_register_form_license_accept
+        required: true
+      - name: firstname
+        type: text
+        required: true
+        label: First Name
+      - name: lastname
+        type: text
+        required: true
+        label: Last Name
+      - name: email
+        type: email
+        required: true
+        label: Email
+      - name: usage_purpose
+        type: select
+        options:
+          - R2_register_form_usage_1
+          - R2_register_form_usage_2
+          - R2_register_form_usage_3
+        label: R2_register_form_usage
+      - name: usage_desc
+        type: textarea
+        label: R2_register_form_usage_desc
+
+    help:
+      pre: feedback_record_instructions_html
+
+    fields:
+      - name: category
+        type: select
+        options:
+          - feedback_category_general
+          - feedback_category_accessibility
+        label: Subject
+      - name: from
+        type: email
+        label: email_from
+        required: true
+      - name: message
+        type: textarea
+        label: feedback_message
+        required: true

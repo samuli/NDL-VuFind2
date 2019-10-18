@@ -1,0 +1,65 @@
+<!-- START of: finna - Helpers/R2RestrictedRecordPermission.phtml -->
+<?php
+  $setupJS = [];
+  $registerFormUrl =
+    $this->url('feedback-form', ['id' => 'R2Register'])
+      . '?recordId=' . $this->escapeHtmlAttr($this->id)
+      . ($this->collection ? '&collection=1' : '');
+?>
+
+<div class="alert alert-info authorization-notification R2-status status-error error hide">
+  <p><?= $this->translate('R2_restricted_record_error') ?></p>
+</div>
+<?php if ($this->weakLogin): ?>
+  <div class="alert alert-info authorization-notification R2-status">
+    <p><?= $this->translate('R2_restricted_record_note_html') ?></p>
+    <p><strong><?= $this->translate('R2_register_weak_loginmethod') ?></strong></p>
+  </div>
+<?php elseif (!$this->user): ?>
+  <?php $setupJS['modal'] = true; ?>
+  <div class="alert alert-info authorization-notification R2-status">
+    <p><?= $this->translate('R2_restricted_record_note_html') ?></p>
+    <p class="register"><a href="<?= $registerFormUrl ?>" data-lightbox data-lightbox-title="<?=$this->transEsc("R2_register_form_title")?>" class="btn btn-primary"><?=$this->transEsc("R2_register")?></a></p>
+  </div>
+<?php elseif ($this->restrictedMetadataIncluded): ?>
+  <div class="alert alert-info authorization-notification check-permission R2-status R2-status-approved">
+    <p><?=$this->translate('R2_restricted_record_registered_note_html')?></p>
+  </div>
+<?php else: ?>
+  <?php
+    $setupJS['checkPermission'] = true;
+    if ($this->autoOpen) {
+      $setupJS['autoOpen'] = true;
+    }
+  ?>
+  <div class="alert alert-info authorization-notification check-permission R2-status R2-status-not-submitted hide" data-id="<?=$this->escapeHtmlAttr($this->id)?>">
+    <p class="txt"><?= $this->translate('R2_restricted_record_note_html') ?></p>
+    <p class="register"><a href="<?= $registerFormUrl ?>" class="btn btn-primary" data-lightbox title="<?=$this->transEsc('R2_register_form_title')?>"><?=$this->translate('R2_register')?></a></p>
+  </div>
+  <div class="alert alert-info authorization-notification R2-status R2-status-submitted hide">
+    <p class="txt"><?= $this->translate('R2_permission_request_status_submitted') ?></p>
+  </div>
+<?php endif; ?>
+
+<?php
+if (!empty($setupJS)) {
+  $script = '$(document).ready(function() {';
+  foreach ($setupJS as $type => $mode) {
+    switch ($type) {
+      case 'modal':
+        $script .= 'finna.R2.initModal();';
+        break;
+      case 'autoOpen':
+        $script .= 'finna.R2.initAutoOpenRegistration();';
+        break;
+      case 'checkPermission':
+        $script .= 'finna.R2.initCheckPermission();';
+        break;
+    }
+  }
+  $script .= '});';
+  echo $this->headScript()->appendFile('finna-R2.js');
+  $this->headScript()->appendScript($script);
+}
+?>
+<!-- END of: finna - Helpers/R2RestrictedRecordPermission.phtml -->
