@@ -63,7 +63,7 @@ class R2RestrictedRecordFactory implements FactoryInterface
         }
 
         $enabled = $container->get(\VuFind\Config\PluginManager::class)
-            ->get('R2')->R2->enabled ?? false;
+            ->get('R2')->General->enabled ?? false;
 
         $auth = $container->get('ZfcRbac\Service\AuthorizationService');
 
