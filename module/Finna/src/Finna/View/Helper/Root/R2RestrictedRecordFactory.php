@@ -62,16 +62,18 @@ class R2RestrictedRecordFactory implements FactoryInterface
             throw new \Exception('Unexpected options sent to factory.');
         }
 
-        $enabled = $container->get(\VuFind\Config\PluginManager::class)
-            ->get('R2')->General->enabled ?? false;
-
+        $r2Conf = $container->get(\VuFind\Config\PluginManager::class)
+            ->get('R2');
+        $enabled = $r2Conf->General->enabled ?? false;
+        $r2RecordBaseUrl = $r2Conf->General->R2RecordBaseUrl ?? null;
         $auth = $container->get('ZfcRbac\Service\AuthorizationService');
 
         return new $requestedName(
             $enabled,
             $container->get('VuFind\Config\PluginManager')->get('config'),
             $container->get('Finna\RemsService\RemsService'),
-            $auth->isGranted('access.R2Restricted')
+            $auth->isGranted('access.R2Restricted'),
+            $r2RecordBaseUrl
         );
     }
 }

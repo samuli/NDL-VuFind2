@@ -79,23 +79,34 @@ class R2RestrictedRecord extends \Zend\View\Helper\AbstractHelper
     protected $collectionRoutes;
 
     /**
+     * Base url for R2 records.
+     *
+     * @var null|string
+     */
+    protected $r2RecordBaseUrl;
+
+    /**
      * Constructor
      *
-     * @param bool                $enabled    Is R2 enabled?
-     * @param \Zend\Config\Config $config     VuFind configuration
-     * @param RemsService         $rems       REMS service
-     * @param bool                $authorized Is the user authorized to use REMS?
+     * @param bool                $enabled         Is R2 enabled?
+     * @param \Zend\Config\Config $config          VuFind configuration
+     * @param RemsService         $rems            REMS service
+     * @param bool                $authorized      Is the user authorized to
+     * use REMS?
+     * @param null|string         $r2Recordbaseurl Base url for R2
+     * records.
      */
     public function __construct(
         bool $enabled,
         \Zend\Config\Config $config,
         RemsService $rems,
-        bool $authorized
+        bool $authorized,
+        $r2RecordBaseUrl = null
     ) {
         $this->enabled = $enabled;
         $this->rems = $rems;
         $this->authorized = $authorized;
-
+        $this->r2RecordBaseUrl = trim($r2RecordBaseUrl);
         $this->collectionRoutes = isset($config->Collections->route)
             ? $config->Collections->route->toArray() : null;
     }
@@ -110,20 +121,42 @@ class R2RestrictedRecord extends \Zend\View\Helper\AbstractHelper
      */
     public function __invoke($driver, $params = null)
     {
-        if (!$this->enabled) {
+        if (!$this->enabled && !$this->r2RecordBaseUrl) {
             return null;
         }
 
         if ($restricted = $driver->getRestrictedAlternative()) {
-            // Local index record with a restricted alternative in R2 index.
+            // Local index record with a restricted alternative in R2 index
+            // (possibly in another view).
             $route = $restricted['route'];
             if ($driver->isCollection()) {
                 $route = $this->collectionRoutes[$route] ?? 'collection';
             }
 
+            $urlHelper = $this->getView()->plugin('url');
+            $recUrl = $urlHelper->__invoke($route, ['id' => $restricted['id']]);
+
+            if ($this->r2RecordBaseUrl) {
+                // R2 records are located in another view.
+
+                // Prepend base url to record url
+                $baseUrl
+                    = $urlHelper->__invoke('home', [], ['force_canonical' => true]);
+                $parts = parse_url($baseUrl);
+                $path = $parts['path'] ?? '';
+
+                // Make sure that base url has currect scheme
+                $baseParts = parse_url($this->r2RecordBaseUrl);
+                $base = 'https://' . ($baseParts['host'] ?? '') . $baseParts['path'];
+                // and remove trailing '/'
+                if (substr($base, -1) === '/') {
+                    $base = substr($base, 0, -1);
+                }
+                $recUrl = $base . '/' . substr($recUrl, strlen($path));
+            }
+
             return $this->getView()->render(
-                'Helpers/R2RestrictedRecordNote.phtml',
-                ['route' => $route, 'id' => $restricted['id']]
+                'Helpers/R2RestrictedRecordNote.phtml', ['recordUrl' => $recUrl]
             );
         } elseif ($driver->hasRestrictedMetadata()) {
             $user = $params['user'] ?? null;

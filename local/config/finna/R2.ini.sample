@@ -6,6 +6,10 @@ enabled = false
 apiUser = 
 apiKey = 
 
+; Base url of R2 recordpages (for assembling links between
+; local index recordpages and R2 recordpages).
+; If not defined, the links point to R2 recordpages in the same view.
+; R2RecordBaseUrl = "example.finna.fi/view"
 
 [Index]
 url             = 
