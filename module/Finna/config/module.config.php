@@ -157,7 +157,21 @@ $config = [
                         'action'     => 'PreviewForm',
                     ]
                 ],
-            ]
+            ],
+            'solrrecord-feedback' => [
+                'type'    => 'Zend\Router\Http\Segment',
+                'options' => [
+                    'route'    => '/Record/[:id]/Feedback',
+                    'constraints' => [
+                        'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                        'action'     => '[a-zA-Z][a-zA-Z0-9_-]*',
+                    ],
+                    'defaults' => [
+                        'controller' => 'Record',
+                        'action'     => 'Feedback',
+                    ]
+                ]
+            ],
         ],
     ],
     'route_manager' => [
@@ -552,10 +566,13 @@ $config = [
                     'R2' => 'Finna\Search\Factory\R2BackendFactory',
                     'Primo' => 'Finna\Search\Factory\PrimoBackendFactory',
                     'Solr' => 'Finna\Search\Factory\SolrDefaultBackendFactory',
+                    'Blender' => 'Finna\Search\Factory\BlenderBackendFactory',
                 ],
             ],
             'search_options' => [
                 'factories' => [
+                    'Finna\Search\Blender\Options' => 'VuFind\Search\OptionsFactory',
+
                     'Finna\Search\Combined\Options' => 'VuFind\Search\OptionsFactory',
                     'Finna\Search\EDS\Options' => 'VuFind\Search\EDS\OptionsFactory',
                     'Finna\Search\R2\Options' => 'VuFind\Search\Options\OptionsFactory',
@@ -568,11 +585,14 @@ $config = [
 
                     // Counterpart for EmptySet Params:
                     'Finna\Search\EmptySet\Options' => 'VuFind\Search\EmptySet\Options',
+                    'Blender' => 'Finna\Search\Blender\Options',
                     'R2' => 'Finna\Search\R2\Options',
                 ]
             ],
             'search_params' => [
                 'factories' => [
+                    'Finna\Search\Blender\Params' => 'Finna\Search\Blender\ParamsFactory',
+
                     'Finna\Search\Combined\Params' => 'Finna\Search\Solr\ParamsFactory',
                     'Finna\Search\EDS\Params' => 'VuFind\Search\Params\ParamsFactory',
                     'Finna\Search\EmptySet\Params' => 'VuFind\Search\Params\ParamsFactory',
@@ -589,11 +609,13 @@ $config = [
                     'VuFind\Search\MixedList\Params' => 'Finna\Search\MixedList\Params',
                     'VuFind\Search\Solr\Params' => 'Finna\Search\Solr\Params',
 
+                    'Blender' => 'Finna\Search\Blender\Params',
                     'R2' => 'VuFind\Search\Solr\Params',
                 ]
             ],
             'search_results' => [
                 'factories' => [
+                    'Finna\Search\Blender\Results' => 'VuFind\Search\Solr\ResultsFactory',
                     'Finna\Search\Combined\Results' => 'VuFind\Search\Results\ResultsFactory',
                     'Finna\Search\Favorites\Results' => 'Finna\Search\Favorites\ResultsFactory',
                     'Finna\Search\R2\Results' => 'VuFind\Search\Results\ResultsFactory',
@@ -605,6 +627,8 @@ $config = [
                     'VuFind\Search\Favorites\Results' => 'Finna\Search\Favorites\Results',
                     'VuFind\Search\Primo\Results' => 'Finna\Search\Primo\Results',
                     'VuFind\Search\Solr\Results' => 'Finna\Search\Solr\Results',
+
+                    'Blender' => 'Finna\Search\Blender\Results',
                     'R2' => 'Finna\Search\R2\Results',
                 ]
             ],
@@ -732,9 +756,10 @@ $config = [
 ];
 
 $recordRoutes = [
+   'metalibrecord' => 'MetaLibRecord',
    'r2record' => 'R2Record',
    'r2collection' => 'R2Collection',
-   'metalibrecord' => 'MetaLibRecord'
+   'solrrecord' => 'Record',
 ];
 
 // Define dynamic routes -- controller => [route name => action]
@@ -754,7 +779,7 @@ $staticRoutes = [
     'OrganisationInfo/Home',
     'PCI/Home', 'PCI/Search', 'PCI/Record',
     'Search/StreetSearch',
-    'Barcode/Show', 'Search/MapFacet'
+    'Barcode/Show', 'Search/MapFacet', 'Search/Blended'
 ];
 
 $routeGenerator = new \VuFind\Route\RouteGenerator();
