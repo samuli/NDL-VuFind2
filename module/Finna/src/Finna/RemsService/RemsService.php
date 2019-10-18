@@ -40,8 +40,8 @@ use Zend\Session\Container;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
-class RemsService
-    implements \VuFindHttp\HttpServiceAwareInterface,
+class RemsService implements
+    \VuFindHttp\HttpServiceAwareInterface,
     \Zend\Log\LoggerAwareInterface
 {
     use \VuFind\Log\LoggerAwareTrait {
@@ -88,7 +88,9 @@ class RemsService
      * @param Manager        $auth    Auth manager
      */
     public function __construct(
-        Config $config, Container $session = null, Manager $auth
+        Config $config,
+        Container $session = null,
+        Manager $auth
     ) {
         $this->config = $config;
         $this->session = $session;
@@ -107,7 +109,10 @@ class RemsService
      * @return void
      */
     public function registerUser(
-        $email, $firstname = null, $lastname = null, $formParams = []
+        string $email,
+        $firstname = null,
+        $lastname = null,
+        $formParams = []
     ) {
         $commonName = $firstname;
         if ($lastname) {
@@ -155,11 +160,14 @@ class RemsService
              'application-id' => $applicationId
         ];
         $response = $this->sendRequest(
-            'applications/submit', $params, 'POST'
+            'applications/submit',
+            $params,
+            'POST'
         );
 
         $this->savePermissionToSession(
-            null, $this->getSessionKey($this->getCatalogItemId('entitlement'))
+            null,
+            $this->getSessionKey($this->getCatalogItemId('entitlement'))
         );
 
         return true;
@@ -226,7 +234,8 @@ class RemsService
         $params = [];
         if ($statuses) {
             $params['query'] = implode(
-                ' or ', array_map(
+                ' or ',
+                array_map(
                     function ($status) {
                         return "application/state:application.state/{$status}";
                     },
@@ -282,7 +291,10 @@ class RemsService
             ];
             try {
                 $this->sendRequest(
-                    'applications/close', null, 'POST', RemsService::TYPE_APPROVER,
+                    'applications/close',
+                    null,
+                    'POST',
+                    RemsService::TYPE_APPROVER,
                     ['content' => json_encode($params)]
                 );
             } catch (\Exception $e) {
@@ -309,17 +321,20 @@ class RemsService
     /**
      * Send a request to REMS api.
      *
-     * @param string $url         URL (relative)
-     * @param array  $params      Request parameters
-     * @param string $method      GET|POST
-     * @param bool   $adminAction Use admin API user id?
-     * @param string $body        Request body
+     * @param string      $url      URL (relative)
+     * @param array       $params   Request parameters
+     * @param string      $method   GET|POST
+     * @param int         $userType Rems user type (see TYPE_ADMIN etc)
+     * @param null|string $body     Request body
      *
      * @return bool
      */
     protected function sendRequest(
-        $url, $params = [], $method = 'GET',
-        $userType = RemsService::TYPE_USER, $body = null
+        $url,
+        $params = [],
+        $method = 'GET',
+        $userType = RemsService::TYPE_USER,
+        $body = null
     ) {
         $userId = null;
 
@@ -411,7 +426,10 @@ class RemsService
      * @return string
      */
     protected function getClient(
-        $userId, $url, $method = 'GET', $bodyParams = [],
+        $userId,
+        $url,
+        $method = 'GET',
+        $bodyParams = [],
         $contentType = 'application/json'
     ) {
         $url = $this->config->General->apiUrl . '/' . $url;
@@ -420,7 +438,8 @@ class RemsService
         $client->setOptions(['timeout' => 30, 'useragent' => 'Finna']);
         $headers = $client->getRequest()->getHeaders();
         $headers->addHeaderLine(
-            'Accept', 'application/json'
+            'Accept',
+            'application/json'
         );
         $headers->addHeaderLine('x-rems-api-key', $this->config->General->apiKey);
         $headers->addHeaderLine('x-rems-user-id', $userId);
