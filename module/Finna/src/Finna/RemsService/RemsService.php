@@ -98,6 +98,17 @@ class RemsService implements
     }
 
     /**
+     * Check if the current logged-in user has is registerd to REMS.
+     *
+     * @throws Exception if user is not logged in
+     * @return bool
+     */
+    public function isUserRegistered()
+    {
+        return !empty($this->getApplications());
+    }
+
+    /**
      * Register user to REMS
      *
      * @param string $email      Email

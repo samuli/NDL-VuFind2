@@ -83,6 +83,12 @@ class FeedbackController extends \VuFind\Controller\FeedbackController
 
         $view = parent::formAction();
 
+        $formId = $view->form->getFormId();
+        if (null !== ($regFormId = $this->replaceR2RegisterFormId($formId))) {
+            // Replace current R2 register form with the form for returning users
+            $view->form->setFormId($regFormId);
+        }
+
         // Set record driver (used by FeedbackRecord form)
         $data = $this->getRequest()->getQuery('data', []);
         if ($id = ($this->getRequest()->getPost(

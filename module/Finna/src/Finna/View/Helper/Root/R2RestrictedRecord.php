@@ -170,7 +170,8 @@ class R2RestrictedRecord extends \Zend\View\Helper\AbstractHelper
                 'autoOpen' => $autoOpen,
                 'id' => $driver->getUniqueID(),
                 'collection' => $driver->isCollection(),
-                'restrictedMetadataIncluded' => $restrictedMetadataIncluded
+                'restrictedMetadataIncluded' => $restrictedMetadataIncluded,
+                'formId' => 'R2Register'
             ];
 
             return $this->getView()->render(

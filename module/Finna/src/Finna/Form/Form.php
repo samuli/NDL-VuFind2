@@ -46,6 +46,13 @@ class Form extends \VuFind\Form\Form
     const R2_REGISTER_FORM = 'R2Register';
 
     /**
+     * R2 returning user registration form id
+     *
+     * @var string
+     */
+    const R2_REGISTER_RETURNING_USER_FORM = 'R2RegisterReturningUser';
+
+    /**
      * Email form handler
      *
      * @var string
@@ -121,6 +128,16 @@ class Form extends \VuFind\Form\Form
         $this->formId = $formId;
         parent::setFormId($formId);
         $this->setName($formId);
+    }
+
+    /**
+     * Get form id.
+     *
+     * @return string
+     */
+    public function getFormId()
+    {
+        return $this->formId;
     }
 
     /**
@@ -396,6 +413,31 @@ class Form extends \VuFind\Form\Form
         return $fields;
     }
 
+    public static function isR2RegisterForm(
+        $formId, $checkOnlyNewUserForm = false
+    ) {
+        $forms = [self::R2_REGISTER_FORM];
+        if (!$checkOnlyNewUserForm) {
+            $forms[] = self::R2_REGISTER_RETURNING_USER_FORM;
+        }
+        return in_array($formId, $forms);
+    }
+
+    /**
+     * Get R2 registration form id.
+     *
+     * @param boolean $newUser Return form for new user (true)
+     *                         or returning user (false)?
+     *
+     * @return string
+     */
+    public static function getR2RegisterFormId($newUser = true)
+    {
+        return $newUser
+            ? self::R2_REGISTER_FORM
+            : self::R2_REGISTER_RETURNING_USER_FORM;
+    }
+
     /**
      * Get form elements
      *
@@ -453,7 +495,7 @@ class Form extends \VuFind\Form\Form
             }
         }
 
-        if ($formId === Form::R2_REGISTER_FORM) {
+        if (self::isR2RegisterForm($formId)) {
             // Set name fields to readonly if defined in profile
             $fields = ['firstname', 'lastname'];
             foreach ($fields as $field) {

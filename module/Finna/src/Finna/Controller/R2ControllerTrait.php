@@ -41,6 +41,38 @@ use Zend\Session\Container as SessionContainer;
  */
 trait R2ControllerTrait
 {
+
+    /**
+     * Replace R2 new user registration form id with the id for returning
+     * user registration form.
+     *
+     * @param string $formId Current form id
+     *
+     * @return null|string registration form id for returning user or null
+     * if the form id was not modified.
+     */
+    protected function replaceR2RegisterFormId($formId)
+    {
+        if (\Finna\Form\Form::isR2RegisterForm($formId, true)) {
+            // Not a R2 registration form for new users
+            return null;
+        }
+
+        // R2 registration form requested.
+        // 1. If the user is not logged, default to new user form
+        //    (this method gets called again after the login).
+        // 2. For logged users, check if the user has been registered to REMS
+        //    and replace form id with the id for returning users.
+        if (!$user = $this->getUser()
+        ) {
+            return $formId;
+        }
+
+        $rems = $this->serviceLocator->get('Finna\RemsService\RemsService');
+        $regId = \Finna\Form\Form::getR2RegisterFormId(!$rems->isUserRegistered());
+        return $formId !== $regId ? $regId : null;
+    }
+
     /**
      * Handles display and submit of R2 registration form.
      *
@@ -49,7 +81,7 @@ trait R2ControllerTrait
     protected function processR2RegisterForm()
     {
         $formId = $this->params()->fromRoute('id', $this->params()->fromQuery('id'));
-        if ($formId !== \Finna\Form\Form::R2_REGISTER_FORM) {
+        if (!\Finna\Form\Form::isR2RegisterForm($formId)) {
             return null;
         }
 
