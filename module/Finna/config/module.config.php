@@ -783,7 +783,6 @@ $recordRoutes = [
    'metalibrecord' => 'MetaLibRecord',
    'r2record' => 'R2Record',
    'r2collection' => 'R2Collection',
-   'solrrecord' => 'Record',
 ];
 
 // Define dynamic routes -- controller => [route name => action]
