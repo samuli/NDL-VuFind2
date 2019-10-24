@@ -326,7 +326,24 @@ class RemsService implements
         if (!$user = $this->auth->isLoggedIn()) {
             throw new \Exception('REMS: user not logged');
         }
-        return $user->username;
+        $id = $user->username;
+        return self::prepareUserId($id);
+    }
+
+    /**
+     * Prepare user id for saving to REMS.
+     *
+     * @param string $userId User id.
+     *
+     * @return string
+     */
+    public static function prepareUserId($userId)
+    {
+        // Strip domain from username
+        if (false !== strpos($userId, ':')) {
+            list($domain, $userId) = explode(':', $userId, 2);
+        }
+        return $userId;
     }
 
     /**

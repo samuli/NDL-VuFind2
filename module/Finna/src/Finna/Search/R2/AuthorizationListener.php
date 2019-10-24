@@ -132,9 +132,10 @@ class AuthorizationListener
                 || in_array(true, $params->get('R2Restricted') ?? [])
             ) {
                 if ($this->authService->isGranted('access.R2Restricted')) {
-                    $this->connector->setUsername(
-                        urlencode($this->authManager->isLoggedIn()->username)
+                    $userId = \Finna\RemsService\RemsService::prepareUserId(
+                        $this->authManager->isLoggedIn()->username
                     );
+                    $this->connector->setUsername(urlencode($userId));
                 }
             }
         }
