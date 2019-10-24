@@ -564,6 +564,7 @@ $config = [
             'search_backend' => [
                 'factories' => [
                     'R2' => 'Finna\Search\Factory\R2BackendFactory',
+                    'R2Collection' => 'Finna\Search\Factory\R2BackendFactory',
                     'Primo' => 'Finna\Search\Factory\PrimoBackendFactory',
                     'Solr' => 'Finna\Search\Factory\SolrDefaultBackendFactory',
                     'Blender' => 'Finna\Search\Factory\BlenderBackendFactory',
@@ -576,6 +577,7 @@ $config = [
                     'Finna\Search\Combined\Options' => 'VuFind\Search\OptionsFactory',
                     'Finna\Search\EDS\Options' => 'VuFind\Search\EDS\OptionsFactory',
                     'Finna\Search\R2\Options' => 'VuFind\Search\Options\OptionsFactory',
+                    'Finna\Search\R2Collection\Options' => 'VuFind\Search\Options\OptionsFactory',
                     'Finna\Search\Primo\Options' => 'VuFind\Search\OptionsFactory',
                 ],
                 'aliases' => [
@@ -587,6 +589,7 @@ $config = [
                     'Finna\Search\EmptySet\Options' => 'VuFind\Search\EmptySet\Options',
                     'Blender' => 'Finna\Search\Blender\Options',
                     'R2' => 'Finna\Search\R2\Options',
+                    'R2Collection' => 'Finna\Search\R2Collection\Options',
                 ]
             ],
             'search_params' => [
@@ -598,6 +601,7 @@ $config = [
                     'Finna\Search\EmptySet\Params' => 'VuFind\Search\Params\ParamsFactory',
                     'Finna\Search\Favorites\Params' => 'VuFind\Search\Params\ParamsFactory',
                     'Finna\Search\R2\Params' => 'Finna\Search\Solr\ParamsFactory',
+                    'Finna\Search\R2Collection\Params' => 'Finna\Search\Solr\ParamsFactory',
                     'Finna\Search\MixedList\Params' => 'VuFind\Search\Params\ParamsFactory',
                     'Finna\Search\Solr\Params' => 'Finna\Search\Solr\ParamsFactory',
                 ],
@@ -611,6 +615,7 @@ $config = [
 
                     'Blender' => 'Finna\Search\Blender\Params',
                     'R2' => 'VuFind\Search\Solr\Params',
+                    'R2Collection' => 'VuFind\Search\Solr\Params',
                 ]
             ],
             'search_results' => [
@@ -630,6 +635,7 @@ $config = [
 
                     'Blender' => 'Finna\Search\Blender\Results',
                     'R2' => 'Finna\Search\R2\Results',
+                    'R2Collection' => 'Finna\Search\R2Collection\Results',
                 ]
             ],
             'content_covers' => [
@@ -693,6 +699,7 @@ $config = [
             ],
             'recordtab' => [
                 'factories' => [
+                    'Finna\RecordTab\R2CollectionList' => 'VuFind\RecordTab\CollectionListFactory',
                     'Finna\RecordTab\DescriptionFWD' => 'Finna\RecordTab\Factory::getDescriptionFWD',
                     'Finna\RecordTab\Distribution' => 'Finna\RecordTab\Factory::getDistribution',
                     'Finna\RecordTab\InspectionDetails' => 'Finna\RecordTab\Factory::getInspectionDetails',
@@ -707,6 +714,7 @@ $config = [
                     'componentparts' => 'Finna\RecordTab\ComponentParts',
                 ],
                 'aliases' => [
+                    'r2collectionlist' => 'Finna\RecordTab\R2CollectionList',
                     'componentparts' => 'Finna\RecordTab\ComponentParts',
                     'descriptionFWD' => 'Finna\RecordTab\DescriptionFWD',
                     'distribution' => 'Finna\RecordTab\Distribution',
@@ -735,6 +743,22 @@ $config = [
                     'workexpressions' => 'Finna\Related\WorkExpressions',
                 ]
             ],
+            'hierarchy_driver' => [
+                'factories' => [
+                    'Finna\Hierarchy\Driver\HierarchyR2' => 'VuFind\Hierarchy\Driver\ConfigurationBasedFactory'
+                ],
+                'aliases' => [
+                    'R2' => 'Finna\Hierarchy\Driver\HierarchyR2'
+                ]
+            ],
+            'hierarchy_treedatasource' => [
+                'aliases' => [
+                    'R2' => 'Finna\Hierarchy\TreeDataSource\R2'
+                ],
+                'factories' => [
+                    'Finna\Hierarchy\TreeDataSource\R2' => 'Finna\Hierarchy\TreeDataSource\R2Factory'
+                ]
+            ]
         ],
     ],
 

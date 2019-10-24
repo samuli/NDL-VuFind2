@@ -1,10 +1,10 @@
 <?php
 /**
- * Solr Search Parameters
+ * R2 Collection list tab
  *
  * PHP version 7
  *
- * Copyright (C) The National Library of Finland 2015-2016.
+ * Copyright (C) The National Library of Finland 2019.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -20,27 +20,23 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category VuFind
- * @package  Search_Solr
- * @author   Mika Hatakka <mika.hatakka@helsinki.fi>
- * @author   Ere Maijala <ere.maijala@helsinki.fi>
+ * @package  RecordTabs
+ * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     https://vufind.org Main Page
+ * @link     https://vufind.org/wiki/development:plugins:record_tabs Wiki
  */
-namespace Finna\Search\Solr;
-
-use VuFind\Solr\Utils;
+namespace Finna\RecordTab;
 
 /**
- * Solr Search Parameters
+ * R2 Collection list tab
  *
  * @category VuFind
- * @package  Search_Solr
- * @author   Mika Hatakka <mika.hatakka@helsinki.fi>
- * @author   Ere Maijala <ere.maijala@helsinki.fi>
+ * @package  RecordTabs
+ * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     https://vufind.org Main Page
+ * @link     https://vufind.org/wiki/development:plugins:record_tabs Wiki
  */
-class Params extends \VuFind\Search\Solr\Params
+class R2CollectionList extends \VuFind\RecordTab\CollectionList
 {
-    use \Finna\Search\Solr\FinnaSolrParams;
+    protected $backendId = 'R2Collection';
 }
