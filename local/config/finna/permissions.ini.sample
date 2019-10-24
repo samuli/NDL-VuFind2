@@ -158,7 +158,7 @@ role[] = loggedin
 permission = feature.Favorites
 
 ; Restricted Solr (R2) Search
-[access.R2Restricted]
-require = ALL
-authenticationStrategy[] = Suomifi
-permission[] = access.R2Restricted
+; [access.R2Restricted]
+; require = ALL
+; authenticationStrategy[] = Suomifi
+; permission[] = access.R2Restricted
