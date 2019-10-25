@@ -72,13 +72,6 @@ class R2RestrictedRecord extends \Zend\View\Helper\AbstractHelper
     protected $authorized;
 
     /**
-     * Mapping between record and collection routes
-     *
-     * @var array
-     */
-    protected $collectionRoutes;
-
-    /**
      * Base url for R2 records.
      *
      * @var null|string
@@ -107,8 +100,6 @@ class R2RestrictedRecord extends \Zend\View\Helper\AbstractHelper
         $this->rems = $rems;
         $this->authorized = $authorized;
         $this->r2RecordBaseUrl = trim($r2RecordBaseUrl);
-        $this->collectionRoutes = isset($config->Collections->route)
-            ? $config->Collections->route->toArray() : null;
     }
 
     /**
@@ -129,9 +120,6 @@ class R2RestrictedRecord extends \Zend\View\Helper\AbstractHelper
             // Local index record with a restricted alternative in R2 index
             // (possibly in another view).
             $route = $restricted['route'];
-            if ($driver->isCollection()) {
-                $route = $this->collectionRoutes[$route] ?? 'collection';
-            }
 
             $urlHelper = $this->getView()->plugin('url');
             $recUrl = $urlHelper->__invoke($route, ['id' => $restricted['id']]);

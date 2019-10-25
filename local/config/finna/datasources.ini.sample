@@ -8,6 +8,10 @@
 ; disablePatronFunctions  Set true if datasource does not have patron functionality, can be left out
 ; authority[<type>]     Map to authority index sources where <type> is authority record type
 ;                         (corporateBody, person) or * for any;
+; linkToR2record          Enable linking between local index records and restricted R2 index records.
+;                         The record driver may perform additional checks and override this when needed
+;                         (for example when only a subset of records in the datasource have a restricted
+;                         alternative in R2).
 ; This configuration file is compatible with RecordManager's datasources.ini, so the
 ; same file can be shared by RecordManager and VuFind.
 

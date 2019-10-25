@@ -52,6 +52,13 @@ trait SolrFinna
     protected $searchSettings = [];
 
     /**
+     * Datasource settings
+     *
+     * @var array
+     */
+    protected $datasourceSettings = [];
+
+    /**
      * Return an array of image URLs associated with this record with keys:
      * - urls        Image URLs
      *   - small     Small image (mandatory)
@@ -1019,6 +1026,67 @@ trait SolrFinna
                 }
             }
         }
+        return false;
+    }
+
+    /**
+     * Attach date converter
+     *
+     * @param \VuFind\Date\Converter $dateConverter Date Converter
+     *
+     * @return void
+     */
+    public function setDatasourceSettings($settings)
+    {
+        $this->datasourceSettings = $settings;
+    }
+
+    /**
+     * Get alternative restricted version of this record.
+     * Returns false or an array with keys:
+     * - route Route name of restricted record
+     * - id    Restricted record id
+     *
+     * @return mixed
+     */
+    public function getRestrictedAlternative()
+    {
+        // Check if restrictedRecord route is defined in datasoures.ini
+        $restricted = (bool)
+            ($this->datasourceSettings->{$this->getDatasource()}->linkToR2Record
+             ?? false);
+
+        if (! $restricted) {
+            return false;
+        }
+
+        $route = 'r2record';
+
+        if ($this->isCollection()) {
+            // Map to Collection route
+            $route = $this->mainConfig->Collections->route['r2record'] ?? $route;
+        }
+        return $route;
+    }
+
+    /**
+     * Does this record contain restricted metadata?
+     *
+     * @return bool
+     */
+    public function hasRestrictedMetadata()
+    {
+        return false;
+    }
+
+    /**
+     * Is restricted metadata included with the record, i.e. does the user
+     * have permissions to access restricted metadata.
+     *
+     * @return bool
+     */
+    public function isRestrictedMetadataIncluded()
+    {
         return false;
     }
 }

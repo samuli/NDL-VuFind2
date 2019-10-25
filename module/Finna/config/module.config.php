@@ -659,21 +659,21 @@ $config = [
                     'Finna\RecordDriver\R2Ead3' =>
                         'VuFind\RecordDriver\NameBasedConfigFactory',
                     'Finna\RecordDriver\SolrDefault' =>
-                        'VuFind\RecordDriver\SolrDefaultFactory',
+                        'Finna\RecordDriver\SolrDefaultFactory',
                     'Finna\RecordDriver\SolrMarc' =>
-                        'VuFind\RecordDriver\SolrDefaultFactory',
+                        'Finna\RecordDriver\SolrDefaultFactory',
                     'Finna\RecordDriver\SolrAuthEaccpf' =>
-                        'VuFind\RecordDriver\SolrDefaultFactory',
+                        'Finna\RecordDriver\SolrDefaultFactory',
                     'Finna\RecordDriver\SolrEad' =>
-                        'VuFind\RecordDriver\SolrDefaultFactory',
+                        'Finna\RecordDriver\SolrDefaultFactory',
                     'Finna\RecordDriver\SolrEad3' =>
-                        'VuFind\RecordDriver\SolrDefaultFactory',
+                        'Finna\RecordDriver\SolrDefaultFactory',
                     'Finna\RecordDriver\SolrForward' =>
-                        'VuFind\RecordDriver\SolrDefaultFactory',
+                        'FInna\RecordDriver\SolrDefaultFactory',
                     'Finna\RecordDriver\SolrLido'
                         => 'Finna\RecordDriver\SolrLidoFactory',
                     'Finna\RecordDriver\SolrQdc' =>
-                        'VuFind\RecordDriver\SolrDefaultFactory',
+                        'Finna\RecordDriver\SolrDefaultFactory',
                     'Finna\RecordDriver\Primo' =>
                         'VuFind\RecordDriver\NameBasedConfigFactory',
                 ],
