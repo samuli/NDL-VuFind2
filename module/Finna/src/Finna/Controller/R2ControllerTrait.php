@@ -104,8 +104,20 @@ trait R2ControllerTrait
                 : $this->redirect()->toRoute('search-home');
         };
 
-        $closeForm = function ($shibbolethAuthenticated = true) use (
-            $session, $getRedirect
+        // Verify that user is authorized to access restricted R2 data.
+        if (!$user = $this->getUser()) {
+            // Not logged, prompt login
+            $session->inLightbox = $inLightbox;
+            $session->recordId = $recordId;
+            $session->collection = $collection;
+            return $this->forceLogin();
+        }
+
+        $shibbolethAuthenticated
+            = in_array($user->auth_method, ['suomifi', 'Shibboleth']);
+
+        $closeForm = function () use (
+            $session, $getRedirect, $shibbolethAuthenticated
         ) {
             $recordId = $session->recordId ?? null;
             $collection = $session->collection ?? false;
@@ -124,20 +136,9 @@ trait R2ControllerTrait
             }
         };
 
-        // Verify that user is authorized to access restricted R2 data.
-        if (!$user = $this->getUser()) {
-            // Not logged, prompt login
-            $session->inLightbox = $inLightbox;
-            $session->recordId = $recordId;
-            $session->collection = $collection;
-            return $this->forceLogin();
-        }
-
-        $shibbolethAuthenticated
-            = in_array($user->auth_method, ['suomifi', 'Shibboleth']);
         if (!$this->isAuthorized()) {
             // Logged but not authorized (wrong login method etc), close form
-            return $closeForm($shibbolethAuthenticated);
+            return $closeForm();
         }
 
         // Authorized. Check user permission from REMS and show
@@ -157,7 +158,7 @@ trait R2ControllerTrait
 
         if (!$showRegisterForm) {
             // Registration has already been submitted, no need to show form.
-            return $closeForm($shibbolethAuthenticated);
+            return $closeForm();
         }
 
         if ($this->formWasSubmitted('submit')) {
@@ -165,7 +166,6 @@ trait R2ControllerTrait
             $user = $this->getUser();
 
             $form = $this->serviceLocator->get('VuFind\Form\Form');
-            $formId = \Finna\Form\Form::R2_REGISTER_FORM;
             $form->setFormId($formId);
 
             $view = $this->createViewModel(compact('form', 'formId', 'user'));
@@ -190,10 +190,8 @@ trait R2ControllerTrait
             // Take firstname, lastname and email from profile if available
             $firstname = !empty($user->firstname)
                 ? $user->firstname : $params['firstname'];
-
             $lastname = !empty($user->lastname)
                 ? $user->lastname : $params['lastname'];
-
             $email = $params['email'];
 
             try {
@@ -278,21 +276,21 @@ trait R2ControllerTrait
     public function isAuthorized()
     {
         $auth = $this->serviceLocator->get('ZfcRbac\Service\AuthorizationService');
-        if (!$auth->isGranted('access.R2Restricted')) {
-            return false;
-        }
-        return true;
+        return $auth->isGranted('access.R2Restricted');
     }
 
     /**
      * Load record with restricted metadata.
+     *
+     * This tells RecordLoader to include the current user id in the request so
+     * that R2 index can return data that the user is allowed to see.
      *
      * @return null|\VuFind\RecordDriver\AbstractBase
      */
     protected function loadRecordWithRestrictedData()
     {
         $params = [];
-        if ($user = $this->getUser()) {
+        if ($user = $this->getUser() && $this->isAuthorized()) {
             $params['R2Restricted'] = true;
         }
 
