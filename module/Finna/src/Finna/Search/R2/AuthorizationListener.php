@@ -126,8 +126,7 @@ class AuthorizationListener
             $context = $event->getParam('context');
             $this->connector->setUsername(null);
             // Pass the username of an authorized user to connector in order
-            // to get restricted metadata. When retrieving a record, restricted
-            // metadata needs to be requested in search params.
+            // to request restricted metadata.
             if ($context !== 'retrieve'
                 || in_array(true, $params->get('R2Restricted') ?? [])
             ) {
