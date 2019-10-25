@@ -499,13 +499,16 @@ class Form extends \VuFind\Form\Form
             // Set name fields to readonly if defined in profile
             $fields = ['firstname', 'lastname'];
             foreach ($fields as $field) {
-                if (empty($this->user->{$field})) {
+                $val = $this->user->{$field};
+                if (empty(trim($val))) {
                     continue;
                 }
                 foreach ($elements as &$el) {
                     if ($el['name'] !== $field) {
                         continue;
                     }
+                    // Set field to readonly. This will still post the field
+                    // (in contrast to disabled)
                     $el['settings']['readonly'] = 'readonly';
                 }
             }
