@@ -80,7 +80,6 @@ class R2Ead3 extends SolrEad3
         return ($this->fields['display_restriction_id_str'] ?? false) === '10';
     }
 
-
     /**
      * Get the Hierarchy Type (false if none)
      *

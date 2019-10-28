@@ -137,7 +137,7 @@ class RemsService implements
             'commonName' => $commonName
         ];
         $this->sendRequest('users/create', $params, 'POST', RemsService::TYPE_ADMIN);
-        
+
         // 2. Create draft application
         $catItemId = $this->getCatalogItemId('entitlement');
         $params = ['catalogue-item-ids' => [$catItemId]];

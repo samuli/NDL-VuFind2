@@ -27,8 +27,6 @@
  */
 namespace Finna\Hierarchy\TreeDataSource;
 
-use Interop\Container\ContainerInterface;
-
 /**
  * R2 Hierarchy tree data source plugin factory.
  *

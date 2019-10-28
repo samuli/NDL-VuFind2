@@ -41,7 +41,6 @@ use Zend\Session\Container as SessionContainer;
  */
 trait R2ControllerTrait
 {
-
     /**
      * Replace R2 new user registration form id with the id for returning
      * user registration form.

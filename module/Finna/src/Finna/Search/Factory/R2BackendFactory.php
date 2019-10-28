@@ -32,7 +32,6 @@ use Finna\Search\R2\AuthorizationListener;
 use Interop\Container\ContainerInterface;
 use VuFindSearch\Backend\Solr\Backend;
 use VuFindSearch\Backend\Solr\Connector;
-use VuFindSearch\Backend\Solr\HandlerMap;
 
 use VuFindSearch\Backend\Solr\Response\Json\RecordCollectionFactory;
 
