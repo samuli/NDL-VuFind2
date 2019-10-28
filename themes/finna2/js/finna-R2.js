@@ -1,6 +1,8 @@
 /*global finna, VuFind */
 finna.R2 = (function finnaR2() {
+  /* eslint-disable no-unused-vars */
   var autoOpen = false;
+  /* eslint-enable no-unused-vars */
 
   function initModal() {
     // Transform form h1-element to a h2 so that the modal gets a proper title bar
