@@ -1053,7 +1053,9 @@ trait SolrFinna
     {
         // Check if linking between local and restricted records is
         // enabled in datasources.ini
-        $restricted = (bool)($this->datasourceSettings->{$this->getDatasource()}->linkToR2Record
+        $restricted
+            = (bool)($this->datasourceSettings->{$this->getDatasource()}
+                ->linkToR2Record
              ?? false);
 
         if (! $restricted) {

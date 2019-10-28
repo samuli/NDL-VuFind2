@@ -86,7 +86,7 @@ class R2RestrictedRecord extends \Zend\View\Helper\AbstractHelper
      * @param RemsService         $rems            REMS service
      * @param bool                $authorized      Is the user authorized to
      * use REMS?
-     * @param null|string         $r2Recordbaseurl Base url for R2
+     * @param null|string         $r2RecordBaseUrl Base url for R2
      * records.
      */
     public function __construct(

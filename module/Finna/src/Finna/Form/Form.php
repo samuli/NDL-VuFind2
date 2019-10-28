@@ -413,6 +413,14 @@ class Form extends \VuFind\Form\Form
         return $fields;
     }
 
+    /**
+     * Check if the given form is a R2 registratioin form.
+     *
+     * @param string  $formId               Form id
+     * @param boolean $checkOnlyNewUserForm Check only new user registration form?
+     *
+     * @return bool
+     */
     public static function isR2RegisterForm(
         $formId, $checkOnlyNewUserForm = false
     ) {
