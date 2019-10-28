@@ -1042,7 +1042,7 @@ trait SolrFinna
     }
 
     /**
-     * Get alternative restricted version of this record.
+     * Get alternative restricted version (in R2 index) of this record.
      * Returns false or an array with keys:
      * - route Route name of restricted record
      * - id    Restricted record id
