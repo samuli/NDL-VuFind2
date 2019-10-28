@@ -291,12 +291,14 @@ display_checked_out_item_barcode = true
 
 ; This section allows you to determine how the users will authenticate.
 ; You can use an LDAP directory, the local ILS, the VuFind database (Database),
-; Shibboleth, SIP2, CAS or some combination of these (via the MultiAuth option).
+; Shibboleth, Shibboleth_suomifi, SIP2, CAS or some combination of these
+; (via the MultiAuth option).
 [Authentication]
 ;method          = LDAP
 ;method         = ILS
 ;method         = Database
 ;method         = Shibboleth
+;method         = Shibboleth_suomifi
 ;method         = SIP2
 ;method         = CAS
 method         = ChoiceAuth
