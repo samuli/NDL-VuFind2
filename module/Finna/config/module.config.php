@@ -288,7 +288,6 @@ $config = [
             'Finna\Record\Loader' => 'Finna\Record\LoaderFactory',
             'Finna\RecordTab\PluginManager' => 'VuFind\ServiceManager\AbstractPluginManagerFactory',
             'Finna\Role\PermissionManager' => 'VuFind\Role\PermissionManagerFactory',
-            'Finna\Search\FacetCache\PluginManager' => 'VuFind\ServiceManager\AbstractPluginManagerFactory',
             'Finna\Search\Memory' => 'VuFind\Search\MemoryFactory',
             'Finna\Search\Solr\HierarchicalFacetHelper' => 'Zend\ServiceManager\Factory\InvokableFactory',
             'Finna\RemsService\RemsService' => 'Finna\RemsService\RemsServiceFactory',
@@ -313,7 +312,7 @@ $config = [
             'VuFind\Record\Loader' => 'Finna\Record\Loader',
             'VuFind\RecordTab\PluginManager' => 'Finna\RecordTab\PluginManager',
             'VuFind\Role\PermissionManager' => 'Finna\Role\PermissionManager',
-            'VuFind\Search\FacetCache\PluginManager' => 'Finna\Search\FacetCache\PluginManager',
+            //'VuFind\Search\FacetCache\PluginManager' => 'Finna\Search\FacetCache\PluginManager',
             'VuFind\Search\Memory' => 'Finna\Search\Memory',
             'VuFind\Search\Solr\HierarchicalFacetHelper' => 'Finna\Search\Solr\HierarchicalFacetHelper',
 
@@ -570,6 +569,11 @@ $config = [
                     'Blender' => 'Finna\Search\Factory\BlenderBackendFactory',
                 ],
             ],
+            'search_facetcache' => [
+                'aliases' => [
+                    'R2' => 'VuFind\Search\Solr\FacetCache'
+                ]
+            ],
             'search_options' => [
                 'factories' => [
                     'Finna\Search\Blender\Options' => 'VuFind\Search\OptionsFactory',
@@ -659,6 +663,8 @@ $config = [
                         'VuFind\RecordDriver\NameBasedConfigFactory',
                     'Finna\RecordDriver\R2Ead3' =>
                         'VuFind\RecordDriver\NameBasedConfigFactory',
+                    'Finna\RecordDriver\SolrAuthDefault' =>
+                        'VuFind\RecordDriver\SolrDefaultWithoutSearchServiceFactory',
                     'Finna\RecordDriver\SolrDefault' =>
                         'Finna\RecordDriver\SolrDefaultFactory',
                     'Finna\RecordDriver\SolrMarc' =>
@@ -688,6 +694,7 @@ $config = [
                     'SolrQdc' => 'Finna\RecordDriver\SolrQdc',
 
                     'VuFind\RecordDriver\EDS' => 'Finna\RecordDriver\EDS',
+                    'VuFind\RecordDriver\SolrAuthDefault' => 'Finna\RecordDriver\SolrAuthDefault',
                     'VuFind\RecordDriver\SolrDefault' => 'Finna\RecordDriver\SolrDefault',
                     'VuFind\RecordDriver\SolrMarc' => 'Finna\RecordDriver\SolrMarc',
                     'VuFind\RecordDriver\Primo' => 'Finna\RecordDriver\Primo',

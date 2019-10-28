@@ -1,6 +1,6 @@
 <?php
 /**
- * Model for EAC-CPF records in Solr.
+ * Model for Solr authority records.
  *
  * PHP version 5
  *
@@ -22,7 +22,6 @@
  *
  * @category VuFind
  * @package  RecordDrivers
- * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:record_drivers Wiki
@@ -30,59 +29,26 @@
 namespace Finna\RecordDriver;
 
 /**
- * Model for EAC-CPF records in Solr.
+ * Model for Solr authority records.
  *
  * @category VuFind
  * @package  RecordDrivers
- * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:record_drivers Wiki
  */
-class SolrAuthEacCpf extends SolrAuthDefault
+class SolrAuthDefault extends \VuFind\RecordDriver\SolrAuthDefault
 {
-    use XmlReaderTrait;
+    use SolrFinna;
 
     /**
-     * Get an array of alternative titles for the record.
+     * Set preferred language for display strings.
      *
-     * @return array
-     */
-    public function getAlternativeTitles()
-    {
-        $titles = [];
-        $path = 'cpfDescription/identity/nameEntryParallel/nameEntry';
-        foreach ($this->getXmlRecord()->xpath($path) as $name) {
-            $titles[] = $name->part[0];
-        }
-        return $titles;
-    }
-
-    /**
-     * Return description
+     * @param string $language Language
      *
-     * @return string|null
+     * @return void
      */
-    public function getDescription()
+    public function setPreferredLanguage($language)
     {
-        $record = $this->getXmlRecord();
-        if (isset($record->cpfDescription->description->biogHist->p)) {
-            return (string)$record->cpfDescription->description->biogHist->p;
-        }
-        return null;
-    }
-
-    /**
-     * Get authority title
-     *
-     * @return string|null
-     */
-    public function getTitle()
-    {
-        $record = $this->getXmlRecord();
-        if (isset($record->cpfDescription->identity->nameEntry->part[0])) {
-            return (string)$record->cpfDescription->identity->nameEntry->part[0];
-        }
-        return null;
     }
 }
