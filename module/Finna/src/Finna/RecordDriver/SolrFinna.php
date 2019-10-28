@@ -1030,9 +1030,9 @@ trait SolrFinna
     }
 
     /**
-     * Attach date converter
+     * Set datasource settings
      *
-     * @param \VuFind\Date\Converter $dateConverter Date Converter
+     * @param \VuFind\Config\Config $settings Settings
      *
      * @return void
      */
@@ -1089,5 +1089,16 @@ trait SolrFinna
     public function isRestrictedMetadataIncluded()
     {
         return false;
+    }
+
+    /**
+     * Set preferred language for display strings.
+     *
+     * @param string $language Language
+     *
+     * @return void
+     */
+    public function setPreferredLanguage($language)
+    {
     }
 }

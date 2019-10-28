@@ -40,15 +40,4 @@ namespace Finna\RecordDriver;
 class SolrAuthDefault extends \VuFind\RecordDriver\SolrAuthDefault
 {
     use SolrFinna;
-
-    /**
-     * Set preferred language for display strings.
-     *
-     * @param string $language Language
-     *
-     * @return void
-     */
-    public function setPreferredLanguage($language)
-    {
-    }
 }
