@@ -581,7 +581,6 @@ $config = [
                     'Finna\Search\Combined\Options' => 'VuFind\Search\OptionsFactory',
                     'Finna\Search\EDS\Options' => 'VuFind\Search\EDS\OptionsFactory',
                     'Finna\Search\R2\Options' => 'VuFind\Search\Options\OptionsFactory',
-                    'Finna\Search\R2Collection\Options' => 'VuFind\Search\Options\OptionsFactory',
                     'Finna\Search\Primo\Options' => 'VuFind\Search\OptionsFactory',
                 ],
                 'aliases' => [
@@ -594,7 +593,7 @@ $config = [
                     'Finna\Search\MixedList\Options' => 'VuFind\Search\MixedList\Options',
                     'Blender' => 'Finna\Search\Blender\Options',
                     'R2' => 'Finna\Search\R2\Options',
-                    'R2Collection' => 'Finna\Search\R2Collection\Options',
+                    'Finna\Search\R2Collection\Options' => 'VuFind\Search\SolrCollection\Options'
                 ]
             ],
             'search_params' => [
@@ -620,7 +619,7 @@ $config = [
 
                     'Blender' => 'Finna\Search\Blender\Params',
                     'R2' => 'VuFind\Search\Solr\Params',
-                    'R2Collection' => 'VuFind\Search\Solr\Params',
+                    'R2Collection' => 'Finna\Search\R2Collection\Params',
                 ]
             ],
             'search_results' => [
@@ -640,7 +639,7 @@ $config = [
 
                     'Blender' => 'Finna\Search\Blender\Results',
                     'R2' => 'Finna\Search\R2\Results',
-                    'R2Collection' => 'Finna\Search\R2Collection\Results',
+                    'R2Collection' => '\VuFind\Search\SolrCollection\Results'
                 ]
             ],
             'content_covers' => [
