@@ -587,6 +587,7 @@ $config = [
 
                     // Counterpart for EmptySet Params:
                     'Finna\Search\EmptySet\Options' => 'VuFind\Search\EmptySet\Options',
+                    'Finna\Search\MixedList\Options' => 'VuFind\Search\MixedList\Options',
                     'Blender' => 'Finna\Search\Blender\Options',
                     'R2' => 'Finna\Search\R2\Options',
                     'R2Collection' => 'Finna\Search\R2Collection\Options',
