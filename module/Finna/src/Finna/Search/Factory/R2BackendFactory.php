@@ -68,6 +68,8 @@ class R2BackendFactory extends SolrDefaultBackendFactory
      */
     protected $authService;
 
+    protected $connectorClass = '\FinnaSearch\Backend\R2\Connector';
+
     /**
      * Constructor
      */
@@ -106,41 +108,7 @@ class R2BackendFactory extends SolrDefaultBackendFactory
      */
     protected function createConnector()
     {
-        // TODO: refactor this so that we can return a
-        // FinnaSearch\Backend\R2\Connector without overriding so much.
-
-        $config = $this->config->get($this->mainConfig);
-
-        $handlers = [
-            'select' => [
-                'fallback' => true,
-                'defaults' => ['fl' => '*,score'],
-                'appends'  => ['fq' => []],
-            ],
-            'terms' => [
-                'functions' => ['terms'],
-            ],
-        ];
-
-        foreach ($this->getHiddenFilters() as $filter) {
-            array_push($handlers['select']['appends']['fq'], $filter);
-        }
-
-        $connector = new \FinnaSearch\Backend\R2\Connector(
-            $this->getSolrUrl(), new HandlerMap($handlers), $this->uniqueKey
-        );
-        $connector->setTimeout(
-            isset($config->Index->timeout) ? $config->Index->timeout : 30
-        );
-
-        if ($this->logger) {
-            $connector->setLogger($this->logger);
-        }
-        if ($this->serviceLocator->has(\VuFindHttp\HttpService::class)) {
-            $connector->setProxy(
-                $this->serviceLocator->get(\VuFindHttp\HttpService::class)
-            );
-        }
+        $connector = parent::createConnector();
 
         // Pass API key to connector
         $connector->setApiAuthentication(
