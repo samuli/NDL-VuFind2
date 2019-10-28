@@ -68,6 +68,11 @@ class R2BackendFactory extends SolrDefaultBackendFactory
      */
     protected $authService;
 
+    /**
+     * Solr connector class
+     *
+     * @var string
+     */
     protected $connectorClass = '\FinnaSearch\Backend\R2\Connector';
 
     /**
