@@ -512,7 +512,7 @@ class Form extends \VuFind\Form\Form
                     continue;
                 }
                 foreach ($elements as &$el) {
-                    if ($el['name'] !== $field) {
+                    if ($el['name'] !== $field || empty(trim($el['value']))) {
                         continue;
                     }
                     // Set field to readonly. This will still post the field
