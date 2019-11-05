@@ -92,10 +92,6 @@ class FeedbackController extends \VuFind\Controller\FeedbackController
         // Set record driver (used by FeedbackRecord form)
         $data = $this->getRequest()->getQuery('data', []);
 
-        // Before adding record_id, we must validate to be able to call getData
-        $view->form->isValid();
-        $data = $view->form->getData();
-
         if ($id = ($this->getRequest()->getPost(
             'record_id',
             $this->getRequest()->getQuery('record_id')
