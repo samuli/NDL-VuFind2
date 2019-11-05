@@ -94,7 +94,7 @@ class FeedbackController extends \VuFind\Controller\FeedbackController
 
         // Before adding record_id, we must validate to be able to call getData
         $view->form->isValid();
-        $formData = $view->form->getData();
+        $data = $view->form->getData();
 
         if ($id = ($this->getRequest()->getPost(
             'record_id',
@@ -103,9 +103,9 @@ class FeedbackController extends \VuFind\Controller\FeedbackController
         ) {
             list($source, $recId) = explode('|', $id, 2);
             $view->form->setRecord($this->getRecordLoader()->load($recId, $source));
-            $formData['record_id'] = $id;
+            $data['record_id'] = $id;
         }
-        $view->form->setData($formData);
+        $view->form->populateValues($data);
 
         if (!$this->submitOk) {
             return $view;
