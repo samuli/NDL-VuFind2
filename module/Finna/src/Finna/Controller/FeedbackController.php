@@ -144,7 +144,7 @@ class FeedbackController extends \VuFind\Controller\FeedbackController
     {
         $form = parent::prefillUserInfo($form, $user);
         if ($user) {
-            $form->setData(
+            $form->populateValues(
                 [
                  'firstname' => $user->firstname,
                  'lastname' => $user->lastname
