@@ -55,7 +55,7 @@ class RemsService implements
     const STATUS_CLOSED = 'closed';
     const STATUS_DRAFT = 'draft';
 
-    const SESSION_IS_REMS_USER = 'is-rems-user';
+    const SESSION_IS_REMS_REGISTERED = 'is-rems-user';
 
     const TYPE_ADMIN = 0;
     const TYPE_APPROVER = 1;
@@ -134,9 +134,9 @@ class RemsService implements
 
         // 1. Create user
         $params = [
-            'eppn' => $this->getUserId(),
-            'mail' => $email,
-            'commonName' => $commonName
+            'userid' => $this->getUserId(),
+            'email' => $email,
+            'name' => $commonName
         ];
         $this->sendRequest('users/create', $params, 'POST', RemsService::TYPE_ADMIN);
 
@@ -179,7 +179,7 @@ class RemsService implements
             null,
             $this->getSessionKey($this->getCatalogItemId('entitlement'))
         );
-        $this->saveRemsUsageToSession();
+        $this->saveRemsRegistrationToSession();
 
         return true;
     }
@@ -230,7 +230,6 @@ class RemsService implements
         }
 
         $this->savePermissionToSession($status, $sessionKey);
-        $this->saveRemsUsageToSession();
         return ['success' => true, 'status' => $status];
     }
 
@@ -452,6 +451,16 @@ class RemsService implements
     }
 
     /**
+     * Has user been registered to REMS during the session?
+     *
+     * @return boolean
+     */
+    public function isUserRegisteredToRems()
+    {
+        return $this->session->{RemsService::SESSION_IS_REMS_REGISTERED} ?? false;
+    }
+
+    /**
      * Return HTTP client
      *
      * @param string $userId      User Id
@@ -520,23 +529,13 @@ class RemsService implements
     }
 
     /**
-     * Save a flag indicating that REMS has been used during the session.
+     * Save REMS registration flag to session.
      *
      * @return void
      */
-    protected function saveRemsUsageToSession()
+    protected function saveRemsRegistrationToSession()
     {
-        $this->session->{RemsService::SESSION_IS_REMS_USER} = true;
-    }
-
-    /**
-     * Has REMS been used during the session?
-     *
-     * @return boolean
-     */
-    protected function getRemsUsageFromSession()
-    {
-        return $this->session->{RemsService::SESSION_IS_REMS_USER} ?? false;
+        $this->session->{RemsService::SESSION_IS_REMS_REGISTERED} = true;
     }
 
     /**
