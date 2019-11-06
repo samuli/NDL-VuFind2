@@ -445,7 +445,7 @@ class RemsService implements
      */
     public function onLogoutPre()
     {
-        if ($this->getRemsUsageFromSession()) {
+        if ($this->isUserRegisteredToRems()) {
             $this->closeOpenApplications();
         }
     }
