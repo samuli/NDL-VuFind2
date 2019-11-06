@@ -292,9 +292,15 @@ class RemsService implements
      */
     public function closeOpenApplications($comment = 'logout')
     {
-        $applications = $this->getApplications([RemsService::STATUS_APPROVED]);
+        $applications = $this->getApplications(
+            [RemsService::STATUS_SUBMITTED, RemsService::STATUS_APPROVED]
+        );
         foreach ($applications as $application) {
-            if ($application['status'] !== RemsService::STATUS_APPROVED) {
+            if (! in_array(
+                $application['status'],
+                [RemsService::STATUS_SUBMITTED, RemsService::STATUS_APPROVED]
+            )
+            ) {
                 continue;
             }
             $params = [
@@ -441,7 +447,7 @@ class RemsService implements
     public function onLogoutPre()
     {
         if ($this->getRemsUsageFromSession()) {
-          $this->closeOpenApplications();
+            $this->closeOpenApplications();
         }
     }
 
