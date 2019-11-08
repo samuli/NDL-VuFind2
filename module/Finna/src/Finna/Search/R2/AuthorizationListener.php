@@ -29,6 +29,7 @@
 namespace Finna\Search\R2;
 
 use FinnaSearch\Backend\R2\Connector;
+use Finna\RemsService\RemsService;
 
 use VuFind\Auth\Manager;
 use VuFindSearch\Backend\BackendInterface;
@@ -77,6 +78,13 @@ class AuthorizationListener
     protected $connector;
 
     /**
+     * Rems Service
+     *
+     * @var RemsService
+     */
+    protected $rems;
+
+    /**
      * Constructor.
      *
      * @param BackendInterface     $backend     Search backend
@@ -90,12 +98,14 @@ class AuthorizationListener
         BackendInterface $backend,
         Manager $authManager,
         AuthorizationService $authService,
-        Connector $connector
+        Connector $connector,
+        RemsService $rems
     ) {
         $this->backend = $backend;
         $this->authManager = $authManager;
         $this->authService = $authService;
         $this->connector = $connector;
+        $this->rems = $rems;
     }
 
     /**
@@ -125,12 +135,15 @@ class AuthorizationListener
             $params = $event->getParam('params');
             $context = $event->getParam('context');
             $this->connector->setUsername(null);
-            // Pass the username of an authorized user to connector in order
-            // to request restricted metadata.
+            // If the user is authorized to use R2 and has submitted the registration
+            // form during the session, pass the username to connector in order to
+            // request restricted metadata from R2.
             if ($context !== 'retrieve'
                 || in_array(true, $params->get('R2Restricted') ?? [])
             ) {
-                if ($this->authService->isGranted('access.R2Restricted')) {
+                if ($this->authService->isGranted('access.R2Restricted')
+                    && $this->rems->isUserRegisteredDuringSession()
+                ) {
                     $userId = \Finna\RemsService\RemsService::prepareUserId(
                         $this->authManager->isLoggedIn()->username
                     );

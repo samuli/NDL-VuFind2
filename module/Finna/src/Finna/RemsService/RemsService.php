@@ -100,7 +100,8 @@ class RemsService implements
     }
 
     /**
-     * Check if the current logged-in user has is registerd to REMS.
+     * Check if the current logged-in user is registerd to REMS
+     * (not neccessariy during the current session).
      *
      * @throws Exception if user is not logged in
      * @return bool
@@ -109,6 +110,17 @@ class RemsService implements
     {
         return !empty($this->getApplications());
     }
+
+    /**
+     * Check if the user is registered to REMS during the current session
+     *
+     * @return boolean
+     */
+    public function isUserRegisteredDuringSession()
+    {
+        return $this->session->{RemsService::SESSION_IS_REMS_REGISTERED} ?? false;
+    }
+
 
     /**
      * Register user to REMS
@@ -445,19 +457,9 @@ class RemsService implements
      */
     public function onLogoutPre()
     {
-        if ($this->isUserRegisteredToRems()) {
+        if ($this->isUserRegisteredDuringSession()) {
             $this->closeOpenApplications();
         }
-    }
-
-    /**
-     * Has user been registered to REMS during the session?
-     *
-     * @return boolean
-     */
-    public function isUserRegisteredToRems()
-    {
-        return $this->session->{RemsService::SESSION_IS_REMS_REGISTERED} ?? false;
     }
 
     /**

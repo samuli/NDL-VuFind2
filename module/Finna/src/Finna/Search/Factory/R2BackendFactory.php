@@ -68,6 +68,13 @@ class R2BackendFactory extends SolrDefaultBackendFactory
     protected $authService;
 
     /**
+     * Rems Service
+     *
+     * @var \Finna\RemsService\RemsService
+     */
+    protected $rems;
+
+    /**
      * Solr connector class
      *
      * @var string
@@ -101,6 +108,7 @@ class R2BackendFactory extends SolrDefaultBackendFactory
         $this->solrCore = $this->R2Config->Index->default_core;
         $this->authManager = $sm->get(\VuFind\Auth\Manager::class);
         $this->authService = $sm->get(\ZfcRbac\Service\AuthorizationService::class);
+        $this->rems = $sm->get(\Finna\RemsService\RemsService::class);
 
         return parent::__invoke($sm, $name, $options);
     }
@@ -164,7 +172,8 @@ class R2BackendFactory extends SolrDefaultBackendFactory
             $backend,
             $this->authManager,
             $this->authService,
-            $backend->getConnector()
+            $backend->getConnector(),
+            $this->rems
         );
         $authorizationListener->attach($events);
     }
