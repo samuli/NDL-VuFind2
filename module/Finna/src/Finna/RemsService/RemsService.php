@@ -150,13 +150,20 @@ class RemsService implements
             'email' => $email,
             'name' => $commonName
         ];
-        $this->sendRequest('users/create', $params, 'POST', RemsService::TYPE_ADMIN);
+
+        $this->sendRequest(
+            'users/create',
+            $params, 'POST', RemsService::TYPE_ADMIN, null, false
+        );
 
         // 2. Create draft application
         $catItemId = $this->getCatalogItemId('entitlement');
         $params = ['catalogue-item-ids' => [$catItemId]];
 
-        $response = $this->sendRequest('applications/create', $params, 'POST');
+        $response = $this->sendRequest(
+            'applications/create',
+            $params, 'POST', RemsService::TYPE_USER, null, false
+        );
 
         if (!isset($response['application-id'])) {
             return 'REMS: error creating draft application';
@@ -175,7 +182,10 @@ class RemsService implements
             ]
         ];
 
-        $response = $this->sendRequest('applications/save-draft', $params, 'POST');
+        $response = $this->sendRequest(
+            'applications/save-draft',
+            $params, 'POST', RemsService::TYPE_USER, null, false
+        );
 
         // 5. Submit application
         $params = [
@@ -183,8 +193,7 @@ class RemsService implements
         ];
         $response = $this->sendRequest(
             'applications/submit',
-            $params,
-            'POST'
+            $params, 'POST', RemsService::TYPE_USER, null, false
         );
 
         $this->savePermissionToSession(
@@ -204,6 +213,7 @@ class RemsService implements
      *                      checked and saved to session.
      *
      * @return array
+     * @throws Exception
      */
     public function checkPermission($callApi = false)
     {
@@ -267,7 +277,11 @@ class RemsService implements
             );
         }
 
-        $result = $this->sendRequest('applications', $params);
+        try {
+            $result = $this->sendRequest('applications', $params);
+        } catch (\Exception $e) {
+            return [];
+        }
 
         $catItemId = $this->getCatalogItemId('entitlement');
 
@@ -303,34 +317,39 @@ class RemsService implements
      */
     public function closeOpenApplications($comment = 'logout')
     {
-        $applications = $this->getApplications(
-            [RemsService::STATUS_SUBMITTED, RemsService::STATUS_APPROVED]
-        );
-        foreach ($applications as $application) {
-            if (! in_array(
-                $application['status'],
+        if (!$this->isUserRegisteredDuringSession()) {
+            throw new \Exception(
+                'Attempting to call REMS before the user has been registered'
+                . ' during the session'
+            );
+        }
+
+        try {
+            $applications = $this->getApplications(
                 [RemsService::STATUS_SUBMITTED, RemsService::STATUS_APPROVED]
-            )
-            ) {
-                continue;
-            }
-            $params = [
-                'application-id' => $application['id'],
-                'comment' => $comment
-            ];
-            try {
+            );
+            foreach ($applications as $application) {
+                if (! in_array(
+                    $application['status'],
+                    [RemsService::STATUS_SUBMITTED, RemsService::STATUS_APPROVED]
+                )
+                ) {
+                    continue;
+                }
+                $params = [
+                    'application-id' => $application['id'],
+                    'comment' => $comment
+                ];
                 $this->sendRequest(
                     'applications/close',
-                    null,
-                    'POST',
-                    RemsService::TYPE_APPROVER,
+                    null, 'POST', RemsService::TYPE_APPROVER,
                     ['content' => json_encode($params)]
                 );
-            } catch (\Exception $e) {
-                $this->error(
-                    'Error closing open applications on logout: ' . $e->getMessage()
-                );
             }
+        } catch (\Exception $e) {
+            $this->error(
+                'Error closing open applications on logout: ' . $e->getMessage()
+            );
         }
     }
 
@@ -367,21 +386,32 @@ class RemsService implements
     /**
      * Send a request to REMS api.
      *
-     * @param string      $url      URL (relative)
-     * @param array       $params   Request parameters
-     * @param string      $method   GET|POST
-     * @param int         $userType Rems user type (see TYPE_ADMIN etc)
-     * @param null|string $body     Request body
+     * @param string      $url                 URL (relative)
+     * @param array       $params              Request parameters
+     * @param string      $method              GET|POST
+     * @param int         $userType            Rems user type (see TYPE_ADMIN etc)
+     * @param null|string $body                Request body
+     * @param boolean     $requireRegistration Require that
+     * the user has been registered to REMS during the session?
      *
      * @return bool
+     * @throws Exception
      */
     protected function sendRequest(
         $url,
         $params = [],
         $method = 'GET',
         $userType = RemsService::TYPE_USER,
-        $body = null
+        $body = null,
+        $requireRegistration = true
     ) {
+        if ($requireRegistration && !$this->isUserRegisteredDuringSession()) {
+            throw new \Exception(
+                'Attempting to call REMS before the user has been registered'
+                . ' during the session'
+            );
+        }
+
         $userId = null;
 
         switch ($userType) {
