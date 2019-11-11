@@ -91,6 +91,7 @@ class AuthorizationListener
      * @param Manager              $authManager Authentication manager
      * @param AuthorizationService $authService Authorization service
      * @param Connector            $connector   Backend connector
+     * @param RemsService          $rems        REMS service
      *
      * @return void
      */
