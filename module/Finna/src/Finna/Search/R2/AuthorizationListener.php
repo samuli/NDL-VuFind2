@@ -28,8 +28,8 @@
  */
 namespace Finna\Search\R2;
 
-use FinnaSearch\Backend\R2\Connector;
 use Finna\RemsService\RemsService;
+use FinnaSearch\Backend\R2\Connector;
 
 use VuFind\Auth\Manager;
 use VuFindSearch\Backend\BackendInterface;

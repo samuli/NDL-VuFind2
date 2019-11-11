@@ -121,7 +121,6 @@ class RemsService implements
         return $this->session->{RemsService::SESSION_IS_REMS_REGISTERED} ?? false;
     }
 
-
     /**
      * Register user to REMS
      *
