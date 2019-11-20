@@ -301,10 +301,7 @@ class SearchController extends \VuFind\Controller\SearchController
         $view = parent::facetListAction();
 
         // Convert author-id facet labels to readable names
-        $view->data = $authorityHelper->formatFacets(
-            \Finna\Search\Solr\AuthorityHelper::AUTHOR2_ID_FACET,
-            $view->data
-        );
+        $view->data = $authorityHelper->formatFacetList($view->facet, $view->data);
         return $view;
     }
 
