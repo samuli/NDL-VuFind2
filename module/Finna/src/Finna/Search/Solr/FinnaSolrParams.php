@@ -87,15 +87,35 @@ trait FinnaSolrParams
     protected $hierarchicalFacetLimit = null;
 
     /**
+     * Helper for formatting authority id filter display texts.
+     *
+     * @var AuthorityHelper
+     */
+    protected $authorityHelper = null;
+
+    /**
+     * Facet filters.
+     *
+     * @var array
+     */
+    protected $facetFilters = [];
+
+    /**
      * Constructor
      *
-     * @param \VuFind\Search\Base\Options  $options       Options to use
-     * @param \VuFind\Config\PluginManager $configLoader  Config loader
-     * @param HierarchicalFacetHelper      $facetHelper   Hierarchical facet helper
-     * @param \VuFind\Date\Converter       $dateConverter Date converter
+     * @param \VuFind\Search\Base\Options  $options         Options to use
+     * @param \VuFind\Config\PluginManager $configLoader    Config loader
+     * @param HierarchicalFacetHelper      $facetHelper     Hierarchical
+     * facet helper
+     * @param AuthorityHelper              $authorityHelper Authority helper
+     * @param \VuFind\Date\Converter       $dateConverter   Date converter
      */
-    public function __construct($options, \VuFind\Config\PluginManager $configLoader,
-        HierarchicalFacetHelper $facetHelper, \VuFind\Date\Converter $dateConverter
+    public function __construct(
+        $options,
+        \VuFind\Config\PluginManager $configLoader,
+        HierarchicalFacetHelper $facetHelper,
+        AuthorityHelper $authorityHelper,
+        \VuFind\Date\Converter $dateConverter
     ) {
         parent::__construct($options, $configLoader, $facetHelper);
 
@@ -106,6 +126,8 @@ trait FinnaSolrParams
         if (isset($config->SpecialFacets->newItems)) {
             $this->newItemsFacets = $config->SpecialFacets->newItems->toArray();
         }
+
+        $this->authorityHelper = $authorityHelper;
     }
 
     /**
@@ -124,8 +146,7 @@ trait FinnaSolrParams
         }
         // Convert any VuFind 1 spatial date range filter
         if (isset($this->filterList[$this->SPATIAL_DATERANGE_FIELD_VF1])) {
-            $dateRangeFilters
-                = $this->filterList[$this->SPATIAL_DATERANGE_FIELD_VF1];
+            $dateRangeFilters = $this->filterList[$this->SPATIAL_DATERANGE_FIELD_VF1];
             unset($this->filterList[$this->SPATIAL_DATERANGE_FIELD_VF1]);
 
             foreach ($dateRangeFilters as $filter) {
@@ -275,6 +296,10 @@ trait FinnaSolrParams
             }
         }
 
+        foreach ($this->facetFilters as $filter => $value) {
+            $result->add($filter, $value);
+        }
+
         return $result;
     }
 
@@ -400,7 +425,6 @@ trait FinnaSolrParams
         }
 
         $from = $to = null;
-        $filters = $this->getFilters();
         $found = false;
 
         // Date range filter
@@ -525,6 +549,54 @@ trait FinnaSolrParams
     }
 
     /**
+     * Filter facets by prefix.
+     *
+     * @param string $field Facet field
+     * @param string $value Facet value
+     *
+     * @return void
+     */
+    public function addFacetFilter($field, $value)
+    {
+        $this->facetFilters["f.{$field}.facet.prefix"] = $value;
+    }
+
+    /**
+     * Return active author id filters.
+     *
+     * @param boolean $includeRole Return role with author id
+     *
+     * @return mixed null|array
+     */
+    public function getAuthorIdFilter($includeRole = false)
+    {
+        $result = [];
+        foreach ($this->getFilterList() as $key => $val) {
+            foreach ($val as $filterItem) {
+                $filter = $filterItem['value'] ?? null;
+                if (!$filter) {
+                    continue;
+                }
+                $field = $filterItem['field'];
+                if ($field === AuthorityHelper::AUTHOR2_ID_FACET) {
+                    // Author id filter
+                    $result[] = $filter;
+                } elseif ($field === AuthorityHelper::AUTHOR_ID_ROLE_FACET) {
+                    // Author id-role filter
+                    if ($includeRole) {
+                        $result[] = $filter;
+                    } else {
+                        list($id, $role)
+                            = $this->authorityHelper->extractRole($filter);
+                        $result[] = $id;
+                    }
+                }
+            }
+        }
+        return !empty($result) ? $result : null;
+    }
+
+    /**
      * Format a single filter for use in getFilterList().
      *
      * @param string $field     Field name
@@ -549,7 +621,19 @@ trait FinnaSolrParams
             $result = parent::formatFilterListEntry(
                 $field, $value, $operator, $translate
             );
-            return $this->formatDateRangeFilterListEntry($result, $field, $value);
+
+            if ($this->isDateRangeFilter($field)) {
+                return $this->formatDateRangeFilterListEntry(
+                    $result, $field, $value
+                );
+            }
+            if ($this->isGeographicFilter($field)) {
+                return $this->formatGeographicFilterListEntry(
+                    $result, $field, $value
+                );
+            }
+
+            return $this->formatAuthorIdFilterListEntry($result, $field, $value);
         }
 
         $domain = $this->getOptions()->getTextDomainForTranslatedFacet($field);
@@ -569,6 +653,89 @@ trait FinnaSolrParams
         }
 
         return compact('value', 'displayText', 'field', 'operator');
+    }
+
+    /**
+     * Get a user-friendly string to describe the provided facet field.
+     *
+     * @param string $field   Facet field name.
+     * @param string $value   Facet value.
+     * @param string $default Default field name (null for default behavior).
+     *
+     * @return string         Human-readable description of field.
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
+     */
+    public function getFacetLabel($field, $value = null, $default = null)
+    {
+        if ($field === AuthorityHelper::AUTHOR2_ID_FACET) {
+            return 'authority_id_label';
+        }
+        return parent::getFacetLabel($field, $value, $default);
+    }
+
+    /**
+     * Is author id filter active?
+     *
+     * @return boolean
+     */
+    public function hasAuthorIdFilter()
+    {
+        foreach ($this->getFilterList() as $key => $val) {
+            if (in_array($key, ['authority_id_label', 'Author'])) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Format display text for a author-id filter entry.
+     *
+     * @param array  $filter Filter
+     * @param string $field  Filter field
+     * @param string $value  Filter value
+     *
+     * @return array
+     */
+    protected function formatAuthorIdFilterListEntry($filter, $field, $value)
+    {
+        $displayText = $filter['displayText'];
+        if ($id = $this->parseAuthorIdFilter($value, false)) {
+            // Author id filter  (OR query with <field>:<author-id> pairs)
+            $displayText = $this->authorityHelper->formatFacet($id);
+        } elseif (in_array(
+            $filter['field'],
+            $this->authorityHelper->getAuthorIdFacets()
+        )
+        ) {
+            $displayText = $this->authorityHelper->formatFacet($displayText);
+        }
+        $filter['displayText'] = $displayText;
+        return $filter;
+    }
+
+    /**
+     * Attempt to parse author id from a author-id filter.
+     *
+     * @param array   $filter       Filter
+     * @param boolean $idRoleFilter Does the filter include author role
+     * (true) or only author id (false)?
+     *
+     * @return mixed null|string
+     */
+    protected function parseAuthorIdFilter($filter, $idRoleFilter = false)
+    {
+        $field = $idRoleFilter
+            ? AuthorityHelper::AUTHOR_ID_ROLE_FACET
+            : AuthorityHelper::AUTHOR2_ID_FACET;
+
+        $pat = sprintf('/%s:"([a-z0-9_.:]*)"/', $field);
+
+        if (!preg_match($pat, $filter, $matches)) {
+            return null;
+        }
+        return $matches[1];
     }
 
     /**

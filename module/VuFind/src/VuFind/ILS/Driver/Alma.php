@@ -158,7 +158,7 @@ class Alma extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterface
 
             // Set timeout
             $timeout = $this->config['Catalog']['http_timeout'] ?? 30;
-            $client->setOptions(['timeout' => $timeout]);
+            $client->setOptions(['timeout' => $timeout, 'keepalive' => true]);
 
             // Set other GET parameters (apikey and other URL parameters are used
             // also with e.g. POST requests)
@@ -281,7 +281,6 @@ class Alma extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterface
 
         // Correct copy count in case of paging
         $copyCount = $options['offset'] ?? 0;
-        $patronId = $patron['id'] ?? null;
 
         // Paging parameters for paginated API call. The "limit" tells the API how
         // many items the call should return at once (e. g. 10). The "offset" defines
@@ -322,6 +321,13 @@ class Alma extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterface
 
                 $itemNotes = !empty($item->item_data->public_note)
                     ? [(string)$item->item_data->public_note] : null;
+
+                $processType = (string)($item->item_data->process_type ?? '');
+                if ($processType && 'LOAN' !== $processType) {
+                    $status = $this->getTranslatableStatusString(
+                        $item->item_data->process_type
+                    );
+                }
 
                 $description = null;
                 if (!empty($item->item_data->description)) {
@@ -875,11 +881,26 @@ class Alma extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterface
         );
         $holdList = [];
         foreach ($xml as $request) {
+            $lastInterestDate = $request->last_interest_date
+                ? $this->dateConverter->convertToDisplayDate(
+                    'Y-m-dT', (string)$request->last_interest_date
+                ) : null;
+            $available = (string)$request->request_status === 'On Hold Shelf';
+            $lastPickupDate = null;
+            if ($available) {
+                $lastPickupDate = $request->expiry_date
+                    ? $this->dateConverter->convertToDisplayDate(
+                        'Y-m-dT', (string)$request->expiry_date
+                    ) : null;
+            }
             $holdList[] = [
-                'create' => (string)$request->request_date,
-                'expire' => (string)$request->last_interest_date,
+                'create' => $this->dateConverter->convertToDisplayDate(
+                    'Y-m-dT', (string)$request->request_date
+                ),
+                'expire' => $lastInterestDate,
                 'id' => (string)$request->request_id,
-                'in_transit' => (string)$request->request_status !== 'On Hold Shelf',
+                'available' => $available,
+                'last_pickup_date' => $lastPickupDate,
                 'item_id' => (string)$request->mms_id,
                 'location' => (string)$request->pickup_location,
                 'processed' => $request->item_policy === 'InterlibraryLoan'
@@ -1471,14 +1492,16 @@ class Alma extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterface
      * This is responsible get a list of valid library locations for holds / recall
      * retrieval
      *
-     * @param array $patron Patron information returned by the patronLogin method.
+     * @param array $patron      Patron information returned by the patronLogin
+     * method.
+     * @param array $holdDetails Hold details
      *
      * @return array An array of associative arrays with locationID and
      * locationDisplay keys
      *
      * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function getPickupLocations($patron)
+    public function getPickupLocations($patron, $holdDetails)
     {
         $xml = $this->makeRequest('/conf/libraries');
         $libraries = [];
@@ -1687,15 +1710,30 @@ class Alma extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterface
                         $avail = $this->getMarcSubfield($field, 'e');
                         $item = $tmpl;
                         $item['availability'] = strtolower($avail) === 'available';
-                        $item['location'] = $this->getMarcSubfield($field, 'm');
-                        // Using subfield 't' ('Interface name') as callnumber
+                        // Use the following subfields for location:
+                        // m (Collection name)
+                        // i (Available for library)
+                        // d (Available for library)
+                        // b (Available for library)
+                        $location = [
+                            $this->getMarcSubfield($field, 'm') ?: 'Get full text'
+                        ];
+                        foreach (['i', 'd', 'b'] as $code) {
+                            if ($content = $this->getMarcSubfield($field, $code)) {
+                                $location[] = $content;
+                            }
+                        }
+                        $item['location'] = implode(' - ', $location);
                         $item['callnumber'] = $this->getMarcSubfield($field, 't');
                         $url = $this->getMarcSubfield($field, 'u');
                         if (preg_match('/^https?:\/\//', $url)) {
                             $item['locationhref'] = $url;
                         }
-                        $item['status'] = $this->getMarcSubfield($field, 's');
-                        $item['callnumber'] = $this->getMarcSubfield($field, 'd');
+                        $item['status'] = $this->getMarcSubfield($field, 's')
+                            ?: null;
+                        if ($note = $this->getMarcSubfield($field, 'n')) {
+                            $item['item_notes'] = [$note];
+                        }
                         $status[] = $item;
                     }
                     // Digital
@@ -1770,6 +1808,23 @@ class Alma extends AbstractBase implements \VuFindHttp\HttpServiceAwareInterface
         }
         $value = ($this->config['Catalog']['translationPrefix'] ?? '')
             . (string)$element;
+        $desc = (string)($element->attributes()->desc ?? $value);
+        return new \VuFind\I18n\TranslatableString($value, $desc);
+    }
+
+    /**
+     * Gets a translatable string from an element with content and a desc attribute.
+     *
+     * @param SimpleXMLElement $element XML element
+     *
+     * @return \VuFind\I18n\TranslatableString
+     */
+    protected function getTranslatableStatusString($element)
+    {
+        if (null === $element) {
+            return null;
+        }
+        $value = 'status_' . strtolower((string)$element);
         $desc = (string)($element->attributes()->desc ?? $value);
         return new \VuFind\I18n\TranslatableString($value, $desc);
     }
