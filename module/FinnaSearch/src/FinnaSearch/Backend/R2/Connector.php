@@ -28,6 +28,7 @@
  */
 namespace FinnaSearch\Backend\R2;
 
+use VuFindSearch\ParamBag;
 use Zend\Http\Client as HttpClient;
 
 /**
@@ -63,6 +64,17 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
     protected $apiPassword;
 
     /**
+     * R2 field used to store unique identifier
+     *
+     * $uniqueKey field is not unique in R2 but is still treated as unique by VuFind.
+     * (when uniqueness is not strictly required and doesn't cause a Solr error).
+     * This field is unique in R2 and can be used together with cursorMark and sort.
+     *
+     * @var string
+     */
+    protected $R2uniqueKey = '_document_id';
+
+    /**
      * Set API user and password for authentication
      *
      * @param string $user     User
@@ -86,6 +98,27 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
     public function setUsername($username = null)
     {
         $this->username = $username;
+    }
+
+    /**
+     * Execute a search.
+     *
+     * @param ParamBag $params Parameters
+     *
+     * @return string
+     */
+    public function search(ParamBag $params)
+    {
+        if ($params->get('cursorMark') && $sort = $params->get('sort')) {
+            // Replace 'id' field with R2 unique identifier field
+            $result = [];
+            foreach ($sort as $s) {
+                list($field, $order) = explode(' ', $s);
+                $result[] = sprintf('%s %s', $this->R2uniqueKey, $order);
+            }
+            $params->set('sort', $result);
+        }
+        return parent::search($params);
     }
 
     /**
