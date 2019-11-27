@@ -1407,6 +1407,7 @@ browseType = Index
 ; List of record routes that are converted to collection routes.
 route[record] = collection
 route[r2record] = r2collection
+route[r2collectionrecord] = r2collection
 
 ; This section addresses hierarchical records in the Solr index
 [Hierarchy]
