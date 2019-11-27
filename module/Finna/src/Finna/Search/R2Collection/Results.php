@@ -38,4 +38,10 @@ namespace Finna\Search\R2Collection;
  */
 class Results extends \Finna\Search\R2\Results
 {
+    /**
+     * Search backend identifiers.
+     *
+     * @var string
+     */
+    protected $backendId = 'R2Collection';
 }
