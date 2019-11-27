@@ -38,5 +38,5 @@ namespace Finna\RecordTab;
  */
 class R2CollectionList extends \VuFind\RecordTab\CollectionList
 {
-    protected $backendId = 'R2Collection';
+    protected $searchClassId = 'R2Collection';
 }
