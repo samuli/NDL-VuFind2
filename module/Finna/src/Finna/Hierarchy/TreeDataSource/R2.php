@@ -53,4 +53,11 @@ class R2 extends \VuFind\Hierarchy\TreeDataSource\Solr
      * @var string
      */
     protected $recordRoute = 'r2record';
+
+    /**
+     * Hierarchy cache file prefix.
+     *
+     * @var string
+     */
+    protected $cachePrefix = 'R2';
 }

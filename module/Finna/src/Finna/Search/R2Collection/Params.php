@@ -38,5 +38,4 @@ namespace Finna\Search\R2Collection;
  */
 class Params extends \VuFind\Search\SolrCollection\Params
 {
-    use \Finna\Search\Solr\FinnaSolrParams;
 }

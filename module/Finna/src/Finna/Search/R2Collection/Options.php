@@ -1,6 +1,6 @@
 <?php
 /**
- * R2 Collection aspect of the Search Multi-class (Results)
+ * R2 Collection options.
  *
  * PHP version 7
  *
@@ -20,28 +20,22 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category VuFind
- * @package  Search_SolrAuthor
+ * @package  Search_Solr
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     https://vufind.org Main Site
+ * @link     https://vufind.org Main Page
  */
 namespace Finna\Search\R2Collection;
 
 /**
- * R2 Collection Search Options
+ * R2 Collection options.
  *
  * @category VuFind
- * @package  Search_SolrAuthor
+ * @package  Search_Solr
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     https://vufind.org Main Site
+ * @link     https://vufind.org Main Page
  */
-class Results extends \VuFind\Search\SolrCollection\Results
+class Options extends \VuFind\Search\SolrCollection\Options
 {
-    /**
-     * Search backend identifiers.
-     *
-     * @var string
-     */
-    protected $backendId = 'R2Collection';
 }

@@ -221,7 +221,9 @@ $config = [
             'feedcontent' => 'Finna\Controller\FeedContentController',
             'LocationService' => 'Finna\Controller\LocationServiceController',
             'locationservice' => 'Finna\Controller\LocationServiceController',
+            'r2collection' => 'Finna\Controller\R2CollectionController',
             'R2Collection' => 'Finna\Controller\R2CollectionController',
+            'r2record' => 'Finna\Controller\R2RecordController',
             'R2Record' => 'Finna\Controller\R2RecordController',
             'R2' => 'Finna\Controller\R2SearchController',
             'MetaLib' => 'Finna\Controller\MetaLibController',
@@ -590,6 +592,7 @@ $config = [
                     'Finna\Search\Combined\Options' => 'VuFind\Search\OptionsFactory',
                     'Finna\Search\EDS\Options' => 'VuFind\Search\EDS\OptionsFactory',
                     'Finna\Search\R2\Options' => 'VuFind\Search\Options\OptionsFactory',
+                    'Finna\Search\R2Collection\Options' => 'VuFind\Search\Options\OptionsFactory',
                     'Finna\Search\Primo\Options' => 'VuFind\Search\OptionsFactory',
                 ],
                 'aliases' => [
@@ -602,7 +605,7 @@ $config = [
                     'Finna\Search\MixedList\Options' => 'VuFind\Search\MixedList\Options',
                     'Blender' => 'Finna\Search\Blender\Options',
                     'R2' => 'Finna\Search\R2\Options',
-                    'Finna\Search\R2Collection\Options' => 'VuFind\Search\SolrCollection\Options'
+                    'R2Collection' => 'Finna\Search\R2Collection\Options',
                 ]
             ],
             'search_params' => [
@@ -627,7 +630,7 @@ $config = [
                     'VuFind\Search\Solr\Params' => 'Finna\Search\Solr\Params',
 
                     'Blender' => 'Finna\Search\Blender\Params',
-                    'R2' => 'VuFind\Search\Solr\Params',
+                    'R2' => 'Finna\Search\R2\Params',
                     'R2Collection' => 'Finna\Search\R2Collection\Params',
                 ]
             ],
@@ -636,7 +639,8 @@ $config = [
                     'Finna\Search\Blender\Results' => 'VuFind\Search\Solr\ResultsFactory',
                     'Finna\Search\Combined\Results' => 'VuFind\Search\Results\ResultsFactory',
                     'Finna\Search\Favorites\Results' => 'Finna\Search\Favorites\ResultsFactory',
-                    'Finna\Search\R2\Results' => 'VuFind\Search\Results\ResultsFactory',
+                    'Finna\Search\R2\Results' => 'VuFind\Search\Solr\ResultsFactory',
+                    'Finna\Search\R2Collection\Results' => 'VuFind\Search\Solr\ResultsFactory',
                     'Finna\Search\Primo\Results' => 'VuFind\Search\Results\ResultsFactory',
                     'Finna\Search\Solr\Results' => 'VuFind\Search\Solr\ResultsFactory',
                 ],
@@ -648,7 +652,7 @@ $config = [
 
                     'Blender' => 'Finna\Search\Blender\Results',
                     'R2' => 'Finna\Search\R2\Results',
-                    'R2Collection' => '\VuFind\Search\SolrCollection\Results'
+                    'R2Collection' => '\Finna\Search\R2Collection\Results'
                 ]
             ],
             'content_covers' => [
@@ -802,6 +806,7 @@ $recordRoutes = [
    'metalibrecord' => 'MetaLibRecord',
    'r2record' => 'R2Record',
    'r2collection' => 'R2Collection',
+   'r2collectionrecord' => 'R2Record'
 ];
 
 // Define dynamic routes -- controller => [route name => action]
