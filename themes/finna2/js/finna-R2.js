@@ -1,4 +1,4 @@
-/*global finna, VuFind */
+/*global finna */
 finna.R2 = (function finnaR2() {
   function initModal() {
     // Transform form h1-element to a h2 so that the modal gets a proper title bar
