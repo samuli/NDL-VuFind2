@@ -280,11 +280,7 @@ class RemsService implements
             $status = self::STATUS_NOT_SUBMITTED;
             break;
         case 'submitted':
-            // TODO: not implemented in index
             $status = self::STATUS_SUBMITTED;
-            break;
-        case 'logout-closed':
-            $status = self::INDEX_STATUS_SESSION_EXPIRED;
             break;
         default:
             $status = self::STATUS_CLOSED;
