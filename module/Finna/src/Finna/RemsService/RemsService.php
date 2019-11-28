@@ -56,9 +56,6 @@ class RemsService implements
     const STATUS_CLOSED = 'closed';
     const STATUS_DRAFT = 'draft';
 
-    // Index access statuses
-    const INDEX_STATUS_SESSION_EXPIRED = 'logout-closed';
-
     // Session keys
     const SESSION_IS_REMS_REGISTERED = 'is-rems-user';
     const SESSION_ACCESS_STATUS = 'access-status';
