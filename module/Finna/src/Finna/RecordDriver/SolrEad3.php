@@ -591,15 +591,29 @@ class SolrEad3 extends SolrEad
      */
     public function getRestrictedAlternative()
     {
-        if (! ($restrictedRecord = parent::getRestrictedAlternative())) {
+        // Check if linking between local and restricted records is
+        // enabled in datasources.ini
+        $restricted
+            = (bool)($this->datasourceSettings->{$this->getDatasource()}
+                ->linkToR2Record
+             ?? false);
+
+        if (! $restricted) {
             return false;
+        }
+
+        $route = 'r2record';
+
+        if ($this->isCollection()) {
+            // Map to Collection route
+            $route = $this->mainConfig->Collections->route['r2record'] ?? $route;
         }
 
         $xml = $this->getXmlRecord();
         if (!isset($xml->accessrestrict)) {
             return false;
         }
-        return ['route' => $restrictedRecord, 'id' => $this->getUniqueID()];
+        return ['route' => $route, 'id' => $this->getUniqueID()];
     }
 
     /**

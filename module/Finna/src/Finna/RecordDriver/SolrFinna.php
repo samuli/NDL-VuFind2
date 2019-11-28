@@ -1096,24 +1096,7 @@ trait SolrFinna
      */
     public function getRestrictedAlternative()
     {
-        // Check if linking between local and restricted records is
-        // enabled in datasources.ini
-        $restricted
-            = (bool)($this->datasourceSettings->{$this->getDatasource()}
-                ->linkToR2Record
-             ?? false);
-
-        if (! $restricted) {
-            return false;
-        }
-
-        $route = 'r2record';
-
-        if ($this->isCollection()) {
-            // Map to Collection route
-            $route = $this->mainConfig->Collections->route['r2record'] ?? $route;
-        }
-        return $route;
+        return false;
     }
 
     /**
