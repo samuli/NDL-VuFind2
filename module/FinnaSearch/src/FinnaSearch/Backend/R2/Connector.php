@@ -194,7 +194,7 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
             ), ['time' => $time]
         );
 
-        $this->debug(var_export($response, true));
+        //$this->debug(var_export($response, true));
 
         $headers = $response->getHeaders();
         if ($accessStatus = $headers->get('x-user-access-status')) {
