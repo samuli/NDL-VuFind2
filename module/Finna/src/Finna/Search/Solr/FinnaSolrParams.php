@@ -146,7 +146,8 @@ trait FinnaSolrParams
         }
         // Convert any VuFind 1 spatial date range filter
         if (isset($this->filterList[$this->SPATIAL_DATERANGE_FIELD_VF1])) {
-            $dateRangeFilters = $this->filterList[$this->SPATIAL_DATERANGE_FIELD_VF1];
+            $dateRangeFilters
+                = $this->filterList[$this->SPATIAL_DATERANGE_FIELD_VF1];
             unset($this->filterList[$this->SPATIAL_DATERANGE_FIELD_VF1]);
 
             foreach ($dateRangeFilters as $filter) {
