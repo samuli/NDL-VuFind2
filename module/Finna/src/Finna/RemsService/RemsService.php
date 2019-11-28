@@ -49,14 +49,21 @@ class RemsService implements
     }
     use \VuFindHttp\HttpServiceAwareTrait;
 
+    // REMS Application statuses
     const STATUS_APPROVED = 'approved';
     const STATUS_NOT_SUBMITTED = 'not-submitted';
     const STATUS_SUBMITTED = 'submitted';
     const STATUS_CLOSED = 'closed';
     const STATUS_DRAFT = 'draft';
 
-    const SESSION_IS_REMS_REGISTERED = 'is-rems-user';
+    // Index access statuses
+    const INDEX_STATUS_SESSION_EXPIRED = 'logout-closed';
 
+    // Session keys
+    const SESSION_IS_REMS_REGISTERED = 'is-rems-user';
+    const SESSION_ACCESS_STATUS = 'access-status';
+
+    // REMS API user types
     const TYPE_ADMIN = 0;
     const TYPE_APPROVER = 1;
     const TYPE_USER = 2;
@@ -195,11 +202,7 @@ class RemsService implements
             $params, 'POST', RemsService::TYPE_USER, null, false
         );
 
-        $this->savePermissionToSession(
-            null,
-            $this->getSessionKey($this->getCatalogItemId('entitlement'))
-        );
-        $this->saveRemsRegistrationToSession();
+        $this->session->{RemsService::SESSION_IS_REMS_REGISTERED} = true;
 
         return true;
     }
@@ -208,50 +211,85 @@ class RemsService implements
      * Check permission
      * Returns an array with keys 'success' and 'status'.
      *
-     * @param bool $callApi Call REMS API if permission is not already
-     *                      checked and saved to session.
-     *
      * @return array
      * @throws Exception
      */
-    public function checkPermission($callApi = false)
+    public function getAccessPermission()
     {
-        $catItemId = $this->getCatalogItemId('entitlement');
-        $sessionKey = $this->getSessionKey($catItemId);
+        $sessionKey = $this->getSessionKey();
+        return $this->session->{self::SESSION_ACCESS_STATUS} ?? null;
+    }
 
-        if (!$callApi) {
-            return $this->session->{$sessionKey} ?? null;
+    /**
+     * Close all open applications.
+     *
+     * @return void
+     */
+    public function closeOpenApplications()
+    {
+        if (!$this->isUserRegisteredDuringSession()) {
+            throw new \Exception(
+                'Attempting to call REMS before the user has been registered'
+                . ' during the session'
+            );
         }
 
         try {
             $applications = $this->getApplications(
                 [RemsService::STATUS_SUBMITTED, RemsService::STATUS_APPROVED]
             );
-        } catch (\Exception $e) {
-            return ['success' => false, 'status' => $e->getMessage()];
-        }
-
-        $status = RemsService::STATUS_NOT_SUBMITTED;
-
-        foreach ($applications as $application) {
-            if ($application['catalogItemId'] !== $catItemId) {
-                continue;
-            }
-            if (isset($application['status'])) {
-                $appStatus = $application['status'];
-                switch ($appStatus) {
-                case RemsService::STATUS_SUBMITTED:
-                    $status = $appStatus;
-                    break;
-                case RemsService::STATUS_APPROVED:
-                    $status = $appStatus;
-                    break 2;
+            foreach ($applications as $application) {
+                if (! in_array(
+                    $application['status'],
+                    [RemsService::STATUS_SUBMITTED, RemsService::STATUS_APPROVED]
+                )
+                ) {
+                    continue;
                 }
+                $params = [
+                    'application-id' => $application['id'],
+                    'comment' => 'ULOSKIRJAUTUMINEN'
+                ];
+                $this->sendRequest(
+                    'applications/close',
+                    null, 'POST', RemsService::TYPE_APPROVER,
+                    ['content' => json_encode($params)]
+                );
             }
+        } catch (\Exception $e) {
+            $this->error(
+                'Error closing open applications on logout: ' . $e->getMessage()
+            );
         }
+    }
 
-        $this->savePermissionToSession($status, $sessionKey);
-        return ['success' => true, 'status' => $status];
+    /**
+     * Set access status of current user. This is called from Connector.
+     *
+     * @param string $status Status
+     *
+     * @return void
+     */
+    public function setAccessStatusFromConnector($status)
+    {
+        switch($status) {
+        case 'ok':
+            $status = self::STATUS_APPROVED;
+            break;
+        case 'no-applications':
+            $status = self::STATUS_NOT_SUBMITTED;
+            break;
+        case 'submitted':
+            // TODO: not implemented in index
+            $status = self::STATUS_SUBMITTED;
+            break;
+        case 'logout-closed':
+            $status = self::INDEX_STATUS_SESSION_EXPIRED;
+            break;
+        default:
+            $status = self::STATUS_CLOSED;
+        }
+        $this->session->{self::SESSION_ACCESS_STATUS} = $status;
     }
 
     /**
@@ -261,7 +299,7 @@ class RemsService implements
      *
      * @return array
      */
-    public function getApplications($statuses = [])
+    protected function getApplications($statuses = [])
     {
         $params = [];
         if ($statuses) {
@@ -305,51 +343,6 @@ class RemsService implements
         }
 
         return $applications;
-    }
-
-    /**
-     * Close all open applications.
-     *
-     * @param string $comment Comment that is attached to the application.
-     *
-     * @return void
-     */
-    public function closeOpenApplications($comment = 'logout')
-    {
-        if (!$this->isUserRegisteredDuringSession()) {
-            throw new \Exception(
-                'Attempting to call REMS before the user has been registered'
-                . ' during the session'
-            );
-        }
-
-        try {
-            $applications = $this->getApplications(
-                [RemsService::STATUS_SUBMITTED, RemsService::STATUS_APPROVED]
-            );
-            foreach ($applications as $application) {
-                if (! in_array(
-                    $application['status'],
-                    [RemsService::STATUS_SUBMITTED, RemsService::STATUS_APPROVED]
-                )
-                ) {
-                    continue;
-                }
-                $params = [
-                    'application-id' => $application['id'],
-                    'comment' => $comment
-                ];
-                $this->sendRequest(
-                    'applications/close',
-                    null, 'POST', RemsService::TYPE_APPROVER,
-                    ['content' => json_encode($params)]
-                );
-            }
-        } catch (\Exception $e) {
-            $this->error(
-                'Error closing open applications on logout: ' . $e->getMessage()
-            );
-        }
     }
 
     /**
@@ -486,6 +479,7 @@ class RemsService implements
      */
     public function onLogoutPre()
     {
+        $this->session->{self::SESSION_ACCESS_STATUS} = null;
         if ($this->isUserRegisteredDuringSession()) {
             $this->closeOpenApplications();
         }
@@ -533,40 +527,12 @@ class RemsService implements
     /**
      * Return session key for a permission
      *
-     * @param int $permissionId Id
-     *
      * @return string
      */
-    protected function getSessionKey($permissionId)
+    protected function getSessionKey()
     {
+        $permissionId = $this->getCatalogItemId('entitlement');
         return "permission-$permissionId";
-    }
-
-    /**
-     * Save permission to session
-     *
-     * @param string $status     Permission status
-     * @param string $sessionKey Session key
-     *
-     * @return void
-     */
-    protected function savePermissionToSession($status, $sessionKey)
-    {
-        if ($status === null) {
-            unset($this->session->{$sessionKey});
-        } else {
-            $this->session->{$sessionKey} = $status;
-        }
-    }
-
-    /**
-     * Save REMS registration flag to session.
-     *
-     * @return void
-     */
-    protected function saveRemsRegistrationToSession()
-    {
-        $this->session->{RemsService::SESSION_IS_REMS_REGISTERED} = true;
     }
 
     /**

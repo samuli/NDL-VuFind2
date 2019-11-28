@@ -126,6 +126,7 @@ class R2BackendFactory extends SolrDefaultBackendFactory
         $connector->setApiAuthentication(
             $this->R2Config->General->apiUser, $this->R2Config->General->apiKey
         );
+        $connector->setRems($this->rems);
 
         return $connector;
     }

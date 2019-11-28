@@ -64,6 +64,13 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
     protected $apiPassword;
 
     /**
+     * REMS service
+     *
+     * @var \Finna\RemsService\RemsService
+     */
+    protected $rems;
+
+    /**
      * R2 field used to store unique identifier
      *
      * $uniqueKey field is not unique in R2 but is still treated as unique by VuFind.
@@ -75,7 +82,7 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
     protected $R2uniqueKey = '_document_id';
 
     /**
-     * Set API user and password for authentication
+     * Set API user and password for authentication to index.
      *
      * @param string $user     User
      * @param string $password Password
@@ -98,6 +105,18 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
     public function setUsername($username = null)
     {
         $this->username = $username;
+    }
+
+    /**
+     * Set REMS service
+     *
+     * @param \Finna\RemsService\RemsService $rems REMS service
+     *
+     * @return void
+     */
+    public function setRems($rems)
+    {
+        $this->rems = $rems;
     }
 
     /**
@@ -128,7 +147,6 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
      *
      * @return string Response body
      *
-     * @throws Exception             R2 search API key not configured
      * @throws RemoteErrorException  SOLR signaled a server error (HTTP 5xx)
      * @throws RequestErrorException SOLR signaled a client error (HTTP 4xx)
      */
@@ -154,6 +172,40 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
             )
         );
 
-        return parent::send($client);
+        $this->debug(
+            sprintf(
+                '=> R2 access status: %s',
+                $this->rems->getAccessPermission()
+            )
+        );
+
+        $this->debug(
+            sprintf('=> %s %s', $client->getMethod(), $client->getUri())
+        );
+
+        $time     = microtime(true);
+        $response = $client->send();
+        $time     = microtime(true) - $time;
+
+        $this->debug(
+            sprintf(
+                '<= %s %s', $response->getStatusCode(),
+                $response->getReasonPhrase()
+            ), ['time' => $time]
+        );
+
+        $this->debug(var_export($response, true));
+
+        $headers = $response->getHeaders();
+        if ($accessStatus = $headers->get('x-user-access-status')) {
+            $this->rems->setAccessStatusFromConnector(
+                $accessStatus->getFieldValue()
+            );
+        }
+
+        if (!$response->isSuccess()) {
+            throw HttpErrorException::createFromResponse($response);
+        }
+        return $response->getBody();
     }
 }

@@ -143,17 +143,12 @@ trait R2ControllerTrait
         // Authorized. Check user permission from REMS and show
         // registration if needed.
         $rems = $this->serviceLocator->get('Finna\RemsService\RemsService');
-        $permission = $rems->checkPermission(true);
-        if (!$permission['success']) {
-            if ($msg = $permission['status'] ?? null) {
-                $this->flashMessenger()->addErrorMessage("REMS error: $msg");
-            }
-            return $getRedirect();
-        }
 
         $showRegisterForm
-            = RemsService::STATUS_NOT_SUBMITTED
-            === $permission['status'];
+            = in_array(
+                $rems->getAccessPermission(),
+                [RemsService::STATUS_CLOSED, RemsService::STATUS_NOT_SUBMITTED]
+            );
 
         if (!$showRegisterForm) {
             // Registration has already been submitted, no need to show form.
@@ -241,14 +236,7 @@ trait R2ControllerTrait
         $session = $this->getR2Session();
 
         if ($this->getRequest()->getQuery()->get('register') === '1') {
-            $session->autoOpen = true;
-            $id = $this->params()->fromRoute('id', $this->params()->fromQuery('id'));
-            return $this->redirect()->toRoute(null, ['id' => $id]);
-        }
-
-        if (true === ($session->autoOpen ?? false)) {
             $view->autoOpenR2Registration = true;
-            unset($session->autoOpen);
         }
 
         return $view;
