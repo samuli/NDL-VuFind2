@@ -27,6 +27,8 @@
  */
 namespace Finna\Search\Solr;
 
+use VuFind\Solr\Utils;
+
 /**
  * Additional functionality for Finna Solr parameters.
  *
