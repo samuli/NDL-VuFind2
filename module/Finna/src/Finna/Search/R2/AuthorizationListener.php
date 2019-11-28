@@ -142,7 +142,9 @@ class AuthorizationListener
             if ($context !== 'retrieve'
                 || in_array(true, $params->get('R2Restricted') ?? [])
             ) {
-                if ($this->authService->isGranted('access.R2Restricted')) {
+                if ($this->authService->isGranted('access.R2Restricted')
+                    && $this->rems->isUserRegisteredDuringSession()
+                ) {
                     $userId = \Finna\RemsService\RemsService::prepareUserId(
                         $this->authManager->isLoggedIn()->username
                     );

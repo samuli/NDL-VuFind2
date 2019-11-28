@@ -5,9 +5,7 @@
     $this->url('feedback-form', ['id' => $this->formId])
       . '?recordId=' . $this->escapeHtmlAttr($this->id)
       . ($this->collection ? '&collection=1' : '');
-
 ?>
-
 <div class="alert alert-info authorization-notification R2-status status-error error hide">
   <p><?= $this->translate('R2_restricted_record_error') ?></p>
 </div>
@@ -31,20 +29,19 @@
   <div class="alert alert-info authorization-notification check-permission R2-status R2-status-approved">
     <p><?=$this->translate('R2_restricted_record_registered_note_html')?></p>
   </div>
-<?php elseif ($this->allowApplicationSubmit): ?>
+<?php elseif ($this->applicationSubmitted): ?>
+  <div class="alert alert-info authorization-notification R2-status R2-status-submitted">
+    <p class="txt"><?= $this->translate('R2_permission_request_status_submitted') ?></p>
+  </div>
+<?php elseif (!$this->preventApplicationSubmit): ?>
   <?php
     if ($this->autoOpen) {
       $setupJS['autoOpen'] = true;
     }
   ?>
-    
   <div class="alert alert-info authorization-notification check-permission R2-status R2-status-not-submitted" data-id="<?=$this->escapeHtmlAttr($this->id)?>">
     <p class="txt"><?= $this->translate('R2_restricted_record_note_html') ?></p>
     <p class="register"><a href="<?= $registerFormUrl ?>" class="btn btn-primary" data-lightbox title="<?=$this->transEsc('R2_register_form_title')?>"><?=$this->translate('R2_register')?></a></p>
-  </div>
-<?php elseif ($this->applicationSubmitted): ?>
-  <div class="alert alert-info authorization-notification R2-status R2-status-submitted">
-    <p class="txt"><?= $this->translate('R2_permission_request_status_submitted') ?></p>
   </div>
 <?php endif; ?>
 

@@ -144,9 +144,11 @@ trait R2ControllerTrait
         // registration if needed.
         $rems = $this->serviceLocator->get('Finna\RemsService\RemsService');
 
-        $showRegisterForm
-            = in_array(
-                $rems->getAccessPermission(),
+        $accessStatus = $rems->getAccessPermission();
+
+        $showRegisterForm = !$accessStatus
+            || in_array(
+                $accessStatus,
                 [RemsService::STATUS_CLOSED, RemsService::STATUS_NOT_SUBMITTED]
             );
 

@@ -151,8 +151,8 @@ class R2RestrictedRecord extends \Zend\View\Helper\AbstractHelper
             $autoOpen = $params['autoOpen'] ?? false;
             $restrictedMetadataIncluded = $driver->isRestrictedMetadataIncluded();
             $accessStatus = $this->rems->getAccessPermission();
-            $allowApplicationSubmit = !$restrictedMetadataIncluded
-                && in_array(
+            $preventApplicationSubmit = $restrictedMetadataIncluded
+                || in_array(
                     $accessStatus,
                     [RemsService::STATUS_NOT_SUBMITTED, RemsService::STATUS_CLOSED]
                 );
@@ -166,7 +166,7 @@ class R2RestrictedRecord extends \Zend\View\Helper\AbstractHelper
                 'id' => $driver->getUniqueID(),
                 'collection' => $driver->isCollection(),
                 'restrictedMetadataIncluded' => $restrictedMetadataIncluded,
-                'allowApplicationSubmit' => $allowApplicationSubmit,
+                'preventApplicationSubmit' => $preventApplicationSubmit,
                 'applicationSubmitted' => $applicationSubmitted,
                 'formId' => 'R2Register',
             ];
