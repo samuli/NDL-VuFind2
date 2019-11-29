@@ -232,7 +232,7 @@ finna.dateRangeVis = (function finnaDateRangeVis() {
                 if (to !== '*') {
                   to = parseInt($2, 10) + plotExtra;
                 }
-                return '[' + from + "%20TO%20" + to + ']';
+                return '[' + from + " TO " + to + ']';
               }
             );
           }
