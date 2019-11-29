@@ -183,7 +183,7 @@ trait R2ControllerTrait
                 $formParams[$param] = $this->translate($params[$param]) ?? null;
             }
 
-            // Take firstname, lastname and email from profile if available
+            // Take firstname and lastname from profile if available
             $firstname = !empty($user->firstname)
                 ? $user->firstname : $params['firstname'];
             $lastname = !empty($user->lastname)
