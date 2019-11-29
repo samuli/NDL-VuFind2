@@ -116,7 +116,7 @@ class SolrAuthForward extends SolrAuthDefault
     }
 
     /**
-     * Return corporation establishment date date and place.
+     * Return corporation establishment date and place.
      *
      * @return string
      */
@@ -129,7 +129,7 @@ class SolrAuthForward extends SolrAuthDefault
     }
 
     /**
-     * Return corporation termination date date and place.
+     * Return corporation termination date and place.
      *
      * @return string
      */
