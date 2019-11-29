@@ -269,7 +269,7 @@ class RemsService implements
      */
     public function setAccessStatusFromConnector($status)
     {
-        switch($status) {
+        switch ($status) {
         case 'ok':
             $status = self::STATUS_APPROVED;
             break;
