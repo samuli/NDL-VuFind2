@@ -1,4 +1,7 @@
 <!-- START of: finna - RecordDriver/DefaultRecord/record-audio-player.phtml -->
+<?php
+$this->headScript()->appendFile('vendor/video.min.js');
+?>
 <div class="audio-accordion">
 <?php foreach ($audioUrls as $url): ?>
   <div class="audio-item-wrapper">
