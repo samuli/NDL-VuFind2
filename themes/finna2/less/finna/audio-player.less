@@ -114,8 +114,6 @@
       background-color: @brand-primary;
       color: white;
       left: ~"calc((100% - 30px) / 2)";
-      font-size: 3em;
-      line-height: 1em;
     }
   }
 
@@ -135,9 +133,14 @@
     }
 
     .vjs-volume-bar {
-      width: 20px;
+      width: 40px;
       margin-left: 0;
       margin-right: 0;
+
+      @media(max-width: @screen-sm) {
+        width: 50%;
+        margin-right: 10px;
+      }
     }
 
     .vjs-volume-level {
