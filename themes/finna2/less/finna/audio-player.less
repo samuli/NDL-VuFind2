@@ -89,6 +89,11 @@
     display: none;
   }
 
+  .vjs-button > .vjs-icon-placeholder::before {
+    font-size: 2.5em;
+    line-height: 30px;
+  }
+
   .vjs-control-bar {
     display: block;
     top: 0%;
@@ -115,57 +120,6 @@
       color: white;
       left: ~"calc((100% - 30px) / 2)";
     }
-  }
-
-  .vjs-volume-panel {
-    bottom: 0px;
-    right: 0px;
-
-    .vjs-menu {
-      width: 65%;
-      right: 0;
-      left: initial;
-    }
-
-    .vjs-menu-content {
-      box-sizing: border-box;
-      padding: 0 4px;
-    }
-
-    .vjs-volume-bar {
-      width: 40px;
-      margin-left: 0;
-      margin-right: 0;
-
-      @media(max-width: @screen-sm) {
-        width: 50%;
-        margin-right: 10px;
-      }
-    }
-
-    .vjs-volume-level {
-      background-color: @brand-primary;
-    }
-
-    &.vjs-volume-panel-horizontal {
-      margin-right: -10px;
-    }
-
-    .vjs-volume-control {
-      width: 20px;
-    }
-
-    @media(min-width: @screen-sm) {
-      display: none;
-    }
-    @media(min-width: @screen-lg) {
-      display: flex;
-    }
-
-  }
-
-  .vjs-volume-menu-button-horizontal:hover .vjs-menu-content {
-    width: 100%;
   }
 
   .vjs-menu-button-inline.vjs-slider-active {

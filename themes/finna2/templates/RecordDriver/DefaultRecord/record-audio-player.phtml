@@ -16,7 +16,7 @@ $this->headScript()->appendFile('vendor/video.min.js');
     </div>
     <div class="audio-accordion-item">
       <div class="audio-player-wrapper">
-        <audio class="video-js vjs-default-skin" controls preload="auto" data-setup='{}'>
+        <audio class="video-js vjs-default-skin" controls preload="auto" data-setup='{ "controlBar": { "volumePanel": false } }'>
           <source src="<?= $url['url'] ?>" type="audio/<?= $url['codec'] ?>"/>
         </audio>
       </div>
