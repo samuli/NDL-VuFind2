@@ -122,15 +122,6 @@
   .vjs-volume-panel {
     bottom: 0px;
     right: 0px;
-    width: 30%;
-
-    &:hover, &:focus {
-      width: 30%;
-    }
-
-    &::before {
-      width: 35%;
-    }
 
     .vjs-menu {
       width: 65%;
@@ -154,8 +145,20 @@
     }
 
     &.vjs-volume-panel-horizontal {
-      right: -15px;
+      margin-right: -10px;
     }
+
+    .vjs-volume-control {
+      width: 20px;
+    }
+
+    @media(min-width: @screen-sm) {
+      display: none;
+    }
+    @media(min-width: @screen-lg) {
+      display: flex;
+    }
+
   }
 
   .vjs-volume-menu-button-horizontal:hover .vjs-menu-content {
