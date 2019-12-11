@@ -681,7 +681,7 @@ finna.layout = (function finnaLayout() {
             videojs(
               audio.attr('id'),
               { controlBar: { volumePanel: false, muteToggle: false } },
-              function() {}
+              function onVideoJsInited() {}
             );
           }
         );
