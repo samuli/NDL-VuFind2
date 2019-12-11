@@ -1012,38 +1012,6 @@ trait SolrFinna
     }
 
     /**
-     * Sanitize HTML.
-     * If validation is enabled and the stripped HTML is invalid,
-     * all tags are stripped.
-     *
-     * @param string  $html      HTML
-     * @param string  $allowTags Allowed tags
-     * @param boolean $validate  Validate output?
-     *
-     * @return array
-     */
-    protected function sanitizeHTML(
-        $html,
-        $allowTags = '<h1><h2><h3><h4><h5><b><i>',
-        $validate = true
-    ) {
-        $result = strip_tags($html, $allowTags);
-
-        if ($validate) {
-            libxml_use_internal_errors(true);
-            $doc = new \DOMDocument();
-            $doc->loadXML("<body>{$result}</body>");
-            if (libxml_get_errors()) {
-                // Invalid HTML, strip all tags
-                $result = strip_tags($html);
-            }
-            libxml_clear_errors();
-        }
-
-        return $result;
-    }
-
-    /**
      * Get a link for placing a title level hold.
      *
      * @return mixed A url if a hold is possible, boolean false if not
@@ -1052,20 +1020,20 @@ trait SolrFinna
     {
         $biblioLevel = strtolower($this->tryMethod('getBibliographicLevel'));
         if ($this->hasILS()) {
-            $bibLevels = $this->ils->getConfig(
-                'getTitleHoldBibLevels',
+            if ($this->ils->getTitleHoldsMode() === 'disabled') {
+                return false;
+            }
+            $holdConfig = $this->ils->getConfig(
+                'Holds',
                 ['id' => $this->getUniqueID()]
             );
-            if (false === $bibLevels) {
-                $bibLevels = [
+            $bibLevels = $holdConfig['titleHoldBibLevels']
+                ?? [
                     'monograph', 'monographpart',
                     'serialpart', 'collectionpart'
                 ];
-            }
             if (in_array($biblioLevel, $bibLevels)) {
-                if ($this->ils->getTitleHoldsMode() != "disabled") {
-                    return $this->titleHoldLogic->getHold($this->getUniqueID());
-                }
+                return $this->titleHoldLogic->getHold($this->getUniqueID());
             }
         }
         return false;
