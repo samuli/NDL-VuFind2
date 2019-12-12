@@ -157,6 +157,10 @@ if ($img):
           <?php endif; ?>
         <?php endif; ?>
 
+        <?php if ($this->driver->tryMethod('getWorkKeys') && $this->record($this->driver)->hasTab('Versions')): ?>
+          <div class="record-versions ajax"></div>
+        <?php endif; ?>
+
         <?php $recordHelper = $this->record($this->driver); ?>
         <?=$recordHelper->renderTemplate('holdings.phtml');?>
         <?=$recordHelper->getOnlineUrls('results');?>
