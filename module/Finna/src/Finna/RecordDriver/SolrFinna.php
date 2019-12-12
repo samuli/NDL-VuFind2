@@ -746,9 +746,13 @@ trait SolrFinna
      */
     public function supportsOpenUrl()
     {
-        // OpenURL is supported only if we have an ISSN, ISBN or SFX Object ID.
+        // OpenURL is supported only if we have an ISSN, ISBN or SFX Object ID,
+        // or Alma MMS ID .
+        $formats = $this->getFormats();
+        $isDatabase = '0/Database/' === (string)($formats[0] ?? '');
         return $this->getCleanISSN() || $this->getCleanISBN()
-            || $this->getSfxObjectId() || $this->getAlmaMmsId();
+            || $this->getSfxObjectId()
+            || ($this->getAlmaMmsId() && !$isDatabase);
     }
 
     /**
@@ -1008,38 +1012,6 @@ trait SolrFinna
     }
 
     /**
-     * Sanitize HTML.
-     * If validation is enabled and the stripped HTML is invalid,
-     * all tags are stripped.
-     *
-     * @param string  $html      HTML
-     * @param string  $allowTags Allowed tags
-     * @param boolean $validate  Validate output?
-     *
-     * @return array
-     */
-    protected function sanitizeHTML(
-        $html,
-        $allowTags = '<h1><h2><h3><h4><h5><b><i>',
-        $validate = true
-    ) {
-        $result = strip_tags($html, $allowTags);
-
-        if ($validate) {
-            libxml_use_internal_errors(true);
-            $doc = new \DOMDocument();
-            $doc->loadXML("<body>{$result}</body>");
-            if (libxml_get_errors()) {
-                // Invalid HTML, strip all tags
-                $result = strip_tags($html);
-            }
-            libxml_clear_errors();
-        }
-
-        return $result;
-    }
-
-    /**
      * Get a link for placing a title level hold.
      *
      * @return mixed A url if a hold is possible, boolean false if not
@@ -1048,22 +1020,82 @@ trait SolrFinna
     {
         $biblioLevel = strtolower($this->tryMethod('getBibliographicLevel'));
         if ($this->hasILS()) {
-            $bibLevels = $this->ils->getConfig(
-                'getTitleHoldBibLevels',
+            if ($this->ils->getTitleHoldsMode() === 'disabled') {
+                return false;
+            }
+            $holdConfig = $this->ils->getConfig(
+                'Holds',
                 ['id' => $this->getUniqueID()]
             );
-            if (false === $bibLevels) {
-                $bibLevels = [
+            $bibLevels = $holdConfig['titleHoldBibLevels']
+                ?? [
                     'monograph', 'monographpart',
                     'serialpart', 'collectionpart'
                 ];
-            }
             if (in_array($biblioLevel, $bibLevels)) {
-                if ($this->ils->getTitleHoldsMode() != "disabled") {
-                    return $this->titleHoldLogic->getHold($this->getUniqueID());
-                }
+                return $this->titleHoldLogic->getHold($this->getUniqueID());
             }
         }
         return false;
+    }
+
+    /**
+     * Return count of other versions available
+     *
+     * @return int
+     */
+    public function getOtherVersionCount()
+    {
+        if (null === $this->searchService) {
+            return false;
+        }
+
+        if (!($workKeys = $this->getWorkKeys())) {
+            return false;
+        }
+
+        if (!isset($this->otherVersionsCount)) {
+            $params = new \VuFindSearch\ParamBag();
+            $params->add('rows', 0);
+            $results = $this->searchService->workExpressions(
+                $this->getSourceIdentifier(),
+                $this->getUniqueID(),
+                $workKeys,
+                $params
+            );
+            $this->otherVersionsCount = $results->getTotal();
+        }
+        return $this->otherVersionsCount;
+    }
+
+    /**
+     * Retrieve versions as a search result
+     *
+     * @param bool $includeSelf Whether to include this record
+     * @param int  $count       Maximum number of records to display
+     *
+     * @return \VuFindSearch\Response\RecordCollectionInterface
+     */
+    public function getVersions($includeSelf = false, $count = 20)
+    {
+        if (null === $this->searchService) {
+            return false;
+        }
+
+        if (!($workKeys = $this->getWorkKeys())) {
+            return false;
+        }
+
+        if (!isset($this->otherVersions)) {
+            $params = new \VuFindSearch\ParamBag();
+            $params->add('rows', min($count, 100));
+            $this->otherVersions = $this->searchService->workExpressions(
+                $this->getSourceIdentifier(),
+                $includeSelf ? '' : $this->getUniqueID(),
+                $workKeys,
+                $params
+            );
+        }
+        return $this->otherVersions;
     }
 }

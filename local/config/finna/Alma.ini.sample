@@ -38,6 +38,48 @@ defaultPickUpLocation = ""
 ;helpText = "Help text for all languages."
 ;helpText[en-gb] = "Help text for English language."
 
+; Whether item level holds are enabled. Possible values:
+;   true          - Always when Alma allows them
+;   false         - Never
+;   "description" - Only if the item has a description
+;enableItemHolds = true
+
+; List of bibliographic levels for which title hold is allowed
+titleHoldBibLevels = "monograph:monographpart:serial:serialpart:collectionpart:integratingresource"
+
+; Rules for filtering pickup locations. Each part of a rule set is separated by a
+; colon. A part contains a filter key, equals sign and values separated by commas.
+; A value can be enclosed in '' if it contains a colon or a comma. Values are
+; evaluated as regular expressions. A rule value can be negated by prepending it with
+; an exclamation mark (!).
+; Rules are processed in the order of occurrence until end or match=stop with a
+; matching rule is encountered.
+;
+; Supported filter keys are:
+; lib        - Item library code (a single value)
+; loc        - Item location code(s)
+; policy     - Item policy code(s)
+; availlib   - Library with available items (a single value)
+; avail      - Location with available item(s)
+; availpolicy - Item policy code(s) for locations with available items
+; unavaillib - Library with only unavailable items (a single value)
+; unavail    - Location with only unavailable item(s)
+; unavailpolicy - Item policy code(s) for locations with only unavailable items
+; group      - Patron group
+; level      - Hold level: 'copy' (meaning item) or 'title'
+; match      - 'stop' to stop processing further rules on match. Otherwise all matching
+;              rules are combined.
+; The following keys define the outcome of a matching filter:
+; pickup     - Allowed pickup libraries
+; home       - true to indicate that home address is allowed as a pickup location
+; work       - true to indicate that work address is allowed as a pickup location
+;
+; Examples:
+;
+; pickupLocationRules[] = "loc=MAIN:group=PATRON:pickup=MAINLIB;match=stop"
+; pickupLocationRules[] = "loc=MAIN:group=!STAFF:pickup=MAINLIB"
+; pickupLocationRules[] = "loc=MAIN,SUB:group=STAFF:pickup=MAINLIB,RES_SHARE:work=true"
+;pickupLocationRules[] = ""
 
 ; The "NewUser" section defines some default values that are used when creating an account
 ; in Alma via its API. This is only relevant if you use the authentication method "AlmaDatabase"
@@ -117,6 +159,21 @@ summary = "863abiz:866az"
 supplements = "867az"
 ; Fields to include in indexes. Default is none.
 indexes = "868az"
+; By default the holdings list is sorted alphabetically. This setting can be used
+; to manually set the order of locations by entering location codes as a
+; colon-separated list. By default the first entry has the highest priority (0), but
+; each entry can be given a custom priority after an equals sign (higher number means
+; lower priority). Unlisted locations will get a default priority of 999.
+;
+; Examples:
+; "MAIN:BRANCH:SUB"
+; "MAIN:PERSONNEL=9999"
+;
+;holdingsLocationOrder = "MAIN:BRANCH:SUB"
+
+; Whether to sort items by enumchron. Default is true.
+;sortByEnumChron = false
+
 
 [OnlinePayment]
 ; Whether online payment is enabled. Default is false.
