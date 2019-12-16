@@ -344,9 +344,13 @@ finna.record = (function finnaRecord() {
           return;
         }
         $elem.addClass('loaded');
+        $elem.addClass('loading');
         $elem.removeClass('hidden');
         $elem.append('<span class="js-load">' + VuFind.translate('loading') + '...</span>');
         var $item = $(this).parents('.record-container');
+        if ($item.length === 0) {
+          return;
+        }
         var id = $item.find('.hiddenId')[0].value;
         $.getJSON(
           VuFind.path + '/AJAX/JSON',
@@ -361,9 +365,11 @@ finna.record = (function finnaRecord() {
             } else {
               $elem.text('');
             }
+            $elem.removeClass('loading');
           })
           .fail(function onGetSimilarRecordsFail() {
             $elem.text(VuFind.translate('error_occurred'));
+            $elem.removeClass('loading');
           });
       });
 
