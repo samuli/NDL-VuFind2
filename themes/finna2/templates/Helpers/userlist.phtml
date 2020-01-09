@@ -11,13 +11,24 @@
     </div>
   </div>
   <div class="public-list-view results result-view-<?=$this->escapeHtmlAttr($this->params->getView())?>">
-    <?= $this->partial('search/list-' . $this->view . '.phtml',
+    <?= $this->partial('Helpers/userlist-content.phtml',
     [
       'results' => $this->results,
       'params' => $this->params,
+      'view' => $this->view,
       'indexStart' => $this->indexStart,
       'hideCartControls' => true
     ])
     ?>
+    <a class="load-more" data-id="<?= $this->escapeHtmlAttr($this->id)?>" data-view="<?= $this->escapeHtmlAttr($this->view)?>" data-start-index="<?= $this->escapeHtmlAttr($this->indexStart + $this->params->getLimit())?>" data-offset="<?= $this->escapeHtmlAttr($this->params->getLimit())?>">Show all</a>
   </div>
 </div>
+<?php
+$this->headScript()->appendFile("finna-userlist-embed.js");
+$js = <<<JS
+$(document).ready(function(){
+  finna.userListEmbed.init();
+});
+JS;
+$this->headScript()->appendScript($js);
+?>

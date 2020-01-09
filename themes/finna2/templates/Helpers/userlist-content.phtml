@@ -1,0 +1,8 @@
+<?= $this->partial('search/list-' . $this->view . '.phtml',
+[
+  'results' => $this->results,
+  'params' => $this->params,
+  'indexStart' => $this->indexStart,
+  'hideCartControls' => true
+])
+?>

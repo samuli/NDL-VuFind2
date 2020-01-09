@@ -62,17 +62,27 @@ class UserListEmbed extends \Zend\View\Helper\AbstractHelper
     protected $indexStart = 0;
 
     /**
+     * View model
+     *
+     * @var \Zend\View\Model\ViewModel
+     */
+    protected $viewModel;
+
+    /**
      * Constructor
      *
      * @param \VuFind\Search\Favorites\Results $results   Results
      * @param \VuFind\Db\Table\UserList        $listTable UserList table
+     * @param \Zend\View\Model\ViewModel       $viewModel View model
      */
     public function __construct(
         \VuFind\Search\Favorites\Results $results,
-        \VuFind\Db\Table\UserList $listTable
+        \VuFind\Db\Table\UserList $listTable,
+        \Zend\View\Model\ViewModel $viewModel
     ) {
         $this->results = $results;
         $this->listTable = $listTable;
+        $this->viewModel = $viewModel;
     }
 
     /**
@@ -82,7 +92,7 @@ class UserListEmbed extends \Zend\View\Helper\AbstractHelper
      *
      * @return string
      */
-    public function __invoke($opt)
+    public function __invoke($opt, $offset = null, $indexStart = null)
     {
         foreach (array_keys($opt) as $key) {
             if (!in_array(
@@ -108,19 +118,31 @@ class UserListEmbed extends \Zend\View\Helper\AbstractHelper
             return $this->error('Could not find list');
         }
 
+        $loadMore = $offset !== null;
+        $template = $loadMore ? 'userlist-content.phtml' : 'userlist.phtml';
+
         $opt['limit'] = $opt['limit'] ?? 100;
 
         $resultsCopy = clone $this->results;
         $params = $resultsCopy->getParams();
         $params->initFromRequest(new Parameters($opt));
+
+        $view = $opt['view'] ?? 'list';
+        if (!$loadMore) {
+            $idStart = $this->indexStart;
+            $this->indexStart += $resultsCopy->getResultTotal();
+        } else {
+            $idStart = $indexStart;
+            $resultsCopy->overrideStartRecord($offset+1);
+        }
+
         $resultsCopy->performAndProcessSearch();
         $list = $resultsCopy->getListObject();
-        $view = $opt['view'] ?? 'list';
-        $idStart = $this->indexStart;
-        $this->indexStart += $resultsCopy->getResultTotal();
-        return $this->getView()->render(
-            'Helpers/userlist.phtml',
+
+        $html = $this->getView()->render(
+            "Helpers/{$template}",
             [
+                'id' => $id,
                 'results' => $resultsCopy,
                 'params' => $params,
                 'indexStart' => $idStart,
@@ -137,6 +159,48 @@ class UserListEmbed extends \Zend\View\Helper\AbstractHelper
                 'headingLevel' => $opt['headingLevel'] ?? 2
             ]
         );
+
+        return $html;
+    }
+
+    protected function getNumOfResults($opt)
+    {
+        $resultsCopy = clone $this->results;
+        $params = $resultsCopy->getParams();
+        $params->initFromRequest(new Parameters($opt));
+        return $resultsCopy->getResultTotal();
+    }
+    
+    public function loadMore($id, $offset, $startIndex, $view)
+    {
+        $this->viewModel->setVariable('templateDir', 'content');
+        $this->viewModel->setVariable('templateName', 'content');
+
+        $fetch = function ($offset, $startIndex, $limit) use ($id, $view) {
+            return $this->__invoke(
+                ['id' => $id, 'page' => 1, 'limit' => $limit, 'view' => $view],
+                $offset,
+                $startIndex
+            );
+        };
+        $resultsTotal = $this->getNumOfResults(['id' => $id]);
+        $limit = $resultsTotal-1;
+
+        return $this->__invoke(
+            ['id' => $id, 'page' => 1, 'limit' => $limit, 'view' => $view],
+            $offset,
+            $startIndex
+        );
+        /*
+        $result = '';
+        while ($resultsTotal > $offset) {
+            $result .= $fetch($offset, $startIndex, $limit);
+            $offset += $limit;
+            $startIndex += $limit;
+        }
+
+        return $result;
+        */
     }
 
     /**
