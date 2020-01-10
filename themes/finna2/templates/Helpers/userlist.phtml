@@ -20,7 +20,21 @@
       'hideCartControls' => true
     ])
     ?>
-    <a class="load-more" data-id="<?= $this->escapeHtmlAttr($this->id)?>" data-view="<?= $this->escapeHtmlAttr($this->view)?>" data-start-index="<?= $this->escapeHtmlAttr($this->indexStart + $this->params->getLimit())?>" data-offset="<?= $this->escapeHtmlAttr($this->params->getLimit())?>">Show all</a>
+    <?php if ($this->showAll): ?>
+      <?php $limit = $this->params->getLimit(); ?>  
+      <div class="show-more">
+        <div><?= $this->translate(
+             'showing_results_of_html', [
+               '%%start%%' => 1,
+               '%%end%%' => $limit,
+               '%%total%%' => $this->localizedNumber($this->total)
+             ]
+        ); ?>
+        </div>
+        <button class="btn btn-primary load-more" aria-label="Hyväksy evästeet" data-id="<?= $this->escapeHtmlAttr($this->id)?>" data-view="<?= $this->escapeHtmlAttr($this->view)?>" data-start-index="<?= $this->escapeHtmlAttr($this->indexStart+$limit)?>" data-offset="<?= $this->escapeHtmlAttr($limit)?>"><?= $this->transEsc('See all'); ?></button>
+        <i class="fa fa-spinner fa-spin hide"></i>
+      </div>
+    <?php endif; ?>
   </div>
 </div>
 <?php

@@ -97,7 +97,7 @@ class UserListEmbed extends \Zend\View\Helper\AbstractHelper
         foreach (array_keys($opt) as $key) {
             if (!in_array(
                 $key, ['id', 'view', 'sort', 'limit', 'page',
-                       'title', 'description', 'date', 'headingLevel']
+                       'title', 'description', 'date', 'headingLevel', 'showAll']
             )
             ) {
                 unset($opt[$key]);
@@ -127,10 +127,11 @@ class UserListEmbed extends \Zend\View\Helper\AbstractHelper
         $params = $resultsCopy->getParams();
         $params->initFromRequest(new Parameters($opt));
 
+        $total = $resultsCopy->getResultTotal();
         $view = $opt['view'] ?? 'list';
         if (!$loadMore) {
             $idStart = $this->indexStart;
-            $this->indexStart += $resultsCopy->getResultTotal();
+            $this->indexStart += $total;
         } else {
             $idStart = $indexStart;
             $resultsCopy->overrideStartRecord($offset+1);
@@ -147,6 +148,8 @@ class UserListEmbed extends \Zend\View\Helper\AbstractHelper
                 'params' => $params,
                 'indexStart' => $idStart,
                 'view' => $view,
+                'total' => $total,
+                'showAll' => ($opt['showAll'] ?? false) && $view === 'grid',
                 'title' =>
                     (isset($opt['title']) && $opt['title'] === false)
                     ? null : $list->title,
@@ -163,27 +166,17 @@ class UserListEmbed extends \Zend\View\Helper\AbstractHelper
         return $html;
     }
 
-    protected function getNumOfResults($opt)
-    {
-        $resultsCopy = clone $this->results;
-        $params = $resultsCopy->getParams();
-        $params->initFromRequest(new Parameters($opt));
-        return $resultsCopy->getResultTotal();
-    }
-    
     public function loadMore($id, $offset, $startIndex, $view)
     {
         $this->viewModel->setVariable('templateDir', 'content');
         $this->viewModel->setVariable('templateName', 'content');
 
-        $fetch = function ($offset, $startIndex, $limit) use ($id, $view) {
-            return $this->__invoke(
-                ['id' => $id, 'page' => 1, 'limit' => $limit, 'view' => $view],
-                $offset,
-                $startIndex
-            );
-        };
-        $resultsTotal = $this->getNumOfResults(['id' => $id]);
+        $resultsCopy = clone $this->results;
+        $params = $resultsCopy->getParams();
+        $params->initFromRequest(new Parameters(['id' => $id]));
+
+        $resultsTotal = $resultsCopy->getResultTotal();
+        // limit needs to be smaller than so that we can override record start index
         $limit = $resultsTotal-1;
 
         return $this->__invoke(
@@ -191,16 +184,6 @@ class UserListEmbed extends \Zend\View\Helper\AbstractHelper
             $offset,
             $startIndex
         );
-        /*
-        $result = '';
-        while ($resultsTotal > $offset) {
-            $result .= $fetch($offset, $startIndex, $limit);
-            $offset += $limit;
-            $startIndex += $limit;
-        }
-
-        return $result;
-        */
     }
 
     /**

@@ -5,16 +5,22 @@ finna.userListEmbed = (function userListEmbed() {
       $('.public-list-embed').not('.inited').each(function initEmbed() {
         var embed = $(this);
         embed.addClass('inited');
-        embed.find('.load-more').click(function initLoadMore() {
-          var resultsContainer = embed.find('.results .result').parent();
-          
-          console.log("load");
+
+        var showMore = embed.find('.show-more');
+        var spinner = embed.find('.fa-spinner');
+        embed.find('.btn.load-more').click(function initLoadMore() {
+          var resultsContainer = embed.find('.search-grid');
+          spinner.removeClass('hide').show();
+
           var btn = $(this);
+          btn.addClass('inited');
+          
           var id = btn.data('id');
           var offset = btn.data('offset');
           var indexStart = btn.data('start-index');
           var view = btn.data('view');
-          
+
+          btn.hide();
           $.getJSON(
             VuFind.path + '/AJAX/JSON?method=getUserList',
             {
@@ -26,8 +32,7 @@ finna.userListEmbed = (function userListEmbed() {
             }
           )
             .done(function onListLoaded(response) {
-              btn.remove();
-
+              showMore.remove();
               $(response.data.html).find('.result').each(function(ind) {
                 resultsContainer.append($(this));
               });
@@ -35,6 +40,8 @@ finna.userListEmbed = (function userListEmbed() {
               finna.myList.init();
             })
             .fail(function onLoadListFail() {
+              btn.show();
+              spinner.hide();
             });
           
           return false;
