@@ -125,6 +125,7 @@ class UserListEmbed extends \Zend\View\Helper\AbstractHelper
                 'params' => $params,
                 'indexStart' => $idStart,
                 'view' => $view,
+                'id' => $id,
                 'title' =>
                     (isset($opt['title']) && $opt['title'] === false)
                     ? null : $list->title,
