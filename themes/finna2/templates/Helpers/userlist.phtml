@@ -11,11 +11,10 @@
     </div>
   </div>
   <div class="public-list-view results result-view-<?=$this->escapeHtmlAttr($this->params->getView())?>">
-    <?= $this->partial('Helpers/userlist-content.phtml',
+    <?= $this->partial('search/list-' . $this->view . '.phtml',
     [
       'results' => $this->results,
       'params' => $this->params,
-      'view' => $this->view,
       'indexStart' => $this->indexStart,
       'hideCartControls' => true
     ])

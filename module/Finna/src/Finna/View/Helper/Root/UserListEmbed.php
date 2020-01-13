@@ -90,7 +90,9 @@ class UserListEmbed extends \Zend\View\Helper\AbstractHelper
      *
      * @param array $opt        Options
      * @param int   $offset     Record offset
-     * @param int   $indexStart Result item offset (in DOM)
+     *                          (used when loading a more results via AJAX)
+     * @param int   $indexStart Result item offset in DOM
+     *                          (used when loading a more results via AJAX)
      *
      * @return string
      */
@@ -121,7 +123,6 @@ class UserListEmbed extends \Zend\View\Helper\AbstractHelper
         }
 
         $loadMore = $offset !== null;
-        $template = $loadMore ? 'userlist-content.phtml' : 'userlist.phtml';
 
         $opt['limit'] = $opt['limit'] ?? 100;
 
@@ -144,7 +145,7 @@ class UserListEmbed extends \Zend\View\Helper\AbstractHelper
         $list = $resultsCopy->getListObject();
 
         $html = $this->getView()->render(
-            "Helpers/{$template}",
+            'Helpers/userlist.phtml',
             [
                 'id' => $id,
                 'results' => $resultsCopy,
@@ -172,6 +173,16 @@ class UserListEmbed extends \Zend\View\Helper\AbstractHelper
         return $html;
     }
 
+    /**
+     * Returns HTML for a set of user list result items.
+     * The result does not include conta
+     *
+     * @param int $id         List id
+     * @param int $offset     Record offset
+     * @param int $startIndex Result item offset in DOM
+     *
+     * @return string
+     */
     public function loadMore($id, $offset, $startIndex)
     {
         $this->viewModel->setVariable('templateDir', 'content');
