@@ -175,7 +175,6 @@ class UserListEmbed extends \Zend\View\Helper\AbstractHelper
 
     /**
      * Returns HTML for a set of user list result items.
-     * The result does not include conta
      *
      * @param int $id         List id
      * @param int $offset     Record offset
