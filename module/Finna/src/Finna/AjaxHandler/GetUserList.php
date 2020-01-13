@@ -29,9 +29,10 @@ namespace Finna\AjaxHandler;
 
 use Finna\View\Helper\Root\UserlistEmbed;
 use VuFind\Session\Settings as SessionSettings;
+use Zend\Mvc\Controller\Plugin\Params;
 
 /**
- * GetFeed AJAX handler
+ * Get user list items.
  *
  * @category VuFind
  * @package  AJAX
@@ -42,9 +43,9 @@ use VuFind\Session\Settings as SessionSettings;
 class GetUserList extends \VuFind\AjaxHandler\AbstractBase
 {
     /**
-     * URL helper
+     * UserlistEmbed helper
      *
-     * @var Url
+     * @var UserlistEmbed
      */
     protected $helper;
 
@@ -52,7 +53,7 @@ class GetUserList extends \VuFind\AjaxHandler\AbstractBase
      * Constructor
      *
      * @param SessionSettings $ss     Session settings
-     * @param UserListEmbed   $helper UserList embed helper.
+     * @param UserlistEmbed   $helper UserlistEmbed helper.
      */
     public function __construct(SessionSettings $ss, UserlistEmbed $helper)
     {
