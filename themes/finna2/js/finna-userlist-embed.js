@@ -38,6 +38,7 @@ finna.userListEmbed = (function userListEmbed() {
               });
               
               finna.myList.init();
+              finna.imagePaginator.reindexPaginators();
             })
             .fail(function onLoadListFail() {
               btn.show();

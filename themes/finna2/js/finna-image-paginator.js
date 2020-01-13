@@ -101,6 +101,25 @@ finna.imagePaginator = (function imagePaginator() {
   }
 
   /**
+   * Reindex all paginators. Required if new paginators are appended to the DOM after initial page load.
+   */
+  function reindexPaginators() {
+    $('.image-popup-trigger').each(function reindexPaginator(ind) {
+      $(this).attr('paginator-index', ind);
+      $(this).trigger('setPaginatorIndex', ind);
+    });
+  }
+
+  /**
+   * Helper function for overriding paginator index after initial page load.
+   *
+   * @param {int} index
+   */
+  FinnaPaginator.prototype.setPaginatorIndex = function setPaginatorIndex(index) {
+    this.paginatorIndex = index;
+  };
+
+  /**
    * Helper function to show a button and hide another
    *
    * @param {HTMLElement} show
@@ -193,6 +212,10 @@ finna.imagePaginator = (function imagePaginator() {
    */
   FinnaPaginator.prototype.setEvents = function setEvents() {
     var _ = this;
+
+    _.trigger.off('setPaginatorIndex').on('setPaginatorIndex', function(event, index) {
+      _.setPaginatorIndex(index);
+    });
 
     if (!_.isList) {
       _.leftBtn.click(function loadImages() {
@@ -1016,6 +1039,7 @@ finna.imagePaginator = (function imagePaginator() {
 
   var my = {
     initPaginator: initPaginator,
+    reindexPaginators: reindexPaginators,
     setCanvasContent: setCanvasContent
   };
 
