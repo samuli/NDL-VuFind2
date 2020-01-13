@@ -137,7 +137,7 @@ class UserListEmbed extends \Zend\View\Helper\AbstractHelper
         } else {
             // Load more results using given $indexStart and $offset
             $idStart = $indexStart;
-            $resultsCopy->overrideStartRecord($offset+1);
+            $resultsCopy->overrideStartRecord($offset);
         }
 
         $resultsCopy->performAndProcessSearch();
