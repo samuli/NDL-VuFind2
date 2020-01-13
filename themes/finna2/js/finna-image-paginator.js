@@ -104,9 +104,9 @@ finna.imagePaginator = (function imagePaginator() {
    * Reindex all paginators. Required if new paginators are appended to the DOM after initial page load.
    */
   function reindexPaginators() {
-    $('.image-popup-trigger').each(function reindexPaginator(ind) {
-      $(this).attr('paginator-index', ind);
-      $(this).trigger('setPaginatorIndex', ind);
+    $('.image-popup-trigger').each(function reindexPaginator(index) {
+      $(this).attr('paginator-index', index);
+      $(this).trigger('setPaginatorIndex', index);
     });
   }
 
