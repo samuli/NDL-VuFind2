@@ -88,7 +88,9 @@ class UserListEmbed extends \Zend\View\Helper\AbstractHelper
     /**
      * Returns HTML for embedding a user list.
      *
-     * @param array $opt Options
+     * @param array $opt        Options
+     * @param int   $offset     Record offset
+     * @param int   $indexStart Result item offset (in DOM)
      *
      * @return string
      */
@@ -133,6 +135,7 @@ class UserListEmbed extends \Zend\View\Helper\AbstractHelper
             $idStart = $this->indexStart;
             $this->indexStart += $total;
         } else {
+            // Load more results using given $indexStart and $offset
             $idStart = $indexStart;
             $resultsCopy->overrideStartRecord($offset+1);
         }
@@ -169,7 +172,7 @@ class UserListEmbed extends \Zend\View\Helper\AbstractHelper
         return $html;
     }
 
-    public function loadMore($id, $offset, $startIndex, $view)
+    public function loadMore($id, $offset, $startIndex)
     {
         $this->viewModel->setVariable('templateDir', 'content');
         $this->viewModel->setVariable('templateName', 'content');
@@ -183,7 +186,7 @@ class UserListEmbed extends \Zend\View\Helper\AbstractHelper
         $limit = $resultsTotal-1;
 
         return $this->__invoke(
-            ['id' => $id, 'page' => 1, 'limit' => $limit, 'view' => $view],
+            ['id' => $id, 'page' => 1, 'limit' => $limit, 'view' => 'grid'],
             $offset,
             $startIndex
         );
