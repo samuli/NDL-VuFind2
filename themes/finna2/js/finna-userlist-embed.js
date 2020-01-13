@@ -2,7 +2,7 @@
 finna.userListEmbed = (function userListEmbed() {
   var my = {
     init: function init(id, offset) {
-      $('.public-list-embed').not('.inited').each(function initEmbed() {
+      $('.public-list-embed.show-all').not('.inited').each(function initEmbed() {
         var embed = $(this);
         embed.addClass('inited');
 
