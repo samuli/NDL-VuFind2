@@ -1,4 +1,4 @@
-/*global VuFind, finna, checkSaveStatuses */
+/*global VuFind, finna */
 finna.userListEmbed = (function userListEmbed() {
   var my = {
     init: function init(id, offset) {
