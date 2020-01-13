@@ -149,7 +149,10 @@ class UserListEmbed extends \Zend\View\Helper\AbstractHelper
                 'indexStart' => $idStart,
                 'view' => $view,
                 'total' => $total,
-                'showAll' => ($opt['showAll'] ?? false) && $view === 'grid',
+                'showAll' =>
+                    ($opt['showAll'] ?? false)
+                    && $view === 'grid'
+                    && $opt['limit'] < $total,
                 'title' =>
                     (isset($opt['title']) && $opt['title'] === false)
                     ? null : $list->title,
