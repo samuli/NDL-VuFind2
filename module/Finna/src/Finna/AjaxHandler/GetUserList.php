@@ -1,10 +1,10 @@
 <?php
 /**
- * GetFeed AJAX handler
+ * Get user list items via AJAX.
  *
  * PHP version 7
  *
- * Copyright (C) The National Library of Finland 2015-2018.
+ * Copyright (C) The National Library of Finland 2020.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -22,19 +22,13 @@
  * @category VuFind
  * @package  AJAX
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
- * @author   Ere Maijala <ere.maijala@helsinki.fi>
- * @author   Konsta Raunio <konsta.raunio@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development Wiki
  */
 namespace Finna\AjaxHandler;
 
-use Finna\Feed\Feed as FeedService;
+use Finna\View\Helper\Root\UserlistEmbed;
 use VuFind\Session\Settings as SessionSettings;
-use Zend\Config\Config;
-use Zend\Mvc\Controller\Plugin\Params;
-use Zend\Mvc\Controller\Plugin\Url;
-use Zend\View\Renderer\RendererInterface;
 
 /**
  * GetFeed AJAX handler
@@ -42,8 +36,6 @@ use Zend\View\Renderer\RendererInterface;
  * @category VuFind
  * @package  AJAX
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
- * @author   Ere Maijala <ere.maijala@helsinki.fi>
- * @author   Konsta Raunio <konsta.raunio@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development Wiki
  */
@@ -59,12 +51,11 @@ class GetUserList extends \VuFind\AjaxHandler\AbstractBase
     /**
      * Constructor
      *
-     * @param SessionSettings $ss Session settings
+     * @param SessionSettings $ss     Session settings
+     * @param UserListEmbed   $helper UserList embed helper.
      */
-    public function __construct(
-        SessionSettings $ss,
-        \Finna\View\Helper\Root\UserlistEmbed $helper
-    ) {
+    public function __construct(SessionSettings $ss, UserlistEmbed $helper)
+    {
         $this->sessionSettings = $ss;
         $this->helper = $helper;
     }
