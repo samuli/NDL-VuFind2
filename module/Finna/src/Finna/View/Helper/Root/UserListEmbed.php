@@ -184,6 +184,8 @@ class UserListEmbed extends \Zend\View\Helper\AbstractHelper
      */
     public function loadMore($id, $offset, $startIndex)
     {
+        // These need to differ from Search/Results so that
+        // list notes are shown...
         $this->viewModel->setVariable('templateDir', 'content');
         $this->viewModel->setVariable('templateName', 'content');
 
