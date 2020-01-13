@@ -194,7 +194,9 @@ class UserListEmbed extends \Zend\View\Helper\AbstractHelper
         $params->initFromRequest(new Parameters(['id' => $id]));
 
         $resultsTotal = $resultsCopy->getResultTotal();
-        // limit needs to be smaller than so that we can override record start index
+        // Limit needs to be smaller than total amount
+        // so that record start index can be overridden
+        // in VuFind\Search\Results\Favorites
         $limit = $resultsTotal-1;
 
         return $this->__invoke(
