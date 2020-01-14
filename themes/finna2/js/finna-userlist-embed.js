@@ -1,7 +1,7 @@
 /*global VuFind, finna */
 finna.userListEmbed = (function userListEmbed() {
   var my = {
-    init: function init(id, offset) {
+    init: function init() {
       $('.public-list-embed.show-all').not('.inited').each(function initEmbed() {
         var embed = $(this);
         embed.addClass('inited');
@@ -33,7 +33,7 @@ finna.userListEmbed = (function userListEmbed() {
           )
             .done(function onListLoaded(response) {
               showMore.remove();
-              $(response.data.html).find('.result').each(function(ind) {
+              $(response.data.html).find('.result').each(function appendResult(/*index*/) {
                 resultsContainer.append($(this));
               });
               

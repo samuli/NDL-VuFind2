@@ -104,7 +104,7 @@ finna.imagePaginator = (function imagePaginator() {
    */
   function reindexPaginators() {
     $('.image-popup-trigger').each(function reindexPaginator(index) {
-        $(this).trigger('setPaginatorIndex', index);
+      $(this).trigger('setPaginatorIndex', index);
     });
   }
 
