@@ -38,7 +38,6 @@ finna.imagePaginator = (function imagePaginator() {
   function FinnaPaginator(images, settings) {
     var _ = this;
 
-    _.paginatorIndex = paginatorIndex;
     _.isList = settings.isList;
     if (_.isList) {
       settings.imagesOnNormal = 0;
@@ -50,7 +49,7 @@ finna.imagePaginator = (function imagePaginator() {
     _.images = images;
 
     _.trigger = _.root.find('.image-popup-trigger');
-    _.trigger.attr('paginator-index', paginatorIndex++);
+    _.setPaginatorIndex(paginatorIndex++);
 
     _.settings = $.extend({}, defaults, settings);
     _.setMaxImages(_.settings.imagesOnNormal);
@@ -105,18 +104,19 @@ finna.imagePaginator = (function imagePaginator() {
    */
   function reindexPaginators() {
     $('.image-popup-trigger').each(function reindexPaginator(index) {
-      $(this).attr('paginator-index', index);
-      $(this).trigger('setPaginatorIndex', index);
+        $(this).trigger('setPaginatorIndex', index);
     });
   }
 
   /**
-   * Helper function for overriding paginator index after initial page load.
+   * Helper function for setting paginator index.
    *
    * @param {int} index
    */
   FinnaPaginator.prototype.setPaginatorIndex = function setPaginatorIndex(index) {
-    this.paginatorIndex = index;
+    var _ = this;
+    _.paginatorIndex = index;
+    _.trigger.attr('paginator-index', index);
   };
 
   /**
