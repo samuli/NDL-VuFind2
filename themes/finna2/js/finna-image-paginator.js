@@ -213,7 +213,7 @@ finna.imagePaginator = (function imagePaginator() {
   FinnaPaginator.prototype.setEvents = function setEvents() {
     var _ = this;
 
-    _.trigger.off('setPaginatorIndex').on('setPaginatorIndex', function(event, index) {
+    _.trigger.off('setPaginatorIndex').on('setPaginatorIndex', function setIndex(event, index) {
       _.setPaginatorIndex(index);
     });
 
