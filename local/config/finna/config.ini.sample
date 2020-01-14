@@ -1320,6 +1320,10 @@ url_blacklist[] = '/booky\.fi\/(image\.php\?|description\.php\?)/'
 ; the actual filename.
 ;poster_sources[kavi] = "http://www.elonet.fi/tenho/media/{filename}"
 
+; Toggle (expand or collapse) all truncated record page core fields when toggling the main details table.
+; By default, toggling the details table does not affect record fields. Uncomment to toggle them together.
+;toggle_all_record_core_fields = true
+
 ; The following two sections control the Alphabetic Browse module.
 [AlphaBrowse]
 ; This setting controls how many headings are displayed on each page of results:

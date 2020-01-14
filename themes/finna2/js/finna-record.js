@@ -33,17 +33,25 @@ finna.record = (function finnaRecord() {
 
   function initHideDetails() {
     $('.show-details-button').click(function onClickShowDetailsButton() {
-      $('.record-information .record-details-more').removeClass('hidden');
+      var table = $('.record-information .record-details-more');
+      table.removeClass('hidden');
       $(this).addClass('hidden');
       $('.hide-details-button').removeClass('hidden');
       $('.record .description .more-link.wide').click();
+      if (table.data('toggle-all-fields')) {
+        table.find('button.more-link').trigger('click');
+      }
       sessionStorage.setItem('finna_record_details', '1');
     });
     $('.hide-details-button').click (function onClickHideDetailsButton() {
-      $('.record-information .record-details-more').addClass('hidden');
+      var table = $('.record-information .record-details-more');
+      table.addClass('hidden');
       $(this).addClass('hidden');
       $('.show-details-button').removeClass('hidden');
       $('.record .description .less-link.wide').click();
+      if (table.data('toggle-all-fields')) {
+        table.find('button.less-link').trigger('click');
+      }
       sessionStorage.removeItem('finna_record_details');
     });
     if ($('.record-information').height() > 350 && $('.show-details-button')[0]) {

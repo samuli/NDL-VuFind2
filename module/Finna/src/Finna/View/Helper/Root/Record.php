@@ -724,4 +724,15 @@ class Record extends \VuFind\View\Helper\Root\Record
         $tabs = $this->tabManager->getTabServices($this->driver);
         return isset($tabs[$tab]);
     }
+
+    /**
+     * Should all truncated record page core fields be toggled when the containing
+     * main details table is toggled?
+     *
+     * @return bool
+     */
+    public function toggleAllRecordCoreFields()
+    {
+        return $this->config->Record->toggle_all_record_core_fields ?? false;
+    }
 }

@@ -231,7 +231,8 @@
         );
       ?>
       <?php if (!empty($coreFields)): ?>
-        <table class="table table-finna-record record-details record-details-more">
+        <?php $toggleAllRecordCoreFields = $this->record($this->driver)->toggleAllRecordCoreFields(); ?>
+        <table class="table table-finna-record record-details record-details-more" data-toggle-all-fields="<?=$this->escapeHtmlAttr($toggleAllRecordCoreFields)?>">
           <?=$this->record($this->driver)->renderTemplate('core-fields.phtml', ['coreFields' => $coreFields]);?>
         </table>
       <?php endif; ?>
