@@ -2,9 +2,9 @@
 finna.userListEmbed = (function userListEmbed() {
   var my = {
     init: function init() {
-      $('.public-list-embed.show-all').not('.inited').each(function initEmbed() {
+      $('.public-list-embed.show-all').not(':data(inited)').each(function initEmbed() {
         var embed = $(this);
-        embed.addClass('inited');
+        embed.data('inited', '1');
 
         var showMore = embed.find('.show-more');
         var spinner = embed.find('.fa-spinner');

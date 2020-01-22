@@ -446,8 +446,8 @@ finna.myList = (function finnaMyList() {
     }
 
     // hide/show notes on images
-    $('.notes').not('.inited').each(function initNotes() {
-      $(this).addClass('inited');
+    $('.notes').not(':data(inited)').each(function initNotes() {
+      $(this).data('inited', '1');
       var noteButton = $(this).closest('.grid-body').find('.note-button');
       var noteOverlay = $(this).closest('.grid-body').find('.note-overlay');
       noteButton.click(function onClick() {
