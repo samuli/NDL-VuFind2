@@ -55,6 +55,13 @@ class UserListEmbed extends \Zend\View\Helper\AbstractHelper
     protected $listTable;
 
     /**
+     * Counter used to ensure unique id attributes when several lists are displayed
+     *
+     * @var int
+     */
+    protected $indexStart = 0;
+
+    /**
      * Constructor
      *
      * @param \VuFind\Search\Favorites\Results $results   Results
@@ -80,7 +87,7 @@ class UserListEmbed extends \Zend\View\Helper\AbstractHelper
         foreach (array_keys($opt) as $key) {
             if (!in_array(
                 $key, ['id', 'view', 'sort', 'limit', 'page',
-                       'title', 'description', 'date', 'headingLevel']
+                       'title', 'description', 'date', 'headingLevel', 'allowCopy']
             )
             ) {
                 unset($opt[$key]);
@@ -109,13 +116,16 @@ class UserListEmbed extends \Zend\View\Helper\AbstractHelper
         $resultsCopy->performAndProcessSearch();
         $list = $resultsCopy->getListObject();
         $view = $opt['view'] ?? 'list';
-
+        $idStart = $this->indexStart;
+        $this->indexStart += $resultsCopy->getResultTotal();
         return $this->getView()->render(
             'Helpers/userlist.phtml',
             [
                 'results' => $resultsCopy,
                 'params' => $params,
+                'indexStart' => $idStart,
                 'view' => $view,
+                'id' => $id,
                 'title' =>
                     (isset($opt['title']) && $opt['title'] === false)
                     ? null : $list->title,
@@ -125,7 +135,8 @@ class UserListEmbed extends \Zend\View\Helper\AbstractHelper
                 'date' =>
                     (isset($opt['date']) && $opt['date'] === false)
                     ? null : $list->finna_updated ?? $list->created,
-                'headingLevel' => $opt['headingLevel'] ?? 2
+                'headingLevel' => $opt['headingLevel'] ?? 2,
+                'allowCopy' => $opt['allowCopy'] ?? false
             ]
         );
     }

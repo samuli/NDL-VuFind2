@@ -88,6 +88,11 @@ class FeedbackController extends \VuFind\Controller\FeedbackController
             // Replace current R2 register form with the form for returning users
             return $this->forwardTo('Feedback', 'Form', ['id' => $regFormId]);
         }
+        
+        if ($this->params()->fromPost('forcingLogin', false)) {
+            // Parent response is a forced login for a non-logged user. Return it.
+            return $view;
+        }
 
         // Set record driver (used by FeedbackRecord form)
         $data = $this->getRequest()->getQuery('data', []);

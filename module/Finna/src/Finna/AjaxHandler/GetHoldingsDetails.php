@@ -28,13 +28,14 @@
 namespace Finna\AjaxHandler;
 
 use VuFind\Auth\ILSAuthenticator;
+use VuFind\Exception\ILS as ILSException;
 use VuFind\ILS\Connection;
 use VuFind\Session\Settings as SessionSettings;
 use Zend\Mvc\Controller\Plugin\Params;
 use Zend\View\Renderer\RendererInterface;
 
 /**
- * AJAX handler for checking that requests are valid.
+ * AJAX handler for fetching holdings details
  *
  * @category VuFind
  * @package  AJAX
@@ -88,7 +89,11 @@ class GetHoldingsDetails extends \VuFind\AjaxHandler\AbstractIlsAndUserAction
                 self::STATUS_HTTP_BAD_REQUEST
             );
         }
-        $patron = $this->ilsAuthenticator->storedCatalogLogin();
+        try {
+            $patron = $this->ilsAuthenticator->storedCatalogLogin();
+        } catch (ILSException $e) {
+            $patron = false;
+        }
 
         $holding = $this->ils->getHoldingsDetails($id, $key, $patron);
         $textFieldNames = $this->ils->getHoldingsTextFieldNames();
@@ -110,7 +115,7 @@ class GetHoldingsDetails extends \VuFind\AjaxHandler\AbstractIlsAndUserAction
                 }
             }
             if (isset($holding[$fieldName])) {
-                $holding['textfields'][$fieldName][] = $holding[$fieldName];
+                $holding['textfields'][$fieldName] = (array)$holding[$fieldName];
             }
         }
 

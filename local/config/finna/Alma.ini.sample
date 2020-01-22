@@ -11,11 +11,20 @@ apiKey = "your-key-here"
 ; email     Username needs to be a valid email address for the user
 loginMethod = email
 
+; Translation prefix to use for codes coming from Alma. By default a prefix is not
+; used, but a prefix may be used to distinguish the codes from any other
+; translations (or other libraries). To use a simple prefix in the default text
+; domain:
+; translationPrefix = "alma_"
+; To use a separate Alma text domain:
+; translationPrefix = "Alma::"
+;translationPrefix = "Alma::"
+
 [Holds]
 ; HMACKeys - A list of hold form element names that will be analyzed for consistency
 ; during hold form processing. Most users should not need to change this setting.
-; For activating title level hold request, add "description" and "level".
-HMACKeys = id:item_id:holding_id:level:description
+; For activating title level hold request, add "level".
+HMACKeys = id:item_id:holding_id:level
 
 ; defaultRequiredDate - A colon-separated list used to set the default "not required
 ; after" date for holds in the format days:months:years
@@ -24,7 +33,8 @@ defaultRequiredDate = 0:1:0
 
 ; extraHoldFields - A colon-separated list used to display extra visible fields in the
 ; place holds form. Supported values are "comments", "requiredByDate",
-; "pickUpLocation" and "requestGroup"
+; "pickUpLocation" and "requestGroup". "part_issue" is added automatically if needed
+; by the request type.
 extraHoldFields = comments:requiredByDate:pickUpLocation
 
 ; A Pick Up Location Code used to pre-select the pick up location drop down list and
@@ -38,6 +48,48 @@ defaultPickUpLocation = ""
 ;helpText = "Help text for all languages."
 ;helpText[en-gb] = "Help text for English language."
 
+; Whether item level holds are enabled. Possible values:
+;   true          - Always when Alma allows them
+;   false         - Never
+;   "description" - Only if the item has a description
+;enableItemHolds = true
+
+; List of bibliographic levels for which title hold is allowed
+titleHoldBibLevels = "monograph:monographpart:serial:serialpart:collectionpart:integratingresource"
+
+; Rules for filtering pickup locations. Each part of a rule set is separated by a
+; colon. A part contains a filter key, equals sign and values separated by commas.
+; A value can be enclosed in '' if it contains a colon or a comma. Values are
+; evaluated as regular expressions. A rule value can be negated by prepending it with
+; an exclamation mark (!).
+; Rules are processed in the order of occurrence until end or match=stop with a
+; matching rule is encountered.
+;
+; Supported filter keys are:
+; lib        - Item library code (a single value)
+; loc        - Item location code(s)
+; policy     - Item policy code(s)
+; availlib   - Library with available items (a single value)
+; avail      - Location with available item(s)
+; availpolicy - Item policy code(s) for locations with available items
+; unavaillib - Library with only unavailable items (a single value)
+; unavail    - Location with only unavailable item(s)
+; unavailpolicy - Item policy code(s) for locations with only unavailable items
+; group      - Patron group
+; level      - Hold level: 'copy' (meaning item) or 'title'
+; match      - 'stop' to stop processing further rules on match. Otherwise all matching
+;              rules are combined.
+; The following keys define the outcome of a matching filter:
+; pickup     - Allowed pickup libraries
+; home       - true to indicate that home address is allowed as a pickup location
+; work       - true to indicate that work address is allowed as a pickup location
+;
+; Examples:
+;
+; pickupLocationRules[] = "loc=MAIN:group=PATRON:pickup=MAINLIB;match=stop"
+; pickupLocationRules[] = "loc=MAIN:group=!STAFF:pickup=MAINLIB"
+; pickupLocationRules[] = "loc=MAIN,SUB:group=STAFF:pickup=MAINLIB,RES_SHARE:work=true"
+;pickupLocationRules[] = ""
 
 ; The "NewUser" section defines some default values that are used when creating an account
 ; in Alma via its API. This is only relevant if you use the authentication method "AlmaDatabase"
@@ -117,6 +169,27 @@ summary = "863abiz:866az"
 supplements = "867az"
 ; Fields to include in indexes. Default is none.
 indexes = "868az"
+; By default the holdings list is sorted alphabetically. This setting can be used
+; to manually set the order of locations by entering location codes as a
+; colon-separated list. By default the first entry has the highest priority (0), but
+; each entry can be given a custom priority after an equals sign (higher number means
+; lower priority). Unlisted locations will get a default priority of 999.
+;
+; Examples:
+; "MAIN:BRANCH:SUB"
+; "MAIN:PERSONNEL=9999"
+;
+;holdingsLocationOrder = "MAIN:BRANCH:SUB"
+
+; Whether to sort items by enumchron. Default is true.
+;sortByEnumChron = false
+
+; Process types to hide from holdings screen. Array keyed by Alma physical material
+; type IDs with values as a colon-separated lists. By default all are displayed.
+;hiddenProcessTypes[ISSUE] = "ACQ"
+; * can be used to denote all physical material types:
+;hiddenProcessTypes[*] = "ACQ"
+
 
 [OnlinePayment]
 ; Whether online payment is enabled. Default is false.
@@ -145,14 +218,26 @@ method = driver
 ; Default is address, zip, city, country and pin. Email and phone are included unless
 ; they have their own sections [updateEmail] or [updatePhone] defined. Also custom
 ; fields can be defined.
-fields[] = Address:address1
-fields[] = Address2:address2
-fields[] = Zip:zip
-fields[] = City:city
-fields[] = Country:country
-fields[] = Email:email
-fields[] = Phone:phone
-fields[] = self_service_pin:self_service_pin:password
+fields[] = "address_type:addresses[0][types]:multiselect"
+fields[] = "address_preferred:addresses[0][preferred]:boolean"
+fields[] = "Address:addresses[0][address1]"
+fields[] = "Address2:addresses[0][address2]"
+fields[] = "Zip:addresses[0][zip]"
+fields[] = "City:addresses[0][city]"
+fields[] = "Country:addresses[0][country]"
+fields[] = "address_type:addresses[1][types]:multiselect"
+fields[] = "address_preferred:addresses[1][preferred]:boolean"
+fields[] = "Address:addresses[1][address1]"
+fields[] = "Address2:addresses[1][address2]"
+fields[] = "Zip:addresses[1][zip]"
+fields[] = "City:addresses[1][city]"
+fields[] = "Country:addresses[1][country]"
+fields[] = "Email:email"
+fields[] = "Phone:phone"
+fields[] = "self_service_pin:self_service_pin:pin4"
+; A colon-separated list of disabled fields that can be used to remove one or more of
+; the fields configured above (for easier centralized configuration management):
+;disabledFields = "self_service_pin"
 ; url is required for the url method. url can be a single address or an array of
 ; language-specific addresses. First example is a single one:
 ;url = http://address.of.change.form

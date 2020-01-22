@@ -224,6 +224,8 @@ class Loader extends \VuFind\Cover\Loader
 
         if (isset($this->url)) {
             $keys['url'] = md5($this->url);
+            $host = parse_url($this->url, PHP_URL_HOST);
+            $keys['host'] = substr($host, 0, 100);
         } else {
             if (isset($ids['isbn'])) {
                 $keys['isbn'] = $ids['isbn']->get13();
@@ -395,6 +397,10 @@ class Loader extends \VuFind\Cover\Loader
         }
 
         $image = file_get_contents($tempFile);
+
+        // We no longer need the temp file:
+        @unlink($tempFile);
+
         if (strlen($image) === 0) {
             return false;
         }
@@ -404,42 +410,35 @@ class Loader extends \VuFind\Cover\Loader
             return false;
         }
 
-        list($width, $height, $type) = @getimagesize($tempFile);
+        list($width, $height, $type) = @getimagesizefromstring($image);
 
-        $reqWidth = $this->width;
-        $reqHeight = $this->height;
+        $reqWidth = $this->width ?: $width;
+        $reqHeight = $this->height ?: $height;
 
-        if ($reqWidth && $reqHeight) {
-            $quality = 90;
+        $quality = 90;
+        if ($width > $reqWidth || $height > $reqHeight) {
+            $newHeight = min($height, $reqHeight);
+            $newWidth = round($newHeight * ($width / $height));
+            if ($newWidth > $reqWidth) {
+                $newWidth = $reqWidth;
+                $newHeight = round($newWidth * ($height / $width));
+            }
 
-            if ($width > $reqWidth || $height > $reqHeight) {
-                $newHeight = min($height, $reqHeight);
-                $newWidth = round($newHeight * ($width / $height));
-                if ($newWidth > $reqWidth) {
-                    $newWidth = $reqWidth;
-                    $newHeight = round($newWidth * ($height / $width));
-                }
-
-                $imageGDResized = imagecreatetruecolor($newWidth, $newHeight);
-                imagecopyresampled(
-                    $imageGDResized, $imageGD, 0, 0, 0, 0,
-                    $newWidth, $newHeight, $width, $height
-                );
-                if (!@imagejpeg($imageGDResized, $finalFile, $quality)) {
-                    return false;
-                }
-            } else {
+            $imageGDResized = imagecreatetruecolor($newWidth, $newHeight);
+            imagecopyresampled(
+                $imageGDResized, $imageGD, 0, 0, 0, 0,
+                $newWidth, $newHeight, $width, $height
+            );
+            if (!@imagejpeg($imageGDResized, $finalFile, $quality)) {
+                return false;
+            }
+        } else {
+            if ($type !== IMG_JPG) {
                 if (!@imagejpeg($imageGD, $finalFile, $quality)) {
                     return false;
                 }
-            }
-
-            // We no longer need the temp file:
-            @unlink($tempFile);
-        } else {
-            // Move temporary file to final location:
-            if (!$this->validateAndMoveTempFile($image, $tempFile, $finalFile)) {
-                return false;
+            } else {
+                file_put_contents($finalFile, $image);
             }
         }
 

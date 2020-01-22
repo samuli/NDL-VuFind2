@@ -631,6 +631,15 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
                         );
                         return $view;
                     }
+                    if ('pin4' === $fieldConfig['type'] && !empty($data[$fieldName])
+                        && !preg_match('/^[0-9]{4}$/', $data[$fieldName])
+                    ) {
+                        $this->flashMessenger()->addErrorMessage(
+                            $this->translate('password_error_invalid') . ': '
+                            . $this->translate($fieldConfig['label'])
+                        );
+                        return $view;
+                    }
                 }
 
                 try {
@@ -1446,7 +1455,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
     }
 
     /**
-     * Check if nickname is avaliable
+     * Check if nickname is available
      *
      * @param string $nickname User nickname
      *

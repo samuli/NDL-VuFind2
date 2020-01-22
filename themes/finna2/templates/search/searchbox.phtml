@@ -29,7 +29,8 @@
             $this->searchClassId = 'R2';
             break;
         default:
-            $this->searchClassId = 'Solr';
+            $config = $this->config()->get('config');
+            $this->searchClassId = $config->Site->defaultSearchBackend ?? 'Solr';
         }
     }
 
@@ -105,11 +106,11 @@
     <?php if ($module == 'record' || $module == 'collection'): ?>
       <div class="record-back hidden-print">
           <?php
-          $html = '<span><i class="fa fa-arrow-alt-left"></i></span>';
-          $html .= '<span class="back-to-search-text hidden-xs hidden-sm">' . $this->transEsc('Back to search results') . '</span>';
-          $previousSearch = $this->searchMemory()->getLastSearchLink($html);
-          if ($previousSearch !== ''):
-              ?>
+            $html = '<span><i class="fa fa-arrow-alt-left"></i></span>';
+            $html .= '<span class="back-to-search-text hidden-xs hidden-sm">' . $this->transEsc('Back to search results') . '</span>';
+            $previousSearch = $this->searchMemory()->getLastSearchLink($html);
+            if ($previousSearch !== ''):
+          ?>
             <div class="back-to-search"><?=$previousSearch?></div>
           <?php endif; ?>
       </div>
@@ -209,12 +210,12 @@
         $searchTypes = ['search' => 'local', 'primo' => 'pci', 'eds' => 'eds', 'r2search' => 'R2', 'summon' => 'summon'];
         if (isset($searchTypes[$module]) && !$this->translationEmpty('tooltip_' . $searchTypes[$module] . '_search_html')) {
           $tooltipClass = 'tooltip-search-' . $searchTypes[$module];
-          $tooltipText = $this->transEsc('tooltip_' . $searchTypes[$module] . '_search_html');
+          $tooltipText = $this->translate('tooltip_' . $searchTypes[$module] . '_search_html');
         }
 
         if (isset($tooltipClass) && isset($tooltipText)):
       ?>
-        <button aria-label="<?= $this->transEsc('Search Tips') ?>" class="tooltip-button <?=$tooltipClass?> pull-right hidden-xs" data-toggle="tooltip" data-placement="auto" data-html="true" data-original-title="<?=$tooltipText?>">
+        <button aria-label="<?= $this->transEsc('Search Tips') ?>" class="tooltip-button <?=$tooltipClass?> pull-right hidden-xs" data-toggle="tooltip" data-placement="auto" data-html="true" data-original-title="<?=$this->escapeHtmlAttr($tooltipText)?>">
           <i class="fa fa-question-circle-big"></i>
         </button>
       <?php endif; ?>

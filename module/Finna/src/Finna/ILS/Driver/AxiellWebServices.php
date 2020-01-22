@@ -25,6 +25,7 @@
  * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @author   Konsta Raunio <konsta.raunio@helsinki.fi>
+ * @author   Juha Luoma <juha.luoma@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development:plugins:ils_drivers Wiki
  */
@@ -203,15 +204,25 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
     protected $singleReservationQueue = false;
 
     /**
-     * Messaging settings to be shown in the interface
+     * Messaging methods excluded from a service
      *
      * @var array
      */
-    protected $messagingSettings = [
+    protected $messagingBlackLists = [
         'pickUpNotice' => [],
         'overdueNotice' => [],
         'dueDateAlert' => []
-     ];
+    ];
+
+    /**
+     * Messaging settings status code mappings
+     *
+     * @var array
+     */
+    protected $statuses =  [
+        'snailMail'             => 'print',
+        'ilsDefined'            => 'inactive',
+    ];
 
     /**
      * SOAP Options
@@ -271,8 +282,6 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
      */
     public function getMyProfile($patron)
     {
-        $this->debug("getMyProfile called");
-
         $username = $patron['cat_username'];
         $cacheKey = $this->getPatronCacheKey($username);
         $profile = $this->getCachedData($cacheKey);
@@ -407,19 +416,19 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
             : [];
         $this->holdingsBranchOrder = array_flip($this->holdingsBranchOrder);
 
-        $this->messagingSettings['pickUpNotice']
-            = isset($this->config['messagingSettings']['pickUpNotice'])
-            ? explode(':', $this->config['messagingSettings']['pickUpNotice'])
+        $this->messagingBlackLists['pickUpNotice']
+            = isset($this->config['messagingBlackLists']['pickUpNotice'])
+            ? explode(':', $this->config['messagingBlackLists']['pickUpNotice'])
             : [];
 
-        $this->messagingSettings['overdueNotice']
-            = isset($this->config['messagingSettings']['overdueNotice'])
-            ? explode(':', $this->config['messagingSettings']['overdueNotice'])
+        $this->messagingBlackLists['overdueNotice']
+            = isset($this->config['messagingBlackLists']['overdueNotice'])
+            ? explode(':', $this->config['messagingBlackLists']['overdueNotice'])
             : [];
 
-        $this->messagingSettings['dueDateAlert']
-            = isset($this->config['messagingSettings']['dueDateAlert'])
-            ? explode(':', $this->config['messagingSettings']['dueDateAlert'])
+        $this->messagingBlackLists['dueDateAlert']
+            = isset($this->config['messagingBlackLists']['dueDateAlert'])
+            ? explode(':', $this->config['messagingBlackLists']['dueDateAlert'])
             : [];
     }
 
@@ -1150,7 +1159,7 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
            'holdable' => $holdable,
            'availability' => null,
            'callnumber' => null,
-           'location' => null
+           'location' => '__HOLDINGSSUMMARYLOCATION__'
         ];
     }
 
@@ -1263,10 +1272,8 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
 
             foreach ($emailAddresses as $emailAddress) {
                 if ($emailAddress->isActive == 'yes') {
-                    $userCached['email'] = isset($emailAddress->address)
-                        ? $emailAddress->address : '';
-                    $userCached['emailId']
-                        = isset($emailAddress->id) ? $emailAddress->id : '';
+                    $userCached['email'] = $emailAddress->address ?? '';
+                    $userCached['emailId'] = $emailAddress->id ?? '';
                 }
             }
         }
@@ -1275,16 +1282,11 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
             $addresses = $this->objectToArray($info->addresses->address);
             foreach ($addresses as $address) {
                 if ($address->isActive == 'yes') {
-                    $userCached['address1'] = isset($address->streetAddress)
-                        ? $address->streetAddress : '';
-                    $userCached['zip'] = isset($address->zipCode)
-                        ? $address->zipCode : '';
-                    $userCached['city'] = isset($address->city)
-                        ? $address->city : '';
-                    $userCached['country'] = isset($address->country)
-                        ? $address->country : '';
-                    $userCached['addressId'] = isset($address->id)
-                        ? $address->id : '';
+                    $userCached['address1'] = $address->streetAddress ?? '';
+                    $userCached['zip'] = $address->zipCode ?? '';
+                    $userCached['city'] = $address->city ?? '';
+                    $userCached['country'] = $address->country ?? '';
+                    $userCached['addressId'] = $address->id ?? '';
                 }
             }
         }
@@ -1293,8 +1295,7 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
             $phoneNumbers = $this->objectToArray($info->phoneNumbers->phoneNumber);
             foreach ($phoneNumbers as $phoneNumber) {
                 if ($phoneNumber->sms->useForSms == 'yes') {
-                    $userCached['phone'] = isset($phoneNumber->areaCode)
-                        ? $phoneNumber->areaCode : '';
+                    $userCached['phone'] = $phoneNumber->areaCode ?? '';
                     $userCached['phoneAreaCode'] = $userCached['phone'];
                     if (isset($phoneNumber->localCode)) {
                         $userCached['phone'] .= $phoneNumber->localCode;
@@ -1307,95 +1308,64 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
             }
         }
 
-        $validServices = [
-           'pickUpNotice'  => [
-               'letter', 'email', 'sms', 'none'
-           ],
-           'overdueNotice' => [
-               'letter', 'email', 'sms', 'none'
-           ],
-           'dueDateAlert' => [
-               'email', 'none'
-           ]
-        ];
-
+        $infoServices = $info->messageServices->messageService ?? [];
         $services = [];
-        foreach ($validServices as $service => $validMethods) {
-            $typeLabel = 'dueDateAlert' === $service
-                ? $this->translate(
-                    "messaging_settings_type_dueDateAlertEmail"
-                )
-                : $this->translate("messaging_settings_type_$service");
-            $data = [
-                'active' => false,
-                'type' => $typeLabel,
-                'sendMethods' => []
+        $messagingSettings = [];
+
+        foreach ($infoServices as $service => $options) {
+            $current = [
+                'transport_type' =>
+                    (string)$options->sendMethods->sendMethod->value,
             ];
-            if ($this->messagingSettings[$service]) {
-                foreach ($this->messagingSettings[$service] as $methodKey) {
-                    if (in_array($methodKey, $validMethods)
-                    ) {
-                        $data['sendMethods'] += [
-                            "$methodKey" => [
-                                'active' => false,
-                                'type' => $methodKey
-                            ]
-                        ];
-                    } else {
-                        $this->error(
-                            "Messaging settings for $service are invalid: $methodKey"
-                        );
-                    }
-                }
+            if (isset($options->nofDays)) {
+                $current['nofDays'] = $options->nofDays->value;
             }
-            $services[$service] = $data;
+            $services[$options->serviceType] = $current;
         }
 
-        if (isset($info->messageServices)) {
-            foreach ($info->messageServices->messageService as $service) {
-                $methods = [];
-                $serviceType = $service->serviceType;
-                $numOfDays = isset($service->nofDays->value)
-                    ? $service->nofDays->value : 'none';
-                $active = $service->isActive === 'yes';
-
-                $sendMethods = $this->objectToArray($service->sendMethods);
-
-                foreach ($sendMethods as $method) {
-                    $methodType = isset($method->sendMethod->value)
-                        ? $this->mapCode($method->sendMethod->value) : 'none';
-                    $services[$serviceType]['sendMethods'][$methodType]['active']
-                        = isset($method->sendMethod->isActive)
-                            && $method->sendMethod->isActive === 'yes';
-                }
-
-                foreach ($services[$serviceType]['sendMethods'] as $key => &$data) {
-                    $methodLabel
-                        = $this->translate("messaging_settings_method_$key");
-
-                    if ($numOfDays > 0 && $key == 'email') {
-                        $methodLabel =  $this->translate(
-                            $numOfDays == 1
-                            ? 'messaging_settings_num_of_days'
+        // We need to find proper options for current service
+        foreach ($this->getMessageServices($user) as $service => $methods) {
+            $settings = [
+                'type' => $service,
+                'settings' => [
+                    'transport_types' => [
+                        'type' => 'select',
+                        'options' => [],
+                        'value' => $this->mapCodeToStatus(
+                            $services[$service]['transport_type']
+                        )
+                    ],
+                ]
+            ];
+            if ($service === 'dueDateAlert') {
+                $options = [];
+                for ($i = 0; $i <= 5; $i++) {
+                    $options[$i] = [
+                        'name' => $this->translate(
+                            1 === $i ? 'messaging_settings_num_of_days'
                             : 'messaging_settings_num_of_days_plural',
-                            ['%%days%%' => $numOfDays]
-                        );
-                    }
-
-                    if (!$active) {
-                        $methodLabel
-                            =  $this->translate("messaging_settings_method_none");
-                    }
-                    $data['method'] = $methodLabel;
+                            ['%%days%%' => $i]
+                        ),
+                        'active' => $i === $services[$service]['nofDays']
+                    ];
                 }
-
-                if (isset($services[$serviceType])) {
-                    $services[$serviceType]['active'] = $active;
-                    $services[$serviceType]['numOfDays'] = $numOfDays;
-                }
+                $settings['settings']['days_in_advance'] = [
+                    'type' => 'select',
+                    'value' => $services[$service]['nofDays'],
+                    'options' => $options,
+                    'readonly' => false
+                ];
             }
+            foreach ($methods as $methodId => $method) {
+                $coded = $this->mapCodeToStatus($method);
+                $settings['settings']['transport_types']['options'][$coded] = [
+                        'active' => $services[$service]['transport_type']
+                            === $method
+                    ];
+            }
+            $messagingSettings[$service] = $settings;
         }
-        $userCached['messagingServices'] = $services;
+        $userCached['messagingServices'] = $messagingSettings;
 
         $this->putCachedData($cacheKey, $userCached);
 
@@ -1583,7 +1553,7 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
         $formatted = [];
         $transList = [];
         $transactions = $this->objectToArray(
-            $result->loanHistoryResponse->loanHistoryItems->loanHistoryItem
+            $result->loanHistoryResponse->loanHistoryItems->loanHistoryItem ?? []
         );
         foreach ($transactions as $transaction => $record) {
             $obj = $record->catalogueRecord;
@@ -1638,6 +1608,214 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
         }
 
         return $result->authenticatePatronResult->patronId;
+    }
+
+    /**
+     * Update patron messaging settings
+     *
+     * @param array $patron The patron array from patronLogin
+     * @param array $params Parameters
+     *
+     * @return array        Status of request and if it was successful.
+     */
+    public function updateMessagingSettings($patron, $params)
+    {
+        $result = [
+            'success' => true,
+            'status' => 'request_change_done'
+        ];
+
+        foreach ($params as $service => $settings) {
+            $transport = $settings['settings']['transport_types'] ?? '';
+            if (empty($transport)) {
+                continue;
+            }
+            $coded = $this->mapStatusToCode($transport['value']);
+            $current = [
+                'serviceType' => $service,
+                'sendMethod' => $coded
+            ];
+            if ($coded === 'ilsDefined') {
+                $status = $this->removeMessageService($patron, $current);
+            } else {
+                if (isset($settings['settings']['days_in_advance'])) {
+                    $current['nofDays']
+                        = $settings['settings']['days_in_advance']['value'];
+                }
+                $status = $this->changeMessageService($patron, $current);
+            }
+            if (!$status['success']) {
+                $result = $status;
+            }
+        }
+        return $result;
+    }
+
+    /**
+     * Get message services available
+     *
+     * @param array $patron The patron array from patronLogin
+     *
+     * @throws DateException
+     * @throws ILSException
+     * @return array        Array of used message services and methods.
+     */
+    protected function getMessageServices($patron)
+    {
+        if (empty($this->patronaurora_wsdl)) {
+            return [];
+        }
+
+        $function = 'getMessageServices';
+        $functionResult = 'messageServicesResponse';
+
+        $username = $patron['cat_username'];
+        $password = $patron['cat_password'];
+
+        $conf = [
+            'arenaMember' => $this->arenaMember,
+            'language' => $this->getLanguage(),
+            'user' => $username,
+            'password' => $password,
+        ];
+
+        $result = $this->doSOAPRequest(
+            $this->patronaurora_wsdl, $function, $functionResult, $username,
+            ['messageServicesRequest' => $conf]
+        );
+
+        $statusAWS = $result->$functionResult->status;
+
+        if ($statusAWS->type != 'ok') {
+            $message = $this->handleError($function, $statusAWS, $username);
+            if ($message == 'ils_connection_failed') {
+                throw new ILSException($message);
+            }
+            return [];
+        }
+
+        $resultArray = $this->objectToArray(
+            $result->$functionResult->messageServices->messageService
+        );
+        $returnable = [];
+        foreach ($resultArray as $service => $sendMethods) {
+            $current = [];
+            $currentMethods = $sendMethods->sendMethods->sendMethod;
+            $serviceType = $sendMethods->serviceType;
+            foreach ($currentMethods as $key => $value) {
+                $method = $value->value;
+                if (in_array($method, $this->messagingBlackLists[$serviceType])) {
+                    continue;
+                }
+                $current[] = $value->value;
+            }
+            $returnable[$serviceType] = $current;
+        }
+
+        return $returnable;
+    }
+
+    /**
+     * Function to change message service in SOAP API
+     *
+     * @param array $patron The patron array from patronLogin
+     * @param array $params Parameters
+     *
+     * @throws DateException
+     * @throws ILSException
+     * @return array        Status of request and if it was successful.
+     */
+    protected function changeMessageService($patron, $params)
+    {
+        $function = 'changeMessageService';
+        $functionResult = 'changeMessageServiceResponse';
+
+        $username = $patron['cat_username'];
+        $password = $patron['cat_password'];
+
+        $conf = [
+            'arenaMember' => $this->arenaMember,
+            'language' => $this->getLanguage(),
+            'user' => $username,
+            'password' => $password,
+            'sendMethod' => [
+                'value' => $params['sendMethod']
+            ],
+            'serviceType' => $params['serviceType']
+        ];
+
+        if ($params['serviceType'] === 'dueDateAlert') {
+            $conf['nofDays'] = [
+                'value' => $params['nofDays']
+            ];
+        }
+
+        $result = $this->doSOAPRequest(
+            $this->patronaurora_wsdl, $function, $functionResult, $username,
+            ['changeMessageServiceRequest' => $conf]
+        );
+
+        $statusAWS = $result->$functionResult->status;
+
+        if ($statusAWS->type != 'ok') {
+            $message = $this->handleError($function, $statusAWS, $username);
+            if ($message == 'ils_connection_failed') {
+                throw new ILSException($message);
+            }
+            return [
+                'success' => false,
+                'status' => $statusAWS
+            ];
+        }
+
+        return ['success' => true];
+    }
+
+    /**
+     * Function to remove message service from use in SOAP API
+     *
+     * @param array $patron The patron array from patronLogin
+     * @param array $params Parameters
+     *
+     * @throws DateException
+     * @throws ILSException
+     * @return array        Status of request and if it was successful.
+     */
+    protected function removeMessageService($patron, $params)
+    {
+        $function = 'removeMessageService';
+        $functionResult = 'removeMessageServiceResponse';
+
+        $username = $patron['cat_username'];
+        $password = $patron['cat_password'];
+
+        $conf = [
+            'arenaMember' => $this->arenaMember,
+            'language' => $this->getLanguage(),
+            'user' => $username,
+            'password' => $password,
+            'serviceType' => $params['serviceType']
+        ];
+
+        $result = $this->doSOAPRequest(
+            $this->patronaurora_wsdl, $function, $functionResult, $username,
+            ['removeMessageServiceRequest' => $conf]
+        );
+
+        $statusAWS = $result->$functionResult->status;
+
+        if ($statusAWS->type != 'ok') {
+            $message = $this->handleError($function, $statusAWS, $username);
+            if ($message == 'ils_connection_failed') {
+                throw new ILSException($message);
+            }
+            return [
+                'success' => false,
+                'status' => $statusAWS
+            ];
+        }
+
+        return ['success' => true];
     }
 
     /**
@@ -2724,24 +2902,31 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
     }
 
     /**
-     * Map codes
+     * Code to status
      *
      * @param string $code as a string
      *
      * @return string Mapped code
      */
-    protected function mapCode($code)
+    protected function mapCodeToStatus($code)
     {
-        $statuses =  [
-            //Map messaging settings
-            'snailMail'             => 'letter',
-            'ilsDefined'            => 'none'
-        ];
-
-        if (isset($statuses[$code])) {
-            return $statuses[$code];
+        if (isset($this->statuses[$code])) {
+            return $this->statuses[$code];
         }
         return $code;
+    }
+
+    /**
+     * Status to code
+     *
+     * @param string $status as a string
+     *
+     * @return string Mapped status
+     */
+    protected function mapStatusToCode($status)
+    {
+        $found = array_search($status, $this->statuses);
+        return $found !== false ? $found : $status;
     }
 
     /**

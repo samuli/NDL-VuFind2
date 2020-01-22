@@ -383,6 +383,7 @@ $config = [
             'VuFind\Hierarchy\TreeDataFormatter\PluginManager' => 'VuFind\ServiceManager\AbstractPluginManagerFactory',
             'VuFind\Hierarchy\TreeDataSource\PluginManager' => 'VuFind\ServiceManager\AbstractPluginManagerFactory',
             'VuFind\Hierarchy\TreeRenderer\PluginManager' => 'VuFind\ServiceManager\AbstractPluginManagerFactory',
+            'VuFind\Http\PhpEnvironment\Request' => 'Zend\ServiceManager\Factory\InvokableFactory',
             'VuFind\ILS\Connection' => 'VuFind\ILS\ConnectionFactory',
             'VuFind\ILS\Driver\PluginManager' => 'VuFind\ServiceManager\AbstractPluginManagerFactory',
             'VuFind\ILS\Logic\Holds' => 'VuFind\ILS\Logic\LogicFactory',
@@ -428,13 +429,18 @@ $config = [
             'VuFindHttp\HttpService' => 'VuFind\Service\HttpServiceFactory',
             'VuFindSearch\Service' => 'VuFind\Service\SearchServiceFactory',
             'Zend\Db\Adapter\Adapter' => 'VuFind\Db\AdapterFactory',
+            'Zend\Http\PhpEnvironment\RemoteAddress' => 'VuFind\Http\PhpEnvironment\RemoteAddressFactory',
             'Zend\Mvc\I18n\Translator' => 'VuFind\I18n\Translator\TranslatorFactory',
             'Zend\Session\SessionManager' => 'VuFind\Session\ManagerFactory',
+        ],
+        'delegators' => [
+            'VuFind\Http\PhpEnvironment\Request' => [ \Zend\Mvc\Console\Service\ConsoleRequestDelegatorFactory::class ],
         ],
         'initializers' => [
             'VuFind\ServiceManager\ServiceInitializer',
         ],
         'aliases' => [
+            'Request' => 'VuFind\Http\PhpEnvironment\Request',
             'VuFind\AccountCapabilities' => 'VuFind\Config\AccountCapabilities',
             'VuFind\AuthManager' => 'VuFind\Auth\Manager',
             'VuFind\AuthPluginManager' => 'VuFind\Auth\PluginManager',
@@ -520,6 +526,7 @@ $config = [
         'config_reader' => [ /* see VuFind\Config\PluginManager for defaults */ ],
         // PostgreSQL sequence mapping
         'pgsql_seq_mapping'  => [
+            'auth_hash'        => ['id', 'auth_hash_id_seq'],
             'comments'         => ['id', 'comments_id_seq'],
             'external_session' => ['id', 'external_session_id_seq'],
             'oai_resumption'   => ['id', 'oai_resumption_id_seq'],
@@ -654,7 +661,8 @@ $staticRoutes = [
     'Primo/Advanced', 'Primo/Home', 'Primo/Search',
     'QRCode/Show', 'QRCode/Unavailable', 'Records/Home',
     'Relais/Login', 'Relais/Request',
-    'Search/Advanced', 'Search/CollectionFacetList', 'Search/Email',
+    'Search/Advanced', 'Search/CollectionFacetList',
+    'Search/EditMemory', 'Search/Email',
     'Search/FacetList', 'Search/History', 'Search/Home', 'Search/NewItem',
     'Search/OpenSearch', 'Search/Reserves', 'Search/ReservesFacetList',
     'Search/Results', 'Search/Suggest',
