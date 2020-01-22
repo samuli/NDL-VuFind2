@@ -13,8 +13,7 @@ finna.userListEmbed = (function userListEmbed() {
           spinner.removeClass('hide').show();
 
           var btn = $(this);
-          btn.addClass('inited');
-          
+
           var id = btn.data('id');
           var offset = btn.data('offset');
           var indexStart = btn.data('start-index');
