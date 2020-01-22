@@ -1,4 +1,4 @@
-<div class="public-list-embed<?= $this->showAll ? ' show-all' : ''?>">
+<div class="public-list-embed<?= $this->showAllLink ? ' show-all' : ''?>">
   <div class="clearfix hidden-print">
     <div class="public-list-row">
       <?php if ($this->title): ?><h<?=$this->headingLevel?>><?= $this->title ?></h<?=$this->headingLevel?>><?php endif ?>
@@ -28,7 +28,7 @@
       'hideCartControls' => true
     ])
     ?>
-    <?php if ($this->showAll): ?>
+    <?php if ($this->showAllLink): ?>
       <?php $limit = $this->params->getLimit(); ?>  
       <div class="show-more">
         <div><?= $this->translate(

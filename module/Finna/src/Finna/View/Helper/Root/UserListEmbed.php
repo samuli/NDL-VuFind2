@@ -102,7 +102,7 @@ class UserListEmbed extends \Zend\View\Helper\AbstractHelper
             if (!in_array(
                 $key, ['id', 'view', 'sort', 'limit', 'page',
                        'title', 'description', 'date', 'headingLevel',
-                       'allowCopy', 'showAll']
+                       'allowCopy', 'showAllLink']
             )
             ) {
                 unset($opt[$key]);
@@ -154,8 +154,8 @@ class UserListEmbed extends \Zend\View\Helper\AbstractHelper
                 'indexStart' => $idStart,
                 'view' => $view,
                 'total' => $total,
-                'showAll' =>
-                    ($opt['showAll'] ?? false)
+                'showAllLink' =>
+                    ($opt['showAllLink'] ?? false)
                     && $view === 'grid'
                     && $opt['limit'] < $total,
                 'title' =>
