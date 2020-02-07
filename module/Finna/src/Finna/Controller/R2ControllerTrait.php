@@ -42,6 +42,23 @@ use Zend\Session\Container as SessionContainer;
 trait R2ControllerTrait
 {
     /**
+     * Handle onDispatch event
+     *
+     * @param \Zend\Mvc\MvcEvent $e Event
+     *
+     * @return mixed
+     */
+    public function onDispatch(\Zend\Mvc\MvcEvent $e)
+    {
+        $helper = $this->getViewRenderer()->plugin('R2RestrictedRecord');
+        if (!$helper->isAvailable()) {
+            throw new \Exception('R2 is disabled');
+        }
+
+        return parent::onDispatch($e);
+    }
+
+    /**
      * Replace R2 new user registration form id with the id for returning
      * user registration form.
      *

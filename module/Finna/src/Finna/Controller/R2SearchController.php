@@ -38,6 +38,8 @@ namespace Finna\Controller;
  */
 class R2SearchController extends SearchController
 {
+    use \Finna\Controller\R2ControllerTrait;
+
     /**
      * Search class family to use.
      *
