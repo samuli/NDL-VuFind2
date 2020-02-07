@@ -8,3 +8,14 @@ apiApproverUser =
 
 ; REMS catalog item id's
 catalogItem[entitlement] =
+
+[RegistrationForm]
+
+; REMS registration form field id's
+field[firstname] = 1
+field[lastname] = 2
+field[email] = 3
+field[usage_purpose] = 4
+field[usage_desc] = 5
+field[user_id] = 6
+

@@ -173,15 +173,20 @@ class RemsService implements
         }
         $applicationId = $response['application-id'];
 
+        $fieldIds = $this->config->RegistrationForm->field;
+
         // 3. Save draft
         $params =  [
             'application-id' => $applicationId,
             'field-values' =>  [
-                ['field' => 58, 'value' => $firstname],
-                ['field' => 59, 'value' => $lastname],
-                ['field' => 60, 'value' => $email],
-                ['field' => 61, 'value' => $formParams['usage_purpose']],
-                ['field' => 62, 'value' => $formParams['usage_desc']]
+                ['field' => (int)$fieldIds['firstname'], 'value' => $firstname],
+                ['field' => (int)$fieldIds['lastname'], 'value' => $lastname],
+                ['field' => (int)$fieldIds['email'], 'value' => $email],
+                ['field' => (int)$fieldIds['usage_purpose'],
+                 'value' => $formParams['usage_purpose']],
+                ['field' => (int)$fieldIds['usage_desc'],
+                 'value' => $formParams['usage_desc']],
+                ['field' => (int)$fieldIds['user_id'], 'value' => 'lorem ipsum']
             ]
         ];
 
