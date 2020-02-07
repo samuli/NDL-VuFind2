@@ -68,10 +68,15 @@ class RemsServiceFactory implements FactoryInterface
         $sessionContainer = new \Zend\Session\Container(
             'rems_permission', $container->get(\Zend\Session\SessionManager::class)
         );
+        $shibbolethSessionContainer = new \Zend\Session\Container(
+            'Shibboleth', $container->get(\Zend\Session\SessionManager::class)
+        );
+
         return new $requestedName(
             $container->get(\VuFind\Config\PluginManager::class)
                 ->get('Rems'),
             $sessionContainer,
+            $shibbolethSessionContainer['username'],
             $container->get('VuFind\Auth\Manager')
         );
     }

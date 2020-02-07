@@ -87,20 +87,31 @@ class RemsService implements
     protected $auth;
 
     /**
+     * National identification number of current user (encrypted).
+     *
+     * @var string
+     */
+    protected $encryptedUserIdentificationNumber;
+
+    /**
      * Constructor.
      *
      * @param Config         $config  Configuration
      * @param SessionManager $session Session container
      * @param Manager        $auth    Auth manager
+     * @param String         $userId  National identification number of current user
      */
     public function __construct(
         Config $config,
         Container $session = null,
-        Manager $auth
+        Manager $auth,
+        String $userId
     ) {
         $this->config = $config;
         $this->session = $session;
         $this->auth = $auth;
+        $this->userIdentificationNumber
+            = $this->encryptUserIdentificationNumber($userIdentificationNumber);
     }
 
     /**
@@ -186,7 +197,8 @@ class RemsService implements
                  'value' => $formParams['usage_purpose']],
                 ['field' => (int)$fieldIds['usage_desc'],
                  'value' => $formParams['usage_desc']],
-                ['field' => (int)$fieldIds['user_id'], 'value' => 'lorem ipsum']
+                ['field' => (int)$fieldIds['user_id'],
+                 'value' => $this->userIdentificationNumber]
             ]
         ];
 
@@ -371,6 +383,41 @@ class RemsService implements
             list($domain, $userId) = explode(':', $userId, 2);
         }
         return $userId;
+    }
+
+    /**
+     * Encrypt user identification number.
+     *
+     * @param string $userId User identification number.
+     *
+     * @return string Encrypted
+     */
+    protected function encryptUserIdentificationNumber($userId)
+    {
+        $keyPath = $this->config->RegistrationForm->public_key ?? null;
+        if (null === $keyPath) {
+            throw new \Exception('Public key path not configured');
+        }
+        if (false === ($fp = fopen($keyPath, 'r'))) {
+            throw new \Exception('Error opening public key');
+        }
+        if (false === ($key = fread($fp, 8192))) {
+            throw new \Exception('Error reading public key');
+        }
+        fclose($fp);
+
+        if (false === openssl_get_publickey($key)) {
+            throw new \Exception('Error preparing public key');
+        }
+
+        if (!openssl_public_encrypt(
+            $userId, $encrypted, $key, OPENSSL_PKCS1_OAEP_PADDING
+        )
+        ) {
+            throw new \Exception('Error encrypting user id');
+        }
+
+        return base64_encode($encrypted);
     }
 
     /**

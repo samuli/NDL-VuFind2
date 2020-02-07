@@ -62,6 +62,30 @@ class Suomifi extends Shibboleth
     }
 
     /**
+     * Attempt to authenticate the current user.  Throws exception if login fails.
+     *
+     * @param \Zend\Http\PhpEnvironment\Request $request Request object containing
+     * account credentials.
+     *
+     * @throws AuthException
+     * @return \VuFind\Db\Row\User Object representing logged-in user.
+     */
+    public function authenticate($request)
+    {
+        $result = parent::authenticate($request);
+
+        // Store plain text username to session
+        $shib = $this->getConfig()->Shibboleth;
+        $username = $this->getServerParam($request, $shib->username, true);
+        $session = new \Zend\Session\Container(
+            'Shibboleth', $this->sessionManager
+        );
+        $session['username'] = $username;
+
+        return $user;
+    }
+
+    /**
      * Perform cleanup at logout time.
      *
      * @param string $url URL to redirect user to after logging out.
@@ -127,12 +151,14 @@ class Suomifi extends Shibboleth
      * @throws AuthException
      * @return mixed
      */
-    protected function getServerParam($request, $param)
-    {
+    protected function getServerParam(
+        $request, $param, $neverHashUsername = false
+    ) {
         $val = parent::getServerParam($request, $param);
 
         $config = $this->getConfig()->Shibboleth;
-        if ($param === $config->username
+        if (!$neverHashUsername
+            && $param === $config->username
             && ((bool)$config->hash_username ?? false)
         ) {
             $secret = $config->hash_secret ?? null;
