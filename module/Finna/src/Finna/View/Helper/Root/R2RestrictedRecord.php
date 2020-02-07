@@ -112,7 +112,7 @@ class R2RestrictedRecord extends \Zend\View\Helper\AbstractHelper
      */
     public function __invoke($driver, $params = null)
     {
-        if (!$this->enabled && !$this->r2RecordBaseUrl) {
+        if (!$this->isAvailable()) {
             return null;
         }
 
@@ -152,10 +152,7 @@ class R2RestrictedRecord extends \Zend\View\Helper\AbstractHelper
             $restrictedMetadataIncluded = $driver->isRestrictedMetadataIncluded();
             $accessStatus = $this->rems->getAccessPermission();
             $preventApplicationSubmit = $restrictedMetadataIncluded
-                || in_array(
-                    $accessStatus,
-                    [RemsService::STATUS_NOT_SUBMITTED, RemsService::STATUS_CLOSED]
-                );
+                || $accessStatus === RemsService::STATUS_SUBMITTED;
             $applicationSubmitted = $accessStatus === RemsService::STATUS_SUBMITTED;
 
             // R2 record with restricted metadata
@@ -177,5 +174,15 @@ class R2RestrictedRecord extends \Zend\View\Helper\AbstractHelper
         }
 
         return null;
+    }
+
+    /**
+     * Check if R2 is available
+     *
+     * @return bool
+     */
+    public function isAvailable()
+    {
+        return (bool)$this->enabled;
     }
 }
