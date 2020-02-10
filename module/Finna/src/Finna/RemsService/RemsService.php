@@ -91,27 +91,29 @@ class RemsService implements
      *
      * @var string
      */
-    protected $encryptedUserIdentificationNumber;
+    protected $userIdentificationNumber = null;
 
     /**
      * Constructor.
      *
      * @param Config         $config  Configuration
      * @param SessionManager $session Session container
+     * @param String|null    $userId  National identification number of current user
      * @param Manager        $auth    Auth manager
-     * @param String         $userId  National identification number of current user
      */
     public function __construct(
         Config $config,
         Container $session = null,
-        Manager $auth,
-        String $userId
+        $userId,
+        Manager $auth
     ) {
         $this->config = $config;
         $this->session = $session;
         $this->auth = $auth;
-        $this->userIdentificationNumber
-            = $this->encryptUserIdentificationNumber($userIdentificationNumber);
+        if ($userId) {
+            $this->userIdentificationNumber
+                = $this->encryptUserIdentificationNumber($userId);
+        }
     }
 
     /**
@@ -153,6 +155,10 @@ class RemsService implements
         $lastname = null,
         $formParams = []
     ) {
+        if (null === $this->userIdentificationNumber) {
+            throw new \Exception('User national identification number not present');
+        }
+
         $commonName = $firstname;
         if ($lastname) {
             $commonName = $commonName ? " $lastname" : $lastname;

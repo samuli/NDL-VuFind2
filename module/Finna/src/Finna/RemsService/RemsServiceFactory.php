@@ -76,7 +76,7 @@ class RemsServiceFactory implements FactoryInterface
             $container->get(\VuFind\Config\PluginManager::class)
                 ->get('Rems'),
             $sessionContainer,
-            $shibbolethSessionContainer['username'],
+            $shibbolethSessionContainer['username'] ?? null,
             $container->get('VuFind\Auth\Manager')
         );
     }
