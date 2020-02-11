@@ -19,3 +19,4 @@ field[usage_purpose] = 4
 field[usage_desc] = 5
 field[user_id] = 6
 
+public_key = ""
