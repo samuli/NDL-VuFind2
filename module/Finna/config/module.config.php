@@ -690,14 +690,8 @@ $config = [
             ],
             'recordtab' => [
                 'factories' => [
-                    'Finna\RecordTab\DescriptionFWD' => 'Finna\RecordTab\Factory::getDescriptionFWD',
-                    'Finna\RecordTab\Distribution' => 'Finna\RecordTab\Factory::getDistribution',
-                    'Finna\RecordTab\InspectionDetails' => 'Finna\RecordTab\Factory::getInspectionDetails',
-                    'Finna\RecordTab\ItemDescription' => 'Finna\RecordTab\Factory::getItemDescription',
                     'Finna\RecordTab\LocationsEad3' => 'Finna\RecordTab\Factory::getLocationsEad3',
                     'Finna\RecordTab\Map' => 'Finna\RecordTab\Factory::getMap',
-                    'Finna\RecordTab\Music' => 'Finna\RecordTab\Factory::getMusic',
-                    'Finna\RecordTab\PressReviews' => 'Finna\RecordTab\Factory::getPressReviews',
                     'Finna\RecordTab\UserComments' => 'Finna\RecordTab\Factory::getUserComments',
                     'Finna\RecordTab\Versions' => 'Finna\RecordTab\VersionsFactory',
                 ],
