@@ -700,13 +700,7 @@ $config = [
                 ],
                 'aliases' => [
                     'componentparts' => 'Finna\RecordTab\ComponentParts',
-                    'descriptionFWD' => 'Finna\RecordTab\DescriptionFWD',
-                    'distribution' => 'Finna\RecordTab\Distribution',
-                    'inspectionDetails' => 'Finna\RecordTab\InspectionDetails',
-                    'itemdescription' => 'Finna\RecordTab\ItemDescription',
                     'LocationsEad3' => 'Finna\RecordTab\LocationsEad3',
-                    'music' => 'Finna\RecordTab\Music',
-                    'pressreview' => 'Finna\RecordTab\PressReviews',
                     'versions' => 'Finna\RecordTab\Versions',
 
                     // Overrides:
