@@ -6,7 +6,7 @@ $fields = [
 ];
 ?>
 <?php if(!empty($data)): ?>
-  <div class="truncate-field">
+  <div class="truncate-field" data-rows="5" data-row-height="25">
     <table class="record-data">
       <?php foreach($data as $d): ?>
         <?php foreach ($fields as $key): ?>
