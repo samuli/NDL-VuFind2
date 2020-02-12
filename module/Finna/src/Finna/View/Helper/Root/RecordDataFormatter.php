@@ -172,7 +172,7 @@ class RecordDataFormatter extends \VuFind\View\Helper\Root\RecordDataFormatter
     }
 
     /**
-     * Filter unnecessary fields from Primo records.
+     * Filter unnecessary fields from Forward records.
      *
      * @param array $coreFields data to filter.
      *
