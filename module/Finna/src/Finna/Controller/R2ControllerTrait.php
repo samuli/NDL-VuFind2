@@ -194,11 +194,9 @@ trait R2ControllerTrait
 
             // Collect submitted params required by REMS form
             $formParams = [];
-            foreach (['usage_purpose', 'usage_desc']
-                as $param
-            ) {
-                $formParams[$param] = $this->translate($params[$param]) ?? null;
-            }
+            $formParams['usage_purpose']
+                = (string)substr($params['usage_purpose'], -1);
+            $formParams['usage_desc'] = $params['usage_desc'];
 
             // Take firstname and lastname from profile if available
             $firstname = !empty($user->firstname)
