@@ -196,14 +196,14 @@ class RemsService implements
         $params =  [
             'application-id' => $applicationId,
             'field-values' =>  [
-                ['field' => (int)$fieldIds['firstname'], 'value' => $firstname],
-                ['field' => (int)$fieldIds['lastname'], 'value' => $lastname],
-                ['field' => (int)$fieldIds['email'], 'value' => $email],
-                ['field' => (int)$fieldIds['usage_purpose'],
+                ['field' => $fieldIds['firstname'], 'value' => $firstname],
+                ['field' => $fieldIds['lastname'], 'value' => $lastname],
+                ['field' => $fieldIds['email'], 'value' => $email],
+                ['field' => $fieldIds['usage_purpose'],
                  'value' => $formParams['usage_purpose']],
-                ['field' => (int)$fieldIds['usage_desc'],
+                ['field' => $fieldIds['usage_desc'],
                  'value' => $formParams['usage_desc']],
-                ['field' => (int)$fieldIds['user_id'],
+                ['field' => $fieldIds['user_id'],
                  'value' => $this->userIdentificationNumber]
             ]
         ];
