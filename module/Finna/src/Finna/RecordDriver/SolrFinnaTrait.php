@@ -999,18 +999,6 @@ trait SolrFinnaTrait
     }
 
     /**
-     * Set datasource settings
-     *
-     * @param \VuFind\Config\Config $settings Settings
-     *
-     * @return void
-     */
-    public function setDatasourceSettings($settings)
-    {
-        $this->datasourceSettings = $settings;
-    }
-
-    /**
      * Get alternative restricted version (in R2 index) of this record.
      * Returns false or an array with keys:
      * - route Route name of restricted record

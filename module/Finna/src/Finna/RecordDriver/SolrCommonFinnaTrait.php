@@ -45,6 +45,18 @@ trait SolrCommonFinnaTrait
     use FinnaRecordTrait;
 
     /**
+     * Set datasource settings
+     *
+     * @param \VuFind\Config\Config $settings Settings
+     *
+     * @return void
+     */
+    public function setDatasourceSettings($settings)
+    {
+        $this->datasourceSettings = $settings;
+    }
+
+    /**
      * Sanitize HTML.
      * If validation is enabled and the stripped HTML is invalid,
      * all tags are stripped.
