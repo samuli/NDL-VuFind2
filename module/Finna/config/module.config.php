@@ -821,6 +821,7 @@ $staticRoutes = [
     'R2/Home', 'R2/Search', 'R2/Advanced',
     'MetaLib/Home', 'MetaLib/Search', 'MetaLib/Advanced',
     'MyResearch/SaveCustomOrder', 'MyResearch/PurgeHistoricLoans',
+    'MyResearch/R2AccessRights', 'MyResearch/R2TermsOfUse',
     'OrganisationInfo/Home',
     'PCI/Home', 'PCI/Search', 'PCI/Record',
     'Search/StreetSearch',

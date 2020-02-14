@@ -50,7 +50,7 @@ trait R2ControllerTrait
      */
     public function onDispatch(\Zend\Mvc\MvcEvent $e)
     {
-        $helper = $this->getViewRenderer()->plugin('R2RestrictedRecord');
+        $helper = $this->getViewRenderer()->plugin('R2');
         if (!$helper->isAvailable()) {
             throw new \Exception('R2 is disabled');
         }
@@ -196,7 +196,10 @@ trait R2ControllerTrait
             $formParams = [];
             $formParams['usage_purpose']
                 = (string)substr($params['usage_purpose'], -1);
-            $formParams['usage_desc'] = $params['usage_desc'];
+            $formParams['usage_purpose_text'] = $params['usage_purpose'];
+
+            $cleanHtml = $this->getViewRenderer()->plugin('cleanHtml');
+            $formParams['usage_desc'] = $cleanHtml($params['usage_desc']);
 
             // Take firstname and lastname from profile if available
             $firstname = !empty($user->firstname)

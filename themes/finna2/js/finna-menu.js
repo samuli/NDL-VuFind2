@@ -73,6 +73,12 @@ finna.menu = (function finnaMenu() {
       $('#myLoans').toggleClass('in');
       $('#open-loans').toggleClass('collapsed');
     });
+
+    $('#open-r2 > .caret').unbind('click').click(function toggleR2(event) {
+      event.preventDefault();
+      $('#r2').toggleClass('in');
+      $('#open-r2').toggleClass('collapsed');
+    });
   }
 
   var my = {

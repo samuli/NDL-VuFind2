@@ -59,6 +59,7 @@ class RemsService implements
     // Session keys
     const SESSION_IS_REMS_REGISTERED = 'is-rems-user';
     const SESSION_ACCESS_STATUS = 'access-status';
+    const SESSION_USAGE_PURPOSE = 'usage-purpose';
 
     // REMS API user types
     const TYPE_ADMIN = 0;
@@ -136,6 +137,17 @@ class RemsService implements
     public function isUserRegisteredDuringSession()
     {
         return $this->session->{RemsService::SESSION_IS_REMS_REGISTERED} ?? false;
+    }
+
+    /**
+     * Get access permission for the current session.
+     *
+     * @return string|null
+     */
+    public function hasUserSubmittedApplication()
+    {
+        $accessStatus = $this->getAccessPermission();
+        return $accessStatus === RemsService::STATUS_SUBMITTED;
     }
 
     /**
@@ -224,20 +236,36 @@ class RemsService implements
 
         $this->session->{RemsService::SESSION_IS_REMS_REGISTERED} = true;
 
+        $usagePurpose = ['purpose' => $formParams['usage_purpose_text']];
+        if (!empty($formParams['usage_desc'])) {
+            $usagePurpose['details'] = $formParams['usage_desc'];
+        }
+        $this->session->{RemsService::SESSION_USAGE_PURPOSE} = $usagePurpose;
+
         return true;
     }
 
     /**
-     * Check permission
-     * Returns an array with keys 'success' and 'status'.
+     * Get access permission for the current session.
      *
-     * @return array
-     * @throws Exception
+     * @return string|null
      */
     public function getAccessPermission()
     {
         $sessionKey = $this->getSessionKey();
         return $this->session->{self::SESSION_ACCESS_STATUS} ?? null;
+    }
+
+    /**
+     * Get usage purpose for the current session.
+     * Returns an array with keys 'purpose' and 'details'.
+     *
+     * @return array|null
+     */
+    public function getUsagePurpose()
+    {
+        $sessionKey = $this->getSessionKey();
+        return $this->session->{self::SESSION_USAGE_PURPOSE} ?? null;
     }
 
     /**

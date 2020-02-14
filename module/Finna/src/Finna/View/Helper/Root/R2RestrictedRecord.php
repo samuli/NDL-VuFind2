@@ -112,7 +112,7 @@ class R2RestrictedRecord extends \Zend\View\Helper\AbstractHelper
      */
     public function __invoke($driver, $params = null)
     {
-        if (!$this->isAvailable()) {
+        if (!$this->enabled) {
             return null;
         }
 
@@ -174,15 +174,5 @@ class R2RestrictedRecord extends \Zend\View\Helper\AbstractHelper
         }
 
         return null;
-    }
-
-    /**
-     * Check if R2 is available
-     *
-     * @return bool
-     */
-    public function isAvailable()
-    {
-        return (bool)$this->enabled;
     }
 }

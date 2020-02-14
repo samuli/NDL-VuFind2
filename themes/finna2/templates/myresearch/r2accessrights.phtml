@@ -1,0 +1,56 @@
+<!-- START of: finna - myresearch/r2accessrights.phtml -->
+<?php
+  // Set up page title:
+  $this->headTitle($this->translate('R2_accessrights_title'));
+
+  // Set up breadcrumbs:
+  $currPage = 'R2AccessRights';
+  $this->layout()->breadcrumbs = '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li> <li class="active">' . $this->transEsc($currPage) . '</li>';
+?>
+
+<!-- Leftside navigationbar -->
+<?= $this->context($this)->renderInContext("myresearch/menu.phtml", ['active' => 'r2-accessrights']); ?>
+
+<div class="<?=$this->layoutClass('mainbody-myresearch')?>">
+  <div class="clearfix mylist-header hidden-print">
+    <div>    
+      <?=$this->flashmessages()?>
+    </div>
+    <div class="useraccount-header">
+      <h2><?=$this->transEsc('R2_accessrights_title')?></h2>
+    </div>
+    <?php if ($this->rems->isUserRegisteredDuringSession()): ?>
+      <?php $usagePurpose = $this->rems->getUsagePurpose(); ?>
+      <table class="table useraccount-table">
+        <tbody>
+          <tr class="headers">
+            <th><?=$this->transEsc('R2_your_accessrights')?></th>
+            <th><?=$this->transEsc('R2_session_usage_purpose')?></th>
+          </tr>
+          <tr class="myresearch-row">
+            <td><?=$this->translate('R2_accessrights_info_html')?></td>
+            <td>
+              <p><?=$this->translate($usagePurpose['purpose'])?></p>
+              <?php if (!empty($usagePurpose['details'])): ?>
+                <p><?=$usagePurpose['details']?></p>
+              <?php endif; ?>
+            </td>  
+          </tr>
+        </tbody>
+      </table>
+    <?php else: ?>
+      <?php
+        $registerFormUrl = $this->url('feedback-form', ['id' => 'R2Register']);
+        $accessStatus = $this->rems->getAccessPermission();
+      ?>
+      <?php if ($accessStatus === \Finna\RemsService\RemsService::STATUS_SUBMITTED): ?>
+        <div><?= $this->translate('R2_permission_request_status_submitted') ?></div>
+      <?php elseif (!$this->R2()->isUserAuthorizedToUseR2()): ?>
+        <div> <?= $this->translate('R2_register_weak_loginmethod') ?></div>
+      <?php else: ?>
+        <div><?=$this->translate('R2_accessrights_register_html', ['%%url%%' => $registerFormUrl])?></div>
+      <?php endif; ?>
+    <?php endif; ?>
+  </div>
+</div>
+<!-- END of: finna - myresearch/r2accessrights.phtml -->
