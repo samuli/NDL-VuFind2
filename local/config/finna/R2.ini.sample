@@ -16,3 +16,5 @@ apiKey =
 url             = 
 default_core    = 
 
+[Http]
+;ssl_allow_selfsigned = true

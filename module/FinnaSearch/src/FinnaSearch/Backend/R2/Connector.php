@@ -82,6 +82,13 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
     protected $R2uniqueKey = '_document_id';
 
     /**
+     * HTTP configuration
+     *
+     * @var array
+     */
+    protected $httpConfig;
+
+    /**
      * Set API user and password for authentication to index.
      *
      * @param string $user     User
@@ -117,6 +124,18 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
     public function setRems($rems)
     {
         $this->rems = $rems;
+    }
+
+    /**
+     * Set HTTP configuration.
+     *
+     * @param Config $config Configuration
+     *
+     * @return void
+     */
+    public function setHttpConfig($config)
+    {
+        $this->httpConfig = $config;
     }
 
     /**
@@ -164,6 +183,13 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
         }
         $client->setHeaders($headers);
         $client->setAuth($this->apiUser, $this->apiPassword);
+
+        if ($this->httpConfig['ssl_allow_selfsigned'] ?? false) {
+            $adapter = $client->getAdapter();
+            if ($adapter instanceof \Zend\Http\Client\Adapter\Socket) {
+                $adapter->setOptions(['sslallowselfsigned' => true]);
+            }
+        }
 
         $this->debug(
             sprintf(
