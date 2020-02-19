@@ -716,7 +716,7 @@ class RemsService implements
         $this->session->{self::SESSION_ACCESS_STATUS} = null;
         $this->session->{self::SESSION_BLACKLISTED} = null;
         $this->session->{self::SESSION_USAGE_PURPOSE} = null;
-        $this->session->{self::SESSION_IS_REMS_REGISTERD} = null;
+        $this->session->{self::SESSION_IS_REMS_REGISTERED} = null;
 
         if ($this->isUserRegisteredDuringSession()) {
             $this->closeOpenApplications();
