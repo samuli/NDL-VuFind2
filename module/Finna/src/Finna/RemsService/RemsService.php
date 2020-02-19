@@ -347,6 +347,7 @@ class RemsService implements
      */
     public function getAccessPermission($ignoreCache = false)
     {
+        $access = null;
         if (!$ignoreCache) {
             $access = $this->session->{self::SESSION_ACCESS_STATUS} ?? null;
             if ($access) {
