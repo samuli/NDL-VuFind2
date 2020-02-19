@@ -6,6 +6,7 @@
   // Set up breadcrumbs:
   $currPage = 'R2AccessRights';
   $this->layout()->breadcrumbs = '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li> <li class="active">' . $this->transEsc($currPage) . '</li>';
+  $accessStatus = $this->rems->getAccessPermission(true);
 ?>
 
 <!-- Leftside navigationbar -->
@@ -19,7 +20,7 @@
     <div class="useraccount-header">
       <h2><?=$this->transEsc('R2_accessrights_title')?></h2>
     </div>
-    <?php if ($this->rems->isUserRegisteredDuringSession()): ?>
+    <?php if ($accessStatus === \Finna\RemsService\RemsService::STATUS_APPROVED): ?>
       <?php $usagePurpose = $this->rems->getUsagePurpose(); ?>
       <table class="table useraccount-table">
         <tbody>
@@ -28,27 +29,27 @@
             <th><?=$this->transEsc('R2_session_usage_purpose')?></th>
           </tr>
           <tr class="myresearch-row">
-            <td><?=$this->translate('R2_accessrights_info_html')?></td>
+            <td><?=$this->translate('R2_accessrights_info_html', ['%%url%%' => $this->url('myresearch-r2termsofuse')])?></td>
             <td>
-              <p><?=$this->translate($usagePurpose['purpose'])?></p>
-              <?php if (!empty($usagePurpose['details'])): ?>
-                <p><?=$usagePurpose['details']?></p>
-              <?php endif; ?>
+              <p><?=$this->translate($usagePurpose)?></p>
             </td>  
           </tr>
         </tbody>
       </table>
     <?php else: ?>
-      <?php
-        $registerFormUrl = $this->url('feedback-form', ['id' => 'R2Register']);
-        $accessStatus = $this->rems->getAccessPermission();
-      ?>
       <?php if ($accessStatus === \Finna\RemsService\RemsService::STATUS_SUBMITTED): ?>
         <div><?= $this->translate('R2_permission_request_status_submitted') ?></div>
       <?php elseif (!$this->R2()->isUserAuthorizedToUseR2()): ?>
         <div> <?= $this->translate('R2_register_weak_loginmethod') ?></div>
+      <?php elseif ($blacklisted = $this->rems->isUserBlacklisted(true)): ?>
+        <div class="alert alert-danger "><?= $this->translate('R2_accessrights_blacklisted', ['%%url%%' => $this->url('feedback-home'), '%%date_added%%' => $this->dateTime()->convertToDisplayDate('Y-m-d', $blacklisted)]) ?></div>
       <?php else: ?>
-        <div><?=$this->translate('R2_accessrights_register_html', ['%%url%%' => $registerFormUrl])?></div>
+        <?php $registerFormUrl = $this->url('feedback-form', ['id' => 'R2Register']); ?>
+
+        <div class="alert alert-info">
+          <p><?=$this->translate('R2_accessrights_register')?></p>
+          <p class="register"><a data-lightbox href="<?=$registerFormUrl?>" class="btn btn-primary" title="<?=$this->transEsc('R2_register')?>"><?=$this->translate('R2_register')?></a></p>
+        </div>
       <?php endif; ?>
     <?php endif; ?>
   </div>

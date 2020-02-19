@@ -220,13 +220,19 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
             ), ['time' => $time]
         );
 
-        //$this->debug(var_export($response, true));
-
         $headers = $response->getHeaders();
+
         if ($accessStatus = $headers->get('x-user-access-status')) {
             $this->rems->setAccessStatusFromConnector(
                 $accessStatus->getFieldValue()
             );
+        }
+        if ($this->username) {
+            $blacklisted = null;
+            if ($blacklistedAt = $headers->get('x-user-blacklisted')) {
+                $blacklisted = $blacklistedAt->getFieldValue();
+            }
+            $this->rems->setBlacklistStatusFromConnector($blacklisted);
         }
 
         if (!$response->isSuccess()) {

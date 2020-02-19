@@ -151,8 +151,10 @@ class R2RestrictedRecord extends \Zend\View\Helper\AbstractHelper
             $autoOpen = $params['autoOpen'] ?? false;
             $restrictedMetadataIncluded = $driver->isRestrictedMetadataIncluded();
             $accessStatus = $this->rems->getAccessPermission();
+            $blacklisted = $user ? $this->rems->isUserBlacklisted() : false;
             $preventApplicationSubmit = $restrictedMetadataIncluded
-                || $accessStatus === RemsService::STATUS_SUBMITTED;
+                || $accessStatus === RemsService::STATUS_SUBMITTED
+                || $blacklisted;
             $applicationSubmitted = $accessStatus === RemsService::STATUS_SUBMITTED;
 
             // R2 record with restricted metadata
@@ -164,6 +166,7 @@ class R2RestrictedRecord extends \Zend\View\Helper\AbstractHelper
                 'collection' => $driver->isCollection(),
                 'restrictedMetadataIncluded' => $restrictedMetadataIncluded,
                 'preventApplicationSubmit' => $preventApplicationSubmit,
+                'blacklisted' => $blacklisted,
                 'applicationSubmitted' => $applicationSubmitted,
                 'formId' => 'R2Register',
             ];

@@ -129,19 +129,9 @@ trait R2ControllerTrait
             return $this->forceLogin();
         }
 
-        $shibbolethAuthenticated
-            = in_array($user->auth_method, ['suomifi', 'Shibboleth']);
-
-        $closeForm = function () use (
-            $session, $getRedirect, $shibbolethAuthenticated
-        ) {
-            $recordId = $session->recordId ?? null;
-            $collection = $session->collection ?? false;
-            unset($session->inLightbox);
-            unset($session->recordId);
-            unset($session->collection);
-
-            if (!$shibbolethAuthenticated) {
+        if (!$this->isAuthorized()) {
+            // Logged but not authorized (wrong login method etc), close form
+            if (!$session->isLightbox) {
                 // Login completed inside lightbox: refresh page
                 $response = $this->getResponse();
                 $response->setStatusCode(205);
@@ -150,24 +140,20 @@ trait R2ControllerTrait
                 // Login outside lightbox: redirect
                 return $getRedirect();
             }
-        };
-
-        if (!$this->isAuthorized()) {
-            // Logged but not authorized (wrong login method etc), close form
-            return $closeForm();
         }
 
         // Authorized. Check user permission from REMS and show
         // registration if needed.
         $rems = $this->serviceLocator->get('Finna\RemsService\RemsService');
 
-        $accessStatus = $rems->getAccessPermission();
+        if ($rems->isUserBlacklisted()) {
+            return $getRedirect();
+        }
 
-        $showRegisterForm = !$accessStatus
-            || in_array(
-                $accessStatus,
-                [RemsService::STATUS_CLOSED, RemsService::STATUS_NOT_SUBMITTED]
-            );
+        $accessStatus = $rems->getAccessPermission();
+        $showRegisterForm
+            = !$accessStatus
+            || $accessStatus !== RemsService::STATUS_SUBMITTED;
 
         if (!$showRegisterForm) {
             // Registration has already been submitted, no need to show form.
@@ -197,9 +183,12 @@ trait R2ControllerTrait
             $formParams['usage_purpose']
                 = (string)substr($params['usage_purpose'], -1);
             $formParams['usage_purpose_text'] = $params['usage_purpose'];
-
-            $cleanHtml = $this->getViewRenderer()->plugin('cleanHtml');
-            $formParams['usage_desc'] = $cleanHtml($params['usage_desc']);
+            if ($age = $params['age'] ?? null) {
+                $formParams['age'] = '1';
+            }
+            if ($license = $params['license'] ?? null) {
+                $formParams['license'] = '1';
+            }
 
             // Take firstname and lastname from profile if available
             $firstname = !empty($user->firstname)
@@ -240,6 +229,9 @@ trait R2ControllerTrait
         }
 
         // User is authorized, let parent display the registration form
+        $session->recordId = $recordId;
+        $session->collection = $collection;
+
         return null;
     }
 

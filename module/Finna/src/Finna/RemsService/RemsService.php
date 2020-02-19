@@ -55,11 +55,15 @@ class RemsService implements
     const STATUS_SUBMITTED = 'submitted';
     const STATUS_CLOSED = 'closed';
     const STATUS_DRAFT = 'draft';
+    const STATUS_REVOKED = 'revoked';
+    const STATUS_REJECTED = 'rejected';
 
     // Session keys
     const SESSION_IS_REMS_REGISTERED = 'is-rems-user';
     const SESSION_ACCESS_STATUS = 'access-status';
+    const SESSION_BLACKLISTED = 'blacklisted';
     const SESSION_USAGE_PURPOSE = 'usage-purpose';
+    const SESSION_ENTITLEMENTS_CHECKED = 'entitlements-checked';
 
     // REMS API user types
     const TYPE_ADMIN = 0;
@@ -136,7 +140,94 @@ class RemsService implements
      */
     public function isUserRegisteredDuringSession()
     {
+        if ($this->session->{RemsService::SESSION_IS_REMS_REGISTERED}) {
+            // Registered during session
+            return true;
+        } else if (!($this->session->{RemsService::SESSION_ENTITLEMENTS_CHECKED} ?? false)) {
+            // Check entitlements in case previous application did not get closed
+            $this->session->{RemsService::SESSION_ENTITLEMENTS_CHECKED} = true;
+            $entitlements = $this->getEntitlements();
+            if (!empty($entitlements)) {
+                // Entitlement found, fetch application and set its usage purpose
+                // for this session
+                $applicationId = $entitlements[0]['application-id'];
+                if ($application = $this->getApplication($applicationId)) {
+                    $fieldIds = $this->config->RegistrationForm->field;
+                    $fields = $application['application/form']['form/fields'];
+                    foreach ($fields as $field) {
+                        if ($field['field/id'] === $fieldIds['usage_purpose']) {
+                            $this->session->{RemsService::SESSION_USAGE_PURPOSE}
+                                = 'R2_register_form_usage_' . $field['field/value'];
+                            $this->session->{RemsService::SESSION_IS_REMS_REGISTERED}
+                                = true;
+                            return true;
+                        }
+                    }
+                }
+            }
+            $this->session->{RemsService::SESSION_IS_REMS_REGISTERED} = false;
+        }
         return $this->session->{RemsService::SESSION_IS_REMS_REGISTERED} ?? false;
+    }
+
+    /**
+     * Check if the user is blacklisted.
+     *
+     * Returns the date when the user was blacklisted or
+     * false if the user is not blacklisted.
+     *
+     * @param bool $ignoreCache Ignore cache?
+     *
+     * @return string|false
+     */
+    public function isUserBlacklisted($ignoreCache = false)
+    {
+        if (!$ignoreCache) {
+            $access = $this->session->{self::SESSION_BLACKLISTED} ?? null;
+            if ($access) {
+                return $access;
+            }
+        }
+        $blacklist = $this->sendRequest(
+            'blacklist',
+            ['user' => $this->getUserId(), 'resource' => $this->getResourceItemId()],
+            'GET', RemsService::TYPE_ADMIN, null, false
+        );
+        if (!empty($blacklist)) {
+            $addedAt = $blacklist[0]['blacklist/added-at'];
+            $this->session->{self::SESSION_BLACKLISTED} = $addedAt;
+            return $addedAt;
+        }
+        return false;
+    }
+
+    /**
+     * Check if the user has entitlements.
+     *
+     * @return boolean
+     */
+    public function hasUserEntitlements()
+    {
+        return !empty($this->getEntitlements());
+    }
+
+    /**
+     * Get user entitlements
+     *
+     * @return array
+     */
+    protected function getEntitlements()
+    {
+        try {
+            $userId = $this->getUserId();
+        } catch (\Exception $e) {
+            return false;
+        }
+        return $this->sendRequest(
+            'entitlements',
+            ['user' => $userId, 'resource' => $this->getResourceItemId()],
+            'GET', RemsService::TYPE_ADMIN, null, false
+        );
     }
 
     /**
@@ -170,6 +261,10 @@ class RemsService implements
         if (null === $this->userIdentificationNumber) {
             throw new \Exception('User national identification number not present');
         }
+        if ($this->hasUserEntitlements()) {
+            // User has an open approved application, abort.
+            throw new \Exception('User already has entitlements');
+        }
 
         $commonName = $firstname;
         if ($lastname) {
@@ -189,7 +284,7 @@ class RemsService implements
         );
 
         // 2. Create draft application
-        $catItemId = $this->getCatalogItemId('entitlement');
+        $catItemId = $this->getCatalogItemId();
         $params = ['catalogue-item-ids' => [$catItemId]];
 
         $response = $this->sendRequest(
@@ -213,8 +308,10 @@ class RemsService implements
                 ['field' => $fieldIds['email'], 'value' => $email],
                 ['field' => $fieldIds['usage_purpose'],
                  'value' => $formParams['usage_purpose']],
-                ['field' => $fieldIds['usage_desc'],
-                 'value' => $formParams['usage_desc']],
+                ['field' => $fieldIds['age'],
+                 'value' => $formParams['age'] ?? null],
+                ['field' => $fieldIds['license'],
+                 'value' => $formParams['license'] ?? null],
                 ['field' => $fieldIds['user_id'],
                  'value' => $this->userIdentificationNumber]
             ]
@@ -235,12 +332,8 @@ class RemsService implements
         );
 
         $this->session->{RemsService::SESSION_IS_REMS_REGISTERED} = true;
-
-        $usagePurpose = ['purpose' => $formParams['usage_purpose_text']];
-        if (!empty($formParams['usage_desc'])) {
-            $usagePurpose['details'] = $formParams['usage_desc'];
-        }
-        $this->session->{RemsService::SESSION_USAGE_PURPOSE} = $usagePurpose;
+        $this->session->{RemsService::SESSION_USAGE_PURPOSE}
+            = $formParams['usage_purpose_text'];
 
         return true;
     }
@@ -248,12 +341,25 @@ class RemsService implements
     /**
      * Get access permission for the current session.
      *
+     * @param bool $ignoreCache Ignore cache?
+     *
      * @return string|null
      */
-    public function getAccessPermission()
+    public function getAccessPermission($ignoreCache = false)
     {
-        $sessionKey = $this->getSessionKey();
-        return $this->session->{self::SESSION_ACCESS_STATUS} ?? null;
+        if (!$ignoreCache) {
+            $access = $this->session->{self::SESSION_ACCESS_STATUS} ?? null;
+            if ($access) {
+                return $access;
+            }
+        }
+        if ($this->hasUserEntitlements()) {
+            $access = RemsService::STATUS_APPROVED;
+        } else if ($application = $this->getLastApplication()) {
+            $access = $application['status'];
+        }
+        $this->session->{self::SESSION_ACCESS_STATUS} = $access;
+        return $access;
     }
 
     /**
@@ -264,7 +370,6 @@ class RemsService implements
      */
     public function getUsagePurpose()
     {
-        $sessionKey = $this->getSessionKey();
         return $this->session->{self::SESSION_USAGE_PURPOSE} ?? null;
     }
 
@@ -330,6 +435,9 @@ class RemsService implements
         case 'submitted':
             $status = self::STATUS_SUBMITTED;
             break;
+        case 'manual-revoked':
+            $status = self::STATUS_REVOKED;
+            break;
         default:
             $status = self::STATUS_CLOSED;
         }
@@ -337,7 +445,39 @@ class RemsService implements
     }
 
     /**
-     * Return applications
+     * Set blacklist status of current user. This is called from Connector.
+     *
+     * @param string|null $status Blacklist added date or
+     * null if the user is not blacklisted.
+     *
+     * @return void
+     */
+    public function setBlacklistStatusFromConnector($status)
+    {
+        echo("from conn: " . var_export($status, true));
+        $this->session->{self::SESSION_BLACKLISTED} = $status;
+    }
+
+    /**
+     * Get application.
+     *
+     * @param int $id Id
+     *
+     * @return array|null
+     */
+    protected function getApplication($id)
+    {
+        try {
+            return $this->sendRequest(
+                "applications/$id", [], 'GET', RemsService::TYPE_USER, null, false
+            );
+        } catch (\Exception $e) {
+            return null;
+        }
+    }
+
+    /**
+     * Get applications.
      *
      * @param array $statuses application statuses
      *
@@ -359,34 +499,50 @@ class RemsService implements
         }
 
         try {
-            $result = $this->sendRequest('applications', $params);
+            $result = $this->sendRequest(
+                'my-applications',
+                $params, 'GET', RemsService::TYPE_USER, null, false
+            );
         } catch (\Exception $e) {
             return [];
         }
 
-        $catItemId = $this->getCatalogItemId('entitlement');
+        $catalogItemId = $this->getCatalogItemId();
 
         $applications = [];
         foreach ($result as $application) {
-            $data = ['id' => $catItemId];
-            $catalogItemId = $catItemId;
             $id = $application['application/id'];
             $status = $application['application/state'] ?? null;
             $status = $this->mapRemsStatus($status);
             $created = $application['application/created'] ?? null;
             $modified = $application['application/modified'] ?? null;
             foreach ($application['application/resources'] as $catItem) {
-                if ($catItem['catalogue-item/id'] === $catItemId) {
+                if ($catItem['catalogue-item/id'] === $catalogItemId) {
                     $titles = $catItem['catalogue-item/title'];
                     $title = $titles['fi'] ?? $titles['default'] ?? '';
                     break;
                 }
             }
             $applications[]
-                = compact('id', 'catalogItemId', 'status', 'created', 'modified');
+                = compact(
+                    'id', 'catalogItemId', 'status', 'created', 'modified'
+                );
         }
 
+        $sortFn = function ($a, $b) {
+            return strcasecmp($b['created'], $a['created']);
+        };
+        usort($applications, $sortFn);
+
         return $applications;
+    }
+
+    protected function getLastApplication()
+    {
+        if ($applications = $this->getApplications()) {
+            return $applications[0] ?? null;
+        }
+        return null;
     }
 
     /**
@@ -465,7 +621,7 @@ class RemsService implements
      * @param boolean     $requireRegistration Require that
      * the user has been registered to REMS during the session?
      *
-     * @return bool
+     * @return string
      * @throws Exception
      */
     protected function sendRequest(
@@ -559,6 +715,10 @@ class RemsService implements
     public function onLogoutPre()
     {
         $this->session->{self::SESSION_ACCESS_STATUS} = null;
+        $this->session->{self::SESSION_BLACKLISTED} = null;
+        $this->session->{self::SESSION_USAGE_PURPOSE} = null;
+        $this->session->{self::SESSION_IS_REMS_REGISTERD} = null;
+
         if ($this->isUserRegisteredDuringSession()) {
             $this->closeOpenApplications();
         }
@@ -570,7 +730,7 @@ class RemsService implements
      * @param string $userId      User Id
      * @param string $url         URL (relative)
      * @param string $method      GET|POST
-     * @param array  $bodyParams  Body parameters
+     * @param array  $params      Parameters
      * @param string $contentType Content-Type
      *
      * @return string
@@ -579,12 +739,20 @@ class RemsService implements
         $userId,
         $url,
         $method = 'GET',
-        $bodyParams = [],
+        $params = [],
         $contentType = 'application/json'
     ) {
         $url = $this->config->General->apiUrl . '/' . $url;
+        if ($method === 'GET') {
+            $url .= '?' . http_build_query($params);
+        }
 
         $client = $this->httpService->createClient($url);
+        if ($method === 'POST') {
+            $body = json_encode($params);
+            $client->setRawBody($body);
+        }
+
         $client->setOptions(['timeout' => 30, 'useragent' => 'Finna']);
         $headers = $client->getRequest()->getHeaders();
         $headers->addHeaderLine(
@@ -594,8 +762,6 @@ class RemsService implements
         $headers->addHeaderLine('x-rems-api-key', $this->config->General->apiKey);
         $headers->addHeaderLine('x-rems-user-id', $userId);
 
-        $body = json_encode($bodyParams);
-        $client->setRawBody($body);
         $client->getRequest()->getHeaders()
             ->addHeaderLine('Content-Type', $contentType);
 
@@ -604,26 +770,23 @@ class RemsService implements
     }
 
     /**
-     * Return session key for a permission
-     *
-     * @return string
-     */
-    protected function getSessionKey()
-    {
-        $permissionId = $this->getCatalogItemId('entitlement');
-        return "permission-$permissionId";
-    }
-
-    /**
      * Get REMS catalogue item id from configuration
-     *
-     * @param string $type Catalogue item type
      *
      * @return string|null
      */
-    protected function getCatalogItemId($type = 'registration')
+    protected function getCatalogItemId()
     {
-        return (int)$this->config->General->catalogItem[$type] ?? null;
+        return (int)$this->config->General->catalogItem ?? null;
+    }
+
+    /**
+     * Get REMS resource item id from configuration
+     *
+     * @return string|null
+     */
+    protected function getResourceItemId()
+    {
+        return $this->config->General->resourceItem ?? null;
     }
 
     /**
@@ -640,8 +803,10 @@ class RemsService implements
             'application.state/submitted'
                 => RemsService::STATUS_SUBMITTED,
             'application.state/closed' => RemsService::STATUS_CLOSED,
-            'application.state/draft' => RemsService::STATUS_DRAFT
-         ];
+            'application.state/draft' => RemsService::STATUS_DRAFT,
+            'application.state/revoked' => RemsService::STATUS_REVOKED,
+            'application.state/rejected' => RemsService::STATUS_REJECTED
+        ];
 
         return $statusMap[$remsStatus] ?? 'unknown';
     }
