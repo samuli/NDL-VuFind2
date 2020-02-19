@@ -6,17 +6,22 @@ apiKey =
 apiAdminUser =
 apiApproverUser =
 
-; REMS catalog item id's
-catalogItem[entitlement] =
+; REMS catalog item id
+catalogItem = 
+
+; Resource item id
+resourceItem = ""
+
 
 [RegistrationForm]
 
 ; REMS registration form field id's
-field[firstname] = 1
-field[lastname] = 2
-field[email] = 3
-field[usage_purpose] = 4
-field[usage_desc] = 5
-field[user_id] = 6
+field[firstname] = 
+field[lastname] = 
+field[email] = 
+field[usage_purpose] = 
+field[age] = 
+field[license] = 
+field[user_id] = 
 
 public_key = ""
