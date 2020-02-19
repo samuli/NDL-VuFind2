@@ -454,7 +454,6 @@ class RemsService implements
      */
     public function setBlacklistStatusFromConnector($status)
     {
-        echo("from conn: " . var_export($status, true));
         $this->session->{self::SESSION_BLACKLISTED} = $status;
     }
 
