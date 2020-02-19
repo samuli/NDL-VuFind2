@@ -82,7 +82,7 @@ class Suomifi extends Shibboleth
         );
         $session['username'] = $username;
 
-        return $user;
+        return $result;
     }
 
     /**
