@@ -31,10 +31,6 @@
   </div>
 <?php elseif ($this->blacklisted): ?>
    <div class="alert alert-danger "><?= $this->translate('R2_accessrights_blacklisted', ['%%url%%' => $this->url('feedback-home'), '%%date_added%%' => $this->dateTime()->convertToDisplayDate('Y-m-d', $blacklisted)]) ?></div>
-<?php elseif ($this->applicationSubmitted): ?>
-  <div class="alert alert-info authorization-notification R2-status R2-status-submitted">
-    <p class="txt"><?= $this->translate('R2_permission_request_status_submitted') ?></p>
-  </div>
 <?php elseif (!$this->preventApplicationSubmit): ?>
   <?php
     if ($this->autoOpen) {

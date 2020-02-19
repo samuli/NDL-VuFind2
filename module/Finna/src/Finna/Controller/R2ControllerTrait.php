@@ -110,14 +110,22 @@ trait R2ControllerTrait
             = $this->getRequest()->getQuery('layout', 'no') === 'lightbox'
                || 'layout/lightbox' == $this->layout()->getTemplate();
 
-        $getRedirect = function () use ($recordId, $collection) {
-            $recordId
-                ? $this->redirect()->toRoute(
-                    $collection
-                    ? 'r2collection-home' : 'r2record-home',
-                    ['id' => $recordId]
-                )
-                : $this->redirect()->toRoute('search-home');
+        $getRedirect = function () use ($recordId, $collection, $session) {
+            // Logged but not authorized (wrong login method etc), close form
+            if ($session->inLightbox) {
+                // Login completed inside lightbox: refresh page
+                $response = $this->getResponse();
+                $response->setStatusCode(205);
+                return '';
+            } else {
+                $recordId
+                    ? $this->redirect()->toRoute(
+                        $collection
+                        ? 'r2collection-home' : 'r2record-home',
+                        ['id' => $recordId]
+                    )
+                    : $this->redirect()->toRoute('search-home');
+            }
         };
 
         // Verify that user is authorized to access restricted R2 data.
@@ -130,16 +138,7 @@ trait R2ControllerTrait
         }
 
         if (!$this->isAuthorized()) {
-            // Logged but not authorized (wrong login method etc), close form
-            if (!$session->isLightbox) {
-                // Login completed inside lightbox: refresh page
-                $response = $this->getResponse();
-                $response->setStatusCode(205);
-                return '';
-            } else {
-                // Login outside lightbox: redirect
-                return $getRedirect();
-            }
+            return $getRedirect();
         }
 
         // Authorized. Check user permission from REMS and show
@@ -150,14 +149,9 @@ trait R2ControllerTrait
             return $getRedirect();
         }
 
-        $accessStatus = $rems->getAccessPermission();
-        $showRegisterForm
-            = !$accessStatus
-            || $accessStatus !== RemsService::STATUS_SUBMITTED;
-
-        if (!$showRegisterForm) {
-            // Registration has already been submitted, no need to show form.
-            return $closeForm();
+        if ($rems->getAccessPermission() === RemsService::STATUS_APPROVED) {
+            // User already has access
+            return $getRedirect();
         }
 
         if ($this->formWasSubmitted('submit')) {
@@ -231,6 +225,7 @@ trait R2ControllerTrait
         // User is authorized, let parent display the registration form
         $session->recordId = $recordId;
         $session->collection = $collection;
+        $session->inLightbox = $inLightbox;
 
         return null;
     }

@@ -52,7 +52,6 @@ class RemsService implements
     // REMS Application statuses
     const STATUS_APPROVED = 'approved';
     const STATUS_NOT_SUBMITTED = 'not-submitted';
-    const STATUS_SUBMITTED = 'submitted';
     const STATUS_CLOSED = 'closed';
     const STATUS_DRAFT = 'draft';
     const STATUS_REVOKED = 'revoked';
@@ -136,36 +135,20 @@ class RemsService implements
     /**
      * Check if the user is registered to REMS during the current session
      *
+     * @param bool $checkEntitlements Also check entitlements?
+     *
      * @return boolean
      */
-    public function isUserRegisteredDuringSession()
+    public function isUserRegisteredDuringSession($checkEntitlements = false)
     {
-        if ($this->session->{RemsService::SESSION_IS_REMS_REGISTERED}) {
+        if (!$checkEntitlements
+            && $this->session->{RemsService::SESSION_IS_REMS_REGISTERED}
+        ) {
             // Registered during session
             return true;
-        } else if (!($this->session->{RemsService::SESSION_ENTITLEMENTS_CHECKED} ?? false)) {
-            // Check entitlements in case previous application did not get closed
-            $this->session->{RemsService::SESSION_ENTITLEMENTS_CHECKED} = true;
-            $entitlements = $this->getEntitlements();
-            if (!empty($entitlements)) {
-                // Entitlement found, fetch application and set its usage purpose
-                // for this session
-                $applicationId = $entitlements[0]['application-id'];
-                if ($application = $this->getApplication($applicationId)) {
-                    $fieldIds = $this->config->RegistrationForm->field;
-                    $fields = $application['application/form']['form/fields'];
-                    foreach ($fields as $field) {
-                        if ($field['field/id'] === $fieldIds['usage_purpose']) {
-                            $this->session->{RemsService::SESSION_USAGE_PURPOSE}
-                                = 'R2_register_form_usage_' . $field['field/value'];
-                            $this->session->{RemsService::SESSION_IS_REMS_REGISTERED}
-                                = true;
-                            return true;
-                        }
-                    }
-                }
-            }
-            $this->session->{RemsService::SESSION_IS_REMS_REGISTERED} = false;
+        } else {
+            // This fetches entitlements and updates sesssion variables
+            $status = $this->getAccessPermission(true);
         }
         return $this->session->{RemsService::SESSION_IS_REMS_REGISTERED} ?? false;
     }
@@ -230,15 +213,30 @@ class RemsService implements
         );
     }
 
-    /**
-     * Get access permission for the current session.
-     *
-     * @return string|null
-     */
-    public function hasUserSubmittedApplication()
+    protected function getEntitlementApplication()
     {
-        $accessStatus = $this->getAccessPermission();
-        return $accessStatus === RemsService::STATUS_SUBMITTED;
+        $entitlements = $this->getEntitlements();
+        if (empty($entitlements)) {
+            return null;
+        }
+        
+        // Fetch entitlement application and its upsage purpose
+        $applicationId = $entitlements[0]['application-id'];
+        if ($application = $this->getApplication($applicationId)) {
+            $status = $this->mapRemsStatus($application['application/state']);
+            $usagePurpose = null;
+            
+            $fieldIds = $this->config->RegistrationForm->field;
+            $fields = $application['application/form']['form/fields'];
+            foreach ($fields as $field) {
+                if ($field['field/id'] === $fieldIds['usage_purpose']) {
+                    $usagePurpose = $field['field/value'];
+                    break;
+                }
+            }
+            return compact('status', 'usagePurpose');
+        }
+        return null;
     }
 
     /**
@@ -354,13 +352,17 @@ class RemsService implements
                 return $access;
             }
         }
-        if ($this->hasUserEntitlements()) {
-            $access = RemsService::STATUS_APPROVED;
-        } else if ($application = $this->getLastApplication()) {
-            $access = $application['status'];
+        if ($entitlementApplication = $this->getEntitlementApplication()) {
+            $status = $entitlementApplication['status'];
+            $this->session->{self::SESSION_IS_REMS_REGISTERED}
+                = $status === RemsService::STATUS_APPROVED;
+            $this->session->{self::SESSION_ACCESS_STATUS} = $status;
+            $this->session->{self::SESSION_USAGE_PURPOSE}
+                = 'R2_register_form_usage_'
+                  . $entitlementApplication['usagePurpose'];
         }
-        $this->session->{self::SESSION_ACCESS_STATUS} = $access;
-        return $access;
+        
+        return $this->session->{self::SESSION_ACCESS_STATUS} ?? null;
     }
 
     /**
@@ -381,25 +383,11 @@ class RemsService implements
      */
     public function closeOpenApplications()
     {
-        if (!$this->isUserRegisteredDuringSession()) {
-            throw new \Exception(
-                'Attempting to call REMS before the user has been registered'
-                . ' during the session'
-            );
-        }
-
         try {
             $applications = $this->getApplications(
-                [RemsService::STATUS_SUBMITTED, RemsService::STATUS_APPROVED]
+                [RemsService::STATUS_APPROVED]
             );
             foreach ($applications as $application) {
-                if (! in_array(
-                    $application['status'],
-                    [RemsService::STATUS_SUBMITTED, RemsService::STATUS_APPROVED]
-                )
-                ) {
-                    continue;
-                }
                 $params = [
                     'application-id' => $application['id'],
                     'comment' => 'ULOSKIRJAUTUMINEN'
@@ -432,9 +420,6 @@ class RemsService implements
             break;
         case 'no-applications':
             $status = self::STATUS_NOT_SUBMITTED;
-            break;
-        case 'submitted':
-            $status = self::STATUS_SUBMITTED;
             break;
         case 'manual-revoked':
             $status = self::STATUS_REVOKED;
@@ -535,14 +520,6 @@ class RemsService implements
         usort($applications, $sortFn);
 
         return $applications;
-    }
-
-    protected function getLastApplication()
-    {
-        if ($applications = $this->getApplications()) {
-            return $applications[0] ?? null;
-        }
-        return null;
     }
 
     /**
@@ -800,8 +777,6 @@ class RemsService implements
     {
         $statusMap = [
             'application.state/approved' => RemsService::STATUS_APPROVED,
-            'application.state/submitted'
-                => RemsService::STATUS_SUBMITTED,
             'application.state/closed' => RemsService::STATUS_CLOSED,
             'application.state/draft' => RemsService::STATUS_DRAFT,
             'application.state/revoked' => RemsService::STATUS_REVOKED,
