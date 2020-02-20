@@ -74,14 +74,17 @@ class Suomifi extends Shibboleth
     {
         $result = parent::authenticate($request);
 
-        // Store plain text username to session
-        $shib = $this->getConfig()->Shibboleth;
-        $username = $this->getServerParam($request, $shib->username, true);
-        $session = new \Zend\Session\Container(
-            'Shibboleth', $this->sessionManager
-        );
-        $session['username'] = $username;
-
+        $config = $this->getConfig()->Shibboleth;
+        if ($config->store_username_to_session ?? false) {
+            // Store encrypted username to session
+            $username = $this->encrypt(
+                parent::getServerParam($request, $config->Shibboleth->username)
+            );
+            $session = new \Zend\Session\Container(
+                'Shibboleth', $this->sessionManager
+            );
+            $session['username'] = $username;
+        }
         return $result;
     }
 
@@ -151,14 +154,12 @@ class Suomifi extends Shibboleth
      * @throws AuthException
      * @return mixed
      */
-    protected function getServerParam(
-        $request, $param, $neverHashUsername = false
+    protected function getServerParam($request, $param
     ) {
         $val = parent::getServerParam($request, $param);
 
         $config = $this->getConfig()->Shibboleth;
-        if (!$neverHashUsername
-            && $param === $config->username
+        if ($param === $config->username
             && ((bool)$config->hash_username ?? false)
         ) {
             $secret = $config->hash_secret ?? null;
@@ -168,5 +169,41 @@ class Suomifi extends Shibboleth
             $val = hash_hmac('sha256', $val, $secret, false);
         }
         return $val;
+    }
+
+    /**
+     * Encrypt string using public key.
+     *
+     * @param string $string String.
+     *
+     * @return string Encrypted
+     */
+    protected function encrypt($string)
+    {
+        $config = $this->getConfig()->Shibboleth;
+        $keyPath = $config->public_key ?? null;
+        if (null === $keyPath) {
+            throw new \Exception('Public key path not configured');
+        }
+        if (false === ($fp = fopen($keyPath, 'r'))) {
+            throw new \Exception('Error opening public key');
+        }
+        if (false === ($key = fread($fp, 8192))) {
+            throw new \Exception('Error reading public key');
+        }
+        fclose($fp);
+
+        if (false === openssl_get_publickey($key)) {
+            throw new \Exception('Error preparing public key');
+        }
+
+        if (!openssl_public_encrypt(
+            $string, $encrypted, $key, OPENSSL_PKCS1_OAEP_PADDING
+        )
+        ) {
+            throw new \Exception('Error encrypting string');
+        }
+
+        return base64_encode($encrypted);
     }
 }

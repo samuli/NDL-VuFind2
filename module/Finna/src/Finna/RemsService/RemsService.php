@@ -108,16 +108,15 @@ class RemsService implements
     public function __construct(
         Config $config,
         Container $session = null,
+        // $userId is null when the Suomifi authentication module is created
+        // before login (when displaying the login page)
         $userId,
         Manager $auth
     ) {
         $this->config = $config;
         $this->session = $session;
         $this->auth = $auth;
-        if ($userId) {
-            $this->userIdentificationNumber
-                = $this->encryptUserIdentificationNumber($userId);
-        }
+        $this->userIdentificationNumber = $userId;
     }
 
     /**
@@ -256,7 +255,7 @@ class RemsService implements
         $lastname = null,
         $formParams = []
     ) {
-        if (null === $this->userIdentificationNumber) {
+        if (empty($this->userIdentificationNumber)) {
             throw new \Exception('User national identification number not present');
         }
         if ($this->hasUserEntitlements()) {
@@ -550,41 +549,6 @@ class RemsService implements
             list($domain, $userId) = explode(':', $userId, 2);
         }
         return $userId;
-    }
-
-    /**
-     * Encrypt user identification number.
-     *
-     * @param string $userId User identification number.
-     *
-     * @return string Encrypted
-     */
-    protected function encryptUserIdentificationNumber($userId)
-    {
-        $keyPath = $this->config->RegistrationForm->public_key ?? null;
-        if (null === $keyPath) {
-            throw new \Exception('Public key path not configured');
-        }
-        if (false === ($fp = fopen($keyPath, 'r'))) {
-            throw new \Exception('Error opening public key');
-        }
-        if (false === ($key = fread($fp, 8192))) {
-            throw new \Exception('Error reading public key');
-        }
-        fclose($fp);
-
-        if (false === openssl_get_publickey($key)) {
-            throw new \Exception('Error preparing public key');
-        }
-
-        if (!openssl_public_encrypt(
-            $userId, $encrypted, $key, OPENSSL_PKCS1_OAEP_PADDING
-        )
-        ) {
-            throw new \Exception('Error encrypting user id');
-        }
-
-        return base64_encode($encrypted);
     }
 
     /**

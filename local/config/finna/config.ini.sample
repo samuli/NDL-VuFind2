@@ -593,6 +593,11 @@ hash_username = true
 ; Secret key for hashing usernames
 hash_secret = ""
 
+; Should the username be stored in session? Required when using REMS.
+store_username_to_session = false
+; Public key path. Required if store_username_to_session is true
+public_key = ""
+
 ; Required: Shibboleth login URL.
 login = "https://www.finna.fi/Shibboleth.sso/Login"
 
