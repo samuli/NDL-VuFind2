@@ -187,4 +187,14 @@ trait FinnaRecordTrait
     {
         return true;
     }
+
+    /**
+     * Allow record to be emailed?
+     *
+     * @return boolean
+     */
+    public function emailRecordAllowed()
+    {
+        return true;
+    }
 }

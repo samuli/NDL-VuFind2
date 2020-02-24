@@ -89,4 +89,24 @@ class R2Ead3 extends SolrEad3
     {
         return 'R2';
     }
+
+    /**
+     * Is social media sharing allowed
+     *
+     * @return boolean
+     */
+    public function socialMediaSharingAllowed()
+    {
+        return false;
+    }
+
+    /**
+     * Allow record to be emailed?
+     *
+     * @return boolean
+     */
+    public function emailRecordAllowed()
+    {
+        return false;
+    }
 }
