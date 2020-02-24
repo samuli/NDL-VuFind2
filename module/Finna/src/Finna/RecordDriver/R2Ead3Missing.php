@@ -1,10 +1,11 @@
 <?php
 /**
- * Restricted Solr (R2) Collection Controller
+ * Model for missing R2 records
+ * (created when attempting to retrieve a non-existent restriction level version).
  *
  * PHP version 7
  *
- * Copyright (C) The National Library of Finland 2019.
+ * Copyright (C) The National Library of Finland 2020.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -20,56 +21,43 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category VuFind
- * @package  Controller
+ * @package  RecordDrivers
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org   Main Site
+ * @link     http://vufind.org/wiki/vufind2:record_drivers Wiki
  */
-namespace Finna\Controller;
+namespace Finna\RecordDriver;
 
 /**
- * Restricted Solr (R2) Collection Controller
+ * Model for missing R2 records
+ * (created when attempting to retrieve a non-existent restriction level version).
  *
  * @category VuFind
- * @package  Controller
+ * @package  RecordDrivers
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org   Main Site
+ * @link     http://vufind.org/wiki/vufind2:record_drivers Wiki
  */
-class R2collectionController extends CollectionController
+class R2Ead3Missing extends SolrEad3
 {
-    use \Finna\Controller\R2ControllerTrait;
-
     /**
-     * Type of record to display
+     * Does this record contain restricted metadata?
      *
-     * @var string
+     * @return bool
      */
-    protected $searchClassId = 'R2';
-
-    /**
-     * Home (default) action -- forward to requested (or default) tab.
-     *
-     * @return mixed
-     */
-    public function homeAction()
+    public function hasRestrictedMetadata()
     {
-        $view = parent::homeAction();
-        $view = $this->handleAutoOpenRegistration($view);
-        return $view;
+        return true;
     }
 
     /**
-     * Create a new ViewModel.
+     * Is restricted metadata included with the record, i.e. does the user
+     * have permissions to access restricted metadata.
      *
-     * @param array $params Parameters to pass to ViewModel constructor.
-     *
-     * @return \Zend\View\Model\ViewModel
+     * @return bool
      */
-    protected function createViewModel($params = null)
+    public function isRestrictedMetadataIncluded()
     {
-        $view = parent::createViewModel($params);
-        $view->driver = $this->loadRecordWithRestrictedData();
-        return $view;
+        return false;
     }
 }

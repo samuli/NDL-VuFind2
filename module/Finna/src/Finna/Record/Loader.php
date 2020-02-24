@@ -109,23 +109,32 @@ class Loader extends \VuFind\Record\Loader
         } catch (RecordMissingException $e) {
             $missingException = $e;
         }
-        if ($source == 'Solr'
-            && ($missingException || $result instanceof \VuFind\RecordDriver\Missing)
+
+        if ($missingException || $result instanceof \VuFind\RecordDriver\Missing
         ) {
-            if (preg_match('/\.(FIN\d+)/', $id, $matches)) {
-                // Probably an old MetaLib record ID. Try to find the record using
-                // its old MetaLib ID
-                if ($mlRecord = $this->loadMetaLibRecord($matches[1])) {
-                    return $mlRecord;
+            if ($source === 'Solr') {
+                if (preg_match('/\.(FIN\d+)/', $id, $matches)) {
+                    // Probably an old MetaLib record ID.
+                    // Try to find the record using its old MetaLib ID
+                    if ($mlRecord = $this->loadMetaLibRecord($matches[1])) {
+                        return $mlRecord;
+                    }
+                } elseif (preg_match('/^musketti\..+?:(.+)/', $id, $matches)) {
+                    // Old musketti record. Try to find the new record using the
+                    // inventory number.
+                    $newRecord = $this->loadRecordWithIdentifier(
+                        $matches[1], 'museovirasto'
+                    );
+                    if ($newRecord) {
+                        return $newRecord;
+                    }
                 }
-            } elseif (preg_match('/^musketti\..+?:(.+)/', $id, $matches)) {
-                // Old musketti record. Try to find the new record using the
-                // inventory number.
-                $newRecord
-                    = $this->loadRecordWithIdentifier($matches[1], 'museovirasto');
-                if ($newRecord) {
-                    return $newRecord;
-                }
+            } else if ($source === 'R2') {
+                // Missing R2 record (probably non-existing restriction level)
+                $record = $this->recordFactory->get('R2Ead3Missing');
+                $record->setRawData(['id' => $id, 'fullrecord' => '<xml></xml>']);
+                $record->setSourceIdentifier($source);
+                return $record;
             }
         }
         if ($missingException) {

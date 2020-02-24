@@ -62,7 +62,7 @@
   <div class="record-main mainbody left">
     <?=$this->flashmessages()?>
     <h2 class="collection-title"><?=$this->driver->getTitle();?></h2>
-    <?= $this->R2RestrictedRecord($this->unrestrictedDriver ?? $this->driver, ['autoOpen' => $this->autoOpenR2Registration, 'user' => $this->auth()->isLoggedIn()])?>
+    <?= $this->R2RestrictedRecord($this->driver, ['autoOpen' => $this->autoOpenR2Registration, 'user' => $this->auth()->isLoggedIn()])?>
     <?php $formats = $this->driver->getFormats(); if (!empty($formats)): ?>
        <div class="recordFormat collection-format">
          <?=$this->record($this->driver)->getFormatList()?><br/>

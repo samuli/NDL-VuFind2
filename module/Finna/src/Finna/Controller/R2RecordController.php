@@ -71,10 +71,7 @@ class R2recordController extends RecordController
     {
         $view = parent::createViewModel($params);
         $this->layout()->searchClassId = $view->searchClassId = $this->searchClassId;
-        $view->driver = $this->loadRecord();
-        $view->unrestrictedDriver
-            = $this->loadRecordWithRestrictedData() ?? $view->driver;
-
+        $view->driver = $this->loadRecordWithRestrictedData();
         return $view;
     }
 }
