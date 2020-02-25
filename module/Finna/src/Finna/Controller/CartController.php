@@ -77,6 +77,12 @@ class CartController extends \VuFind\Controller\CartController
             null, $this->translate('bulk_email_title')
         );
         $view->records = $this->getRecordLoader()->loadBatch($ids);
+        $view->records = array_filter(
+            $view->records, function ($rec) {
+                return $rec->tryMethod('emailRecordAllowed', [], true);
+            }
+        );
+
         // Set up reCaptcha
         $view->useRecaptcha = $this->recaptcha()->active('email');
 

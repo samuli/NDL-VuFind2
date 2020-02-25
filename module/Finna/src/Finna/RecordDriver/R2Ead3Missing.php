@@ -38,7 +38,7 @@ namespace Finna\RecordDriver;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:record_drivers Wiki
  */
-class R2Ead3Missing extends SolrEad3
+class R2Ead3Missing extends R2Ead3
 {
     /**
      * Does this record contain restricted metadata?

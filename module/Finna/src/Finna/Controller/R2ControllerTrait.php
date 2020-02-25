@@ -289,7 +289,7 @@ trait R2ControllerTrait
         }
 
         $recordLoader
-            = $this->serviceLocator->build('VuFind\Record\Loader', $params);
+            = $this->serviceLocator->build(\VuFind\Record\Loader::class, $params);
 
         return $recordLoader->load(
             $this->params()->fromRoute('id', $this->params()->fromQuery('id')),

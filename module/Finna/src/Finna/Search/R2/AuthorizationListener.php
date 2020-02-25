@@ -136,13 +136,16 @@ class AuthorizationListener
             $params = $event->getParam('params');
             $context = $event->getParam('context');
             $this->connector->setUsername(null);
-            // If the user is authorized to use R2 and has submitted the registration
-            // form during the session, pass the username to connector in order to
-            // request restricted metadata from R2.
-            if ($context !== 'retrieve'
+            // When attempting to retrieve a record (record page, bulk retrieve),
+            // return restricted metadata only when requested in the params.
+            // In other contexts (search etc), restricted metadata is always
+            // returned.
+            if (!in_array($context, ['retrieve', 'retrieveBatch'])
                 || in_array(true, $params->get('R2Restricted') ?? [])
             ) {
                 if ($this->rems->isUserRegisteredDuringSession()) {
+                    // Pass the username to connector in order to
+                    // get restricted metadata.
                     $userId = \Finna\RemsService\RemsService::prepareUserId(
                         $this->authManager->isLoggedIn()->username
                     );

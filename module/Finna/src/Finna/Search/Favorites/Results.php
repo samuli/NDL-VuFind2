@@ -74,6 +74,18 @@ class Results extends \VuFind\Search\Favorites\Results
     }
 
     /**
+     * Override recordloader passed in __construct
+     *
+     * @param Loader $loader Loader
+     *
+     * @return void
+     */
+    public function setRecordLoader($loader)
+    {
+        $this->recordLoader = $loader;
+    }
+
+    /**
      * Support method for performAndProcessSearch -- perform a search based on the
      * parameters passed to the object.
      *
