@@ -142,6 +142,13 @@
                   <?=$this->transEsc('Profile')?>
                 </a>
               </li>
+              <?php if ($this->R2()->isAvailable()): ?>
+              <li>
+                <a role="menuitem" href="<?=$this->url('myresearch-r2accessrights')?>">
+                  <?=$this->transEsc('R2_accessrights_menu_heading')?>
+                </a>
+              </li>
+              <?php endif; ?>
               <li>
                 <a role="menuitem" href="<?=$this->url('search-history')?>?require_login">
                   <?=$this->transEsc('history_saved_searches')?>
