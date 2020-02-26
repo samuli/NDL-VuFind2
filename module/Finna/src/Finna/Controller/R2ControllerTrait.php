@@ -1,10 +1,10 @@
 <?php
 /**
- * R2 record controller trait.
+ * R2 controller trait.
  *
  * PHP version 7
  *
- * Copyright (C) The National Library of Finland 2019.
+ * Copyright (C) The National Library of Finland 2020.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -31,7 +31,7 @@ use Finna\RemsService\RemsService;
 use Zend\Session\Container as SessionContainer;
 
 /**
- * R2 record controller trait.
+ * R2 controller trait.
  *
  * @category VuFind
  * @package  Controller
@@ -274,6 +274,22 @@ trait R2ControllerTrait
     }
 
     /**
+     * Get the record loader
+     *
+     * @param bool $restricted Include restricted metadata?
+     *
+     * @return \VuFind\Record\Loader
+     */
+    public function getRecordLoader($restricted = false)
+    {
+        // By default, this returns a driver without restricted metadata.
+        // Use loadRecordWithRestrictedData to get a driver with restricted metadata.
+        $loader = $this->serviceLocator->get(\VuFind\Record\Loader::class);
+        $loader->setDefaultParams(['R2Restricted' => $restricted]);
+        return $loader;
+    }
+
+    /**
      * Load record with restricted metadata.
      *
      * This tells RecordLoader to include the current user id in the request so
@@ -283,14 +299,7 @@ trait R2ControllerTrait
      */
     protected function loadRecordWithRestrictedData()
     {
-        $params = [];
-        if ($user = $this->getUser() && $this->isAuthorized()) {
-            $params['R2Restricted'] = true;
-        }
-
-        $recordLoader
-            = $this->serviceLocator->build(\VuFind\Record\Loader::class, $params);
-
+        $recordLoader = $this->getRecordLoader(true);
         return $recordLoader->load(
             $this->params()->fromRoute('id', $this->params()->fromQuery('id')),
             $this->searchClassId,

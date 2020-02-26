@@ -61,7 +61,18 @@ class LoaderFactory extends \VuFind\Record\LoaderFactory
         $loader->setPreferredLanguage(
             $container->get('VuFind\Translator')->getLocale()
         );
+
+        $auth = $container->get('ZfcRbac\Service\AuthorizationService');
+        if ($options['R2Restricted'] ?? false) {
+            // Restricted record requested.
+            // Revert to unrestricted if user is not authorized.
+            if (!$auth->isGranted('access.R2Restricted')) {
+                unset($options['R2Restricted']);
+            }
+        }
+        //$options['R2Restricted'] = true;
         $loader->setDefaultParams($options);
+
         return $loader;
     }
 }

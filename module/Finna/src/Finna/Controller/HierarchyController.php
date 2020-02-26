@@ -1,10 +1,10 @@
 <?php
 /**
- * Restricted Solr (R2) Collection Controller
+ * Hierarchy Controller
  *
  * PHP version 7
  *
- * Copyright (C) The National Library of Finland 2019.
+ * Copyright (C) The National Library of Finland 2020.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -23,54 +23,31 @@
  * @package  Controller
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org   Main Site
+ * @link     https://vufind.org/wiki/development:plugins:controllers Wiki
  */
 namespace Finna\Controller;
 
 /**
- * Restricted Solr (R2) Collection Controller
+ * Hierarchy Controller
  *
  * @category VuFind
  * @package  Controller
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org   Main Site
+ * @link     https://vufind.org/wiki/development:plugins:controllers Wiki
  */
-class R2collectionController extends CollectionController
+class HierarchyController extends \VuFind\Controller\HierarchyController
 {
-    use \Finna\Controller\R2ControllerTrait;
-    use \Finna\Controller\R2RecordControllerTrait;
-
     /**
-     * Type of record to display
+     * Get the record loader
      *
-     * @var string
+     * @return \VuFind\Record\Loader
      */
-    protected $searchClassId = 'R2';
-
-    /**
-     * Home (default) action -- forward to requested (or default) tab.
-     *
-     * @return mixed
-     */
-    public function homeAction()
+    public function getRecordLoader()
     {
-        $view = parent::homeAction();
-        $view = $this->handleAutoOpenRegistration($view);
-        return $view;
-    }
-
-    /**
-     * Create a new ViewModel.
-     *
-     * @param array $params Parameters to pass to ViewModel constructor.
-     *
-     * @return \Zend\View\Model\ViewModel
-     */
-    protected function createViewModel($params = null)
-    {
-        $view = parent::createViewModel($params);
-        $view->driver = $this->loadRecordWithRestrictedData();
-        return $view;
+        $loader = $this->serviceLocator->get(\VuFind\Record\Loader::class);
+        // Request restricted metadata.
+        $loader->setDefaultParams(['R2Restricted' => true]);
+        return $loader;
     }
 }
