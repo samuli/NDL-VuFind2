@@ -2,14 +2,12 @@
 /**
  * Helper class for restricted Solr R2 records.
  *
- * - For local index records: handles linking to alternative record with
- *   restricted metadata in R2 index.
- * - For R2 records: handles permission related REMS actions
- *   (user registration, permission requests, checking of user permissions).
+ * For local index records: handles linking to alternative record with
+ * restricted metadata in R2 index.
  *
  * PHP version 7
  *
- * Copyright (C) The National Library of Finland 2019.
+ * Copyright (C) The National Library of Finland 2020.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -37,10 +35,8 @@ use Finna\RemsService\RemsService;
 /**
  * Helper class for restricted Solr R2 records.
  *
- * - For local index records: handles linking to alternative record with
- *   restricted metadata in R2 index.
- * - For R2 records: handles permission related REMS actions
- *   (user registration, permission requests, checking of user permissions).
+ * Handles permission related REMS actions
+ * (user registration, permission requests, checking of user permissions).
  *
  * @category VuFind
  * @package  View_Helpers
@@ -81,25 +77,21 @@ class R2RestrictedRecord extends \Zend\View\Helper\AbstractHelper
     /**
      * Constructor
      *
-     * @param bool                $enabled         Is R2 enabled?
-     * @param \Zend\Config\Config $config          VuFind configuration
-     * @param RemsService         $rems            REMS service
-     * @param bool                $authorized      Is the user authorized to
+     * @param bool                $enabled    Is R2 enabled?
+     * @param \Zend\Config\Config $config     VuFind configuration
+     * @param RemsService         $rems       REMS service
+     * @param bool                $authorized Is the user authorized to
      * use REMS?
-     * @param null|string         $r2RecordBaseUrl Base url for R2
-     * records.
      */
     public function __construct(
         bool $enabled,
         \Zend\Config\Config $config,
         RemsService $rems,
-        bool $authorized,
-        $r2RecordBaseUrl = null
+        bool $authorized
     ) {
         $this->enabled = $enabled;
         $this->rems = $rems;
         $this->authorized = $authorized;
-        $this->r2RecordBaseUrl = trim($r2RecordBaseUrl);
     }
 
     /**
@@ -116,37 +108,7 @@ class R2RestrictedRecord extends \Zend\View\Helper\AbstractHelper
             return null;
         }
 
-        if ($restricted = $driver->getRestrictedAlternative()) {
-            // Local index record with a restricted alternative in R2 index
-            // (possibly in another view).
-            $route = $restricted['route'];
-
-            $urlHelper = $this->getView()->plugin('url');
-            $recUrl = $urlHelper->__invoke($route, ['id' => $restricted['id']]);
-
-            if ($this->r2RecordBaseUrl) {
-                // R2 records are located in another view.
-
-                // Prepend base url to record url
-                $baseUrl
-                    = $urlHelper->__invoke('home', [], ['force_canonical' => true]);
-                $parts = parse_url($baseUrl);
-                $path = $parts['path'] ?? '';
-
-                // Make sure that base url has currect scheme
-                $baseParts = parse_url($this->r2RecordBaseUrl);
-                $base = 'https://' . ($baseParts['host'] ?? '') . $baseParts['path'];
-                // and remove trailing '/'
-                if (substr($base, -1) === '/') {
-                    $base = substr($base, 0, -1);
-                }
-                $recUrl = $base . '/' . substr($recUrl, strlen($path));
-            }
-
-            return $this->getView()->render(
-                'Helpers/R2RestrictedRecordNote.phtml', ['recordUrl' => $recUrl]
-            );
-        } elseif ($driver->hasRestrictedMetadata()) {
+        if ($driver->hasRestrictedMetadata()) {
             $user = $params['user'] ?? null;
             $autoOpen = $params['autoOpen'] ?? false;
             $restrictedMetadataIncluded = $driver->isRestrictedMetadataIncluded();
