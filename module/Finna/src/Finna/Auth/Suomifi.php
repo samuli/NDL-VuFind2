@@ -160,13 +160,15 @@ class Suomifi extends Shibboleth
 
         $config = $this->getConfig()->Shibboleth;
         if ($param === $config->username
-            && ((bool)$config->hash_username ?? false)
         ) {
             $secret = $config->hash_secret ?? null;
             if (empty($secret)) {
                 throw new AuthException('hash_secret not configured');
             }
             $val = hash_hmac('sha256', $val, $secret, false);
+            if ($val === false) {
+                throw new AuthException('Error hashing username');
+            }
         }
         return $val;
     }

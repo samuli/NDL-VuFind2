@@ -590,10 +590,7 @@ required_attribute = Shib-Application-ID
 ; Required: the attribute Shibboleth uses to uniquely identify users.
 username              = SHIB_eppn
 
-; Should the username be hashed before saving to User profile
-hash_username = true
-
-; Secret key for hashing usernames
+; Secret key for hashing usernames (required)
 hash_secret = ""
 
 ; Should the username be stored in session? Required when using REMS.
