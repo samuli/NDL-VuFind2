@@ -121,6 +121,6 @@ class R2Ead3 extends SolrEad3
      */
     public function exportDisabled($format)
     {
-        return false;
+        return true;
     }
 }

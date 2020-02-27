@@ -131,10 +131,7 @@ class Loader extends \VuFind\Record\Loader
                 }
             } else if ($source === 'R2') {
                 // Missing R2 record (probably non-existing restriction level)
-                $record = $this->recordFactory->get('R2Ead3Missing');
-                $record->setRawData(['id' => $id, 'fullrecord' => '<xml></xml>']);
-                $record->setSourceIdentifier($source);
-                return $record;
+                return $this->initMissingR2Record($id);
             }
         }
         if ($missingException) {
@@ -214,25 +211,40 @@ class Loader extends \VuFind\Record\Loader
             $ids, $source, $tolerateBackendExceptions, $params
         );
 
+        if ($source === 'R2' && empty($records)) {
+            // Init R2 specific Missing drivers.
+            foreach ($ids as $id) {
+                $records[] = $this->initMissingR2Record($id);
+            }
+            return $records;
+        }
+
         // Check the results for missing MetaLib IRD records and try to load them
-        // with their old MetaLib IDs
+        // with their old MetaLib IDs.
+        // Replace generic Missing drivers with R2 specific.
         foreach ($records as &$record) {
-            if ($record instanceof \VuFind\RecordDriver\Missing
-                && $record->getSourceIdentifier() == 'Solr'
-            ) {
+            if ($record instanceof \VuFind\RecordDriver\Missing) {
+                $source = $record->getSourceIdentifier();
                 $id = $record->getUniqueID();
-                if (preg_match('/\.(FIN\d+)/', $id, $matches)) {
-                    if ($mlRecord = $this->loadMetaLibRecord($matches[1])) {
-                        $record = $mlRecord;
+                echo("missing: $id, $source");
+                if ($source == 'Solr') {
+                    if (preg_match('/\.(FIN\d+)/', $id, $matches)) {
+                        if ($mlRecord = $this->loadMetaLibRecord($matches[1])) {
+                            $record = $mlRecord;
+                        }
+                    } elseif (preg_match('/^musketti\..+?:(.+)/', $id, $matches)) {
+                        // Old musketti record. Try to find the new record using the
+                        // inventory number.
+                        $newRecord = $this
+                            ->loadRecordWithIdentifier($matches[1], 'museovirasto');
+                        if ($newRecord) {
+                            $record = $newRecord;
+                        }
                     }
-                } elseif (preg_match('/^musketti\..+?:(.+)/', $id, $matches)) {
-                    // Old musketti record. Try to find the new record using the
-                    // inventory number.
-                    $newRecord = $this
-                        ->loadRecordWithIdentifier($matches[1], 'museovirasto');
-                    if ($newRecord) {
-                        $record = $newRecord;
-                    }
+                } elseif ($source == 'R2') {
+                    // Missing R2 record
+                    // (probably non-existing restriction level)
+                    $record = $this->initMissingR2Record($id);
                 }
             }
         }
@@ -296,5 +308,20 @@ class Loader extends \VuFind\Record\Loader
         $results = $this->searchService->search('Solr', $query, 0, 1, $params)
             ->getRecords();
         return !empty($results) ? $results[0] : false;
+    }
+
+    /**
+     * Init missing R2Ead3 driver.
+     *
+     * @param string $id Record id.
+     *
+     * @return \VuFind\RecordDriver\AbstractBase
+     */
+    protected function initMissingR2Record($id)
+    {
+        $record = $this->recordFactory->get('R2Ead3Missing');
+        $record->setRawData(['id' => $id, 'fullrecord' => '<xml></xml>']);
+        $record->setSourceIdentifier('R2');
+        return $record;
     }
 }
