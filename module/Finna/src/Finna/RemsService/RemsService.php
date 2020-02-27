@@ -161,6 +161,7 @@ class RemsService implements
      * @param bool $ignoreCache Ignore cache?
      *
      * @return string|false
+     * @throws Exception
      */
     public function isUserBlacklisted($ignoreCache = false)
     {
@@ -173,7 +174,7 @@ class RemsService implements
         $blacklist = $this->sendRequest(
             'blacklist',
             ['user' => $this->getUserId(), 'resource' => $this->getResourceItemId()],
-            'GET', RemsService::TYPE_ADMIN, null, false
+            'GET', RemsService::TYPE_APPROVER, null, false
         );
         if (!empty($blacklist)) {
             $addedAt = $blacklist[0]['blacklist/added-at'];
@@ -200,15 +201,11 @@ class RemsService implements
      */
     protected function getEntitlements()
     {
-        try {
-            $userId = $this->getUserId();
-        } catch (\Exception $e) {
-            return false;
-        }
+        $userId = $this->getUserId();
         return $this->sendRequest(
             'entitlements',
             ['user' => $userId, 'resource' => $this->getResourceItemId()],
-            'GET', RemsService::TYPE_ADMIN, null, false
+            'GET', RemsService::TYPE_APPROVER, null, false
         );
     }
 
@@ -247,7 +244,7 @@ class RemsService implements
      * @param array  $formParams Form parameters
      *
      * @throws Exception
-     * @return void
+     * @return bool
      */
     public function registerUser(
         string $email,
@@ -290,7 +287,7 @@ class RemsService implements
         );
 
         if (!isset($response['application-id'])) {
-            return 'REMS: error creating draft application';
+            throw new \Exception('REMS: error creating draft application');
         }
         $applicationId = $response['application-id'];
 
@@ -626,14 +623,14 @@ class RemsService implements
         } catch (\Exception $e) {
             $err = $formatError($e, null);
             $this->error($err);
-            throw new \Exception($err);
+            throw new \Exception('REMS request error');
         }
 
         $err = $formatError(null, $response);
 
         if (!$response->isSuccess() || $response->getStatusCode() !== 200) {
             $this->error($err);
-            throw new \Exception($err);
+            throw new \Exception('REMS request error');
         }
 
         $response = json_decode($response->getBody(), true);
@@ -642,7 +639,7 @@ class RemsService implements
             && (!isset($response['success']) || !$response['success'])
         ) {
             $this->error($err);
-            throw new \Exception($err);
+            throw new \Exception('REMS request error');
         }
 
         return $response;
