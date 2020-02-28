@@ -195,21 +195,10 @@ forms:
     hideSenderInfo: true
     hideRecipientInfo: true
     help:
-      pre: R2_register_form_help_pre
+      pre: R2_register_form_help_returninguser_pre_html
+      post: R2_register_form_help_post_html
 
     fields:
-      - name: firstname
-        type: text
-        required: true
-        label: First Name
-      - name: lastname
-        type: text
-        required: true
-        label: Last Name
-      - name: email
-        type: email
-        required: true
-        label: Email
       - name: usage_purpose
         type: select
         options:
@@ -220,8 +209,26 @@ forms:
           - R2_register_form_usage_5
           - R2_register_form_usage_6
         label: R2_register_form_usage
+        help:
+          post: R2_register_form_usage_help_html
+
         placeholder: Select
         required: true
+      - name: firstname
+        type: text
+        required: true
+        label: First Name
+        help: R2_register_form_userinfo
+      - name: lastname
+        type: text
+        required: true
+        label: Last Name
+      - name: email
+        type: email
+        required: true
+        label: Email
+        help:
+          post: R2_register_form_datasource
       - name: license
         type: checkbox
         options:
@@ -232,7 +239,7 @@ forms:
         options:
           - R2_register_form_age
         required: true
-        
+
   R2RegisterReturningUser:
     allowLocalOverride: false
     title: "R2_register_form_title"
@@ -245,21 +252,10 @@ forms:
     hideSenderInfo: true
     hideRecipientInfo: true
     help:
-      pre: R2_register_form_help_pre
+      pre: R2_register_form_help_pre_html
+      post: R2_register_form_help_post_html
 
     fields:
-      - name: firstname
-        type: text
-        required: true
-        label: First Name
-      - name: lastname
-        type: text
-        required: true
-        label: Last Name
-      - name: email
-        type: email
-        required: true
-        label: Email
       - name: usage_purpose
         type: select
         options:
@@ -270,8 +266,25 @@ forms:
           - R2_register_form_usage_5
           - R2_register_form_usage_6
         label: R2_register_form_usage
+        help:
+          post: R2_register_form_usage_help_html
         placeholder: Select
         required: true
+      - name: firstname
+        type: text
+        required: true
+        label: First Name
+        help: R2_register_form_userinfo
+      - name: lastname
+        type: text
+        required: true
+        label: Last Name
+      - name: email
+        type: email
+        required: true
+        label: Email
+        help:
+          post: R2_register_form_datasource
       - name: license
         type: checkbox
         options:
@@ -282,4 +295,3 @@ forms:
         options:
           - R2_register_form_age
         required: true
-        
