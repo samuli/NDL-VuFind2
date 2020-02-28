@@ -246,8 +246,7 @@ class Form extends \VuFind\Form\Form
 
         // Help text from configuration
         $pre = isset($this->formConfig['help']['pre'])
-            && !$translationEmpty->__invoke($this->formConfig['help']['pre'])
-            ? $this->translate($this->formConfig['help']['pre'])
+            ? $this->getDisplayString($this->formConfig['help']['pre'], false)
             : null;
 
         // 'feedback_instructions_html' translation
@@ -444,6 +443,41 @@ class Form extends \VuFind\Form\Form
         return $newUser
             ? self::R2_REGISTER_FORM
             : self::R2_REGISTER_RETURNING_USER_FORM;
+    }
+
+    /**
+     * Get display string.
+     *
+     * @param string $translationKey Translation key
+     * @param bool   $escape         Whether to escape the output.
+     * Default behaviour is to escape when the translation key does not end with '_html'.
+     *
+     * @return string
+     */
+    public function getDisplayString($translationKey, $escape = null)
+    {
+        if (!$this->isR2RegisterForm($this->formId)) {
+            return parent::getDisplayString($translationKey, $escape);
+        }
+
+        // R2 registration form help texts
+        switch($translationKey) {
+        case 'R2_register_form_help_pre_html':
+            $url = $this->viewHelperManager->get('url')
+                ->__invoke('content-page', ['page' => 'help']);
+            return $this->translate($translationKey, ['%%url%%' => $url]);
+
+        case 'R2_register_form_help_post_html':
+            $url = $this->viewHelperManager->get('url')
+                ->__invoke('content-page', ['page' => 'help']);
+            return $this->translate($translationKey, ['%%url%%' => $url]);
+
+        case 'R2_register_form_usage_help_html':
+            $help = $this->translate('R2_register_form_usage_help_tooltip_html');
+            return $this->translate($translationKey, ['%%title%%' => $help]);
+        }
+
+        return parent::getDisplayString($translationKey, $escape);
     }
 
     /**
