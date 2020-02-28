@@ -78,6 +78,7 @@ class Suomifi extends Shibboleth
         if ($config->store_username_to_session ?? false) {
             // Store encrypted username to session
             $username = $this->encrypt(
+                // parent method does not hash the username
                 parent::getServerParam($request, $config->username)
             );
             $session = new \Zend\Session\Container(
