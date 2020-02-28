@@ -374,6 +374,12 @@ finna.layout = (function finnaLayout() {
     });
   }
 
+  function initModalToolTips() {
+    $('#modal').on('show.bs.modal', function onShowModal() {
+      initToolTips($(this));
+    });
+  }
+
   function initCondensedList() {
     $('.condensed-collapse-toggle').click(function onClickCollapseToggle(event) {
       if ((event.target.nodeName) !== 'A' && (event.target.nodeName) !== 'MARK') {
@@ -843,6 +849,7 @@ finna.layout = (function finnaLayout() {
       initMobileNarrowSearch();
       initCheckboxClicks();
       initToolTips();
+      initModalToolTips();
       initResizeListener();
       initScrollLinks();
       initSearchboxFunctions();
