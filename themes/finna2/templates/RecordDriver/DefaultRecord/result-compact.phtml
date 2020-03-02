@@ -3,8 +3,6 @@
   $formats = $this->driver->tryMethod('getFormats');
   $database = $this->record($this->driver)->getFormatClass(end($formats)) === '0database';
   $ejournal = $this->record($this->driver)->getFormatClass(end($formats)) === '1journaleserial';
-  $thumbnail = false;
-  $thumbnailAlignment = $this->record($this->driver)->getThumbnailAlignment('result');
 ?>
 <div class="record-container<?=$this->driver->supportsAjaxStatus()?' ajaxItem ':''?> list-view">
   <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueID())?>" class="hiddenId" />
