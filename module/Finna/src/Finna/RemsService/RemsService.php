@@ -201,12 +201,16 @@ class RemsService implements
      */
     protected function getEntitlements()
     {
-        $userId = $this->getUserId();
-        return $this->sendRequest(
-            'entitlements',
-            ['user' => $userId, 'resource' => $this->getResourceItemId()],
-            'GET', RemsService::TYPE_APPROVER, null, false
-        );
+        try {
+            $userId = $this->getUserId();
+            return $this->sendRequest(
+                'entitlements',
+                ['user' => $userId, 'resource' => $this->getResourceItemId()],
+                'GET', RemsService::TYPE_APPROVER, null, false
+            );
+        } catch (\Exception $e) {
+            return [];
+        }
     }
 
     protected function getEntitlementApplication()
