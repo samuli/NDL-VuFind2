@@ -155,7 +155,7 @@ class Suomifi extends Shibboleth
     {
         if ($config = $this->getConfig()->Shibboleth ?? null) {
             if ($route = $config->post_login_lightbox_route
-                && $routeParams = $config->post_login_lightbox_router_params
+                && $routeParams = $config->post_login_lightbox_route_params
             ) {
                 $params = [];
                 foreach (explode(',', $params) as $param) {
