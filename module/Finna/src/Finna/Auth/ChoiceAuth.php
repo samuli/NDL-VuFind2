@@ -52,6 +52,6 @@ class ChoiceAuth extends \VuFind\Auth\ChoiceAuth
      */
     public function getPostLoginLightboxRoute()
     {
-        return $this->proxyAuthMethod('getPostLoginLightboxUrl', func_get_args());
+        return $this->proxyAuthMethod('getPostLoginLightboxRoute', func_get_args());
     }
 }
