@@ -581,6 +581,13 @@ finna.layout = (function finnaLayout() {
     });
   }
 
+  function showPostLoginLightbox(url) {
+    url = url + (url.indexOf('?') === -1 ? '?' : '&') + 'layout=lightbox';
+    var modal = $('#modal');
+    modal.find('.modal-body').load(url);
+    modal.modal();
+  }
+
   function getOrganisationPageLink(organisation, organisationName, link, callback) {
     var params = {
       url: VuFind.path + '/AJAX/JSON?method=getOrganisationInfo',
@@ -870,7 +877,8 @@ finna.layout = (function finnaLayout() {
       initFiltersToggle();
       initFiltersCheckbox();
       initCookieConsent();
-    }
+    },
+    showPostLoginLightbox: showPostLoginLightbox
   };
 
   return my;
