@@ -158,7 +158,7 @@ class Suomifi extends Shibboleth
                 && $routeParams = $config->post_login_lightbox_route_params
             ) {
                 $params = [];
-                foreach (explode(',', $params) as $param) {
+                foreach (explode(',', $routeParams) as $param) {
                     if (false === strpos($param, ':')) {
                         continue;
                     }
