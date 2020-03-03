@@ -2,9 +2,9 @@
 <?php
   $setupJS = [];
   $registerFormUrl =
-    $this->url('feedback-form', ['id' => $this->formId])
-      . '?recordId=' . $this->escapeHtmlAttr($this->id)
-      . ($this->collection ? '&collection=1' : '');
+    '?login=true'
+    . '&recordId=' . $this->escapeHtmlAttr($this->id)
+    . ($this->collection ? '&collection=1' : '');
 ?>
 <div class="alert alert-info authorization-notification R2-status status-error error hide">
   <p><?= $this->translate('R2_restricted_record_error') ?></p>
