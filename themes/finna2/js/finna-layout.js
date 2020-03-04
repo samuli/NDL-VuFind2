@@ -582,10 +582,7 @@ finna.layout = (function finnaLayout() {
   }
 
   function showPostLoginLightbox(url) {
-    url = url + (url.indexOf('?') === -1 ? '?' : '&') + 'layout=lightbox';
-    var modal = $('#modal');
-    modal.find('.modal-body').load(url);
-    modal.modal();
+    VuFind.lightbox.ajax({url: url});
   }
 
   function getOrganisationPageLink(organisation, organisationName, link, callback) {
