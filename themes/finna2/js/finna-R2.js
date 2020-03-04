@@ -13,13 +13,7 @@ finna.R2 = (function finnaR2() {
       }
     });
   }
-
-  function initAutoOpenRegistration() {
-    $('.R2-status .register .btn-primary').trigger('click');
-  }
-
   var my = {
-    initAutoOpenRegistration: initAutoOpenRegistration,
     initModal: initModal
   };
 
