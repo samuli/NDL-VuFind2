@@ -101,39 +101,25 @@ trait R2ControllerTrait
             return null;
         }
 
-        $recordId = $this->params()->fromQuery('recordId');
-        $collection
-            = (bool)$this->params()->fromQuery('collection', false);
-        $session = $this->getR2Session();
-
         $inLightbox
             = $this->getRequest()->getQuery('layout', 'no') === 'lightbox'
                || 'layout/lightbox' == $this->layout()->getTemplate();
 
-        $getRedirect = function () use ($recordId, $collection, $session) {
+        $getRedirect = function () use ($inLightbox) {
             // Logged but not authorized (wrong login method etc), close form
-            if ($session->inLightbox) {
+            if ($inLightbox) {
                 // Login completed inside lightbox: refresh page
                 $response = $this->getResponse();
                 $response->setStatusCode(205);
                 return '';
             } else {
-                $recordId
-                    ? $this->redirect()->toRoute(
-                        $collection
-                        ? 'r2collection-home' : 'r2record-home',
-                        ['id' => $recordId]
-                    )
-                    : $this->redirect()->toRoute('search-home');
+                return $this->redirect()->toRoute('search-home');
             }
         };
 
         // Verify that user is authorized to access restricted R2 data.
         if (!$user = $this->getUser()) {
             // Not logged, prompt login
-            $session->inLightbox = $inLightbox;
-            $session->recordId = $recordId;
-            $session->collection = $collection;
             return $this->forceLogin();
         }
 
@@ -149,7 +135,7 @@ trait R2ControllerTrait
             return $getRedirect();
         }
 
-        if ($rems->getAccessPermission() === RemsService::STATUS_APPROVED) {
+        if ($rems->getAccessPermission(true) === RemsService::STATUS_APPROVED) {
             // User already has access
             return $getRedirect();
         }
@@ -203,30 +189,10 @@ trait R2ControllerTrait
                 $this->flashMessenger()->addErrorMessage($e->getMessage());
             }
 
-            if ($inLightbox) {
-                // Request lightbox to refresh page
-                $response = $this->getResponse();
-                $response->setStatusCode(205);
-                return '';
-            } else {
-                // Registration outside lightbox, redirect to record/collection
-                if (isset($session->recordId)) {
-                    $route = ($session->collection ?? false)
-                        ? 'r2collection' : 'r2record';
-                    return $this->redirect()->toRoute(
-                        $route, ['id' => $session->recordId]
-                    );
-                } else {
-                    return $this->redirect()->toRoute('search-home');
-                }
-            }
+            return $getRedirect();
         }
 
         // User is authorized, let parent display the registration form
-        $session->recordId = $recordId;
-        $session->collection = $collection;
-        $session->inLightbox = $inLightbox;
-
         return null;
     }
 
