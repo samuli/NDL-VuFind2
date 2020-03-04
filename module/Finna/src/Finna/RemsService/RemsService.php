@@ -360,6 +360,8 @@ class RemsService implements
             $this->session->{self::SESSION_USAGE_PURPOSE}
                 = 'R2_register_form_usage_'
                   . $entitlementApplication['usagePurpose'];
+        } else {
+            return null;
         }
         
         return $this->session->{self::SESSION_ACCESS_STATUS} ?? null;
