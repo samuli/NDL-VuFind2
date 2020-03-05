@@ -91,7 +91,8 @@ class R2RestrictedRecordRegistered extends \Zend\View\Helper\AbstractHelper
             return null;
         }
 
-        if ($driver->hasRestrictedMetadata()) {
+        // If driver is null, this is called from search results.
+        if (!$driver || $driver->hasRestrictedMetadata()) {
             $user = $params['user'] ?? null;
             $approved = $user
                 && $this->rems->getAccessPermission()
