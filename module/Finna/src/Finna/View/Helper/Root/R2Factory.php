@@ -65,11 +65,13 @@ class R2Factory implements FactoryInterface
         $r2Conf = $container->get(\VuFind\Config\PluginManager::class)
             ->get('R2');
         $enabled = $r2Conf->General->enabled ?? false;
-        $auth = $container->get('ZfcRbac\Service\AuthorizationService');
+        $auth = $container->get(\ZfcRbac\Service\AuthorizationService::class);
+        $rems = $container->get(\Finna\RemsService\RemsService::class);
 
         return new $requestedName(
             $enabled,
-            $auth->isGranted('access.R2Restricted')
+            $auth->isGranted('access.R2Restricted'),
+            $rems->isUserRegisteredDuringSession()
         );
     }
 }

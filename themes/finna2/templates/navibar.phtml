@@ -143,9 +143,13 @@
                 </a>
               </li>
               <?php if ($this->R2()->isAvailable()): ?>
+              <?php $registered = $this->R2()->isRegistered(); ?>
               <li>
                 <a role="menuitem" href="<?=$this->url('myresearch-r2accessrights')?>">
-                  <?=$this->transEsc('R2_accessrights_menu_heading')?>
+                  <?=$this->transEsc($registered ? 'R2_menu_heading' : 'R2_menu_heading_register')?>
+                  <?php if (!$registered): ?>
+                    <i class="fa fa-r2 pull-right" aria-hidden="true"></i>
+                  <?php endif; ?>
                 </a>
               </li>
               <?php endif; ?>

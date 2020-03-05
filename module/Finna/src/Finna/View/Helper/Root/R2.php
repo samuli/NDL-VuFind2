@@ -51,17 +51,26 @@ class R2 extends \Zend\View\Helper\AbstractHelper
      * @var bool
      */
     protected $authorized;
-    
+
+    /**
+     * Is user registered to REMS during this session?
+     *
+     * @var bool
+     */
+    protected $registered;
+
     /**
      * Constructor
      *
      * @param bool $enabled    Is R2 enabled?
      * @param bool $authorized Is user suthorized to use R2?
+     * @param bool $registered Is user registered to REMS during this session?
      */
-    public function __construct(bool $enabled, bool $authorized)
+    public function __construct(bool $enabled, bool $authorized, bool $registered)
     {
         $this->enabled = $enabled;
         $this->authorized = $authorized;
+        $this->registered = $registered;
     }
 
     /**
@@ -75,12 +84,22 @@ class R2 extends \Zend\View\Helper\AbstractHelper
     }
     
     /**
-     * Check if use is authorized to use R2.
+     * Check if user is authorized to use R2.
      *
      * @return bool
      */
     public function isUserAuthorizedToUseR2()
     {
         return $this->authorized;
+    }
+
+    /**
+     * Check if user is registered to REMS during this session.
+     *
+     * @return bool
+     */
+    public function isRegistered()
+    {
+        return $this->registered;
     }
 }
