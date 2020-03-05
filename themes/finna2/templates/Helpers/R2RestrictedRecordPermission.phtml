@@ -19,8 +19,8 @@
       <?= $this->translate('R2_restricted_record_note_html') ?>
     </div>
     <div class="register">
-      <p class="register-btn"><a href="<?= $registerFormUrl ?>" data-lightbox data-lightbox-title="<?=$this->transEsc("R2_register_form_title")?>" class="btn btn-primary"><?=$this->transEsc("R2_register")?></a></p>
-      <p><?=$this->translate('R2_register_read_more_html', ['%%url%%' => $this->url('content-page', ['page' => 'help'])])?></p>
+      <p class="register-btn"><a href="<?= $registerFormUrl ?>" data-lightbox data-lightbox-title="<?=$this->transEsc("R2_register_form_title")?>" class="btn btn-primary btn-r2-register"><?=$this->transEsc("R2_register")?></a></p>
+      <p><?=$this->translate('R2_register_read_more_html', ['%%url%%' => $this->url('content-page', ['page' => 'r2'])])?></p>
     </div>
   </div>
 <?php elseif ($this->blacklisted): ?>
@@ -37,8 +37,8 @@
       <?= $this->translate('R2_restricted_record_note_html') ?>
     </div>
     <div class="register">
-      <div class="register-btn"><a href="<?= $registerFormUrl ?>" data-lightbox data-lightbox-title="<?=$this->transEsc("R2_register_form_title")?>" class="btn btn-primary"><i class="fa fa-search"></i> <?=$this->transEsc("R2_register")?></a></div>
-      <p><?=$this->translate('R2_register_read_more_html', ['%%url%%' => $this->url('content-page', ['page' => 'help'])])?></p>
+      <div class="register-btn"><a href="<?= $registerFormUrl ?>" data-lightbox data-lightbox-title="<?=$this->transEsc("R2_register_form_title")?>" class="btn btn-primary btn-r2-register"><i class="fa fa-r2"></i> <?=$this->transEsc("R2_register")?></a></div>
+      <p><?=$this->translate('R2_register_read_more_html', ['%%url%%' => $this->url('content-page', ['page' => 'r2'])])?></p>
     </div>
   </div>
 <?php endif; ?>

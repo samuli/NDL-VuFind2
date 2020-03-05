@@ -29,7 +29,7 @@
             <th><?=$this->transEsc('R2_session_usage_purpose')?></th>
           </tr>
           <tr class="myresearch-row">
-            <td><?=$this->translate('R2_accessrights_info_html', ['%%url%%' => $this->url('myresearch-r2termsofuse')])?></td>
+            <td><?=$this->translate('R2_accessrights_info_html', ['%%url%%' => $this->url('content-page', ['page' => 'r2'])])?></td>
             <td>
               <p><?=$this->translate($usagePurpose)?></p>
             </td>  
@@ -46,7 +46,7 @@
 
         <div class="alert alert-info">
           <p><?=$this->translate('R2_accessrights_register')?></p>
-          <p class="register"><a data-lightbox href="<?=$registerFormUrl?>" class="btn btn-primary" title="<?=$this->transEsc('R2_register')?>"><?=$this->translate('R2_register')?></a></p>
+          <p class="register"><a data-lightbox href="<?=$registerFormUrl?>" class="btn btn-primary btn-r2-register" title="<?=$this->transEsc('R2_register')?>"><i class="fa fa-r2"></i> <?=$this->translate('R2_register')?></a></p>
         </div>
       <?php endif; ?>
     <?php endif; ?>
