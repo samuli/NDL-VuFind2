@@ -4,7 +4,6 @@
 ?>
 <?php if ($this->weakLogin): ?>
   <div class="r2-restricted-record-register alert alert-info">
-    <?= $this->translate('R2_restricted_record_note_html') ?>
     <p><strong><?= $this->translate('R2_register_weak_loginmethod') ?></strong></p>
   </div>
 <?php elseif (!$this->user): ?>
@@ -24,10 +23,6 @@
       <p><?=$this->translate('R2_register_read_more_html', ['%%url%%' => $this->url('content-page', ['page' => 'help'])])?></p>
     </div>
   </div>
-<?php elseif ($this->restrictedMetadataIncluded): ?>
-  <div class="authorization-notification alert alert-info">
-    <p><?=$this->translate('R2_restricted_record_registered_note_html')?></p>
-  </div>
 <?php elseif ($this->blacklisted): ?>
    <div class="alert-info authorization-notification alert alert-danger "><?= $this->translate('R2_accessrights_blacklisted', ['%%url%%' => $this->url('feedback-home'), '%%date_added%%' => $this->dateTime()->convertToDisplayDate('Y-m-d', $blacklisted)]) ?></div>
 <?php elseif (!$this->preventApplicationSubmit): ?>
@@ -42,7 +37,7 @@
       <?= $this->translate('R2_restricted_record_note_html') ?>
     </div>
     <div class="register">
-      <p class="register-btn"><a href="<?= $registerFormUrl ?>" data-lightbox data-lightbox-title="<?=$this->transEsc("R2_register_form_title")?>" class="btn btn-primary"><?=$this->transEsc("R2_register")?></a></p>
+      <div class="register-btn"><a href="<?= $registerFormUrl ?>" data-lightbox data-lightbox-title="<?=$this->transEsc("R2_register_form_title")?>" class="btn btn-primary"><i class="fa fa-search"></i> <?=$this->transEsc("R2_register")?></a></div>
       <p><?=$this->translate('R2_register_read_more_html', ['%%url%%' => $this->url('content-page', ['page' => 'help'])])?></p>
     </div>
   </div>
