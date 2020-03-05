@@ -2,48 +2,49 @@
 <?php
   $setupJS = [];
 ?>
-<div class="alert alert-info authorization-notification R2-status status-error error hide">
-  <p><?= $this->translate('R2_restricted_record_error') ?></p>
-</div>
 <?php if ($this->weakLogin): ?>
-  <div class="alert alert-info authorization-notification R2-status">
-    <p><?= $this->translate('R2_restricted_record_note_html') ?></p>
+  <div class="r2-restricted-record-register alert alert-info">
+    <?= $this->translate('R2_restricted_record_note_html') ?>
     <p><strong><?= $this->translate('R2_register_weak_loginmethod') ?></strong></p>
   </div>
 <?php elseif (!$this->user): ?>
   <?php
     $setupJS['modal'] = true;
-    if ($this->autoOpen) {
-      $setupJS['autoOpen'] = true;
-    }
     $registerFormUrl =
       '?login=true'
       . '&recordId=' . $this->escapeHtmlAttr($this->id)
       . ($this->collection ? '&collection=1' : '');
   ?>
-  <div class="alert alert-info authorization-notification R2-status">
-    <p><?= $this->translate('R2_restricted_record_note_html') ?></p>
-    <p class="register"><a href="<?= $registerFormUrl ?>" data-lightbox data-lightbox-title="<?=$this->transEsc("R2_register_form_title")?>" class="btn btn-primary"><?=$this->transEsc("R2_register")?></a></p>
+  <div class="r2-restricted-record-register alert alert-info">
+    <div>
+      <?= $this->translate('R2_restricted_record_note_html') ?>
+    </div>
+    <div class="register">
+      <p class="register-btn"><a href="<?= $registerFormUrl ?>" data-lightbox data-lightbox-title="<?=$this->transEsc("R2_register_form_title")?>" class="btn btn-primary"><?=$this->transEsc("R2_register")?></a></p>
+      <p><?=$this->translate('R2_register_read_more_html', ['%%url%%' => $this->url('content-page', ['page' => 'help'])])?></p>
+    </div>
   </div>
 <?php elseif ($this->restrictedMetadataIncluded): ?>
-  <div class="alert alert-info authorization-notification check-permission R2-status R2-status-approved">
+  <div class="authorization-notification alert alert-info">
     <p><?=$this->translate('R2_restricted_record_registered_note_html')?></p>
   </div>
 <?php elseif ($this->blacklisted): ?>
-   <div class="alert alert-danger "><?= $this->translate('R2_accessrights_blacklisted', ['%%url%%' => $this->url('feedback-home'), '%%date_added%%' => $this->dateTime()->convertToDisplayDate('Y-m-d', $blacklisted)]) ?></div>
+   <div class="alert-info authorization-notification alert alert-danger "><?= $this->translate('R2_accessrights_blacklisted', ['%%url%%' => $this->url('feedback-home'), '%%date_added%%' => $this->dateTime()->convertToDisplayDate('Y-m-d', $blacklisted)]) ?></div>
 <?php elseif (!$this->preventApplicationSubmit): ?>
   <?php
-    if ($this->autoOpen) {
-      $setupJS['autoOpen'] = true;
-    }
     $registerFormUrl =
       $this->url('feedback-form', ['id' => 'R2Register'])
       . '?recordId=' . $this->escapeHtmlAttr($this->id)
       . ($this->collection ? '&collection=1' : '');
   ?>
-  <div class="alert alert-info authorization-notification check-permission R2-status R2-status-not-submitted" data-id="<?=$this->escapeHtmlAttr($this->id)?>">
-    <p class="txt"><?= $this->translate('R2_restricted_record_note_html') ?></p>
-    <p class="register"><a href="<?= $registerFormUrl ?>" class="btn btn-primary" data-lightbox title="<?=$this->transEsc('R2_register_form_title')?>"><?=$this->translate('R2_register')?></a></p>
+  <div class="r2-restricted-record-register alert alert-info">
+    <div>
+      <?= $this->translate('R2_restricted_record_note_html') ?>
+    </div>
+    <div class="register">
+      <p class="register-btn"><a href="<?= $registerFormUrl ?>" data-lightbox data-lightbox-title="<?=$this->transEsc("R2_register_form_title")?>" class="btn btn-primary"><?=$this->transEsc("R2_register")?></a></p>
+      <p><?=$this->translate('R2_register_read_more_html', ['%%url%%' => $this->url('content-page', ['page' => 'help'])])?></p>
+    </div>
   </div>
 <?php endif; ?>
 
@@ -54,9 +55,6 @@ if (!empty($setupJS)) {
     switch ($type) {
       case 'modal':
         $script .= 'finna.R2.initModal();';
-        break;
-      case 'autoOpen':
-        $script .= 'finna.R2.initAutoOpenRegistration();';
         break;
     }
   }
