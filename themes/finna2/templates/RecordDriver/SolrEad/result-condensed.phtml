@@ -42,6 +42,7 @@
       <?=$this->record($this->driver)->getPreviews()?>
     </div>
     <div class="condensed-col-hierarchy">
+      <?= $this->R2RestrictedRecordSearchResult($this->driver) ?>
     <?php $trees = $this->driver->tryMethod('getHierarchyTrees'); if (!empty($trees)): ?>
         <?php foreach ($trees as $hierarchyID => $hierarchyTitle): ?>
           <div class="hierarchyTreeLink">

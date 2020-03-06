@@ -41,3 +41,55 @@
 .btn.btn-r2-register {
   font-weight: 700;
 }
+
+// Restricted record indicator in search result
+.r2-result-restricted {
+  background-color: @alert-success-bg;
+  width: 70px;
+  height: 70px;
+  box-shadow: 0px 5px 5px rgba(1,1,1,0.1);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.result-view-list {
+  .record-container.list-view {
+    .r2-result-restricted {
+      position: absolute;
+      margin-top: 10px;
+      margin-left: -10px;
+      z-index: 1000;
+      border-radius: 5px;
+    }
+  }
+}
+.result-view-condensed {
+  .record-container.list-view {
+    .condensed-col-hierarchy {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      .r2-result-restricted {
+        width: 50px;
+        height: 50px;
+        margin-top: 0;
+      }
+    }
+  }
+}
+.result-view-grid {
+  .grid-result {
+    .r2-result-restricted {
+      margin-left: -90px;
+      margin-top: 0;
+    }
+  }
+}
+.result.record-container.myresearch-row {
+  .r2-result-restricted {
+    position: absolute;
+    margin-left: -10px;
+    margin-top: 10px;
+    z-index: 1000;
+  }  
+}
