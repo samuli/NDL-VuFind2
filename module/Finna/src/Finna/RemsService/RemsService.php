@@ -153,6 +153,19 @@ class RemsService implements
     }
 
     /**
+     * Is user allowed to see restricted metadata?
+     *
+     * @param bool $ignoreCache Ignore cache?
+     *
+     * @return bool
+     */
+    public function hasUserAccess($ignoreCache = false)
+    {
+        return $this->getAccessPermission($ignoreCache)
+            === RemsService::STATUS_APPROVED;
+    }
+
+    /**
      * Check if the user is blacklisted.
      *
      * Returns the date when the user was blacklisted or
