@@ -197,25 +197,6 @@ trait R2ControllerTrait
     }
 
     /**
-     * Handle request to auto open registration form at page load when
-     * jumping from from local index record page to restricted index record page.
-     *
-     * @param View $view View
-     *
-     * @return View
-     */
-    protected function handleAutoOpenRegistration($view)
-    {
-        $session = $this->getR2Session();
-
-        if ($this->getRequest()->getQuery()->get('register') === '1') {
-            $view->autoOpenR2Registration = true;
-        }
-
-        return $view;
-    }
-
-    /**
      * Return session for REMS data.
      *
      * @return SesionContainer

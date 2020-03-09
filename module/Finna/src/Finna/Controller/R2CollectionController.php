@@ -49,18 +49,6 @@ class R2collectionController extends CollectionController
     protected $searchClassId = 'R2';
 
     /**
-     * Home (default) action -- forward to requested (or default) tab.
-     *
-     * @return mixed
-     */
-    public function homeAction()
-    {
-        $view = parent::homeAction();
-        $view = $this->handleAutoOpenRegistration($view);
-        return $view;
-    }
-
-    /**
      * Create a new ViewModel.
      *
      * @param array $params Parameters to pass to ViewModel constructor.
