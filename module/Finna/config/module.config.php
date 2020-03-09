@@ -838,4 +838,22 @@ $routeGenerator->addRecordRoutes($config, $recordRoutes);
 $routeGenerator->addDynamicRoutes($config, $dynamicRoutes);
 $routeGenerator->addStaticRoutes($config, $staticRoutes);
 
+// This needs to be defined after VuFind's record routes...
+$config['router']['routes']['r2record-feedback'] = [
+    'type'    => 'Zend\Router\Http\Segment',
+    'options' => [
+        'route'    => '/R2Record/[:id]/Feedback',
+        'constraints' => [
+            'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
+            'action'     => '[a-zA-Z][a-zA-Z0-9_-]*',
+        ],
+        'defaults' => [
+            'controller' => 'R2Record',
+            'action'     => 'Feedback',
+        ]
+    ]
+];
+
 return $config;
+
+

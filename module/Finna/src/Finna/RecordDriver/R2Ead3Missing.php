@@ -60,4 +60,14 @@ class R2Ead3Missing extends R2Ead3
     {
         return false;
     }
+
+    /**
+     * Show organisation menu on record page?
+     *
+     * @return boolean
+     */
+    public function showOrganisationMenu()
+    {
+        return false;
+    }
 }

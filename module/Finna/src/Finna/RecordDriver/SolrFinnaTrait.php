@@ -654,6 +654,16 @@ trait SolrFinnaTrait
     }
 
     /**
+     * Show organisation menu on record page?
+     *
+     * @return boolean
+     */
+    public function showOrganisationMenu()
+    {
+        return true;
+    }
+
+    /**
      * Is rating allowed.
      *
      * @return boolean
