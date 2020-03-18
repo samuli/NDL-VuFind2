@@ -188,6 +188,15 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
             $adapter = $client->getAdapter();
             if ($adapter instanceof \Zend\Http\Client\Adapter\Socket) {
                 $adapter->setOptions(['sslallowselfsigned' => true]);
+            } elseif ($adapter instanceof \Zend\Http\Client\Adapter\Curl) {
+                $adapter->setOptions(
+                    [
+                        'curloptions' => [
+                            CURLOPT_SSL_VERIFYPEER => false,
+                            CURLOPT_SSL_VERIFYHOST => false
+                        ]
+                    ]
+                );
             }
         }
 
