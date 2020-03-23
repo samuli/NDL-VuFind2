@@ -27,6 +27,8 @@
  */
 namespace Finna\View\Helper\Root;
 
+use Finna\RemsService\RemsService;
+
 /**
  * Helper class for restricted Solr R2 search.
  *
@@ -53,24 +55,24 @@ class R2 extends \Zend\View\Helper\AbstractHelper
     protected $authorized;
 
     /**
-     * Is user registered to REMS during this session?
+     * RemsService
      *
-     * @var bool
+     * @var RemsService
      */
-    protected $registered;
+    protected $rems;
 
     /**
      * Constructor
      *
-     * @param bool $enabled    Is R2 enabled?
-     * @param bool $authorized Is user suthorized to use R2?
-     * @param bool $registered Is user registered to REMS during this session?
+     * @param bool        $enabled    Is R2 enabled?
+     * @param bool        $authorized Is user suthorized to use R2?
+     * @param RemsService $rems       RemsService
      */
-    public function __construct(bool $enabled, bool $authorized, bool $registered)
+    public function __construct(bool $enabled, bool $authorized, RemsService $rems)
     {
         $this->enabled = $enabled;
         $this->authorized = $authorized;
-        $this->registered = $registered;
+        $this->rems = $rems;
     }
 
     /**
@@ -100,6 +102,18 @@ class R2 extends \Zend\View\Helper\AbstractHelper
      */
     public function isRegistered()
     {
-        return $this->registered;
+        return $this->rems->isUserRegisteredDuringSession();
+    }
+
+    /**
+     * Check if user is has access to R2
+     *
+     * @param bool $ignoreCache Ignore cache?
+     *
+     * @return bool
+     */
+    public function hasUserAccess($ignoreCache)
+    {
+        return $this->rems->hasUserAccess($ignoreCache);
     }
 }

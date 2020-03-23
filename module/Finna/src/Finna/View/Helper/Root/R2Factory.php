@@ -71,7 +71,7 @@ class R2Factory implements FactoryInterface
         return new $requestedName(
             $enabled,
             $auth->isGranted('access.R2Restricted'),
-            $rems->isUserRegisteredDuringSession()
+            $rems
         );
     }
 }

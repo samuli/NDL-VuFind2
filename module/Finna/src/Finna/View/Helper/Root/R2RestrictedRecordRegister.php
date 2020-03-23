@@ -93,16 +93,18 @@ class R2RestrictedRecordRegister extends \Zend\View\Helper\AbstractHelper
      *
      * @return null|html
      */
-    public function __invoke($driver, $params = null)
+    public function __invoke($driver = null, $params = null)
     {
         if (!$this->enabled) {
             return null;
         }
 
-        if ($driver->hasRestrictedMetadata()) {
+        if (!$driver || $driver->hasRestrictedMetadata()) {
             $user = $params['user'] ?? null;
-            $restrictedMetadataIncluded = $driver->isRestrictedMetadataIncluded();
-            $accessStatus = $this->rems->getAccessPermission();
+            $restrictedMetadataIncluded
+                = $driver ? $driver->isRestrictedMetadataIncluded() : false;
+            $accessStatus
+                = $this->rems->getAccessPermission($params['ignoreCache'] ?? false);
             $blacklisted = $user ? $this->rems->isUserBlacklisted() : false;
             $preventApplicationSubmit
                 = $restrictedMetadataIncluded
@@ -114,10 +116,13 @@ class R2RestrictedRecordRegister extends \Zend\View\Helper\AbstractHelper
             
             // R2 record with restricted metadata
             $params = [
+                'note' => $driver
+                    ? 'R2_restricted_record_note_html'
+                    : 'R2_restricted_record_note_frontpage_html',
                 'weakLogin' => $user && !$this->authorized,
                 'user' => $user,
-                'id' => $driver->getUniqueID(),
-                'collection' => $driver->isCollection(),
+                'id' => $driver ? $driver->getUniqueID() : null,
+                'collection' => $driver ? $driver->isCollection() : false,
                 'restrictedMetadataIncluded' => $restrictedMetadataIncluded,
                 'preventApplicationSubmit' => $preventApplicationSubmit,
                 'blacklisted' => $blacklisted,
