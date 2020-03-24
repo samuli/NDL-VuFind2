@@ -7,6 +7,9 @@
       $this->layout()->srmessage = '<a class="sr-only" href="#searchForm_lookfor">' . $this->transEsc('Skip to search') . '</a>';
     }
 
+    $config = $this->config()->get('config');
+    $defaultSearchBackend = $config->Site->defaultSearchBackend ?? 'Solr';
+
     // Set default value if necessary:
     if (!isset($this->searchClassId)) {
         switch ($module) {
@@ -29,8 +32,7 @@
             $this->searchClassId = 'R2';
             break;
         default:
-            $config = $this->config()->get('config');
-            $this->searchClassId = $config->Site->defaultSearchBackend ?? 'Solr';
+            $this->searchClassId = $defaultSearchBackend;
         }
     }
 
@@ -69,7 +71,7 @@
          $this->layout()->searchTabs = $searchTabs;
       }
     }
-    $mainPage = $action === 'home' && in_array($module, ['combined', 'primo', 'search', 'eds', 'summon']);
+    $mainPage = $action === 'home' && in_array($module, ['combined', 'primo', 'search', 'r2search', 'eds', 'summon']);
 ?>
 <?php if ($this->searchType != 'advanced'): ?>
   <?php
@@ -232,7 +234,7 @@
           <a href="<?=$this->url($advSearch)?>" class="btn btn-link btn-advanced"><i class="fa fa-search-adv"></i><?=$this->transEsc("Advanced Search")?></a>
           <?php endif; ?>
 
-          <?php if ($browse || $this->searchClassId != 'Solr'): ?>
+          <?php if ($browse || $defaultSearchBackend === 'Solr'): ?>
           <a href="<?=$this->url('home');?>" class="btn btn-link btn-basic"><i class="fa fa-search"></i> <?=$this->transEsc("Basic Search")?></a>
           <?php endif; ?>
 

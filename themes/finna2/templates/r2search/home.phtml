@@ -2,7 +2,6 @@
 <?php
   // Set page title.
   $this->headTitle($this->translate('R2 Search'));
-  $this->layout()->finnaMainHeader = '<div><h1 class="content-header">' . $this->translate('R2 Search') . '</h1></div>';
   // Disable top search box -- this page has a special layout.
   // Set default value if necessary:
   if (!isset($this->searchClassId)) {
@@ -21,13 +20,9 @@
 <!--  Begin home.phtml and close page container for extra styling  -->
 </div>
 <div class="container-fluid r2-home">
-  <div class="container">
-    <div>
-      <?php if ($template = $this->content()->findTemplateForLng('r2/home-1')): ?>
-      <?=$this->render($template)?>
-      <?php endif; ?>
-    </div>
-  </div>
+    <?php if ($template = $this->content()->findTemplateForLng('r2/home-1')): ?>
+    <?=$this->render($template)?>
+    <?php endif; ?>
 </div>
 <!-- reopen container -->
 <div class="container">
