@@ -9,8 +9,9 @@
 <?php elseif (!$this->user && $this->id): ?>
   <?php
     $setupJS['modal'] = true;
-    $registerFormUrl =
-      '?login=true'
+    // Explicitly redirect Collection page login to Record controller
+    $registerFormUrl = $this->url('r2record', ['id' => $this->id])
+      . '?login=true'
       . '&recordId=' . $this->escapeHtmlAttr($this->id)
       . ($this->collection ? '&collection=1' : '');
   ?>
