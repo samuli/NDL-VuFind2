@@ -30,6 +30,7 @@
 namespace Finna\View\Helper\Root;
 
 use Finna\RemsService\RemsService;
+use VuFind\I18n\Translator\TranslatorAwareTrait;
 
 /**
  * Helper class for restricted Solr R2 records.
@@ -44,6 +45,8 @@ use Finna\RemsService\RemsService;
  */
 class R2RestrictedRecordRegister extends \Zend\View\Helper\AbstractHelper
 {
+    use TranslatorAwareTrait;
+
     /**
      * Is R2 search enabled?
      *
@@ -103,9 +106,15 @@ class R2RestrictedRecordRegister extends \Zend\View\Helper\AbstractHelper
             $user = $params['user'] ?? null;
             $restrictedMetadataIncluded
                 = $driver ? $driver->isRestrictedMetadataIncluded() : false;
-            $accessStatus
-                = $this->rems->getAccessPermission($params['ignoreCache'] ?? false);
-            $blacklisted = $user ? $this->rems->isUserBlacklisted() : false;
+            try {
+                $accessStatus = $this->rems->getAccessPermission(
+                    $params['ignoreCache'] ?? false
+                );
+                $blacklisted = $user ? $this->rems->isUserBlacklisted() : false;
+            } catch (\Exception $e) {
+                return '<div class="alert alert-danger">'
+                    . $this->translate('An error has occurred') . '</div>';
+            }
             $preventApplicationSubmit
                 = $restrictedMetadataIncluded
                 || $blacklisted;

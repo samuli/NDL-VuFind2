@@ -6,7 +6,14 @@
   // Set up breadcrumbs:
   $currPage = 'R2AccessRights';
   $this->layout()->breadcrumbs = '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li> <li class="active">' . $this->transEsc($currPage) . '</li>';
-  $accessStatus = $this->rems->getAccessPermission(true);
+  $error = false;
+  try {
+    $accessStatus = $this->rems->getAccessPermission(true);
+    $usagePurpose = $this->rems->getUsagePurpose();
+    $blacklisted = $this->rems->isUserBlacklisted(true);
+  } catch (\Exception $e) {
+    $error = true;
+  }
 ?>
 
 <!-- Leftside navigationbar -->
@@ -20,34 +27,38 @@
     <div class="useraccount-header">
       <h2><?=$this->transEsc('R2_accessrights_title')?></h2>
     </div>
-    <?php if ($accessStatus === \Finna\RemsService\RemsService::STATUS_APPROVED): ?>
-      <?php $usagePurpose = $this->rems->getUsagePurpose(); ?>
-      <table class="table useraccount-table">
-        <tbody>
-          <tr class="headers">
-            <th><?=$this->transEsc('R2_your_accessrights')?></th>
-            <th><?=$this->transEsc('R2_session_usage_purpose')?></th>
-          </tr>
-          <tr class="myresearch-row">
-            <td><?=$this->translate('R2_accessrights_info_html', ['%%url%%' => $this->url('content-page', ['page' => 'r2'])])?></td>
-            <td>
-              <p><?=$this->translate($usagePurpose)?></p>
-            </td>  
-          </tr>
-        </tbody>
-      </table>
+    <?php if ($error): ?>
+      <div class="alert alert-danger"><?=$this->transEsc('R2_rems_connect_error')?></div>
     <?php else: ?>
-      <?php if (!$this->R2()->isUserAuthorizedToUseR2()): ?>
-        <div><?= $this->translate('R2_register_weak_loginmethod') ?></div>
-      <?php elseif ($blacklisted = $this->rems->isUserBlacklisted(true)): ?>
-        <div class="alert alert-danger "><?= $this->translate('R2_accessrights_blacklisted', ['%%url%%' => $this->url('feedback-home'), '%%date_added%%' => $this->dateTime()->convertToDisplayDate('Y-m-d', $blacklisted)]) ?></div>
+      <?php if ($accessStatus === \Finna\RemsService\RemsService::STATUS_APPROVED): ?>
+        <?php $usagePurpose = $this->rems->getUsagePurpose(); ?>
+        <table class="table useraccount-table">
+          <tbody>
+            <tr class="headers">
+              <th><?=$this->transEsc('R2_your_accessrights')?></th>
+              <th><?=$this->transEsc('R2_session_usage_purpose')?></th>
+            </tr>
+            <tr class="myresearch-row">
+              <td><?=$this->translate('R2_accessrights_info_html', ['%%url%%' => $this->url('content-page', ['page' => 'r2'])])?></td>
+              <td>
+                <p><?=$this->translate($usagePurpose)?></p>
+              </td>  
+            </tr>
+          </tbody>
+        </table>
       <?php else: ?>
-        <?php $registerFormUrl = $this->url('feedback-form', ['id' => 'R2Register']); ?>
+        <?php if (!$this->R2()->isUserAuthorizedToUseR2()): ?>
+          <div><?= $this->translate('R2_register_weak_loginmethod') ?></div>
+        <?php elseif ($blacklisted = $this->rems->isUserBlacklisted(true)): ?>
+          <div class="alert alert-danger "><?= $this->translate('R2_accessrights_blacklisted', ['%%url%%' => $this->url('feedback-home'), '%%date_added%%' => $this->dateTime()->convertToDisplayDate('Y-m-d', $blacklisted)]) ?></div>
+        <?php else: ?>
+          <?php $registerFormUrl = $this->url('feedback-form', ['id' => 'R2Register']); ?>
 
-        <div class="alert alert-info">
-          <div><p><?=$this->translate('R2_accessrights_register')?></p></div>
-          <div class="register"><a data-lightbox href="<?=$registerFormUrl?>" class="btn btn-primary btn-r2-register" title="<?=$this->transEsc('R2_register')?>"><i class="fa fa-3x fa-research"></i> <?=$this->translate('R2_register')?></a></div>
-        </div>
+          <div class="alert alert-info">
+            <div><p><?=$this->translate('R2_accessrights_register')?></p></div>
+            <div class="register"><a data-lightbox href="<?=$registerFormUrl?>" class="btn btn-primary btn-r2-register" title="<?=$this->transEsc('R2_register')?>"><i class="fa fa-3x fa-research"></i> <?=$this->translate('R2_register')?></a></div>
+          </div>
+        <?php endif; ?>
       <?php endif; ?>
     <?php endif; ?>
   </div>

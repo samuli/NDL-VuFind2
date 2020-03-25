@@ -85,7 +85,12 @@ trait R2ControllerTrait
         }
 
         $rems = $this->serviceLocator->get('Finna\RemsService\RemsService');
-        $regId = \Finna\Form\Form::getR2RegisterFormId(!$rems->isUserRegistered());
+        try {
+            $regId
+                = \Finna\Form\Form::getR2RegisterFormId(!$rems->isUserRegistered());
+        } catch (\Exception $e) {
+            return null;
+        }
         return $formId !== $regId ? $regId : null;
     }
 
@@ -131,11 +136,22 @@ trait R2ControllerTrait
         // registration if needed.
         $rems = $this->serviceLocator->get('Finna\RemsService\RemsService');
 
-        if ($rems->isUserBlacklisted()) {
+        try {
+            if ($rems->isUserBlacklisted()) {
+                return $getRedirect();
+            }
+        } catch (\Exception $e) {
+            $this->flashMessenger()->addErrorMessage('R2_rems_connect_error');
             return $getRedirect();
         }
 
-        if ($rems->getAccessPermission(true) === RemsService::STATUS_APPROVED) {
+        try {
+            $permission = $rems->getAccessPermission(true);
+        } catch (\Exception $e) {
+            $this->flashMessenger()->addErrorMessage('R2_rems_connect_error');
+            return $getRedirect();
+        }
+        if ($permission === RemsService::STATUS_APPROVED) {
             // User already has access
             return $getRedirect();
         }
