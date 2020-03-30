@@ -39,7 +39,10 @@ namespace Finna\View\Helper\Root;
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
 class R2RestrictedRecordSearchResult extends \Zend\View\Helper\AbstractHelper
+    implements \VuFind\I18n\Translator\TranslatorAwareInterface
 {
+    use \VuFind\I18n\Translator\TranslatorAwareTrait;
+
     /**
      * Is R2 search enabled?
      *
@@ -70,18 +73,29 @@ class R2RestrictedRecordSearchResult extends \Zend\View\Helper\AbstractHelper
      * Render info box.
      *
      * @param RecordDriver $driver Record driver
+     * @param string       $type   icon|info
      *
      * @return null|html
      */
-    public function __invoke($driver)
+    public function __invoke($driver, $type = 'icon')
     {
         if (!$this->enabled || !$driver->hasRestrictedMetadata()) {
             return null;
         }
 
-        return $this->getView()->render(
-            'Helpers/R2RestrictedRecordSearchResult.phtml',
-            ['hasAccess' => $this->hasAccess]
-        );
+        if ($type === 'icon') {
+            // Icon overlayed on record image
+            return $this->getView()->render(
+                'Helpers/R2RestrictedRecordSearchResult.phtml',
+                ['hasAccess' => $this->hasAccess]
+            );
+        } else {
+            // Info text in content area
+            return '<div class="alert alert-success">'
+                . $this->translator->translate(
+                    'R2_restricted_record_note_searchresult'
+                )
+                . '</div>';
+        }
     }
 }
