@@ -79,7 +79,9 @@ class R2RestrictedRecordSearchResult extends \Zend\View\Helper\AbstractHelper
      */
     public function __invoke($driver, $type = 'icon')
     {
-        if (!$this->enabled || !$driver->hasRestrictedMetadata()) {
+        if (!$this->enabled
+            || !$driver->tryMethod('hasRestrictedMetadata', [], false)
+        ) {
             return null;
         }
 
@@ -91,7 +93,7 @@ class R2RestrictedRecordSearchResult extends \Zend\View\Helper\AbstractHelper
             );
         } else {
             // Info text in content area
-            return '<div class="alert alert-success">'
+            return '<div class="r2-result-restricted-info alert alert-success">'
                 . $this->translator->translate(
                     'R2_restricted_record_note_searchresult'
                 )
