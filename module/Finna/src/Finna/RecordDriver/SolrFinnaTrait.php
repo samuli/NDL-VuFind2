@@ -435,7 +435,7 @@ trait SolrFinnaTrait
         if (!isset($this->fields['online_urls_str_mv'])) {
             return [];
         }
-        return $raw ? $this->fields['online_urls_str_mv'] : $this->checkForAudioUrls(
+        return $raw ? $this->fields['online_urls_str_mv'] : $this->resolveUrlTypes(
             $this->mergeURLArray(
                 $this->fields['online_urls_str_mv'], true
             )
@@ -793,18 +793,32 @@ trait SolrFinnaTrait
     }
 
     /**
-     * Get related records (used by RecordDriverRelated - Related module)
+     * Get related records (used by RecordDriverRelatedDeferred - Related module)
      *
-     * Returns an associative array of record ids.
+     * Returns an associative array of group => records, where each item in
+     * records is either a record id or an array that has a 'wildcard' key
+     * with a Solr compatible pattern as it's value.
+     *
+     * Notes on wildcard queries:
+     *  - Only the first record from the wildcard result set is returned.
+     *  - The wildcard query includes a filter that limits the results to
+     *    the same datasource as the issuing record.
+     *
      * The array may contain the following keys:
      *   - parents
      *   - children
      *   - continued-from
      *   - other
      *
+     * Examples:
+     * - parents
+     *     - source1.1234
+     *     - ['wildcard' => '*1234']
+     *     - ['wildcard' => 'source*1234*']
+     *
      * @return array
      */
-    public function getRelatedItems()
+    public function getRelatedRecords()
     {
         return [];
     }
@@ -896,21 +910,37 @@ trait SolrFinnaTrait
     }
 
     /**
-     * Checks if any of the URLs contains an audio file and updates
-     * the url array acoordingly
+     * Resolve URL types.
+     * Each URL is annotated with 'extension' field (file extension).
+     * In addition, image and video URLs are annotated with 'type' field.
      *
-     * @param array $urls URLs to be checked for audio files
+     * @param array $urls URLs
      *
-     * @return array URL array with added audio and codec tag where
-     * appropriate
+     * @return array URL array with annotated URLs
      */
-    protected function checkForAudioUrls($urls)
+    protected function resolveUrlTypes($urls)
     {
         $newUrls = [];
         foreach ($urls as $url) {
-            if (preg_match('/^http(s)?:\/\/.*\.(mp3|wav)$/', $url['url'], $match)) {
-                $url['embed'] = 'audio';
-                $url['codec'] = $match[2];
+            if (preg_match(
+                '/^http(s)?:\/\/.*\.([a-zA-Z0-9]{3,4}.*)$/',
+                $url['url'], $match
+            )
+            ) {
+                $extension = $match[2];
+                $type = null;
+                switch (strtolower($extension)) {
+                case 'wav':
+                case 'mp3':
+                    $type = 'audio';
+                    break;
+                case 'jpg':
+                case 'png':
+                    $type = 'image';
+                    break;
+                }
+                $url['extension'] = $extension;
+                $url['type'] = $type;
             }
             $newUrls[] = $url;
         }

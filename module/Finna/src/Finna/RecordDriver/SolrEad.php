@@ -501,7 +501,7 @@ class SolrEad extends \VuFind\RecordDriver\SolrDefault
                 ];
             }
         }
-        $urls = $this->checkForAudioUrls($urls);
+        $urls = $this->resolveUrlTypes($urls);
         return $urls;
     }
 

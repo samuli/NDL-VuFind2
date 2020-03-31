@@ -8,9 +8,10 @@
     foreach ($urls as $url){
       if (!empty($url['videoSources']) || !empty($url['embed']) && $url['embed'] == 'video' || $this->recordLink()->getEmbeddedVideo($url['url']) == 'data-embed-iframe'){
         array_push($videoUrls, $url);
-      } elseif (!empty($url['embed']) && $url['embed'] == 'audio') {
+      } elseif (($url['type'] ?? null) === 'audio') {
         array_push($audioUrls, $url);
-      } else {
+      } elseif (($url['type'] ?? null) !== 'image'){
+        // Filter away image-urls since they are displayed via image-paginator
         array_push($otherUrls, $url);
       }
     }

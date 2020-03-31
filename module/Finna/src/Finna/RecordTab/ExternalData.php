@@ -1,6 +1,6 @@
 <?php
 /**
- * SolrEad3 locations tab.
+ * SolrEad3 External data tab.
  *
  * PHP version 7
  *
@@ -28,7 +28,7 @@
 namespace Finna\RecordTab;
 
 /**
- * SolrEad3 locations tab.
+ * SolrEad3 External data tab.
  *
  * @category VuFind
  * @package  RecordTabs
@@ -36,7 +36,7 @@ namespace Finna\RecordTab;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:record_tabs Wiki
  */
-class LocationsEad3 extends \VuFind\RecordTab\AbstractBase
+class ExternalData extends \VuFind\RecordTab\AbstractBase
 {
     /**
      * Is this tab enabled?
@@ -62,7 +62,7 @@ class LocationsEad3 extends \VuFind\RecordTab\AbstractBase
      */
     public function isActive()
     {
-        if (empty($this->driver->tryMethod('getLocations'))) {
+        if (empty($this->driver->tryMethod('getExternalData'))) {
             $this->enabled = false;
         }
         return $this->enabled;

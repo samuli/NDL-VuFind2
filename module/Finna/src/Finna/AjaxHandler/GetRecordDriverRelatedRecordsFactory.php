@@ -1,6 +1,6 @@
 <?php
 /**
- * Factory for RecordDriver based related record module
+ * Factory for GetRecordDriverRelatedRecords AJAX handler.
  *
  * PHP version 7
  *
@@ -20,26 +20,26 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category VuFind
- * @package  View_Helpers
+ * @package  AJAX
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development Wiki
  */
-namespace Finna\Related;
+namespace Finna\AjaxHandler;
 
 use Interop\Container\ContainerInterface;
-use Zend\ServiceManager\Factory\FactoryInterface;
 
 /**
- * Factory for RecordDriver based related record module
+ * Factory for GetRecordDriverRelatedRecords AJAX handler.
  *
  * @category VuFind
- * @package  View_Helpers
+ * @package  AJAX
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development Wiki
  */
-class RecordDriverRelatedFactory implements FactoryInterface
+class GetRecordDriverRelatedRecordsFactory
+    implements \Zend\ServiceManager\Factory\FactoryInterface
 {
     /**
      * Create an object
@@ -54,11 +54,21 @@ class RecordDriverRelatedFactory implements FactoryInterface
      * @throws ServiceNotCreatedException if an exception is raised when
      * creating a service.
      * @throws ContainerException if any other error occurs
+     *
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
-    public function __invoke(
-        ContainerInterface $container, $requestedName, array $options = null
+    public function __invoke(ContainerInterface $container, $requestedName,
+        array $options = null
     ) {
-        $recordLoader = $container->get('VuFind\Record\Loader');
-        return new \Finna\Related\RecordDriverRelated($recordLoader);
+        if (!empty($options)) {
+            throw new \Exception('Unexpected options passed to factory.');
+        }
+        $result = new $requestedName(
+            $container->get(\VuFind\Session\Settings::class),
+            $container->get(\VuFind\Record\Loader::class),
+            $container->get(\VuFind\Search\SearchRunner::class),
+            $container->get('ViewRenderer')
+        );
+        return $result;
     }
 }

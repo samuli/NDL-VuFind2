@@ -360,19 +360,20 @@ class RecordDataFormatterFactory
         $setTemplateLine(
             'Archive Origination', 'getOrigination', 'data-origination.phtml',
             [
-                'context' => ['class' => 'record-origination']
+                'context' => ['class' => 'record-origination', 'group' => 'Context']
             ]
         );
         $setTemplateLine(
             'Archive', true, 'data-archive.phtml',
             [
-                'context' => ['class' => 'recordHierarchyLinks']
+                'context' => ['class' => 'recordHierarchyLinks',
+                              'group' => 'Context']
             ]
         );
         $setTemplateLine(
             'Archive Series', 'isPartOfArchiveSeries', 'data-archiveSeries.phtml',
             [
-                'context' => ['class' => 'recordSeries']
+                'context' => ['class' => 'recordSeries', 'group' => 'Context']
             ]
         );
         $setTemplateLine(
@@ -690,7 +691,7 @@ class RecordDataFormatterFactory
             foreach ($data as $type => $values) {
                 $final[] = [
                     'label' => "Access Restrictions:$type",
-                    'values' => array_values($values),
+                    'values' => $values ? array_values($values) : null,
                     'options' => [
                         'pos' => $pos++,
                         'renderType' => 'RecordDriverTemplate',
@@ -964,7 +965,6 @@ class RecordDataFormatterFactory
         $spec->setLine('Established', 'getEstablishedDate');
         $spec->setLine('Terminated', 'getTerminatedDate');
         $spec->setLine('Awards', 'getAwards');
-
         return $spec->getArray();
     }
 }

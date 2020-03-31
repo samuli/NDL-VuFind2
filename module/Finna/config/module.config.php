@@ -368,6 +368,8 @@ $config = [
                         'Finna\AjaxHandler\GetPiwikPopularSearchesFactory',
                     'Finna\AjaxHandler\GetRecordVersions' =>
                         'Finna\AjaxHandler\GetRecordVersionsFactory',
+                    'Finna\AjaxHandler\GetRecordDriverRelatedRecords' =>
+                        'Finna\AjaxHandler\GetRecordDriverRelatedRecordsFactory',
                     'Finna\AjaxHandler\GetSearchTabsRecommendations' =>
                         'Finna\AjaxHandler\GetSearchTabsRecommendationsFactory',
                     'Finna\AjaxHandler\GetSideFacets' =>
@@ -407,6 +409,7 @@ $config = [
                     'getOrganisationInfo' => 'Finna\AjaxHandler\GetOrganisationInfo',
                     'getPiwikPopularSearches' => 'Finna\AjaxHandler\GetPiwikPopularSearches',
                     'getRecordVersions' => 'Finna\AjaxHandler\GetRecordVersions',
+                    'getRecordDriverRelatedRecords' => 'Finna\AjaxHandler\GetRecordDriverRelatedRecords',
                     'getSearchTabsRecommendations' => 'Finna\AjaxHandler\GetSearchTabsRecommendations',
                     'getSimilarRecords' => 'Finna\AjaxHandler\GetSimilarRecords',
                     'getUserList' => 'Finna\AjaxHandler\GetUserList',
@@ -693,7 +696,7 @@ $config = [
             ],
             'recordtab' => [
                 'factories' => [
-                    'Finna\RecordTab\LocationsEad3' => 'Finna\RecordTab\Factory::getLocationsEad3',
+                    'Finna\RecordTab\ExternalData' => 'Finna\RecordTab\Factory::getExternalData',
                     'Finna\RecordTab\Map' => 'Finna\RecordTab\Factory::getMap',
                     'Finna\RecordTab\UserComments' => 'Finna\RecordTab\Factory::getUserComments',
                     'Finna\RecordTab\Versions' => 'Finna\RecordTab\VersionsFactory',
@@ -703,7 +706,7 @@ $config = [
                 ],
                 'aliases' => [
                     'componentparts' => 'Finna\RecordTab\ComponentParts',
-                    'LocationsEad3' => 'Finna\RecordTab\LocationsEad3',
+                    'externaldata' => 'Finna\RecordTab\ExternalData',
                     'versions' => 'Finna\RecordTab\Versions',
 
                     // Overrides:
@@ -713,14 +716,14 @@ $config = [
             ],
             'related' => [
                 'factories' => [
-                    'Finna\Related\RecordDriverRelated' => 'Finna\Related\RecordDriverRelatedFactory',
+                    'Finna\Related\RecordDriverRelatedDeferred' => 'Finna\Related\RecordDriverRelatedDeferredFactory',
                     'Finna\Related\Nothing' => 'Zend\ServiceManager\Factory\InvokableFactory',
                     'Finna\Related\SimilarDeferred' => 'Zend\ServiceManager\Factory\InvokableFactory',
                     'Finna\Related\WorkExpressions' => 'Finna\Related\WorkExpressionsFactory',
                 ],
                 'aliases' =>  [
                     'nothing' => 'Finna\Related\Nothing',
-                    'recorddriverrelated' => 'Finna\Related\RecordDriverRelated',
+                    'recorddriverrelateddeferred' => 'Finna\Related\RecordDriverRelatedDeferred',
                     'similardeferred' => 'Finna\Related\SimilarDeferred',
                     'workexpressions' => 'Finna\Related\WorkExpressions',
                 ]

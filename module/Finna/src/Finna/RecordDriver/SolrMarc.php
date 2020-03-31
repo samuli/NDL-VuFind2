@@ -1241,7 +1241,7 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
                 }
             }
         }
-        $retVal = $this->checkForAudioUrls($retVal);
+        $retVal = $this->resolveUrlTypes($retVal);
         return $retVal;
     }
 

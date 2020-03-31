@@ -36,21 +36,14 @@ namespace Finna\Related;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:building_a_related_record_module Wiki
  */
-class RecordDriverRelated implements \VuFind\Related\RelatedInterface
+class RecordDriverRelatedDeferred implements \VuFind\Related\RelatedInterface
 {
     /**
      * Records
      *
      * @var array
      */
-    protected $results;
-
-    /**
-     * Search service
-     *
-     * @var \VuFind\Record\Loader
-     */
-    protected $recordLoader;
+    protected $driver;
 
     /**
      * Constructor
@@ -59,7 +52,6 @@ class RecordDriverRelated implements \VuFind\Related\RelatedInterface
      */
     public function __construct(\VuFind\Record\Loader $recordLoader)
     {
-        $this->recordLoader = $recordLoader;
     }
 
     /**
@@ -72,20 +64,36 @@ class RecordDriverRelated implements \VuFind\Related\RelatedInterface
      */
     public function init($settings, $driver)
     {
-        foreach ($driver->getRelatedItems() as $type => $ids) {
-            $this->results[$type] = $this->recordLoader->loadBatchForSource(
-                $ids, 'Solr', true
-            );
-        }
+        $this->driver = $driver;
     }
 
     /**
-     * Get an array of result records.
+     * Check if the current record has related records.
      *
-     * @return array
+     * @return bool
      */
-    public function getResults()
+    public function hasRelatedRecords()
     {
-        return $this->results;
+        return $this->driver->tryMethod('hasRelatedRecords', [], false);
+    }
+
+    /**
+     * Get the current record ID
+     *
+     * @return string
+     */
+    public function getRecordId()
+    {
+        return $this->driver->getUniqueID();
+    }
+
+    /**
+     * Get the current record source
+     *
+     * @return string
+     */
+    public function getRecordSource()
+    {
+        return $this->driver->getSourceIdentifier();
     }
 }

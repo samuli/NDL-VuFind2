@@ -43,19 +43,13 @@ if ($img):
         </div>
         <div class="dateyeartype">
           <div class="resultItemFormat"><?=$this->record($this->driver)->getFormatList() ?> <?=$this->record($this->driver)->getSourceIdElement() ?></div>
-          <?php $summAuthors = $this->driver->getPrimaryAuthorsWithHighlighting(); if (!empty($summAuthors)): ?>
-            <div class="truncate-field" data-rows="1">
-              <?php $authorCount = count($summAuthors); foreach ($summAuthors as $i => $summAuthor): ?>
-                <a href="<?=$this->record($this->driver)->getLink('author', $this->highlight($summAuthor, null, true, false))?>"><?=$this->highlight($summAuthor)?></a><?=$i + 1 < $authorCount ? ' ; ' : ''?>
-              <?php endforeach; ?>
-            </div>
-          <?php endif; ?>
-
           <div class="resultHierarchyLinks">
             <?php // The funky comparison below is due to Zend translator not supporting empty values (see ExtendedIniReader) ?>
             <?php if (!$this->translationEmpty('Archive Repository')): ?><span class="small"><?=$this->transEsc('Archive Repository')?>:</span><?php endif; ?>
             <?=$this->escapeHtml($this->organisationDisplayName($this->driver)) ?>
-            <?php if ($origination = $this->driver->getOrigination()): ?>
+            <?php if ($origination = $this->driver->tryMethod('getOriginationExtended', [], null)): ?>
+              <br/><?=$this->record($this->driver)->getAuthorityLinkElement('author', $origination['name'], $origination, ['date' => true, 'role' => true, 'authorityType' => $origination['type'] ?? null])?>  
+            <?php elseif ($origination = $this->driver->getOrigination()): ?>
               <br/><span class="archive-label"><?=$this->transEsc('Archive Origination')?>:</span>
               <a href="<?=$this->url('search-results')?>?lookfor=%22<?=urlencode($origination)?>%22&amp;type=Author"><?=$this->escapeHtml($origination)?></a>
             <?php endif; ?>
