@@ -5,7 +5,7 @@
  * PHP version 5
  *
  * Copyright (C) Villanova University 2010.
- * Copyright (C) The National Library of Finland 2012-2019.
+ * Copyright (C) The National Library of Finland 2012-2020.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -212,7 +212,7 @@ class SolrEad3 extends SolrEad
     }
 
     /**
-     * Get location info to be used in LoacationsEad3-record page tab.
+     * Get location info to be used in ExternalData-record page tab.
      *
      * @param string $id If defined, return only the item with the given id
      *
@@ -409,8 +409,8 @@ class SolrEad3 extends SolrEad
      *   - description Human readable description (array)
      *   - link        Link to copyright info
      *
-     * @param string $language       Language for copyright information
-     * @param bool   $includePdf     Whether to include first PDF file when no image
+     * @param string $language   Language for copyright information
+     * @param bool   $includePdf Whether to include first PDF file when no image
      * links are found
      *
      * @return array
@@ -423,19 +423,15 @@ class SolrEad3 extends SolrEad
              self::TYPE_IMAGE_FULLRES => 'large'
         ];
 
-        $allowUrl = function ($url) {
-            if (!preg_match('/^http(s)?:\/\//', $url)) {
-                return false;
-            }
-            return preg_match('/.*\.(jpg|jpeg|png)$/', $url);
-        };
-
         $result = [];
 
         $images = [];
         $xml = $this->getXmlRecord();
         if (isset($xml->did->daoset)) {
             foreach ($xml->did->daoset as $daoset) {
+                if (!isset($daoset->dao)) {
+                    continue;
+                }
                 $attr = $daoset->attributes();
                 $localtype = (string)($attr->localtype ?? self::TYPE_IMAGE_FULLRES);
                 if (!in_array($localtype, array_keys($sizeMap))) {
@@ -446,10 +442,6 @@ class SolrEad3 extends SolrEad
                     $image[$size] = [];
                 }
 
-                if (!isset($daoset->dao)) {
-                    continue;
-                }
-
                 $descId = isset($daoset->descriptivenote->p)
                     ? (string)$daoset->descriptivenote->p : null;
 
@@ -458,22 +450,16 @@ class SolrEad3 extends SolrEad
                     $urls = [];
                     $attr = $dao->attributes();
 
-                    // TODO properly detect image urls
                     if (! isset($attr->linktitle)
                         || strpos((string)$attr->linktitle, 'Kuva/Aukeama') !== 0
                         || ! $attr->href
                     ) {
                         continue;
                     }
-                    $href = (string)$attr->href;
-                    if (!$allowUrl($href)) {
-                        continue;
-                    }
-
                     $images[$size][] = [
                         'description' => (string)$attr->linktitle,
                         'rights' => null,
-                        'url' => $href,
+                        'url' => (string)$attr->href,
                         'descId' => $descId
                     ];
                 }
@@ -806,7 +792,7 @@ class SolrEad3 extends SolrEad
     }
 
     /**
-     * Helper function for returning image URLs of specific type.
+     * Get fullresolution images.
      *
      * @return array
      */
@@ -815,7 +801,8 @@ class SolrEad3 extends SolrEad
         $images = $this->getAllImages();
         $items = [];
         foreach ($images as $img) {
-            $items[] = ['label' => $img['description'], 'url' => $img['urls']['medium']];
+            $items[]
+                = ['label' => $img['description'], 'url' => $img['urls']['large']];
         }
         $info = [];
 
@@ -831,7 +818,7 @@ class SolrEad3 extends SolrEad
     }
 
     /**
-     * Return OCR images.
+     * Get OCR images.
      *
      * @return array
      */
@@ -842,12 +829,12 @@ class SolrEad3 extends SolrEad
         $descId = null;
         if (isset($xml->did->daoset)) {
             foreach ($xml->did->daoset as $daoset) {
+                if (!isset($daoset->dao)) {
+                    continue;
+                }
                 $attr = $daoset->attributes();
                 $localtype = (string)$attr->localtype ?? null;
                 if ($localtype !== self::TYPE_IMAGE_OCR) {
-                    continue;
-                }
-                if (!isset($daoset->dao)) {
                     continue;
                 }
                 if (isset($daoset->descriptivenote->p)) {
@@ -856,8 +843,6 @@ class SolrEad3 extends SolrEad
 
                 foreach ($daoset->dao as $idx => $dao) {
                     $attr = $dao->attributes();
-
-                    // TODO properly detect image urls
                     if (! isset($attr->linktitle)
                         || strpos((string)$attr->linktitle, 'Kuva/Aukeama') !== 0
                         || ! $attr->href
