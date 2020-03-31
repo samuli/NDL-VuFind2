@@ -4,7 +4,7 @@
  *
  * PHP version 7
  *
- * Copyright (C) The National Library of Finland 2019.
+ * Copyright (C) The National Library of Finland 2020.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -114,7 +114,7 @@ class GetRecordDriverRelatedRecords extends \VuFind\AjaxHandler\AbstractBase
 
                 foreach ($ids as &$id) {
                     if (is_string($id)) {
-                        $records[$type][] = $this->recordLoader->load($id);
+                        $records[$type][] = $this->recordLoader->load($id, $source);
                     } elseif ($id = ($id['wildcard'] ?? null)) {
                         $results = $this->searchRunner->run(
                             ['lookfor' => 'id:' . addcslashes($id, '"')],
