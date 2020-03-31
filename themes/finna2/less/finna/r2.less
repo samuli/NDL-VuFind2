@@ -64,31 +64,50 @@
   }
 }
 
-// Restricted record indicator in search result
+.r2-result-restricted-info {
+  margin-bottom: 5px;
+  display: inline-block;
+}
+
+// Restricted record icon in search result
 .r2-result-restricted {
-  background-color: @alert-success-bg;
-  width: 70px;
-  height: 70px;
-  box-shadow: 0px 5px 5px rgba(1,1,1,0.1);
+  background-color: fade(@alert-success-bg, 70%);
+  width: 60px;
+  height: 60px;
   display: flex;
   justify-content: center;
   align-items: center;
   color: #2B2B2B;
   i {
-    font-size: 55px;
+    font-size: 45px;
     color: @brand-primary;
   }
 }
 
-.result-view-list {
-  .record-container.list-view {
-    .r2-result-restricted {
-      position: absolute;
-      margin-top: 5px;
-      margin-left: -10px;
-      z-index: 2;
-      border-radius: 5px;
-    }
+.result.condensed-list-view .recordcover-container {
+  .r2-result-restricted {
+    display: none;
+  }    
+}
+.result.condensed-list-view .condensed-collapse-toggle {
+  .r2-result-restricted {
+    margin-top: -5px;
+  }    
+}
+
+.result.record-container.myresearch-row,
+.result-view-grid .grid-result,
+.result-view-list .record-container.list-view {
+  .r2-result-restricted {
+    pointer-events: none;
+    position: absolute;
+    z-index: 2;
+  }
+}
+.result-view-grid .grid-result {
+  .r2-result-restricted {
+    left: 0px;
+    bottom: 0px;
   }
 }
 .result-view-condensed {
@@ -105,53 +124,52 @@
     }
   }
 }
-
-@media (min-width: @screen-xs) and (max-width: @screen-sm-max) {
-    .result.record-container.myresearch-row,
-    .result-view-list {
-        .record-container.list-view {
-            .r2-result-restricted {
-                width: 50px;
-                height: 50px;
-                i {
-                    font-size: 30px;
-                }
-            }
-        }
-    }
-}
-@media (max-width: @screen-xs) {
-    .result.record-container.myresearch-row,
-    .result-view-list {
-        .record-container.list-view {
-            .r2-result-restricted {
-                width: 30px;
-                height: 30px;
-                margin-top: -5px;
-                i {
-                    font-size: 22px;
-                }
-            }
-        }
-    }
-}
-
-.result-view-grid {
-  .grid-result {
+@media (min-width: @screen-sm-min) {
+  .result.record-container.myresearch-row,
+  .result-view-list .record-container.list-view {
     .r2-result-restricted {
-      margin-left: -90px;
-      margin-top: 0px;
+      bottom: 0px;
     }
   }
 }
-.result.record-container.myresearch-row {
-  .r2-result-restricted {
-    position: absolute;
-    margin-left: -10px;
-    margin-top: 10px;
-    z-index: 2;
-  }  
+@media (min-width: @screen-xs) and (max-width: @screen-sm-max) {
+  .result.record-container.myresearch-row,
+  .result-view-list .record-container.list-view {
+    .r2-result-restricted {
+      width: 50px;
+      height: 50px;
+      i {
+        font-size: 38px;
+      }
+    }
+  }
 }
-.r2-result-restricted-info {
-  display: inline-block;
+@media (max-width: @screen-xs) {
+  .result.record-container.myresearch-row,
+  .result-view-list .record-container.list-view {
+    .r2-result-restricted {
+      width: 30px;
+      height: 30px;
+      i {
+        font-size: 22px;
+      }
+    }
+  }
+}
+@media (max-width: @screen-xs-max) {
+  .record .tab-content.collectionDetails {
+    .media-left, .media-right {
+      .recordcover-container {
+        text-align: initial;
+        .r2-result-restricted {
+          width: 50px;
+          height: 50px;
+          top: 0px;
+          i {
+            font-size: 38px;
+          }
+        }
+      }
+    }
+  }
 }

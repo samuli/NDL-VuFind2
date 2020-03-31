@@ -15,7 +15,6 @@ if ($img):
   <div class="media">
     <?php if ($thumbnail && $thumbnailAlignment == 'left'): ?>
     <div class="media-<?=$thumbnailAlignment ?> resultThumb <?=$this->escapeHtmlAttr($coverDetails['size'])?>">
-      <?= $this->R2RestrictedRecordSearchResult($this->driver) ?>
       <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getUniqueID())?>" class="hiddenId" />
       <input type="hidden" value="<?=$this->escapeHtmlAttr($this->driver->getSourceIdentifier())?>" class="hiddenSource" />
         <?php if ($thumbnail): ?>

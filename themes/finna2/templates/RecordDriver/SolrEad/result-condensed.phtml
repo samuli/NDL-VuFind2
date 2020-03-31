@@ -36,6 +36,7 @@
           <?=$this->escapeHtml($this->organisationDisplayName($this->driver)) ?>
         </div>
       </div>
+      <?= $this->R2RestrictedRecordSearchResult($this->driver, 'info') ?>
     </div>
     <div class="condensed-col-link">
       <?=$this->record($this->driver)->getOnlineUrls('results')?>
@@ -55,6 +56,7 @@
         <?php endforeach; ?>
       <?php endif; ?>
     </div>
+    <?= $this->R2RestrictedRecordSearchResult($this->driver) ?>
   </div>
   <div class="clearfix"></div>
   <div class="media condensed-collapse-data">
