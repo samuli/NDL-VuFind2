@@ -428,14 +428,17 @@ finna.organisationInfoPage = (function finnaOrganisationInfoPage() {
   function updateServices(data) {
     if ('allServices' in data.details) {
       holder.find('.services').show();
-      var serviceHolder = holder.find('.service-list').empty();
-      $(data.details.allServices).each(function handleService(ind, obj) {
-        var li = $('<li/>');
-        li.append($('<strong/>').text(obj[0]));
-        if (obj.length > 0) {
-          li.append($('<p/>').html(obj[1]));
-        }
-        li.appendTo(serviceHolder);
+      var allServices = data.details.allServices;
+      $.each(allServices, function handleService(ind, obj) {
+        var serviceHolder = holder.find('.service-list.' + ind)
+        $.each(obj, function handleGrouping(group, services) {
+          var li = $('<li/>');
+          li.append($('<strong/>').text(services[0]));
+          if (obj.length > 0) {
+            li.append($('<p/>').html(services[1]));
+          }
+          li.appendTo(serviceHolder);
+        });
       });
     }
   }

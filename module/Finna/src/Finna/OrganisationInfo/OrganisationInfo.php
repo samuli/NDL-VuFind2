@@ -895,7 +895,11 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
                     if ($desc) {
                         $data[] = $desc;
                     }
-                    $allServices[] = $data;
+                    if (isset($service['type'])) {
+                        $allServices[$service['type']][] = $data;
+                    } else {
+                        $allServices[] = $data;
+                    }
                 }
             }
             if (!empty($services)) {
