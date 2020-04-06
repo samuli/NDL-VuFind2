@@ -13,7 +13,9 @@
   <?php if ($this->userlist()->getMode() !== 'disabled'): ?>
     <li><a class="save-record" data-lightbox href="<?=$this->recordLink()->getActionUrl($this->driver, 'Save')?>" title="<?=$this->transEsc('Add to favorites')?>" rel="nofollow"><i class="fa fa-plus" aria-hidden="true"></i><span class="hidden-xs"> <?=$this->transEsc('Add to favorites')?></span></a></li>
   <?php endif; ?>
+  <?php if ($this->driver->tryMethod('emailRecordAllowed') !== false): ?>
     <li><a class="mail-record" data-lightbox href="<?=$this->recordLink()->getActionUrl($this->driver, 'Email') ?>" title="<?=$this->transEsc('Email this')?>" rel="nofollow"><i class="fa fa-envelope" aria-hidden="true"></i><span class="hidden-xs"> <?=$this->transEsc('Email this')?></span></a></li>
+  <?php endif; ?>
   <?php $exportFormats = $this->export()->getFormatsForRecord($this->driver); ?>
   <?php if(count($exportFormats) > 0): ?>
     <li class="dropdown">

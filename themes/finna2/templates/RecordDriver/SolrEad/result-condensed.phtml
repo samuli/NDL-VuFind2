@@ -36,13 +36,15 @@
           <?=$this->escapeHtml($this->organisationDisplayName($this->driver)) ?>
         </div>
       </div>
+      <?= $this->R2RestrictedRecordSearchResult($this->driver, 'info') ?>
     </div>
     <div class="condensed-col-link">
       <?=$this->record($this->driver)->getOnlineUrls('results')?>
       <?=$this->record($this->driver)->getPreviews()?>
     </div>
     <div class="condensed-col-hierarchy">
-    <?php $trees = $this->driver->tryMethod('getHierarchyTrees'); if (!empty($trees)): ?>
+      <?= $this->R2RestrictedRecordSearchResult($this->driver) ?>
+      <?php $trees = $this->driver->tryMethod('getHierarchyTrees'); if (!empty($trees)): ?>
         <?php foreach ($trees as $hierarchyID => $hierarchyTitle): ?>
           <div class="hierarchyTreeLink">
             <input type="hidden" value="<?=$this->escapeHtmlAttr($hierarchyID)?>" class="hiddenHierarchyId" />

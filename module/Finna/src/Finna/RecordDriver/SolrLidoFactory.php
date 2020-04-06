@@ -41,7 +41,7 @@ use Interop\Container\ContainerInterface;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development Wiki
  */
-class SolrLidoFactory extends \VuFind\RecordDriver\SolrDefaultFactory
+class SolrLidoFactory extends SolrDefaultFactory
 {
     /**
      * Create an object

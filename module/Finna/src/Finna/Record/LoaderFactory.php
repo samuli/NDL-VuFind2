@@ -57,10 +57,22 @@ class LoaderFactory extends \VuFind\Record\LoaderFactory
     public function __invoke(ContainerInterface $container, $requestedName,
         array $options = null
     ) {
-        $loader = parent::__invoke($container, $requestedName, $options);
+        $loader = parent::__invoke($container, $requestedName);
         $loader->setPreferredLanguage(
             $container->get('VuFind\Translator')->getLocale()
         );
+
+        $auth = $container->get('ZfcRbac\Service\AuthorizationService');
+        if ($options['R2Restricted'] ?? false) {
+            // Restricted record requested.
+            // Revert to unrestricted if user is not authenticated.
+            if (!$auth->isGranted('access.R2Authenticated')) {
+                unset($options['R2Restricted']);
+            }
+        }
+        //$options['R2Restricted'] = true;
+        $loader->setDefaultParams($options);
+
         return $loader;
     }
 }

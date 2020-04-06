@@ -65,6 +65,13 @@ class ResultsFactory extends \VuFind\Search\Results\ResultsFactory
             $container, $requestedName,
             [$tm->get('Resource'), $tm->get('UserList'), $tm->get('UserResource')]
         );
+
+        // Request restricted metadata.
+        $recordLoader = $container->build(
+            \VuFind\Record\Loader::class, ['R2Restricted' => true]
+        );
+        $obj->setRecordLoader($recordLoader);
+
         $init = new \ZfcRbac\Initializer\AuthorizationServiceInitializer();
         $init($container, $obj);
         return $obj;

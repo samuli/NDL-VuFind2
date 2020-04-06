@@ -1,0 +1,14 @@
+; ----------------------------------------------
+; General settings for R2 restricted Solr search
+; ----------------------------------------------
+[General]
+enabled = false
+apiUser = 
+apiKey = 
+
+[Index]
+url             = 
+default_core    = 
+
+[Http]
+;ssl_allow_selfsigned = true

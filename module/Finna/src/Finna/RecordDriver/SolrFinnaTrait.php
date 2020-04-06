@@ -52,6 +52,36 @@ trait SolrFinnaTrait
     protected $searchSettings = [];
 
     /**
+     * Datasource settings
+     *
+     * @var array
+     */
+    protected $datasourceSettings = [];
+
+    /**
+     * Return an array of image URLs associated with this record with keys:
+     * - urls        Image URLs
+     *   - small     Small image (mandatory)
+     *   - medium    Medium image (mandatory)
+     *   - large     Large image (optional)
+     * - description Description text
+     * - rights      Rights
+     *   - copyright   Copyright (e.g. 'CC BY 4.0') (optional)
+     *   - description Human readable description (array)
+     *   - link        Link to copyright info
+     *
+     * @param string $language   Language for copyright information
+     * @param bool   $includePdf Whether to include first PDF file when no image
+     * links are found
+     *
+     * @return array
+     */
+    public function getAllImages($language = 'fi', $includePdf = true)
+    {
+        return [];
+    }
+
+    /**
      * Return access restriction notes for the record.
      *
      * @return array
@@ -624,6 +654,16 @@ trait SolrFinnaTrait
     }
 
     /**
+     * Show organisation menu on record page?
+     *
+     * @return boolean
+     */
+    public function showOrganisationMenu()
+    {
+        return true;
+    }
+
+    /**
      * Is rating allowed.
      *
      * @return boolean
@@ -966,6 +1006,38 @@ trait SolrFinnaTrait
             }
         }
         return false;
+    }
+
+    /**
+     * Does this record contain restricted metadata?
+     *
+     * @return bool
+     */
+    public function hasRestrictedMetadata()
+    {
+        return false;
+    }
+
+    /**
+     * Is restricted metadata included with the record, i.e. does the user
+     * have permissions to access restricted metadata.
+     *
+     * @return bool
+     */
+    public function isRestrictedMetadataIncluded()
+    {
+        return false;
+    }
+
+    /**
+     * Set preferred language for display strings.
+     *
+     * @param string $language Language
+     *
+     * @return void
+     */
+    public function setPreferredLanguage($language)
+    {
     }
 
     /**

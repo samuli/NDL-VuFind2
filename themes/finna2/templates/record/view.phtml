@@ -74,6 +74,7 @@
 </div>
 <div class="container">
 <div class="record source<?=$this->escapeHtmlAttr($this->driver->getSourceIdentifier())?> record-row <?= $largeImageLayout ? 'large-image-layout' : '' ?>">
+  <?= $this->R2RestrictedRecordRegistered($this->driver, ['user' => $this->auth()->isLoggedIn()])?>
   <div>
       <?=$this->record($this->driver)->getToolbar()?>
   </div>
@@ -88,7 +89,7 @@
   </div>
 
   <?php ob_start(); ?>
-    <?php if ($this->resolver('record/record-organisation-menu.phtml') && $this->driver->getSourceIdentifier() == 'Solr'): ?>
+    <?php if ($this->resolver('record/record-organisation-menu.phtml') && in_array($this->driver->getSourceIdentifier(), ['Solr', 'R2']) && $this->driver->showOrganisationMenu()): ?>
       <div class="organisation-menu">
           <?=$this->render('record/record-organisation-menu.phtml') ?>
       </div>

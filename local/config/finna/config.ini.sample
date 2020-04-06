@@ -78,6 +78,9 @@ defaultModule   = Search
 ; The base VuFind URL will load the "Home" action of this module when the user
 ; is logged in:
 defaultLoggedInModule = Search
+; The search backend that VuFind will use in search boxes when nothing else is
+; specified (e.g. on user account pages, search history, etc.). Default = Solr
+; defaultSearchBackend = Solr
 ; The route VuFind will send users to following a log out operation. Set to false
 ; or omit to attempt to retain the user's current context after log out.
 logOutRoute = home
@@ -301,12 +304,14 @@ schedule_searches = true
 
 ; This section allows you to determine how the users will authenticate.
 ; You can use an LDAP directory, the local ILS, the VuFind database (Database),
-; Shibboleth, SIP2, CAS or some combination of these (via the MultiAuth option).
+; Shibboleth, Shibboleth_suomifi, SIP2, CAS or some combination of these
+; (via the MultiAuth option).
 [Authentication]
 ;method          = LDAP
 ;method         = ILS
 ;method         = Database
 ;method         = Shibboleth
+;method         = Shibboleth_suomifi
 ;method         = SIP2
 ;method         = CAS
 method         = ChoiceAuth
@@ -571,6 +576,9 @@ email = SHIB_mail
 ; Shibboleth Suomi.fi is optional.
 ; This section is only needed if Suomi.fi is to be used as an authentication method.
 [Shibboleth_suomifi]
+; Is Resource Entitlement Management System (REMS) service enabled?
+; If enabled, RemsService::onLogoutPre is called when logout has been requested.
+use_rems = true
 
 ; Provider_id parameter to pass along to Shibboleth login.
 
@@ -592,11 +600,14 @@ required_attribute = Shib-Application-ID
 ; Required: the attribute Shibboleth uses to uniquely identify users.
 username              = SHIB_eppn
 
-; Should the username be hashed before saving to User profile
-hash_username = true
-
-; Secret key for hashing usernames
+; Secret key for hashing usernames before saving to user profile (required)
 hash_secret = ""
+
+; Should the username be stored in session? Required when using REMS.
+store_username_to_session = false
+; Public key path. Used to encrypt the user national identification.
+; Required if store_username_to_session is true
+public_key = ""
 
 ; Required: Shibboleth login URL.
 login = "https://www.finna.fi/Shibboleth.sso/Login"
@@ -606,6 +617,11 @@ logout = "https://www.finna.fi/Shibboleth.sso/Logout"
 
 ; Optional: Dynamic Shibboleth logout url attribute id (alternative to the static url above)
 logout_attribute       = SHIB_logouturl
+
+; Optional: route that is shown in lightbox after the login.
+; This opens the registration form.
+post_login_lightbox_route = "feedback-form"
+post_login_lightbox_route_param = "id:R2Register"
 
 ; Optional: URL to forward to after Shibboleth login (if omitted,
 ; defaultLoggedInModule from [Site] section will be used).
@@ -1418,6 +1434,10 @@ browseType = Index
 ;browseDelimiter = "{{{_ID_}}}"
 ; This controls the page size within the Collections/Home page (default = 20).
 ;browseLimit = 20
+; List of record routes that are converted to collection routes.
+route[record] = collection
+route[r2record] = r2collection
+route[r2collectionrecord] = r2collection
 
 ; This section addresses hierarchical records in the Solr index
 [Hierarchy]

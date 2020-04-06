@@ -41,6 +41,71 @@ use VuFind\Exception\Auth as AuthException;
 class Suomifi extends Shibboleth
 {
     /**
+     * REMS service
+     *
+     * @var \Finna\RemsService\RemsService
+     */
+    protected $remsService;
+
+    /**
+     * Constructor
+     *
+     * @param \Zend\Session\ManagerInterface $sessionManager Session manager
+     * @param \Finna\RemsService\RemsService $remsService    REMS service
+     */
+    public function __construct(
+        \Zend\Session\ManagerInterface $sessionManager,
+        $remsService = null
+    ) {
+        $this->sessionManager = $sessionManager;
+        $this->remsService = $remsService;
+    }
+
+    /**
+     * Attempt to authenticate the current user.  Throws exception if login fails.
+     *
+     * @param \Zend\Http\PhpEnvironment\Request $request Request object containing
+     * account credentials.
+     *
+     * @throws AuthException
+     * @return \VuFind\Db\Row\User Object representing logged-in user.
+     */
+    public function authenticate($request)
+    {
+        $result = parent::authenticate($request);
+
+        $config = $this->getConfig()->Shibboleth;
+        if ($config->store_username_to_session ?? false) {
+            // Store encrypted username to session
+            $username = $this->encrypt(
+                // parent method does not hash the username
+                parent::getServerParam($request, $config->username)
+            );
+            $session = new \Zend\Session\Container(
+                'Shibboleth', $this->sessionManager
+            );
+            $session['username'] = $username;
+        }
+        return $result;
+    }
+
+    /**
+     * Perform cleanup at logout time.
+     *
+     * @param string $url URL to redirect user to after logging out.
+     *
+     * @return string     Redirect URL (usually same as $url, but modified in
+     * some authentication modules).
+     */
+    public function logout($url)
+    {
+        if ($this->remsService) {
+            $this->remsService->onLogoutPre();
+        }
+        return parent::logout($url);
+    }
+
+    /**
      * Set configuration.
      *
      * @param \Zend\Config\Config $config Configuration to set
@@ -80,6 +145,33 @@ class Suomifi extends Shibboleth
     }
 
     /**
+     * Get the route that is displayed in lightbox after the login has been
+     * successfully performed and the page reloaded. Returns an array with
+     * 'route' and 'params' keys.
+     *
+     * @return null|array
+     */
+    public function getPostLoginLightboxRoute()
+    {
+        if ($config = $this->getConfig()->Shibboleth ?? null) {
+            $route = $config->post_login_lightbox_route ?? false;
+            $routeParams = $config->post_login_lightbox_route_params ?? [];
+            if ($route) {
+                $params = [];
+                foreach (explode(',', $routeParams) as $param) {
+                    if (false === strpos($param, ':')) {
+                        continue;
+                    }
+                    list($key, $val) = explode(':', $param, 2);
+                    $params[$key] = $val;
+                }
+                return compact('route', 'params');
+            }
+        }
+        return null;
+    }
+
+    /**
      * Get a server parameter taking into account any environment variables
      * redirected by Apache mod_rewrite.
      *
@@ -90,20 +182,58 @@ class Suomifi extends Shibboleth
      * @throws AuthException
      * @return mixed
      */
-    protected function getServerParam($request, $param)
-    {
+    protected function getServerParam($request, $param
+    ) {
         $val = parent::getServerParam($request, $param);
 
         $config = $this->getConfig()->Shibboleth;
         if ($param === $config->username
-            && ((bool)$config->hash_username ?? false)
         ) {
             $secret = $config->hash_secret ?? null;
-            if (empty($secret)) {
+            if (empty(trim($secret))) {
                 throw new AuthException('hash_secret not configured');
             }
             $val = hash_hmac('sha256', $val, $secret, false);
+            if ($val === false) {
+                throw new AuthException('Error hashing username');
+            }
         }
         return $val;
+    }
+
+    /**
+     * Encrypt string using public key.
+     *
+     * @param string $string String.
+     *
+     * @return string Encrypted
+     */
+    protected function encrypt($string)
+    {
+        $config = $this->getConfig()->Shibboleth;
+        $keyPath = $config->public_key ?? null;
+        if (null === $keyPath) {
+            throw new \Exception('Public key path not configured');
+        }
+        if (false === ($fp = fopen($keyPath, 'r'))) {
+            throw new \Exception('Error opening public key');
+        }
+        if (false === ($key = fread($fp, 8192))) {
+            throw new \Exception('Error reading public key');
+        }
+        fclose($fp);
+
+        if (false === openssl_get_publickey($key)) {
+            throw new \Exception('Error preparing public key');
+        }
+
+        if (!openssl_public_encrypt(
+            $string, $encrypted, $key, OPENSSL_PKCS1_OAEP_PADDING
+        )
+        ) {
+            throw new \Exception('Error encrypting string');
+        }
+
+        return base64_encode($encrypted);
     }
 }

@@ -108,6 +108,12 @@ finna.menu = (function finnaMenu() {
       $('#open-loans').toggleClass('collapsed');
     });
 
+    $('#open-r2 > .caret').unbind('click').click(function toggleR2(event) {
+      event.preventDefault();
+      $('#r2').toggleClass('in');
+      $('#open-r2').toggleClass('collapsed');
+    });
+
     initStatusObserver();
   }
 

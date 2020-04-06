@@ -1,0 +1,62 @@
+<!-- START of: finna - Helpers/R2RestrictedRecordPermission.phtml -->
+<?php
+  $setupJS = [];
+?>
+<?php if ($this->weakLogin): ?>
+  <div class="r2-restricted-record-register alert alert-danger" role="alert">
+    <p><strong><?= $this->translate('R2_register_weak_loginmethod') ?></strong></p>
+  </div>
+<?php elseif (!$this->user && $this->id): ?>
+  <?php
+    $setupJS['modal'] = true;
+    // Explicitly redirect Collection page login to Record controller
+    $registerFormUrl = $this->url('r2record', ['id' => $this->id])
+      . '?login=true'
+      . '&recordId=' . $this->escapeHtmlAttr($this->id)
+      . ($this->collection ? '&collection=1' : '');
+  ?>
+  <div class="r2-restricted-record-register alert alert-info">
+    <div>
+      <?= $this->translate($this->note) ?>
+    </div>
+    <div class="register" role="alert">
+      <p class="register-btn"><a href="<?= $registerFormUrl ?>" data-lightbox data-lightbox-title="<?=$this->transEsc("R2_register_form_title")?>" class="btn btn-primary btn-r2-register"><i class="fa fa-research"></i> <?=$this->transEsc("R2_register")?></a></p>
+      <p><?=$this->translate('R2_register_read_more_html', ['%%url%%' => $this->url('content-page', ['page' => 'r2'])])?></p>
+    </div>
+  </div>
+<?php elseif ($this->blacklisted): ?>
+   <div class="alert-info authorization-notification alert alert-danger" role="alert"><?= $this->translate('R2_accessrights_blacklisted', ['%%url%%' => $this->url('feedback-home'), '%%date_added%%' => $this->dateTime()->convertToDisplayDate('Y-m-d', $blacklisted)]) ?></div>
+<?php elseif (!$this->preventApplicationSubmit): ?>
+  <?php
+    $registerFormUrl =
+      $this->url('feedback-form', ['id' => 'R2Register'])
+      . '?recordId=' . $this->escapeHtmlAttr($this->id)
+      . ($this->collection ? '&collection=1' : '');
+  ?>
+  <div class="r2-restricted-record-register alert alert-info" role="alert">
+    <div>
+      <?= $this->translate($this->note) ?>
+    </div>
+    <div class="register">
+      <div class="register-btn"><a href="<?= $registerFormUrl ?>" data-lightbox data-lightbox-title="<?=$this->transEsc('R2_register_form_title')?>" class="btn btn-primary btn-r2-register"><i class="fa fa-research"></i> <?=$this->transEsc('R2_register')?></a></div>
+      <p><?=$this->translate('R2_register_read_more_html', ['%%url%%' => $this->url('content-page', ['page' => 'r2'])])?></p>
+    </div>
+  </div>
+<?php endif; ?>
+
+<?php
+if (!empty($setupJS)) {
+  $script = '$(document).ready(function() {';
+  foreach ($setupJS as $type => $mode) {
+    switch ($type) {
+      case 'modal':
+        $script .= 'finna.R2.initModal();';
+        break;
+    }
+  }
+  $script .= '});';
+  echo $this->headScript()->appendFile('finna-R2.js');
+  $this->headScript()->appendScript($script);
+}
+?>
+<!-- END of: finna - Helpers/R2RestrictedRecordPermission.phtml -->

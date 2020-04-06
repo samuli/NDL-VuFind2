@@ -374,6 +374,12 @@ finna.layout = (function finnaLayout() {
     });
   }
 
+  function initModalToolTips() {
+    $('#modal').on('show.bs.modal', function onShowModal() {
+      initToolTips($(this));
+    });
+  }
+
   function initCondensedList(_holder) {
     var holder = typeof _holder === 'undefined' ? $(document) : _holder;
 
@@ -575,6 +581,10 @@ finna.layout = (function finnaLayout() {
     $('#modal').on('hidden.bs.modal', function onHiddenModal() {
       $('#modal .modal-dialog.modal-lg-dynamic').removeClass('modal-lg');
     });
+  }
+
+  function showPostLoginLightbox(url) {
+    VuFind.lightbox.ajax({url: url});
   }
 
   function getOrganisationPageLink(organisation, organisationName, link, callback) {
@@ -846,6 +856,7 @@ finna.layout = (function finnaLayout() {
       initMobileNarrowSearch();
       initCheckboxClicks();
       initToolTips();
+      initModalToolTips();
       initResizeListener();
       initScrollLinks();
       initSearchboxFunctions();
@@ -866,7 +877,8 @@ finna.layout = (function finnaLayout() {
       initFiltersToggle();
       initFiltersCheckbox();
       initCookieConsent();
-    }
+    },
+    showPostLoginLightbox: showPostLoginLightbox
   };
 
   return my;
