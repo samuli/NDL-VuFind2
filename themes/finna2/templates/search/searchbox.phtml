@@ -233,7 +233,7 @@
           <?php if ($advSearch): ?>
           <a href="<?=$this->url($advSearch)?>" class="btn btn-link btn-advanced"><i class="fa fa-search-adv"></i><?=$this->transEsc("Advanced Search")?></a>
           <?php endif; ?>
-          <?php if ($browse || ($this->searchClassId != 'Solr' || $defaultSearchBackend != 'Solr')): ?>
+          <?php if ($browse || !in_array($this->searchClassId, ['Solr', 'R2'])): ?>
           <a href="<?=$this->url('home');?>" class="btn btn-link btn-basic"><i class="fa fa-search"></i> <?=$this->transEsc("Basic Search")?></a>
           <?php endif; ?>
 
