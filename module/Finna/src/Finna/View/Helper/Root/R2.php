@@ -105,4 +105,16 @@ class R2 extends \Zend\View\Helper\AbstractHelper
     {
         return $this->rems->isUserRegisteredDuringSession();
     }
+
+    /**
+     * Check if user is has access to R2
+     *
+     * @param bool $ignoreCache Ignore cache?
+     *
+     * @return bool
+     */
+    public function hasUserAccess($ignoreCache)
+    {
+        return $this->rems->hasUserAccess($ignoreCache);
+    }
 }
