@@ -102,28 +102,24 @@ class R2RestrictedRecordRegister extends \Zend\View\Helper\AbstractHelper
             return null;
         }
 
+        // Driver is null when the helper is called is called outside record page
         if (!$driver || $driver->hasRestrictedMetadata()) {
             $user = $params['user'] ?? null;
-            $restrictedMetadataIncluded
-                = $driver ? $driver->isRestrictedMetadataIncluded() : false;
+            if ($driver ? $driver->isRestrictedMetadataIncluded() : false) {
+                return null;
+            }
             try {
-                $accessStatus = $this->rems->getAccessPermission(
-                    $params['ignoreCache'] ?? false
-                );
+                if ($this->rems->hasUserAccess($params['ignoreCache'] ?? false)) {
+                    // Note: this should not happen since restricted metadata
+                    // was not included. Abort so that the user can not register
+                    // when an approved application is open.
+                    return null;
+                }
                 $blacklisted = $user ? $this->rems->isUserBlacklisted() : false;
             } catch (\Exception $e) {
                 return '<div class="alert alert-danger">'
                     . $this->translate('An error has occurred') . '</div>';
             }
-            $preventApplicationSubmit
-                = $restrictedMetadataIncluded
-                || $blacklisted;
-
-            if ($accessStatus === RemsService::STATUS_APPROVED) {
-                return null;
-            }
-
-            // R2 record with restricted metadata
             $params = [
                 'note' => $driver
                     ? 'R2_restricted_record_note_html'
@@ -132,8 +128,6 @@ class R2RestrictedRecordRegister extends \Zend\View\Helper\AbstractHelper
                 'user' => $user,
                 'id' => $driver ? $driver->getUniqueID() : null,
                 'collection' => $driver ? $driver->isCollection() : false,
-                'restrictedMetadataIncluded' => $restrictedMetadataIncluded,
-                'preventApplicationSubmit' => $preventApplicationSubmit,
                 'blacklisted' => $blacklisted,
                 'formId' => 'R2Register',
             ];

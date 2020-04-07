@@ -87,11 +87,11 @@ class R2 extends \Zend\View\Helper\AbstractHelper
     }
 
     /**
-     * Check if user is authorized to use R2.
+     * Check if user is authenticated to use R2.
      *
      * @return bool
      */
-    public function isUserAuthorizedToUseR2()
+    public function isAuthenticated()
     {
         return $this->authenticated;
     }
@@ -104,17 +104,5 @@ class R2 extends \Zend\View\Helper\AbstractHelper
     public function isRegistered()
     {
         return $this->rems->isUserRegisteredDuringSession();
-    }
-
-    /**
-     * Check if user is has access to R2
-     *
-     * @param bool $ignoreCache Ignore cache?
-     *
-     * @return bool
-     */
-    public function hasUserAccess($ignoreCache)
-    {
-        return $this->rems->hasUserAccess($ignoreCache);
     }
 }

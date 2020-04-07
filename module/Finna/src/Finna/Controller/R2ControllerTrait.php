@@ -27,7 +27,6 @@
  */
 namespace Finna\Controller;
 
-use Finna\RemsService\RemsService;
 use Zend\Session\Container as SessionContainer;
 
 /**
@@ -122,20 +121,18 @@ trait R2ControllerTrait
             }
         };
 
-        // Verify that user is authenticated to access restricted R2 data.
         if (!$user = $this->getUser()) {
             // Not logged, prompt login
             return $this->forceLogin();
         }
 
+        // Verify that user is authenticated to access restricted R2 data.
         if (!$this->isAuthenticated()) {
             return $getRedirect();
         }
 
-        // Authenticated. Check user permission from REMS and show
-        // registration if needed.
+        // Check user permission from REMS and show registration if needed.
         $rems = $this->serviceLocator->get('Finna\RemsService\RemsService');
-
         try {
             if ($rems->isUserBlacklisted()) {
                 return $getRedirect();
@@ -146,13 +143,12 @@ trait R2ControllerTrait
         }
 
         try {
-            $permission = $rems->getAccessPermission(true);
+            if ($rems->hasUserAccess(true)) {
+                // User already has access
+                return $getRedirect();
+            }
         } catch (\Exception $e) {
             $this->flashMessenger()->addErrorMessage('R2_rems_connect_error');
-            return $getRedirect();
-        }
-        if ($permission === RemsService::STATUS_APPROVED) {
-            // User already has access
             return $getRedirect();
         }
 
@@ -234,8 +230,8 @@ trait R2ControllerTrait
      */
     public function getRecordLoader($restricted = false)
     {
-        // By default, this returns a driver without restricted metadata.
-        // Use loadRecordWithRestrictedData to get a driver with restricted metadata.
+        // By default, this returns a record loader that returns drivers without
+        // restricted metadata.
         $loader = $this->serviceLocator->get(\VuFind\Record\Loader::class);
         $loader->setDefaultParams(['R2Restricted' => $restricted]);
         return $loader;

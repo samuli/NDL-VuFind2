@@ -4,7 +4,7 @@
  *
  * PHP version 7
  *
- * Copyright (C) The National Library of Finland 2019.
+ * Copyright (C) The National Library of Finland 2020.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -62,7 +62,6 @@ class RemsService implements
     const SESSION_ACCESS_STATUS = 'access-status';
     const SESSION_BLACKLISTED = 'blacklisted';
     const SESSION_USAGE_PURPOSE = 'usage-purpose';
-    const SESSION_ENTITLEMENTS_CHECKED = 'entitlements-checked';
 
     // REMS API user types
     const TYPE_ADMIN = 0;
@@ -117,7 +116,7 @@ class RemsService implements
         Config $config,
         Container $session = null,
         // $userId is null when the Suomifi authentication module is created
-        // before login (when displaying the login page)
+        // (before login, when displaying the login page)
         $userId,
         Manager $auth,
         $authenticated
@@ -131,7 +130,7 @@ class RemsService implements
 
     /**
      * Check if the current logged-in user is registerd to REMS
-     * (not neccessariy during the current session).
+     * (not neccessarily during the current session).
      *
      * @throws Exception if user is not logged in
      * @return bool
@@ -236,6 +235,12 @@ class RemsService implements
         }
     }
 
+    /**
+     * Get application data (status and usagePurpose) from current entitlement.
+     * Reurns null when user does not have entitlements.
+     *
+     * @return array|null
+     */
     protected function getEntitlementApplication()
     {
         $entitlements = $this->getEntitlements();
@@ -431,7 +436,8 @@ class RemsService implements
     }
 
     /**
-     * Set access status of current user. This is called from Connector.
+     * Set access status of current user.
+     * This is called from R2 backend connector.
      *
      * @param string $status Status
      *
@@ -456,7 +462,8 @@ class RemsService implements
     }
 
     /**
-     * Set blacklist status of current user. This is called from Connector.
+     * Set blacklist status of current user.
+     * This is called from R2 backend connector.
      *
      * @param string|null $status Blacklist added date or
      * null if the user is not blacklisted.
@@ -487,7 +494,7 @@ class RemsService implements
     }
 
     /**
-     * Get applications.
+     * Get user application ids.
      *
      * @param array $statuses application statuses
      *
@@ -517,34 +524,12 @@ class RemsService implements
             return [];
         }
 
-        $catalogItemId = $this->getCatalogItemId();
-
-        $applications = [];
-        foreach ($result as $application) {
-            $id = $application['application/id'];
-            $status = $application['application/state'] ?? null;
-            $status = $this->mapRemsStatus($status);
-            $created = $application['application/created'] ?? null;
-            $modified = $application['application/modified'] ?? null;
-            foreach ($application['application/resources'] as $catItem) {
-                if ($catItem['catalogue-item/id'] === $catalogItemId) {
-                    $titles = $catItem['catalogue-item/title'];
-                    $title = $titles['fi'] ?? $titles['default'] ?? '';
-                    break;
-                }
-            }
-            $applications[]
-                = compact(
-                    'id', 'catalogItemId', 'status', 'created', 'modified'
-                );
-        }
-
-        $sortFn = function ($a, $b) {
-            return strcasecmp($b['created'], $a['created']);
-        };
-        usort($applications, $sortFn);
-
-        return $applications;
+        return array_map(
+            function ($application) {
+                return $application['id'];
+            },
+            $result
+        );
     }
 
     /**
@@ -570,7 +555,7 @@ class RemsService implements
      */
     public static function prepareUserId($userId)
     {
-        // Strip domain from username
+        // Strip organisation-id (subdomain) from username
         if (false !== strpos($userId, ':')) {
             list($domain, $userId) = explode(':', $userId, 2);
         }

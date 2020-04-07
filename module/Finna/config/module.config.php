@@ -690,23 +690,23 @@ $config = [
                     'Finna\RecordDriver\SolrAuthDefault' =>
                         'VuFind\RecordDriver\SolrDefaultWithoutSearchServiceFactory',
                     'Finna\RecordDriver\SolrDefault' =>
-                        'Finna\RecordDriver\SolrDefaultFactory',
+                        'VuFind\RecordDriver\SolrDefaultFactory',
                     'Finna\RecordDriver\SolrMarc' =>
-                        'Finna\RecordDriver\SolrDefaultFactory',
+                        'VuFind\RecordDriver\SolrDefaultFactory',
                     'Finna\RecordDriver\SolrAuthEaccpf' =>
-                        'Finna\RecordDriver\SolrDefaultFactory',
+                        'VuFind\RecordDriver\SolrDefaultFactory',
                     'Finna\RecordDriver\SolrAuthForward' =>
                         'VuFind\RecordDriver\SolrDefaultFactory',
                     'Finna\RecordDriver\SolrEad' =>
-                        'Finna\RecordDriver\SolrDefaultFactory',
+                        'VuFind\RecordDriver\SolrDefaultFactory',
                     'Finna\RecordDriver\SolrEad3' =>
-                        'Finna\RecordDriver\SolrDefaultFactory',
+                        'VuFind\RecordDriver\SolrDefaultFactory',
                     'Finna\RecordDriver\SolrForward' =>
-                        'FInna\RecordDriver\SolrDefaultFactory',
+                        'VuFind\RecordDriver\SolrDefaultFactory',
                     'Finna\RecordDriver\SolrLido'
                         => 'Finna\RecordDriver\SolrLidoFactory',
                     'Finna\RecordDriver\SolrQdc' =>
-                        'Finna\RecordDriver\SolrDefaultFactory',
+                        'VuFind\RecordDriver\SolrDefaultFactory',
                     'Finna\RecordDriver\Primo' =>
                         'VuFind\RecordDriver\NameBasedConfigFactory',
                 ],

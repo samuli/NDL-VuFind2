@@ -1,10 +1,10 @@
 <?php
 /**
- * R2 Search and Form Controller
+ * R2 Search Controller
  *
  * PHP version 7
  *
- * Copyright (C) The National Library of Finland 2019.
+ * Copyright (C) The National Library of Finland 2020.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -28,7 +28,7 @@
 namespace Finna\Controller;
 
 /**
- * R2 Search and Form Controller
+ * R2 Search Controller
  *
  * @category VuFind
  * @package  Controller

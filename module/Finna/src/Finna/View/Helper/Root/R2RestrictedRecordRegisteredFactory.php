@@ -70,8 +70,7 @@ class R2RestrictedRecordRegisteredFactory implements FactoryInterface
         return new $requestedName(
             $enabled,
             $container->get('VuFind\Config\PluginManager')->get('config'),
-            $container->get('Finna\RemsService\RemsService'),
-            $auth->isGranted('access.R2Authenticated')
+            $container->get('Finna\RemsService\RemsService')
         );
     }
 }

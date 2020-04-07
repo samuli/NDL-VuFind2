@@ -541,10 +541,15 @@ class Form extends \VuFind\Form\Form
      * @param bool   $escape         Whether to escape the output.
      * Default behaviour is to escape when the translation key does not end with '_html'.
      *
-     * @return string
+     * @return string|null
      */
     public function getDisplayString($translationKey, $escape = null)
     {
+        $translationEmpty = $this->viewHelperManager->get('translationEmpty');
+        if ($translationEmpty->__invoke($translationKey)) {
+            return null;
+        }
+
         if (!$this->isR2RegisterForm($this->formId)) {
             return parent::getDisplayString($translationKey, $escape);
         }

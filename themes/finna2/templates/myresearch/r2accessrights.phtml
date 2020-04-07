@@ -8,7 +8,7 @@
   $this->layout()->breadcrumbs = '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li> <li class="active">' . $this->transEsc($currPage) . '</li>';
   $error = false;
   try {
-    $accessStatus = $this->rems->getAccessPermission(true);
+    $hasAccess = $this->rems->hasUserAccess(true);
     $usagePurpose = $this->rems->getUsagePurpose();
     $blacklisted = $this->rems->isUserBlacklisted(true);
   } catch (\Exception $e) {
@@ -30,7 +30,7 @@
     <?php if ($error): ?>
       <div class="alert alert-danger"><?=$this->transEsc('R2_rems_connect_error')?></div>
     <?php else: ?>
-      <?php if ($accessStatus === \Finna\RemsService\RemsService::STATUS_APPROVED): ?>
+      <?php if ($hasAccess): ?>
         <?php $usagePurpose = $this->rems->getUsagePurpose(); ?>
         <table class="table useraccount-table">
           <tbody>
@@ -47,7 +47,7 @@
           </tbody>
         </table>
       <?php else: ?>
-        <?php if (!$this->R2()->isUserAuthorizedToUseR2()): ?>
+        <?php if (!$this->R2()->isAuthenticated()): ?>
           <div><?= $this->translate('R2_register_weak_loginmethod') ?></div>
         <?php elseif ($blacklisted = $this->rems->isUserBlacklisted(true)): ?>
           <div class="alert alert-danger "><?= $this->translate('R2_accessrights_blacklisted', ['%%url%%' => $this->url('feedback-home'), '%%date_added%%' => $this->dateTime()->convertToDisplayDate('Y-m-d', $blacklisted)]) ?></div>

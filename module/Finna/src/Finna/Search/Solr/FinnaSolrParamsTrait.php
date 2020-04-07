@@ -4,7 +4,7 @@
  *
  * PHP version 7
  *
- * Copyright (C) The National Library 2015-2019.
+ * Copyright (C) The National Library 2015-2020.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -20,10 +20,12 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category VuFind
- * @package  Search
+ * @package  Search_Solr
+ * @author   Mika Hatakka <mika.hatakka@helsinki.fi>
+ * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
+ * @link     https://vufind.org Main Page
  */
 namespace Finna\Search\Solr;
 
@@ -33,12 +35,14 @@ use VuFind\Solr\Utils;
  * Additional functionality for Finna Solr parameters.
  *
  * @category VuFind
- * @package  Search
+ * @package  Search_Solr
+ * @author   Mika Hatakka <mika.hatakka@helsinki.fi>
+ * @author   Ere Maijala <ere.maijala@helsinki.fi>
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
+ * @link     https://vufind.org Main Page
  */
-trait FinnaSolrParams
+trait FinnaSolrParamsTrait
 {
     use \Finna\Search\FinnaParams;
 
@@ -684,9 +688,15 @@ trait FinnaSolrParams
      */
     public function hasAuthorIdFilter()
     {
-        foreach ($this->getFilterList() as $key => $val) {
-            if (in_array($key, ['authority_id_label', 'Author'])) {
-                return true;
+        foreach ($this->getFilterList() as $field => $facets) {
+            foreach ($facets as $facet) {
+                if (in_array(
+                    $facet['field'],
+                    $this->authorityHelper->getAuthorIdFacets()
+                )
+                ) {
+                    return true;
+                }
             }
         }
         return false;

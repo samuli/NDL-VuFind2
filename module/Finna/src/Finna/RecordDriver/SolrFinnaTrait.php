@@ -4,7 +4,7 @@
  *
  * PHP version 7
  *
- * Copyright (C) The National Library 2015-2019.
+ * Copyright (C) The National Library 2015-2020.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -50,13 +50,6 @@ trait SolrFinnaTrait
      * @var array
      */
     protected $searchSettings = [];
-
-    /**
-     * Datasource settings
-     *
-     * @var array
-     */
-    protected $datasourceSettings = [];
 
     /**
      * Return an array of image URLs associated with this record with keys:
@@ -1019,8 +1012,8 @@ trait SolrFinnaTrait
     }
 
     /**
-     * Is restricted metadata included with the record, i.e. does the user
-     * have permissions to access restricted metadata.
+     * Is restricted metadata included with the record, i.e. is the user
+     * authorized to access restricted metadata?
      *
      * @return bool
      */

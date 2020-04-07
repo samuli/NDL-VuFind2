@@ -130,7 +130,8 @@ class Loader extends \VuFind\Record\Loader
                     }
                 }
             } elseif ($source === 'R2') {
-                // Missing R2 record (probably non-existing restriction level)
+                // Missing R2 record (for example when attempting to load
+                // a record that the user is not authorized to see)
                 return $this->initMissingR2Record($id);
             }
         }
@@ -171,7 +172,7 @@ class Loader extends \VuFind\Record\Loader
             $params = array_merge($this->defaultParams, $params);
         }
         // loadBatch needs source specific parameters.
-        // Init them for R2 since we only need to pass 'R2Restricted' param.
+        // We only need to pass 'R2Restricted' param for R2.
         $sourceParams = ['R2' => new ParamBag()];
         foreach ($params as $key => $val) {
             $sourceParams['R2']->set($key, $val);
@@ -226,7 +227,6 @@ class Loader extends \VuFind\Record\Loader
             if ($record instanceof \VuFind\RecordDriver\Missing) {
                 $source = $record->getSourceIdentifier();
                 $id = $record->getUniqueID();
-                echo "missing: $id, $source";
                 if ($source == 'Solr') {
                     if (preg_match('/\.(FIN\d+)/', $id, $matches)) {
                         if ($mlRecord = $this->loadMetaLibRecord($matches[1])) {
@@ -243,7 +243,6 @@ class Loader extends \VuFind\Record\Loader
                     }
                 } elseif ($source == 'R2') {
                     // Missing R2 record
-                    // (probably non-existing restriction level)
                     $record = $this->initMissingR2Record($id);
                 }
             }

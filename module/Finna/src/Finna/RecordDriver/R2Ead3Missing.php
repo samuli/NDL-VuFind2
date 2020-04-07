@@ -1,7 +1,8 @@
 <?php
 /**
  * Model for missing R2 records
- * (created when attempting to retrieve a non-existent restriction level version).
+ * (created when attempting to load a non-existing record or a
+ * record that the user is not authorized to see).
  *
  * PHP version 7
  *
@@ -30,7 +31,8 @@ namespace Finna\RecordDriver;
 
 /**
  * Model for missing R2 records
- * (created when attempting to retrieve a non-existent restriction level version).
+ * (created when attempting to load a non-existing record or a
+ * record that the user is not authorized to see).
  *
  * @category VuFind
  * @package  RecordDrivers
@@ -51,8 +53,8 @@ class R2Ead3Missing extends R2Ead3
     }
 
     /**
-     * Is restricted metadata included with the record, i.e. does the user
-     * have permissions to access restricted metadata.
+     * Is restricted metadata included with the record, i.e. is the user
+     * authorized to access restricted metadata?
      *
      * @return bool
      */

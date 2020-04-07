@@ -1,11 +1,11 @@
 <?php
 
 /**
- * Restricted Solr (R2) Search authorization listener.
+ * Restricted Solr (R2) Search authenticationlistener.
  *
  * PHP version 7
  *
- * Copyright (C) The National Library of Finland 2019.
+ * Copyright (C) The National Library of Finland 2020.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -39,7 +39,7 @@ use Zend\EventManager\SharedEventManagerInterface;
 use ZfcRbac\Service\AuthorizationService;
 
 /**
- * Restricted Solr (R2) Search authorization listener.
+ * Restricted Solr (R2) Search authentication listener.
  *
  * @category VuFind
  * @package  Search
@@ -47,7 +47,7 @@ use ZfcRbac\Service\AuthorizationService;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org Main Site
  */
-class AuthorizationListener
+class AuthenticationListener
 {
     /**
      * Backend.
@@ -136,12 +136,11 @@ class AuthorizationListener
             $params = $event->getParam('params');
             $context = $event->getParam('context');
             $this->connector->setUsername(null);
-            // When attempting to retrieve a record (via retrieve or retrieveBatch),
-            // return restricted metadata only when requested in the params and
-            // when the user is authorized..
-            // In other contexts (search etc), restricted metadata is always
-            // returned when the user is authorized.
-            //echo($context . ", restricted: " . var_export($params->get('R2Restricted'), true));
+            // Attempt to retrieve restricted metadata from the backend
+            // when the following holds:
+            // 1. The user is authenticated
+            // 2. If the search context is retrieve or retrieveBatch,
+            //    restricted metadata was explicitly requested.
             if (!in_array($context, ['retrieve', 'retrieveBatch'])
                 || in_array(true, $params->get('R2Restricted') ?? [])
             ) {

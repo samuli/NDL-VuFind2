@@ -10,7 +10,7 @@ apiApproverUser =
 catalogItem = 
 
 ; Resource item id
-resourceItem = ""
+resourceItem =
 
 
 [RegistrationForm]

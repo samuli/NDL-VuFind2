@@ -85,4 +85,15 @@ class SolrAuthEacCpf extends SolrAuthDefault
         }
         return null;
     }
+
+    /**
+     * Set preferred language for display strings.
+     *
+     * @param string $language Language
+     *
+     * @return void
+     */
+    public function setPreferredLanguage($language)
+    {
+    }
 }

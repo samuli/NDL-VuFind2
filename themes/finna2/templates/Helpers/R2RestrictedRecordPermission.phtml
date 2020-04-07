@@ -26,7 +26,7 @@
   </div>
 <?php elseif ($this->blacklisted): ?>
    <div class="alert-info authorization-notification alert alert-danger" role="alert"><?= $this->translate('R2_accessrights_blacklisted', ['%%url%%' => $this->url('feedback-home'), '%%date_added%%' => $this->dateTime()->convertToDisplayDate('Y-m-d', $blacklisted)]) ?></div>
-<?php elseif (!$this->preventApplicationSubmit): ?>
+<?php else: ?>
   <?php
     $registerFormUrl =
       $this->url('feedback-form', ['id' => 'R2Register'])

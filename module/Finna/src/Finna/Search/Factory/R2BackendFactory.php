@@ -5,7 +5,7 @@
  *
  * PHP version 7
  *
- * Copyright (C) The National Library of Finland 2019.
+ * Copyright (C) The National Library of Finland 2020.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -28,7 +28,7 @@
  */
 namespace Finna\Search\Factory;
 
-use Finna\Search\R2\AuthorizationListener;
+use Finna\Search\R2\AuthenticationListener;
 use Interop\Container\ContainerInterface;
 use VuFindSearch\Backend\Solr\Backend;
 use VuFindSearch\Backend\Solr\Connector;
@@ -121,8 +121,6 @@ class R2BackendFactory extends SolrDefaultBackendFactory
     protected function createConnector()
     {
         $connector = parent::createConnector();
-
-        // Pass API key to connector
         $connector->setApiAuthentication(
             $this->R2Config->General->apiUser, $this->R2Config->General->apiKey
         );
@@ -168,16 +166,14 @@ class R2BackendFactory extends SolrDefaultBackendFactory
         parent::createListeners($backend);
 
         $events = $this->serviceLocator->get('SharedEventManager');
-
-        // R2 authorization listener
-        $authorizationListener = new AuthorizationListener(
+        $authListener = new AuthenticationListener(
             $backend,
             $this->authManager,
             $this->authService,
             $backend->getConnector(),
             $this->rems
         );
-        $authorizationListener->attach($events);
+        $authListener->attach($events);
     }
 
     /**

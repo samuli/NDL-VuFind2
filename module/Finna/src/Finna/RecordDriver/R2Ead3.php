@@ -4,7 +4,7 @@
  *
  * PHP version 7
  *
- * Copyright (C) The National Library of Finland 2019.
+ * Copyright (C) The National Library of Finland 2020.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -57,8 +57,8 @@ class R2Ead3 extends SolrEad3
     }
 
     /**
-     * Is restricted metadata included with the record, i.e. does the user
-     * have permissions to access restricted metadata.
+     * Is restricted metadata included with the record, i.e. is the user
+     * authorized to access restricted metadata?
      *
      * @return bool
      */
