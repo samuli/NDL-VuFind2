@@ -526,7 +526,7 @@ class RemsService implements
 
         return array_map(
             function ($application) {
-                return $application['id'];
+                return ['id' => $application['application/id']];
             },
             $result
         );
@@ -671,14 +671,13 @@ class RemsService implements
      */
     public function onLogoutPre()
     {
+        if ($this->isUserRegisteredDuringSession()) {
+            $this->closeOpenApplications();
+        }
         $this->session->{self::SESSION_ACCESS_STATUS} = null;
         $this->session->{self::SESSION_BLACKLISTED} = null;
         $this->session->{self::SESSION_USAGE_PURPOSE} = null;
         $this->session->{self::SESSION_IS_REMS_REGISTERED} = null;
-
-        if ($this->isUserRegisteredDuringSession()) {
-            $this->closeOpenApplications();
-        }
     }
 
     /**
