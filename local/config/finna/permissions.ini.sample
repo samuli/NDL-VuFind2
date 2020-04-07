@@ -160,5 +160,5 @@ permission = feature.Favorites
 ; Restricted Solr (R2) Search
 ; [access.R2Authenticated]
 ; require = ALL
-; authenticationStrategy[] = Suomifi
 ; permission[] = access.R2Authenticated
+; shibboleth[] = "SHIB_vtjverified true"
