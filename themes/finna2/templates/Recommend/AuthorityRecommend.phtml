@@ -31,9 +31,13 @@ $that = $this;
             <?php
               $formats = $record->getFormats();
               $institutions = $record->getInstitutions();
+              $title = $record->getTitle();
+              if (empty($title) && $altTitles = $record->getAlternativeTitles()) {
+                  $title = $altTitles[0];
+              }
             ?>
             <li data-id="<?= $this->escapeHtmlAttr($record->getUniqueID())?>" <?= $ind === $activeInd ? ' class="active"' : ''?>>
-                <a><i class="fa fa-authority-<?=$this->escapeHtmlAttr($this->record($record)->getFormatClass($formats[0]))?>" aria-label="<?=$this->escapeHtmlAttr($this->translate('authority_' . $formats[0])) ?>"></i> <?=$this->escapeHtml($record->getTitle())?></a>
+                <a><i class="fa fa-authority-<?=$this->escapeHtmlAttr($this->record($record)->getFormatClass($formats[0]))?>" aria-label="<?=$this->escapeHtmlAttr($this->translate('authority_' . $formats[0])) ?>"></i> <?=$this->escapeHtml($title)?></a>
             </li>
           <?php endforeach; ?>
           <li class="spinner hide" aria-hidden="true"><i class="fa fa-spin fa-spinner"></i></li>
