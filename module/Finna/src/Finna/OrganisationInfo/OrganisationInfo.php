@@ -891,9 +891,16 @@ class OrganisationInfo implements \VuFind\I18n\Translator\TranslatorAwareInterfa
                     $name = empty($service['name'])
                         ? $service['standardName'] : $service['name'];
                     $data = [$name];
-                    $desc = $this->cleanHtml->__invoke($service['shortDescription']);
-                    if ($desc) {
-                        $data[] = $desc;
+                    $shortDesc = $this->cleanHtml->__invoke(
+                        $service['shortDescription'], true
+                    );
+                    if ($shortDesc) {
+                        $data['shortDesc'] = $shortDesc;
+                    }
+                    $longDesc
+                        = $this->cleanHtml->__invoke($service['description'], true);
+                    if ($longDesc) {
+                        $data['desc'] = $longDesc;
                     }
                     if (isset($service['type'])) {
                         $allServices[$service['type']][] = $data;

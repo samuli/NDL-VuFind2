@@ -430,16 +430,26 @@ finna.organisationInfoPage = (function finnaOrganisationInfoPage() {
       holder.find('.services').show();
       var allServices = data.details.allServices;
       $.each(allServices, function handleService(ind, obj) {
-        var serviceHolder = holder.find('.service-list.' + ind)
+        var serviceHolder = holder.find('.service-list.' + ind).empty();
+        holder.find($('.service-header-' + ind)).removeClass('hidden');
         $.each(obj, function handleGrouping(group, services) {
-          var li = $('<li/>');
-          li.append($('<strong/>').text(services[0]));
-          if (obj.length > 0) {
-            li.append($('<p/>').html(services[1]));
+          var div = $('<div/>');
+          var serviceText = '';
+          if (typeof services.desc !== 'undefined') {
+            serviceText = $('<a class="service-tooltip" data-toggle="tooltip" data-placement="bottom" data-html="true" />').text(services[0]);
+            var serviceToolTip = '<h4>' + services[0] + '</h4>' + services.desc;
+            serviceText.attr('data-original-title', serviceToolTip)
+          } else {
+            serviceText = services[0];
           }
-          li.appendTo(serviceHolder);
+          div.append(serviceText);
+          if (typeof services.shortDesc !== 'undefined') {
+            div.append($('<p class="service-short-desc"/>').html(services.shortDesc));
+          }
+          div.appendTo(serviceHolder);
         });
       });
+      finna.layout.initToolTips(holder);
     }
   }
 
