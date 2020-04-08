@@ -431,21 +431,26 @@ finna.organisationInfoPage = (function finnaOrganisationInfoPage() {
       var allServices = data.details.allServices;
       $.each(allServices, function handleService(ind, obj) {
         var serviceHolder = holder.find('.service-list.' + ind).empty();
-        holder.find($('.service-header-' + ind)).removeClass('hidden');
+        holder.find($('.service-header.' + ind)).removeClass('hidden');
         $.each(obj, function handleGrouping(group, services) {
           var div = $('<div/>');
           var serviceText = '';
-          if (typeof services.desc !== 'undefined') {
-            serviceText = $('<a class="service-tooltip" data-toggle="tooltip" data-placement="bottom" data-html="true" />').text(services[0]);
-            var serviceToolTip = '<h4>' + services[0] + '</h4>' + services.desc;
+          var serviceTitle = '';
+          if (typeof services.desc !== 'undefined' || typeof services.shortDesc !== 'undefined') {
+            serviceTitle = '<b>' + services[0] + '</b>';
+            serviceText = $('<a class="service-tooltip" data-toggle="tooltip" data-placement="bottom" data-html="true" />').html(serviceTitle);
+            var serviceDesc = '';
+            if (typeof services.desc !== 'undefined') {
+              serviceDesc = services.desc
+            } else {
+              serviceDesc = services.shortDesc
+            }
+            var serviceToolTip = '<h4>' + services[0] + '</h4>' + serviceDesc;
             serviceText.attr('data-original-title', serviceToolTip)
           } else {
-            serviceText = services[0];
+            serviceText = serviceTitle;
           }
           div.append(serviceText);
-          if (typeof services.shortDesc !== 'undefined') {
-            div.append($('<p class="service-short-desc"/>').html(services.shortDesc));
-          }
           div.appendTo(serviceHolder);
         });
       });
