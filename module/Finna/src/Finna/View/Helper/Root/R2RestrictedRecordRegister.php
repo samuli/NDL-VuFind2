@@ -121,9 +121,12 @@ class R2RestrictedRecordRegister extends \Zend\View\Helper\AbstractHelper
                     . $this->translate('An error has occurred') . '</div>';
             }
             $params = [
-                'note' => $driver
-                    ? 'R2_restricted_record_note_html'
-                    : 'R2_restricted_record_note_frontpage_html',
+                'note' => (!($params['hideNote'] ?? false))
+                    ? $driver
+                        ? 'R2_restricted_record_note_html'
+                        : 'R2_restricted_record_note_frontpage_html'
+                    : null,
+                'showInfoLink' => !($params['hideInfoLink'] ?? false),
                 'weakLogin' => $user && !$this->authenticated,
                 'user' => $user,
                 'id' => $driver ? $driver->getUniqueID() : null,
