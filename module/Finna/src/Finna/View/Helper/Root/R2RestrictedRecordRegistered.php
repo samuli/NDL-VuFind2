@@ -96,12 +96,13 @@ class R2RestrictedRecordRegistered extends \Zend\View\Helper\AbstractHelper
                 return null;
             }
 
-            $params = [
-                'usagePurpose' => $this->rems->getUsagePurpose()
+            $tplParams = [
+                'usagePurpose' => $this->rems->getUsagePurpose(),
+                'showInfoLink' => !($params['hideInfoLink'] ?? false)
             ];
 
             return $this->getView()->render(
-                'Helpers/R2RestrictedRecordRegistered.phtml', $params
+                'Helpers/R2RestrictedRecordRegistered.phtml', $tplParams
             );
         }
 
