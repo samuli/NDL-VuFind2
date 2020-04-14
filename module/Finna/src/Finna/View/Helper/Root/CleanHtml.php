@@ -53,6 +53,13 @@ class CleanHtml extends \Zend\View\Helper\AbstractHelper
     protected $cacheDir;
 
     /**
+     * Current target blank setting
+     *
+     * @var boolean
+     */
+    protected $currentTargetBlank;
+
+    /**
      * Constructor
      *
      * @param string $cacheDir Cache directory
@@ -75,7 +82,8 @@ class CleanHtml extends \Zend\View\Helper\AbstractHelper
         if (false === strpos($html, '<')) {
             return $html;
         }
-        if (null === $this->purifier || $targetBlank) {
+        if (null === $this->purifier || $targetBlank !== $this->currentTargetBlank) {
+            $this->currentTargetBlank = $targetBlank;
             $config = \HTMLPurifier_Config::createDefault();
             // Set cache path to the object cache
             if ($this->cacheDir) {
