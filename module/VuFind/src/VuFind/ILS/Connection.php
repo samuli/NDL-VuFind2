@@ -1084,6 +1084,8 @@ class Connection implements TranslatorAwareInterface, LoggerAwareInterface
                     [$this->getDriver(), $methodName], $params
                 );
             }
+            echo $methodName;
+            die();
         } catch (\Exception $e) {
             if ($this->failOverToNoILS($e)) {
                 return call_user_func_array([$this, __METHOD__], func_get_args());

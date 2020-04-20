@@ -601,6 +601,21 @@ class Connection extends \VuFind\ILS\Connection
     }
 
     /**
+     * Check if dynamic lists are enabled
+     * 
+     * @param array $functionConfig Function configuration values
+     * @param array $params         An array of function-specific params (or null)
+     */
+    protected function checkMethodgetDynamicList($functionConfig, $params)
+    {
+        if (isset($functionConfig['enabled']) && $functionConfig['enabled']) {
+            return $functionConfig;
+        }
+        return false;
+    }
+
+
+    /**
      * Check if self-registration.
      *
      * @param array $functionConfig Function configuration values

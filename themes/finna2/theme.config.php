@@ -15,6 +15,7 @@ return [
             'Finna\View\Helper\Root\Config' => 'VuFind\View\Helper\Root\ConfigFactory',
             'Finna\View\Helper\Root\Content' => 'Zend\ServiceManager\Factory\InvokableFactory',
             'Finna\View\Helper\Root\Cookie' => 'Finna\View\Helper\Root\CookieFactory',
+            'Finna\View\Helper\Root\DynamicList' => 'Finna\View\Helper\Root\DynamicListFactory',
             'Finna\View\Helper\Root\EDS' => 'Finna\View\Helper\Root\EDSFactory',
             'Finna\View\Helper\Root\Feed' => 'Finna\View\Helper\Root\FeedFactory',
             'Finna\View\Helper\Root\FeedTabs' => 'Zend\ServiceManager\Factory\InvokableFactory',
@@ -77,6 +78,7 @@ return [
             'feedTabs' => 'Finna\View\Helper\Root\FeedTabs',
             'fileSrc' => 'Finna\View\Helper\Root\FileSrc',
             'finnaSurvey' => 'Finna\View\Helper\Root\FinnaSurvey',
+            'dynamicList' => 'Finna\View\Helper\Root\DynamicList',
             'headTitle' => 'Finna\View\Helper\Root\HeadTitle',
             'holdings' => 'Finna\View\Helper\Root\Holdings',
             // For back-compatibility

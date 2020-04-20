@@ -32,7 +32,7 @@
 namespace Finna\ILS\Driver;
 
 use DOMDocument;
-use SoapClient;
+use Finna\ILS\SoapProxyClient;
 use VuFind\Config\Locator;
 use VuFind\Date\DateException;
 use VuFind\Exception\ILS as ILSException;
@@ -162,6 +162,13 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
     protected $reservations_wsdl = '';
 
     /**
+     * Wsdl file name or url for accessing the catalogue aurora section of AWS
+     *
+     * @var string
+     */
+    protected $catalogueaurora_wsdl = '';
+
+    /**
      * Path of the AWS debug log-file
      *
      * @var string
@@ -244,6 +251,9 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
         'exceptions' => true,
         'trace' => 1,
         'connection_timeout' => 60,
+        'proxy_type' => 'socks5',
+        'proxy_host' => 'localhost',
+        'proxy_port' => 1081,
         'typemap' => [
             [
                 'type_ns' => 'http://www.w3.org/2001/XMLSchema',
@@ -349,6 +359,13 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
         if (isset($this->config['Catalog']['loansaurora_wsdl'])) {
             $this->loansaurora_wsdl
                 = $this->getWsdlPath($this->config['Catalog']['loansaurora_wsdl']);
+        }
+
+        if (isset($this->config['Catalog']['catalogueaurora_wsdl'])) {
+            $this->catalogueaurora_wsdl
+                = $this->getWsdlPath(
+                    $this->config['Catalog']['catalogueaurora_wsdl']
+                );
         }
 
         if (isset($this->config['Catalog']['payments_wsdl'])) {
@@ -1543,6 +1560,46 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
     }
 
     /**
+     * Function to fetch dynamic lists from Aurora
+     * 
+     * @param array $params To fetch
+     * 
+     * @return array
+     */
+    public function getDynamicList($params)
+    {
+        $conf = [
+            'arenaMember' => $this->arenaMember,
+            'pageSize' => $params['pageSize'] ?? 3,
+            'page' => $params['page'] ?? 0,
+            'query' => $params['query'] ?? 'mostloaned'
+        ];
+
+        $function = 'Search';
+        $functionResult = 'searchResult';
+        
+        $result = $this->doSOAPRequest(
+            $this->catalogue_wsdl, $function, $functionResult, '',
+            ['searchRequest' => $conf]
+        );
+        $statusAWS = $result->$functionResult->status;
+
+        if ($statusAWS->type != 'ok') {
+            $message = $this->handleError($function, $statusAWS, '');
+            if ($message == 'ils_connection_failed') {
+                throw new ILSException($message);
+            }
+            return [];
+        }
+
+        $records = $this->objectToArray(
+            $result->$functionResult->catalogueRecords->catalogueRecord ?? []
+        );
+
+        return $records;
+    }
+
+    /**
      * Get Patron Transactions
      *
      * This is responsible for retrieving all transactions (i.e. checked out items)
@@ -2696,7 +2753,10 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
      */
     protected function doSOAPRequest($wsdl, $function, $functionResult, $id, $params)
     {
-        $client = new SoapClient($wsdl, $this->soapOptions);
+        //$path = $this->getWsdlWithProxy($wsdl);
+        // If we have proxy on, we need to fetch the wsdl before we can call anything with soapclient
+
+        $client = new SoapProxyClient($wsdl, $this->soapOptions);
 
         $this->debug("$function Request for '$this->arenaMember'.'$id'");
 
@@ -2734,6 +2794,33 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
         }
 
         return $result;
+    }
+
+    /**
+     * Mostly used for development purposes
+     * 
+     * @param string $wsdl url
+     * 
+     * @return string wsdl file location
+     */
+    protected function getWsdlWithProxy($wsdl)
+    {
+        $urlParsed = parse_url($wsdl);
+        $host = explode('.', $urlParsed['host']);
+        $path = explode('.', $urlParsed['path']);
+        $file = str_replace('/', '', $path[0]);
+        $filePath = '/tmp/' . strtolower($host[0]) . strtolower($file) . '.wsdl';
+        if (!file_exists($filePath)) {
+            $result = $this->httpService->get($wsdl);
+
+            if ($result->getStatusCode() === 200) {
+                $handle = fopen($filePath, "w");
+                fwrite($handle, $result->getContent());
+                fclose($handle);
+            }
+        }
+        
+        return $filePath;
     }
 
     /**
