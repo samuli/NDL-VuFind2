@@ -1,6 +1,7 @@
 /*global VuFind, videojs, checkSaveStatuses, action, finna, initFacetTree, priorityNav */
 finna.layout = (function finnaLayout() {
   var _fixFooterTimeout = null;
+  var currentOpenTooltips = [];
 
   function initResizeListener() {
     var intervalId = false;
@@ -169,7 +170,7 @@ finna.layout = (function finnaLayout() {
             $('.content-navigation-menu').css({'bottom': $('footer').height() + 20 + 'px', 'top': 'auto'});
           }
           else {
-            $('.content-navigation-menu').css({'bottom': 'auto', 'top': '0px'});
+            $('.content-navigation-menu').css({'bottom': 'auto'});
           }
         }
         else {
@@ -360,8 +361,20 @@ finna.layout = (function finnaLayout() {
 
   function initToolTips(_holder) {
     var holder = typeof _holder === 'undefined' ? $(document) : _holder;
-
-    holder.find('[data-toggle="tooltip"]').tooltip({trigger: 'click', viewport: '.container'});
+    holder.find('[data-toggle="tooltip"]')
+      .on('show.bs.tooltip', function() {
+        var self = $(this);
+        $(currentOpenTooltips).each(function() {
+          if ($(this)[0] !== self[0]) {
+            $(this).tooltip('hide');
+          }
+        });
+        currentOpenTooltips = [self];
+      })
+      .on('hidden.bs.tooltip', function (e) {
+        $(e.target).data('bs.tooltip').inState.click = false;
+      })
+      .tooltip({trigger: 'click', viewport: '.container'});
     // prevent link opening if tooltip is placed inside link element
     holder.find('[data-toggle="tooltip"] > i').click(function onClickTooltip(event) {
       event.preventDefault();
@@ -370,6 +383,7 @@ finna.layout = (function finnaLayout() {
     $('html').click(function onClickHtml(e) {
       if (typeof $(e.target).parent().data('original-title') == 'undefined' && typeof $(e.target).data('original-title') == 'undefined') {
         $('[data-toggle="tooltip"]').tooltip('hide');
+        currentOpenTooltips = [];
       }
     });
   }
@@ -834,6 +848,7 @@ finna.layout = (function finnaLayout() {
     initILSSelfRegistrationLink: initILSSelfRegistrationLink,
     initLoginTabs: initLoginTabs,
     loadScripts: loadScripts,
+    initToolTips: initToolTips,
     init: function init() {
       initScrollRecord();
       initJumpMenus();

@@ -2,11 +2,11 @@
 
 @font-face {
     font-family: 'finnaicons';
-    src:url('../../../themes/finna2/css/fonts/finnaicons.eot?80736418');
-    src:url('../../../themes/finna2/css/fonts/finnaicons.eot?80736418#iefix') format('embedded-opentype'),
-    url('../../../themes/finna2/css/fonts/finnaicons.woff?80736418') format('woff'),
-    url('../../../themes/finna2/css/fonts/finnaicons.ttf?80736418') format('truetype'),
-    url('../../../themes/finna2/css/fonts/finnaicons.svg?80736418#finnaicons') format('svg');
+    src:url('../../../themes/finna2/css/fonts/finnaicons.eot?80736419');
+    src:url('../../../themes/finna2/css/fonts/finnaicons.eot?80736419#iefix') format('embedded-opentype'),
+    url('../../../themes/finna2/css/fonts/finnaicons.woff?80736419') format('woff'),
+    url('../../../themes/finna2/css/fonts/finnaicons.ttf?80736419') format('truetype'),
+    url('../../../themes/finna2/css/fonts/finnaicons.svg?80736419#finnaicons') format('svg');
     font-weight: normal;
     font-style: normal;
 
@@ -52,6 +52,12 @@ a [class^="fa-"]:hover, a [class*=" fa-"]:hover {
 }
 .fa {
     cursor: default;
+}
+
+.fa-pagebreak {
+    &.pagebreak-toggled {
+        background-color: @gray-lighter !important;
+    }
 }
 
 .iconlabel {
@@ -618,6 +624,10 @@ table .iconlabel {
     font-family: finnaicons;
     content: "\e00f";
 }
+.details-icon:before {
+    font-family: finnaicons;
+    content: "\e8b5";
+}
 .fa-qrcode:before {
     content: "\f029";
 }
@@ -694,8 +704,17 @@ table .iconlabel {
 .iconlabel.format-1mapmap:before, .iconlabel.format-1mapatlas:before, .iconlabel.karttapallo:before {
     content: "\e002";
 }
+.iconlabel.full-text-available:before {
+    content: "\e96e";
+    color: @full-text-icon-color;
+}
+.iconlabel.peer-reviewed:before {
+    content: "\e8b6";
+    color: @peer-reviewed-icon-color;
+}
 .iconlabel.open-access:before {
     content: "\e91f";
+    color: @open-access-icon-color;
 }
 .iconlabel.cc-license:before {
     content: "\e905";
