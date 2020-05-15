@@ -56,6 +56,7 @@ class RemsService implements
     const STATUS_DRAFT = 'draft';
     const STATUS_REVOKED = 'revoked';
     const STATUS_REJECTED = 'rejected';
+    const STATUS_EXPIRED = 'expired';
 
     // Session keys
     const SESSION_IS_REMS_REGISTERED = 'is-rems-user';
@@ -172,6 +173,19 @@ class RemsService implements
     {
         return $this->getAccessPermission($ignoreCache)
             === RemsService::STATUS_APPROVED;
+    }
+
+    /**
+     * Is user session expired?
+     *
+     * @param bool $ignoreCache Ignore cache?
+     *
+     * @return bool
+     */
+    public function isSessionExpired($ignoreCache = false)
+    {
+        return $this->getAccessPermission($ignoreCache)
+            === RemsService::STATUS_EXPIRED;
     }
 
     /**
@@ -454,6 +468,9 @@ class RemsService implements
             break;
         case 'manual-revoked':
             $status = self::STATUS_REVOKED;
+            break;
+        case 'session-expired':
+            $status = self::STATUS_EXPIRED;
             break;
         default:
             $status = self::STATUS_CLOSED;

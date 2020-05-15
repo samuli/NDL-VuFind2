@@ -116,22 +116,29 @@ class R2RestrictedRecordRegister extends \Zend\View\Helper\AbstractHelper
                     return null;
                 }
                 $blacklisted = $user ? $this->rems->isUserBlacklisted() : false;
+                $sessionExpired = $user ? $this->rems->isSessionExpired() : false;
             } catch (\Exception $e) {
                 return '<div class="alert alert-danger">'
                     . $this->translate('An error has occurred') . '</div>';
             }
+            $note = null;
+            if ($sessionExpired) {
+                $note = 'R2_accessrights_session_expired';
+            } elseif (!($params['hideNote'] ?? false)) {
+                $note = $driver
+                    ? 'R2_restricted_record_note_html'
+                    : 'R2_restricted_record_note_frontpage_html';
+            }
+            
             $params = [
-                'note' => (!($params['hideNote'] ?? false))
-                    ? $driver
-                        ? 'R2_restricted_record_note_html'
-                        : 'R2_restricted_record_note_frontpage_html'
-                    : null,
+                'note' => $note,
                 'showInfoLink' => !($params['hideInfoLink'] ?? false),
                 'weakLogin' => $user && !$this->authenticated,
                 'user' => $user,
                 'id' => $driver ? $driver->getUniqueID() : null,
                 'collection' => $driver ? $driver->isCollection() : false,
                 'blacklisted' => $blacklisted,
+                'sessionExpired' => $sessionExpired,
                 'formId' => 'R2Register',
             ];
 

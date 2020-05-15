@@ -35,7 +35,7 @@
       . '?recordId=' . $this->escapeHtmlAttr($this->id)
       . ($this->collection ? '&collection=1' : '');
   ?>
-  <div class="r2-restricted-record-register alert alert-info" role="alert">
+  <div class="r2-restricted-record-register alert alert-<?=$this->sessionExpired ? 'danger' : 'info'?>" role="alert">
     <?php if ($this->note): ?>
       <div><?= $this->translate($this->note) ?></div>
     <?php endif ?>
