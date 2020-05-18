@@ -388,6 +388,11 @@ class SolrEad3 extends SolrEad
         return null;
     }
 
+    /**
+     * Get external data (images, physical items).
+     *
+     * @return array
+     */
     public function getExternalData()
     {
         return [
