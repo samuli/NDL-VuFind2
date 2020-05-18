@@ -1,6 +1,10 @@
 <!-- START of: finna - Helpers/R2RestrictedRecordPermission.phtml -->
 <?php
   $setupJS = [];
+  $registerFormUrl =
+    $this->url('feedback-form', ['id' => 'R2Register'])
+    . '?recordId=' . $this->escapeHtmlAttr($this->id)
+    . ($this->collection ? '&collection=1' : '');
 ?>
 <?php if ($this->weakLogin): ?>
   <div class="r2-restricted-record-register alert alert-danger" role="alert">
@@ -8,7 +12,7 @@
   </div>
 <?php elseif (!$this->user && $this->id): ?>
   <?php
-    $setupJS['modal'] = true;
+    $setupJS['initModal'] = true;
     // Explicitly redirect Collection page login to Record controller
     $registerFormUrl = $this->url('r2record', ['id' => $this->id])
       . '?login=true'
@@ -29,12 +33,12 @@
 <?php elseif ($this->blacklisted): ?>
    <div class="alert-info authorization-notification alert alert-danger" role="alert"><?= $this->translate('R2_accessrights_blacklisted', ['%%url%%' => $this->url('feedback-home'), '%%date_added%%' => $this->dateTime()->convertToDisplayDate('Y-m-d', $blacklisted)]) ?></div>
 <?php else: ?>
-  <?php
-    $registerFormUrl =
-      $this->url('feedback-form', ['id' => 'R2Register'])
-      . '?recordId=' . $this->escapeHtmlAttr($this->id)
-      . ($this->collection ? '&collection=1' : '');
-  ?>
+   <?php
+   if ($this->sessionExpired) {
+     $setupJS['initModal'] = true;
+     $setupJS['openModal'] = true;
+   }
+   ?>
   <div class="r2-restricted-record-register alert alert-<?=$this->sessionExpired ? 'danger' : 'info'?>" role="alert">
     <?php if ($this->note): ?>
       <div><?= $this->translate($this->note) ?></div>
@@ -53,8 +57,20 @@ if (!empty($setupJS)) {
   $script = '$(document).ready(function() {';
   foreach ($setupJS as $type => $mode) {
     switch ($type) {
-      case 'modal':
+      case 'initModal':
         $script .= 'finna.R2.initModal();';
+        break;
+      case 'openModal':
+        // Session expired, prompt to re-register
+        $modalContent =  '<h2>' . $this->translate('R2_session_expired_title') . '</h2>';
+        $modalContent .= '<p>' . $this->translate('R2_session_expired') . '</p>';
+        $modalContent .= '<div class="r2-register">';
+        $modalContent .= '<div class="register-btn"><a onClick="finna.R2.openRegistration();" class="btn btn-primary btn-r2-register"><i class="fa fa-research"></i> ' . $this->translate('R2_register') . '</a></div>';
+        $modalContent .= '<p><a href="#" onClick="VuFind.lightbox.close(); return false;">' . $this->translate('R2_session_expired_cancel') . '</a></p>';
+        $modalContent .= '</div>';
+
+        $this->headScript()->prependScript("VuFind.R2Registration = '" . $registerFormUrl . "';");
+        $script .= 'VuFind.lightbox.render(\'' . $modalContent . '\');';
         break;
     }
   }

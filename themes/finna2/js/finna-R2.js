@@ -1,4 +1,4 @@
-/*global finna */
+/*global finna, VuFind */
 finna.R2 = (function finnaR2() {
   function initModal() {
     // Transform form h1-element to a h2 so that the modal gets a proper title bar
@@ -13,8 +13,12 @@ finna.R2 = (function finnaR2() {
       }
     });
   }
+  function openRegistration() {
+    VuFind.lightbox.ajax({url: VuFind.R2Registration});
+  }
   var my = {
-    initModal: initModal
+    initModal: initModal,
+    openRegistration: openRegistration
   };
 
   return my;
