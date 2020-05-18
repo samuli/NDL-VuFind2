@@ -109,7 +109,8 @@ class RemsService implements
      *
      * @param Config         $config        Configuration
      * @param SessionManager $session       Session container
-     * @param String|null    $userId        National identification number of current user
+     * @param String|null    $userId        National identification number of
+     * current user
      * @param Manager        $auth          Auth manager
      * @param bool           $authenticated Is the user authenticated to use REMS?
      */
