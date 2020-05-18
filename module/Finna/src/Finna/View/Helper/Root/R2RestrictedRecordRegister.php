@@ -129,7 +129,7 @@ class R2RestrictedRecordRegister extends \Zend\View\Helper\AbstractHelper
                     ? 'R2_restricted_record_note_html'
                     : 'R2_restricted_record_note_frontpage_html';
             }
-            
+
             $params = [
                 'note' => $note,
                 'showInfoLink' => !($params['hideInfoLink'] ?? false),

@@ -62,7 +62,7 @@ if (!empty($setupJS)) {
         break;
       case 'openModal':
         // Session expired, prompt to re-register
-        $modalContent =  '<h2>' . $this->translate('R2_session_expired_title') . '</h2>';
+        $modalContent = '<h2>' . $this->translate('R2_session_expired_title') . '</h2>';
         $modalContent .= '<p>' . $this->translate('R2_session_expired') . '</p>';
         $modalContent .= '<div class="r2-register">';
         $modalContent .= '<div class="register-btn"><a onClick="finna.R2.openRegistration();" class="btn btn-primary btn-r2-register"><i class="fa fa-research"></i> ' . $this->translate('R2_register') . '</a></div>';
