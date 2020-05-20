@@ -30,7 +30,6 @@
 namespace Finna\View\Helper\Root;
 
 use Finna\RemsService\RemsService;
-use VuFind\I18n\Translator\TranslatorAwareTrait;
 
 /**
  * Helper class for restricted Solr R2 records.
@@ -45,8 +44,6 @@ use VuFind\I18n\Translator\TranslatorAwareTrait;
  */
 class R2RestrictedRecordRegister extends \Zend\View\Helper\AbstractHelper
 {
-    use TranslatorAwareTrait;
-
     /**
      * Is R2 search enabled?
      *
@@ -108,6 +105,8 @@ class R2RestrictedRecordRegister extends \Zend\View\Helper\AbstractHelper
             if ($driver ? $driver->isRestrictedMetadataIncluded() : false) {
                 return null;
             }
+            $blacklisted = false;
+            $blacklistedDate = null;
             try {
                 if ($this->rems->hasUserAccess($params['ignoreCache'] ?? false)) {
                     // Note: this should not happen since restricted metadata
@@ -116,18 +115,31 @@ class R2RestrictedRecordRegister extends \Zend\View\Helper\AbstractHelper
                     return null;
                 }
                 $blacklisted = $user ? $this->rems->isUserBlacklisted() : false;
+                if ($blacklisted) {
+                    $dateTime = $this->getView()->plugin('dateTime');
+                    try {
+                        $blacklistedDate
+                            = $dateTime->convertToDisplayDate('Y-m-d', $blacklisted);
+                    } catch (\Exception $e) {
+                    }
+                }
                 $sessionExpired = $user ? $this->rems->isSessionExpired() : false;
             } catch (\Exception $e) {
+                $translator = $this->getView()->plugin('translate');
                 return '<div class="alert alert-danger">'
-                    . $this->translate('An error has occurred') . '</div>';
+                    . $translator->translate('R2_rems_connect_error') . '</div>';
             }
             $note = null;
             if ($sessionExpired) {
                 $note = 'R2_accessrights_session_expired';
             } elseif (!($params['hideNote'] ?? false)) {
-                $note = $driver
-                    ? 'R2_restricted_record_note_html'
-                    : 'R2_restricted_record_note_frontpage_html';
+                if (isset($params['note'])) {
+                    $note = $params['note'];
+                } else if ($driver) {
+                    $note = 'R2_restricted_record_note_html';
+                } else {
+                    $note = 'R2_restricted_record_note_frontpage_html';
+                }
             }
 
             $params = [
@@ -138,6 +150,7 @@ class R2RestrictedRecordRegister extends \Zend\View\Helper\AbstractHelper
                 'id' => $driver ? $driver->getUniqueID() : null,
                 'collection' => $driver ? $driver->isCollection() : false,
                 'blacklisted' => $blacklisted,
+                'blacklistedDate' => $blacklistedDate,
                 'sessionExpired' => $sessionExpired,
                 'formId' => 'R2Register',
             ];

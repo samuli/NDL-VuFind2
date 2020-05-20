@@ -47,18 +47,7 @@
           </tbody>
         </table>
       <?php else: ?>
-        <?php if (!$this->R2()->isAuthenticated()): ?>
-          <div><?= $this->translate('R2_register_weak_loginmethod') ?></div>
-        <?php elseif ($blacklisted = $this->rems->isUserBlacklisted(true)): ?>
-          <div class="alert alert-danger "><?= $this->translate('R2_accessrights_blacklisted', ['%%url%%' => $this->url('feedback-home'), '%%date_added%%' => $this->dateTime()->convertToDisplayDate('Y-m-d', $blacklisted)]) ?></div>
-        <?php else: ?>
-          <?php $registerFormUrl = $this->url('feedback-form', ['id' => 'R2Register']); ?>
-
-          <div class="alert alert-info">
-            <div><p><?=$this->translate('R2_accessrights_register')?></p></div>
-            <div class="register"><a data-lightbox href="<?=$registerFormUrl?>" class="btn btn-primary btn-r2-register" title="<?=$this->transEsc('R2_register')?>"><i class="fa fa-3x fa-research"></i> <?=$this->translate('R2_register')?></a></div>
-          </div>
-        <?php endif; ?>
+        <?= $this->R2RestrictedRecordRegister(null, ['user' => $this->auth()->isLoggedIn(), 'hideInfoLink' => true, 'note' => 'R2_accessrights_register'])?>
       <?php endif; ?>
     <?php endif; ?>
   </div>
