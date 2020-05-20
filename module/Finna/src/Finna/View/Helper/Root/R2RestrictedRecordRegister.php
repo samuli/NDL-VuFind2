@@ -135,7 +135,7 @@ class R2RestrictedRecordRegister extends \Zend\View\Helper\AbstractHelper
             } elseif (!($params['hideNote'] ?? false)) {
                 if (isset($params['note'])) {
                     $note = $params['note'];
-                } else if ($driver) {
+                } elseif ($driver) {
                     $note = 'R2_restricted_record_note_html';
                 } else {
                     $note = 'R2_restricted_record_note_frontpage_html';
