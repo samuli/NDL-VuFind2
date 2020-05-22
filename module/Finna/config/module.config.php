@@ -190,6 +190,7 @@ $config = [
             'Finna\Controller\CommentsController' => 'VuFind\Controller\AbstractBaseFactory',
             'Finna\Controller\ContentController' => 'VuFind\Controller\AbstractBaseFactory',
             'Finna\Controller\CoverController' => 'Finna\Controller\CoverControllerFactory',
+            'Finna\Controller\DynamicListController' => 'VuFind\Controller\AbstractBaseFactory',
             'Finna\Controller\EdsController' => 'VuFind\Controller\AbstractBaseFactory',
             'Finna\Controller\ErrorController' => 'VuFind\Controller\AbstractBaseFactory',
             'Finna\Controller\ExternalAuthController' => 'VuFind\Controller\AbstractBaseFactory',
@@ -212,6 +213,8 @@ $config = [
         'aliases' => [
             'Barcode' => 'Finna\Controller\BarcodeController',
             'barcode' => 'Finna\Controller\BarcodeController',
+            'dynamic' => 'Finna\Controller\DynamicListController',
+            'Dynamic' => 'Finna\Controller\DynamicListController',
             'Comments' => 'Finna\Controller\CommentsController',
             'comments' => 'Finna\Controller\CommentsController',
             'FeedContent' => 'Finna\Controller\FeedContentController',
@@ -766,8 +769,8 @@ $staticRoutes = [
     'MyResearch/SaveCustomOrder', 'MyResearch/PurgeHistoricLoans',
     'OrganisationInfo/Home',
     'PCI/Home', 'PCI/Search', 'PCI/Record',
-    'Search/StreetSearch',
-    'Barcode/Show', 'Search/MapFacet', 'Search/Blended'
+    'Search/StreetSearch', 'DynamicList/Results',
+    'BarCode/Show', 'Search/MapFacet', 'Search/Blended'
 ];
 
 $routeGenerator = new \VuFind\Route\RouteGenerator();
