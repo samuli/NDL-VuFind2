@@ -111,8 +111,16 @@ class SolrEad3 extends SolrEad
         $url = '';
         $record = $this->getXmlRecord();
         foreach ($record->did->xpath('//daoset/dao') as $node) {
-            $url = (string)$node->attributes()->href;
-            $desc = $node->attributes()->linktitle ?? $url;
+            $attr = $node->attributes();
+            // Discard image urls
+            if (isset($attr->linktitle)
+                && strpos((string)$attr->linktitle, 'Kuva/Aukeama') === 0
+                || ! $attr->href
+            ) {
+                continue;
+            }
+            $url = (string)$attr->href;
+            $desc = $attr->linktitle ?? $url;
             if (!$this->urlBlacklisted($url, $desc)) {
                 $urls[] = [
                     'url' => $url,
@@ -120,8 +128,7 @@ class SolrEad3 extends SolrEad
                 ];
             }
         }
-        $urls = $this->resolveUrlTypes($urls);
-        return $urls;
+        return $this->resolveUrlTypes($urls);
     }
 
     /**
