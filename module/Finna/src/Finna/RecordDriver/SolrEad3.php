@@ -252,7 +252,7 @@ class SolrEad3 extends SolrEad
             }
             $result = ['id' => $itemId, 'online' => in_array($itemId, $onlineIds)];
             $owner = null;
-            foreach ($altform->list->defitem as $defitem) {
+            foreach ($altform->list->defitem ?? [] as $defitem) {
                 $type = $defitem->label;
                 $val = (string)$defitem->item;
                 switch ($type) {
@@ -871,7 +871,9 @@ class SolrEad3 extends SolrEad
         $info = [];
         if ($descId) {
             $altItem = $this->getAlternativeItems($descId);
-            $info[] = $altItem['format'];
+            if ($format = $altItem['format'] ?? null) {
+                $info[] = $format;
+            }
         }
 
         return !empty($items) ? compact('info', 'items') : [];
@@ -887,7 +889,7 @@ class SolrEad3 extends SolrEad
         return array_filter(
             $this->getAlternativeItems(),
             function ($item) {
-                return empty($item['online']);
+                return empty($item['online']) && !empty($item['location']);
             }
         );
     }
