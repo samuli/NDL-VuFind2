@@ -45,7 +45,7 @@ namespace Finna\RecordDriver;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:record_drivers Wiki
  */
-class SolrEad extends \VuFind\RecordDriver\SolrDefault
+class SolrEad extends SolrDefault
 {
     use SolrFinnaTrait;
     use XmlReaderTrait;
@@ -125,10 +125,12 @@ class SolrEad extends \VuFind\RecordDriver\SolrDefault
      *   - link        Link to copyright info
      *
      * @param string $language Language for copyright information
+     * @param bool   $includePdf Whether to include first PDF file when no image
+     * links are found
      *
      * @return array
      */
-    public function getAllImages($language = 'fi')
+    public function getAllImages($language = 'fi', $includePdf = true)
     {
         $result = [];
         // All images have same rights..

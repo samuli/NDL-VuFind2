@@ -240,6 +240,25 @@ class RecordDataFormatterFactory
             ]
         );
         $setTemplateLine(
+            'Archive Origination', 'getOrigination', 'data-origination.phtml',
+            [
+                'context' => ['class' => 'record-origination', 'group' => 'Context']
+            ]
+        );
+        $setTemplateLine(
+            'Archive', true, 'data-archive.phtml',
+            [
+                'context' => ['class' => 'recordHierarchyLinks',
+                              'group' => 'Context']
+            ]
+        );
+        $setTemplateLine(
+            'Archive Series', 'isPartOfArchiveSeries', 'data-archiveSeries.phtml',
+            [
+                'context' => ['class' => 'recordSeries', 'group' => 'Context']
+            ]
+        );
+        $setTemplateLine(
             'Physical Description', 'getPhysicalDescriptions',
             'data-escapeHtml.phtml',
             [
@@ -356,65 +375,21 @@ class RecordDataFormatterFactory
                 'context' => ['class' => 'recordEvents', 'title' => ""]
             ]
         );
-
-        $setTemplateLine(
-            'Archive Origination', 'getOrigination', 'data-origination.phtml',
-            [
-                'context' => ['class' => 'record-origination', 'group' => 'Context']
-            ]
-        );
-        $setTemplateLine(
-            'Archive', true, 'data-archive.phtml',
-            [
-                'context' => ['class' => 'recordHierarchyLinks',
-                              'group' => 'Context']
-            ]
-        );
-        $setTemplateLine(
-            'Archive Series', 'isPartOfArchiveSeries', 'data-archiveSeries.phtml',
-            [
-                'context' => ['class' => 'recordSeries', 'group' => 'Context']
-            ]
-        );
         $setTemplateLine(
             'Unit ID', 'getUnitID', 'data-escapeHtml.phtml',
             [
                 'context' => ['class' => 'recordReferenceCode']
             ]
         );
-
-        $getUnitIds = function ($data, $options) use (&$pos) {
-            $result = [];
-            foreach ($data as $type => $value) {
-                $result[] = [
-                    'label' => 'Unit ID',
-                    'values' => [ $type => "$value ($type)"],
-                    'options' => [
-                        'pos' => $pos++,
-                        'renderType' => 'RecordDriverTemplate',
-                        'template' => 'data-escapeHtml.phtml',
-                        'context' => [
-                            'class' => 'class',
-                            'type' => $type,
-                            'schemaLabel' => null,
-                        ]
-                    ]
-                ];
-            }
-            return $result;
-        };
-
-        $setMultiTemplateLine(
-            'Unit IDs', 'getUnitIds', $getUnitIds
+        $setTemplateLine(
+            'Unit IDs', 'getUnitIds', 'data-lines-with-detail.phtml'
         );
-
         $setTemplateLine(
             'Authors', 'getNonPresenterAuthors', 'data-authors.phtml',
             [
                 'context' => ['class' => 'recordAuthors']
             ]
         );
-
         $setTemplateLine(
             'Publisher', 'getPublicationDetails', 'data-publicationDetails.phtml',
             [
@@ -748,6 +723,9 @@ class RecordDataFormatterFactory
             [
                 'context' => ['class' => 'recordDaterange']
             ]
+        );
+        $setTemplateLine(
+            'Date', 'getUnitDates', 'data-lines-with-detail.phtml'
         );
         $setTemplateLine(
             'Photo Info', 'getPhotoInfo', 'data-escapeHtml.phtml',

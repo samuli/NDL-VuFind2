@@ -290,7 +290,7 @@ class SolrEad3 extends SolrEad
     /**
      * Get unit ids
      *
-     * @return string[]
+     * @return array
      */
     public function getUnitIds()
     {
@@ -310,8 +310,12 @@ class SolrEad3 extends SolrEad
             if (!$label || !$val) {
                 continue;
             }
-            $label = $this->translate("Unit ID:$label");
-            $ids[$label] = $val;
+            $key = "Unit ID:$label";
+            $translated = $this->translate($key);
+            if ($translated !== $key) {
+                $label = $translated;
+            }
+            $ids[] = ['data' => $val, 'detail' => $label];
         }
 
         return $ids;
@@ -702,9 +706,9 @@ class SolrEad3 extends SolrEad
     /**
      * Get the unitdate field.
      *
-     * @return string
+     * @return array
      */
-    public function getUnitDate()
+    public function getUnitDates()
     {
         $unitdate = parent::getUnitDate();
 
@@ -712,16 +716,16 @@ class SolrEad3 extends SolrEad
         if (!isset($record->did->unittitle)) {
             return $unitdate;
         }
-        foreach ($record->did->unittitle as $title) {
-            $attributes = $title->attributes();
-            if (! isset($attributes->encodinganalog)
-                || (string)$attributes->encodinganalog !== 'ahaa:AI55'
-            ) {
-                continue;
+        $result = [];
+        foreach ($record->did->unitdate as $date) {
+            $attr = $date->attributes();
+            if ($desc = $attr->normal ?? null) {
+                $desc = $attr->label ?? null;
             }
-            return sprintf('%s (%s)', $unitdate, (string)$title);
+            $date = (string)$date;
+            $result[] = ['data' => (string)$date, 'detail' => (string)$desc];
         }
-        return $unitdate;
+        return $result;
     }
 
     /**
