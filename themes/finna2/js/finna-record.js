@@ -285,7 +285,9 @@ finna.record = (function finnaRecord() {
       if (typeof callback === 'function') {
         callback(accordion);
       } else {
-        _toggleAccordion(accordion, true);
+        var mobile = $('.mobile-toolbar');
+        var initialLoad = mobile.length > 0 ? !mobile.is(':visible') : true;
+        _toggleAccordion(accordion, initialLoad);
       }
     }
   }
@@ -296,7 +298,6 @@ finna.record = (function finnaRecord() {
     var $tabContent = $recordTabs.find('.tab-content');
     var tabid = accordion.find('.accordion-toggle a').data('tab');
     $tabContent.insertAfter(accordion);
-
     if (accordion.hasClass('noajax') && !$recordTabs.find('.' + tabid + '-tab').length) {
       return true;
     }
@@ -304,7 +305,6 @@ finna.record = (function finnaRecord() {
     $('.record-accordions').find('.accordion.active').removeClass('active');
     accordion.addClass('active');
     $recordTabs.find('.tab-pane.active').removeClass('active');
-
     if ($recordTabs.find('.' + tabid + '-tab').length > 0) {
       $recordTabs.find('.' + tabid + '-tab').addClass('active');
       if (accordion.hasClass('initiallyActive')) {
