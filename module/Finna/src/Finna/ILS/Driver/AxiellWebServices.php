@@ -2809,33 +2809,6 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
     }
 
     /**
-     * Mostly used for development purposes
-     *
-     * @param string $wsdl url
-     *
-     * @return string wsdl file location
-     */
-    protected function getWsdlWithProxy($wsdl)
-    {
-        $urlParsed = parse_url($wsdl);
-        $host = explode('.', $urlParsed['host']);
-        $path = explode('.', $urlParsed['path']);
-        $file = str_replace('/', '', $path[0]);
-        $filePath = '/tmp/' . strtolower($host[0]) . strtolower($file) . '.wsdl';
-        if (!file_exists($filePath)) {
-            $result = $this->httpService->get($wsdl);
-
-            if ($result->getStatusCode() === 200) {
-                $handle = fopen($filePath, "w");
-                fwrite($handle, $result->getContent());
-                fclose($handle);
-            }
-        }
-
-        return $filePath;
-    }
-
-    /**
      * Format date
      *
      * @param string $dateString Date as a string
