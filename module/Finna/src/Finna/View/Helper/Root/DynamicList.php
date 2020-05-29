@@ -27,10 +27,6 @@
  */
 namespace Finna\View\Helper\Root;
 
-use Vufind\ILS\Connection;
-use VuFind\Record\Loader;
-use Zend\Mvc\Controller\Plugin\Url;
-
 /**
  * This helper renders dynamic lists to templates
  *
@@ -42,43 +38,24 @@ use Zend\Mvc\Controller\Plugin\Url;
  */
 class DynamicList extends \Zend\View\Helper\AbstractHelper
 {
-    protected $ils;
-
-    protected $recordLoader;
-
-    /**
-     * URL helper
-     *
-     * @var Url
-     */
-    protected $urlHelper;
-
-    /**
-     * Constructor
-     */
-    public function __construct(Connection $ils, Loader $rl, Url $url)
-    {
-        $this->ils = $ils;
-        $this->recordLoader = $rl;
-        $this->urlHelper = $url;
-    }
-
     /**
      * Invoke with query, no need for other parameters as 10
      * is maximum amount of items in this setting
      *
-     * @param string $query to fetch
+     * @param array $params to get dynamic lists
+     * 
+     * @return ViewModel
      */
     public function __invoke($params = [])
     {
-        $result = $this->ils->checkFunction('getDynamicList', []);
         $type = $params['type'] ?? 'carousel';
         $query = $params['query'] ?? 'mostloaned';
         $amount = $params['amount'] ?? 10;
-        $url = $result ? "/AJAX/JSON?method=dynamicList&type={$type}&query={$query}&amount={$amount}" : '';
+        $url = "/AJAX/JSON?method=dynamicList" . 
+                "&type={$type}&query={$query}&amount={$amount}";
 
-        return $this->getView()->render('Helpers/dynamic-list.phtml', [
-            'url' => $url
-            ]);
+        return $this->getView()->render(
+            'Helpers/dynamic-list.phtml', ['url' => $url]
+        );
     }
 }
