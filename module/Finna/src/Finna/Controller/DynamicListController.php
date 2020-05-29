@@ -76,7 +76,9 @@ class DynamicListController extends \VuFind\Controller\AbstractBase
 
         $check = $catalog->checkFunction('getDynamicList', []);
         // Limit the amount of records to 20, for not too large requests
-        $result = $catalog->getDynamicList(['query' => $type, 'pageSize' => 20, 'page' => $page - 1]);
+        $result = $catalog->getDynamicList(
+            ['query' => $type, 'pageSize' => 20, 'page' => $page - 1]
+        );
         $pageOptions = $this->getPaginationHelper()->getOptions(
             $page,
             $this->params()->fromQuery('sort'),
@@ -107,7 +109,9 @@ class DynamicListController extends \VuFind\Controller\AbstractBase
         }
         $ilsParams = $pageOptions['ilsParams'];
         $ilsParams['query'] = $type;
-        $view = $this->createViewModel(compact('records', 'paginator', 'ilsParams', 'type'));
+        $view = $this->createViewModel(
+            compact('records', 'paginator', 'ilsParams', 'type')
+        );
         $view->setTemplate('dynamiclist/results.phtml');
         return $view;
     }

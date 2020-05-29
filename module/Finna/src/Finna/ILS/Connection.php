@@ -605,6 +605,8 @@ class Connection extends \VuFind\ILS\Connection
      *
      * @param array $functionConfig Function configuration values
      * @param array $params         An array of function-specific params (or null)
+     * 
+     * @return mixed array|false
      */
     protected function checkMethodgetDynamicList($functionConfig, $params)
     {

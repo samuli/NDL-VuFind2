@@ -67,12 +67,13 @@ class DynamicList extends \VuFind\AjaxHandler\AbstractBase
     /**
      * Constructor
      *
-     * @param Loader            $loader    Record loader
-     * @param Connection        $ils       Connection to the ils
-     * @param RendererInterface $renderer  View renderer
+     * @param Loader            $loader   Record loader
+     * @param Connection        $ils      Connection to the ils
+     * @param RendererInterface $renderer View renderer
      */
-    public function __construct(Loader $loader, Connection $ils, RendererInterface $renderer)
-    {
+    public function __construct(
+        Loader $loader, Connection $ils, RendererInterface $renderer
+    ) {
         $this->recordLoader = $loader;
         $this->renderer = $renderer;
         $this->ils = $ils;
@@ -98,13 +99,17 @@ class DynamicList extends \VuFind\AjaxHandler\AbstractBase
         $statusCode = 200;
         $html = '';
         if ($result) {
-            $data = $this->ils->getDynamicList(['query' => $type, 'pageSize' => $amount]);
+            $data = $this->ils->getDynamicList(
+                ['query' => $type, 'pageSize' => $amount]
+            );
             foreach ($data['records'] ?? [] as $key => $obj) {
                 $loadedRecord = $this->recordLoader->load($obj['id'], $source, true);
                 $loadedRecord->setExtraDetail('ils_details', $obj);
                 $records[] = $loadedRecord;
             }
-            $html = $this->renderer->partial("ajax/dynamic-list-$template.phtml", compact('records', 'type'));
+            $html = $this->renderer->partial(
+                "ajax/dynamic-list-$template.phtml", compact('records', 'type')
+            );
         } else {
             $html = "Could not load dynamic list $type";
             $statusCode = 500;
