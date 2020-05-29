@@ -602,7 +602,7 @@ class Connection extends \VuFind\ILS\Connection
 
     /**
      * Check if dynamic lists are enabled
-     * 
+     *
      * @param array $functionConfig Function configuration values
      * @param array $params         An array of function-specific params (or null)
      */
@@ -613,7 +613,6 @@ class Connection extends \VuFind\ILS\Connection
         }
         return false;
     }
-
 
     /**
      * Check if self-registration.

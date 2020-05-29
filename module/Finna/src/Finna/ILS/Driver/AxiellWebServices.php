@@ -1558,9 +1558,9 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
 
     /**
      * Function to fetch dynamic lists from Aurora
-     * 
+     *
      * @param array $params To fetch
-     * 
+     *
      * @return array
      */
     public function getDynamicList($params)
@@ -1574,7 +1574,7 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
 
         $function = 'Search';
         $functionResult = 'searchResult';
-        
+
         $result = $this->doSOAPRequest(
             $this->catalogueaurora_wsdl, $function, $functionResult, '',
             ['searchRequest' => $conf]
@@ -1792,7 +1792,7 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
         $formatted['transactions'] = $transList;
         $formatted['count'] = $result->loanHistoryResponse
             ->loanHistoryItems->totalCount;
-            var_dump($transList, '----------------');
+
         return $formatted;
     }
 
@@ -2767,7 +2767,7 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
      * @return object SOAP response
      */
     protected function doSOAPRequest($wsdl, $function, $functionResult, $id, $params)
-    {   
+    {
         $client = new SoapClient($wsdl, $this->soapOptions);
 
         $this->debug("$function Request for '$this->arenaMember'.'$id'");
@@ -2810,9 +2810,9 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
 
     /**
      * Mostly used for development purposes
-     * 
+     *
      * @param string $wsdl url
-     * 
+     *
      * @return string wsdl file location
      */
     protected function getWsdlWithProxy($wsdl)
@@ -2831,7 +2831,7 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
                 fclose($handle);
             }
         }
-        
+
         return $filePath;
     }
 

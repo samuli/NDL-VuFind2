@@ -27,8 +27,8 @@
  */
 namespace Finna\View\Helper\Root;
 
-use \Vufind\ILS\Connection;
-use \VuFind\Record\Loader;
+use Vufind\ILS\Connection;
+use VuFind\Record\Loader;
 use Zend\Mvc\Controller\Plugin\Url;
 
 /**
@@ -42,7 +42,6 @@ use Zend\Mvc\Controller\Plugin\Url;
  */
 class DynamicList extends \Zend\View\Helper\AbstractHelper
 {
-
     protected $ils;
 
     protected $recordLoader;
@@ -67,8 +66,8 @@ class DynamicList extends \Zend\View\Helper\AbstractHelper
     /**
      * Invoke with query, no need for other parameters as 10
      * is maximum amount of items in this setting
-     * 
-     * @param string $query to fetch 
+     *
+     * @param string $query to fetch
      */
     public function __invoke($params = [])
     {

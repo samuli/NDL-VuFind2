@@ -27,10 +27,10 @@
  */
 namespace Finna\AjaxHandler;
 
-use VuFind\Record\Loader;
 use Vufind\ILS\Connection;
-use Zend\View\Renderer\RendererInterface;
+use VuFind\Record\Loader;
 use Zend\Mvc\Controller\Plugin\Params;
+use Zend\View\Renderer\RendererInterface;
 
 /**
  * DynamicList AJAX handler
@@ -45,14 +45,14 @@ class DynamicList extends \VuFind\AjaxHandler\AbstractBase
 {
     /**
      * Record loader
-     * 
+     *
      * @var Loader
      */
     protected $recordLoader;
 
     /**
      * Connection to ils
-     * 
+     *
      * @var Connection
      */
     protected $ils;
@@ -71,7 +71,8 @@ class DynamicList extends \VuFind\AjaxHandler\AbstractBase
      * @param Connection        $ils       Connection to the ils
      * @param RendererInterface $renderer  View renderer
      */
-    public function __construct(Loader $loader, Connection $ils, RendererInterface $renderer) {
+    public function __construct(Loader $loader, Connection $ils, RendererInterface $renderer)
+    {
         $this->recordLoader = $loader;
         $this->renderer = $renderer;
         $this->ils = $ils;
@@ -89,7 +90,7 @@ class DynamicList extends \VuFind\AjaxHandler\AbstractBase
         $type = $params->fromQuery('query', 'mostloaned');
         $amount = $params->fromQuery('amount', 10);
         $template = $params->fromQuery('template', 'carousel');
-        $source = $params->fromQuery('source',  DEFAULT_SEARCH_BACKEND);
+        $source = $params->fromQuery('source', DEFAULT_SEARCH_BACKEND);
         $amount = $amount > 20 ? 20 : $amount;
 
         $result = $this->ils->checkFunction('getDynamicList', []);
@@ -108,7 +109,7 @@ class DynamicList extends \VuFind\AjaxHandler\AbstractBase
             $html = "Could not load dynamic list $type";
             $statusCode = 500;
         }
-        
+
         return $this->formatResponse(compact('html'), $statusCode);
     }
 }

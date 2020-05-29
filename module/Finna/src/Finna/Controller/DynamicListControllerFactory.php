@@ -1,10 +1,7 @@
 <?php
-
 namespace Finna\Controller;
 
 use Interop\Container\ContainerInterface;
-use Zend\ServiceManager\Factory\FactoryInterface;
-use Finna\Controller\DynamicListController;
 
 class DynamicListControllerFactory extends AbstractBaseFactory
 {

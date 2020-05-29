@@ -27,8 +27,7 @@
  */
 namespace Finna\Controller;
 
-use Zend\ServiceManager\ServiceLocatorInterface;
-use \VuFind\ILS\PaginationHelper;
+use VuFind\ILS\PaginationHelper;
 
 /**
  * This controller handles Dynamic lists from ILS
@@ -62,7 +61,7 @@ class DynamicListController extends \VuFind\Controller\AbstractBase
     }
 
     /**
-     * Function to fetch results and display them for certain dynamic list 
+     * Function to fetch results and display them for certain dynamic list
      * type
      *
      * @return ViewModel

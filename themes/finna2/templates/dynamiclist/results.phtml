@@ -1,12 +1,12 @@
 <?php
-    
+
 ?>
 <div class="dynamic-list-results">
     <?php ob_start(); ?>
     <div class="pagination-container">
         <?=$paginator ? $this->paginationControl($paginator, 'Sliding', 'Helpers/pagination-simple.phtml', ['params' => $this->ilsParams]) : ''?>
     </div>
-    <?php 
+    <?php
         $paginator = ob_get_contents();
         ob_end_clean();
     ?>
