@@ -189,10 +189,12 @@ class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
     public function getDynamicList($params)
     {
         $driver = $this->getDriver($this->defaultDriver);
+        $source = $this->getDefaultLoginDriver();
         if ($driver
             && $this->methodSupported($driver, 'getDynamicList', [$params])
         ) {
-            return $driver->getDynamicList($params);
+            $results = $driver->getDynamicList($params);
+            return $this->addIdPrefixes($results, $source);
         }
         throw new ILSException('No suitable backend driver found');
     }

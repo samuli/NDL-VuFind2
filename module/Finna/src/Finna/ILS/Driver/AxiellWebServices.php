@@ -32,7 +32,7 @@
 namespace Finna\ILS\Driver;
 
 use DOMDocument;
-use Finna\ILS\SoapProxyClient;
+use SoapClient;
 use VuFind\Config\Locator;
 use VuFind\Date\DateException;
 use VuFind\Exception\ILS as ILSException;
@@ -251,9 +251,6 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
         'exceptions' => true,
         'trace' => 1,
         'connection_timeout' => 60,
-        'proxy_type' => 'socks5',
-        'proxy_host' => 'localhost',
-        'proxy_port' => 1081,
         'typemap' => [
             [
                 'type_ns' => 'http://www.w3.org/2001/XMLSchema',
@@ -1570,7 +1567,7 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
     {
         $conf = [
             'arenaMember' => $this->arenaMember,
-            'pageSize' => $params['pageSize'] ?? 3,
+            'pageSize' => $params['pageSize'] ?? 20,
             'page' => $params['page'] ?? 0,
             'query' => $params['query'] ?? 'mostloaned'
         ];
@@ -1579,7 +1576,7 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
         $functionResult = 'searchResult';
         
         $result = $this->doSOAPRequest(
-            $this->catalogue_wsdl, $function, $functionResult, '',
+            $this->catalogueaurora_wsdl, $function, $functionResult, '',
             ['searchRequest' => $conf]
         );
         $statusAWS = $result->$functionResult->status;
@@ -1596,7 +1593,25 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
             $result->$functionResult->catalogueRecords->catalogueRecord ?? []
         );
 
-        return $records;
+        $formatted = [
+            'records' => [],
+            'count' => $result->$functionResult->nofRecordsTotal,
+            'countPage' => $result->$functionResult->nofRecordsPage,
+            'pages' => $result->$functionResult->nofPages
+        ];
+        // Lets get a pretty list of results
+        foreach ($records as $key => $obj) {
+            $record = [
+                'id' => $obj->id ?? '0',
+                'title' => $obj->title ?? '-',
+                'mediaClass' => $obj->mediaClass ?? '-',
+                'icon' => $obj->mediaClassIcon ?? '-',
+                'author' => $obj->author ?? '-'
+            ];
+            $formatted['records'][] = $record;
+        }
+
+        return $formatted;
     }
 
     /**
@@ -1777,7 +1792,7 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
         $formatted['transactions'] = $transList;
         $formatted['count'] = $result->loanHistoryResponse
             ->loanHistoryItems->totalCount;
-
+            var_dump($transList, '----------------');
         return $formatted;
     }
 
@@ -2752,11 +2767,8 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
      * @return object SOAP response
      */
     protected function doSOAPRequest($wsdl, $function, $functionResult, $id, $params)
-    {
-        //$path = $this->getWsdlWithProxy($wsdl);
-        // If we have proxy on, we need to fetch the wsdl before we can call anything with soapclient
-
-        $client = new SoapProxyClient($wsdl, $this->soapOptions);
+    {   
+        $client = new SoapClient($wsdl, $this->soapOptions);
 
         $this->debug("$function Request for '$this->arenaMember'.'$id'");
 

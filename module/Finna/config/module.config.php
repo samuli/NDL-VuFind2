@@ -57,6 +57,16 @@ $config = [
                     ]
                 ],
             ],
+            'dynamic-list-results' => [
+                'type' => 'Zend\Router\Http\Literal',
+                'options' => [
+                    'route'    => '/DynamicList/Results',
+                    'defaults' => [
+                        'controller' => 'Dynamic',
+                        'action'     => 'Results',
+                    ]
+                ],
+            ],
             'list-save' => [
                 'type'    => 'Zend\Router\Http\Segment',
                 'options' => [
@@ -213,14 +223,14 @@ $config = [
         'aliases' => [
             'Barcode' => 'Finna\Controller\BarcodeController',
             'barcode' => 'Finna\Controller\BarcodeController',
-            'dynamic' => 'Finna\Controller\DynamicListController',
-            'Dynamic' => 'Finna\Controller\DynamicListController',
             'Comments' => 'Finna\Controller\CommentsController',
             'comments' => 'Finna\Controller\CommentsController',
             'FeedContent' => 'Finna\Controller\FeedContentController',
             'feedcontent' => 'Finna\Controller\FeedContentController',
             'LocationService' => 'Finna\Controller\LocationServiceController',
             'locationservice' => 'Finna\Controller\LocationServiceController',
+            'dynamic' => 'Finna\Controller\DynamicListController',
+            'Dynamic' => 'Finna\Controller\DynamicListController',
             'MetaLib' => 'Finna\Controller\MetaLibController',
             'metalib' => 'Finna\Controller\MetaLibController',
             'MetaLibRecord' => 'Finna\Controller\MetaLibrecordController',
@@ -339,6 +349,8 @@ $config = [
                         'Finna\AjaxHandler\CommentRecordFactory',
                     'Finna\AjaxHandler\DeleteRecordComment' =>
                         'VuFind\AjaxHandler\DeleteRecordCommentFactory',
+                    'Finna\AjaxHandler\DynamicList' =>
+                        'Finna\AjaxHandler\DynamicListFactory',
                     'Finna\AjaxHandler\EditList' =>
                         'Finna\AjaxHandler\EditListFactory',
                     'Finna\AjaxHandler\EditListResource' =>
@@ -395,6 +407,7 @@ $config = [
                     'changePickupLocation' => 'Finna\AjaxHandler\ChangePickupLocation',
                     'changeRequestStatus' => 'Finna\AjaxHandler\ChangeRequestStatus',
                     'checkRequestsAreValid' => 'Finna\AjaxHandler\CheckRequestsAreValid',
+                    'dynamicList' => 'Finna\AjaxHandler\DynamicList',
                     'editList' => 'Finna\AjaxHandler\EditList',
                     'editListResource' => 'Finna\AjaxHandler\EditListResource',
                     'getAuthorityInfo' => 'Finna\AjaxHandler\GetAuthorityInfo',
@@ -769,7 +782,7 @@ $staticRoutes = [
     'MyResearch/SaveCustomOrder', 'MyResearch/PurgeHistoricLoans',
     'OrganisationInfo/Home',
     'PCI/Home', 'PCI/Search', 'PCI/Record',
-    'Search/StreetSearch', 'DynamicList/Results',
+    'Search/StreetSearch',
     'BarCode/Show', 'Search/MapFacet', 'Search/Blended'
 ];
 

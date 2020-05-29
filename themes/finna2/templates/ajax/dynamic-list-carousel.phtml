@@ -1,0 +1,35 @@
+
+<div class="dynamic-list-type">
+    <h3><a href="<?= $this->url('dynamic-list-results') ?>?query=<?=$this->type?>"><?= $this->transEsc("dynamic_list_$this->type") ?></a></h3>
+</div>
+<div class="dynamic-list-carousel content">
+    <?php foreach ($this->records as $ind => $record): ?>
+        <?php
+            $ilsDetails = $record->getExtraDetail('ils_details');
+            $isRecord = is_a($record, 'VuFind\\RecordDriver\\SolrDefault');
+            $formats = $record->tryMethod('getFormats');
+            $format = $isRecord && $formats ? $this->record($record)->getFormatClass(end($formats)) : 'book';
+            $thumb = $isRecord ? $this->record($record)->getThumbnail() : false;
+        ?>
+        <div class="dynamic-list-item">
+            <?php if ($isRecord): ?>
+                <a href="<?= $this->url('record', ['id' => $ilsDetails['id']])?>">
+            <?php endif; ?>
+            <div class="dynamic-list-title">
+                <p><?= substr($record->getTitle(), 0, 40); ?></p>
+                <p><?= $this->transEsc($ilsDetails['mediaClass'] ?? '');?></p>
+            </div>
+            <?php if ($isRecord): ?>
+                <?php if ($thumb): ?>
+                    <img class="dynamic-list-image" data-lazy="<?=$this->escapeHtmlAttr($thumb)?>" alt="kansikuva">
+                <?php endif; ?>
+            <?php endif; ?>
+            <div class="dynamic-list-icon <?= ($isRecord && $thumb ? 'hidden' : '');?>">
+                <span class="iconlabel format-<?=$format?>"></span>
+            </div>
+            <?php if ($isRecord): ?>
+                </a>
+            <?php endif; ?>
+        </div>
+    <?php endforeach; ?>
+</div>
