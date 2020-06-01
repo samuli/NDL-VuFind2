@@ -47,7 +47,7 @@
           </tbody>
         </table>
       <?php else: ?>
-        <?= $this->R2RestrictedRecordRegister(null, ['user' => $this->auth()->isLoggedIn(), 'hideInfoLink' => true, 'note' => 'R2_accessrights_register', 'registerLabel' => 'R2_register_myresearch'])?>
+        <?= $this->R2RestrictedRecordRegister(null, ['user' => $this->auth()->isLoggedIn(), 'ignoreCache' => true, 'hideInfoLink' => true, 'note' => 'R2_accessrights_register', 'registerLabel' => 'R2_register_myresearch'])?>
       <?php endif; ?>
     <?php endif; ?>
   </div>
