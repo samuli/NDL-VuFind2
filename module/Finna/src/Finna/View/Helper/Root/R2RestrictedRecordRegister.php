@@ -144,6 +144,7 @@ class R2RestrictedRecordRegister extends \Zend\View\Helper\AbstractHelper
 
             $params = [
                 'note' => $note,
+                'registerLabel' => $params['registerLabel'] ?? 'R2_register',
                 'showInfoLink' => !($params['hideInfoLink'] ?? false),
                 'weakLogin' => $user && !$this->authenticated,
                 'user' => $user,
