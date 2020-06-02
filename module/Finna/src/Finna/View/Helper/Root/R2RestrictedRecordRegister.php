@@ -105,25 +105,28 @@ class R2RestrictedRecordRegister extends \Zend\View\Helper\AbstractHelper
             if ($driver ? $driver->isRestrictedMetadataIncluded() : false) {
                 return null;
             }
-            $blacklisted = false;
+            $blacklisted = $registered = $sessionExpired = false;
             $blacklistedDate = null;
             try {
                 if ($this->rems->hasUserAccess($params['ignoreCache'] ?? false)) {
-                    // Note: this should not happen since restricted metadata
-                    // was not included. Abort so that the user can not register
-                    // when an approved application is open.
-                    return null;
-                }
-                $blacklisted = $user ? $this->rems->isUserBlacklisted() : false;
-                if ($blacklisted) {
-                    $dateTime = $this->getView()->plugin('dateTime');
-                    try {
-                        $blacklistedDate
-                            = $dateTime->convertToDisplayDate('Y-m-d', $blacklisted);
-                    } catch (\Exception $e) {
+                    // Already registered, hide indicator unless requested otherwise
+                    if ($params['hideWhenRegistered'] ?? true) {
+                        return null;
                     }
+                    $registered = true;
+                } else {
+                    $blacklisted = $user ? $this->rems->isUserBlacklisted() : false;
+                    if ($blacklisted) {
+                        $dateTime = $this->getView()->plugin('dateTime');
+                        try {
+                            $blacklistedDate
+                                = $dateTime->convertToDisplayDate('Y-m-d', $blacklisted);
+                        } catch (\Exception $e) {
+                        }
+                    }
+                    $sessionExpired
+                        = $user ? $this->rems->isSessionExpired() : false;
                 }
-                $sessionExpired = $user ? $this->rems->isSessionExpired() : false;
             } catch (\Exception $e) {
                 $translator = $this->getView()->plugin('translate');
                 return '<div class="alert alert-danger">'
@@ -150,6 +153,7 @@ class R2RestrictedRecordRegister extends \Zend\View\Helper\AbstractHelper
                 'user' => $user,
                 'id' => $driver ? $driver->getUniqueID() : null,
                 'collection' => $driver ? $driver->isCollection() : false,
+                'registered' => $registered,
                 'blacklisted' => $blacklisted,
                 'blacklistedDate' => $blacklistedDate,
                 'sessionExpired' => $sessionExpired,
