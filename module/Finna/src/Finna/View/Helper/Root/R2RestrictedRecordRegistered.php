@@ -93,7 +93,9 @@ class R2RestrictedRecordRegistered extends \Zend\View\Helper\AbstractHelper
         if (!$driver || $driver->hasRestrictedMetadata()) {
             $user = $params['user'] ?? null;
             try {
-                if (!$user || !$this->rems->hasUserAccess(false, $params['throw'] ?? false)) {
+                if (!$user
+                    || !$this->rems->hasUserAccess(false, $params['throw'] ?? false)
+                ) {
                     return null;
                 }
             } catch (\Exception $e) {
