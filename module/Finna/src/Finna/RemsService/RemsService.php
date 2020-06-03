@@ -202,6 +202,7 @@ class RemsService implements
      *
      * @param bool $ignoreCache Ignore cache?
      *
+     * @throws Exception
      * @return string|false
      */
     public function isUserBlacklisted($ignoreCache = false)
@@ -232,29 +233,26 @@ class RemsService implements
      */
     public function hasUserEntitlements()
     {
-        try {
-            return !empty($this->getEntitlements());
-        } catch (\Exception $e) {
-            return false;
-        }
+        return !empty($this->getEntitlements());
     }
 
     /**
      * Get user entitlements
      *
-     * @param bool $throw Throw exception?
-     *
      * @return array
-     * @throws Exception
      */
-    protected function getEntitlements($throw)
+    protected function getEntitlements()
     {
-        $userId = $this->getUserId();
-        return $this->sendRequest(
-            'entitlements',
-            ['user' => $userId, 'resource' => $this->getResourceItemId()],
-            'GET', RemsService::TYPE_APPROVER, null, false, $throw
-        );
+        try {
+            $userId = $this->getUserId();
+            return $this->sendRequest(
+                'entitlements',
+                ['user' => $userId, 'resource' => $this->getResourceItemId()],
+                'GET', RemsService::TYPE_APPROVER, null, false, $throw
+            );
+        } catch (\Exception $e) {
+            return [];
+        }
     }
 
     /**
@@ -268,7 +266,7 @@ class RemsService implements
      */
     protected function getEntitlementApplication($throw = false)
     {
-        $entitlements = $this->getEntitlements($throw);
+        $entitlements = $this->getEntitlements();
         if (empty($entitlements)) {
             return null;
         }
@@ -393,12 +391,10 @@ class RemsService implements
      * Get access permission for the current session.
      *
      * @param bool $ignoreCache Ignore cache?
-     * @param bool $throw       Throw exception?
      *
-     * @throws Exception
      * @return string|null
      */
-    public function getAccessPermission($ignoreCache = false, $throw = false)
+    public function getAccessPermission($ignoreCache = false)
     {
         $access = null;
         if (!$ignoreCache) {
@@ -407,7 +403,7 @@ class RemsService implements
                 return $access;
             }
         }
-        if ($entitlementApplication = $this->getEntitlementApplication($throw)) {
+        if ($entitlementApplication = $this->getEntitlementApplication()) {
             $status = $entitlementApplication['status'];
             $this->session->{self::SESSION_IS_REMS_REGISTERED}
                 = $status === RemsService::STATUS_APPROVED;
