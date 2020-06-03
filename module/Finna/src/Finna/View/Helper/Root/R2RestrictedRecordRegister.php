@@ -148,12 +148,24 @@ class R2RestrictedRecordRegister extends \Zend\View\Helper\AbstractHelper
                 }
             }
 
+            $name = '';
+            if (!empty($user->firstname)) {
+                $name = $user->firstname;
+            }
+            if (!empty($user->lastname)) {
+                if (!empty($name)) {
+                    $name .= ' ';
+                }
+                $name .= $user->lastname;
+            }
+
             $params = [
                 'note' => $note,
                 'registerLabel' => $params['registerLabel'] ?? 'R2_register',
                 'showInfoLink' => !($params['hideInfoLink'] ?? false),
                 'weakLogin' => $user && !$this->authenticated,
                 'user' => $user,
+                'name' => $name,
                 'id' => $driver ? $driver->getUniqueID() : null,
                 'collection' => $driver ? $driver->isCollection() : false,
                 'registered' => $registered,

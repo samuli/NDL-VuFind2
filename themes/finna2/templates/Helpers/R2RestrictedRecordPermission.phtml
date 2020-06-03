@@ -31,7 +31,7 @@
     </div>
   </div>
 <?php elseif ($this->blacklisted): ?>
-  <div class="alert-info authorization-notification alert alert-danger" role="alert"><?= $this->translate('R2_accessrights_blacklisted', ['%%url%%' => $this->url('feedback-home'), '%%date_added%%' => $this->blacklistedDate]) ?></div>
+  <div class="alert-info authorization-notification alert alert-danger" role="alert"><?= $this->translate('R2_accessrights_blacklisted_html', ['%%name%%' => $this->name, '%%url%%' => $this->url('feedback-home'), '%%date_added%%' => $this->blacklistedDate]) ?></div>
 <?php elseif ($this->registered): ?>
   <div class="r2-restricted-record-register">
     <?php if ($this->note): ?>
