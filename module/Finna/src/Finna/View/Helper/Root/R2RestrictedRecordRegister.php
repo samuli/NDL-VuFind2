@@ -108,7 +108,10 @@ class R2RestrictedRecordRegister extends \Zend\View\Helper\AbstractHelper
             $blacklisted = $registered = $sessionExpired = false;
             $blacklistedDate = null;
             try {
-                if ($this->rems->hasUserAccess($params['ignoreCache'] ?? false)) {
+                if ($this->rems->hasUserAccess(
+                    $params['ignoreCache'] ?? false, true
+                )
+                ) {
                     // Already registered, hide indicator unless requested otherwise
                     if ($params['hideWhenRegistered'] ?? true) {
                         return null;

@@ -92,8 +92,15 @@ class R2RestrictedRecordRegistered extends \Zend\View\Helper\AbstractHelper
         // If driver is null, this is called from search results.
         if (!$driver || $driver->hasRestrictedMetadata()) {
             $user = $params['user'] ?? null;
-            if (!$user || !$this->rems->hasUserAccess()) {
-                return null;
+            try {
+                if (!$user || !$this->rems->hasUserAccess(false, $params['throw'] ?? false)) {
+                    return null;
+                }
+            } catch (\Exception $e) {
+                $translator = $this->getView()->plugin('translate');
+                return '<div class="alert alert-danger">'
+                    . $translator->translate('R2_rems_connect_error') . '</div>';
+
             }
 
             $tplParams = [

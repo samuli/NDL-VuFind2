@@ -134,7 +134,6 @@ class RemsService implements
      * Check if the current logged-in user is registerd to REMS
      * (not neccessarily during the current session).
      *
-     * @throws Exception if user is not logged in
      * @return bool
      */
     public function isUserRegistered()
@@ -167,12 +166,14 @@ class RemsService implements
      * Is user allowed to see restricted metadata?
      *
      * @param bool $ignoreCache Ignore cache?
+     * @param bool $throw       Throw exception?
      *
      * @return bool
+     * @throws Exception
      */
-    public function hasUserAccess($ignoreCache = false)
+    public function hasUserAccess($ignoreCache = false, $throw = false)
     {
-        return $this->getAccessPermission($ignoreCache)
+        return $this->getAccessPermission($ignoreCache, $throw)
             === RemsService::STATUS_APPROVED;
     }
 
@@ -185,8 +186,12 @@ class RemsService implements
      */
     public function isSessionExpired($ignoreCache = false)
     {
-        return $this->getAccessPermission($ignoreCache)
-            === RemsService::STATUS_EXPIRED;
+        try {
+            return $this->getAccessPermission($ignoreCache)
+                === RemsService::STATUS_EXPIRED;
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**
@@ -198,7 +203,6 @@ class RemsService implements
      * @param bool $ignoreCache Ignore cache?
      *
      * @return string|false
-     * @throws Exception
      */
     public function isUserBlacklisted($ignoreCache = false)
     {
@@ -228,44 +232,50 @@ class RemsService implements
      */
     public function hasUserEntitlements()
     {
-        return !empty($this->getEntitlements());
+        try {
+            return !empty($this->getEntitlements());
+        } catch (\Exception $e) {
+            return false;
+        }
     }
 
     /**
      * Get user entitlements
      *
+     * @param bool $throw Throw exception?
+     *
      * @return array
+     * @throws Exception
      */
-    protected function getEntitlements()
+    protected function getEntitlements($throw)
     {
-        try {
-            $userId = $this->getUserId();
-            return $this->sendRequest(
-                'entitlements',
-                ['user' => $userId, 'resource' => $this->getResourceItemId()],
-                'GET', RemsService::TYPE_APPROVER, null, false
-            );
-        } catch (\Exception $e) {
-            return [];
-        }
+        $userId = $this->getUserId();
+        return $this->sendRequest(
+            'entitlements',
+            ['user' => $userId, 'resource' => $this->getResourceItemId()],
+            'GET', RemsService::TYPE_APPROVER, null, false, $throw
+        );
     }
 
     /**
      * Get application data (status and usagePurpose) from current entitlement.
      * Reurns null when user does not have entitlements.
      *
+     * @param bool $throw Throw exception?
+     *
      * @return array|null
+     * @throws Exception
      */
-    protected function getEntitlementApplication()
+    protected function getEntitlementApplication($throw = false)
     {
-        $entitlements = $this->getEntitlements();
+        $entitlements = $this->getEntitlements($throw);
         if (empty($entitlements)) {
             return null;
         }
 
         // Fetch entitlement application and its upsage purpose
         $applicationId = $entitlements[0]['application-id'];
-        if ($application = $this->getApplication($applicationId)) {
+        if ($application = $this->getApplication($applicationId, $throw)) {
             $status = $this->mapRemsStatus($application['application/state']);
             $usagePurpose = null;
 
@@ -383,10 +393,12 @@ class RemsService implements
      * Get access permission for the current session.
      *
      * @param bool $ignoreCache Ignore cache?
+     * @param bool $throw       Throw exception?
      *
+     * @throws Exception
      * @return string|null
      */
-    public function getAccessPermission($ignoreCache = false)
+    public function getAccessPermission($ignoreCache = false, $throw = false)
     {
         $access = null;
         if (!$ignoreCache) {
@@ -395,7 +407,7 @@ class RemsService implements
                 return $access;
             }
         }
-        if ($entitlementApplication = $this->getEntitlementApplication()) {
+        if ($entitlementApplication = $this->getEntitlementApplication($throw)) {
             $status = $entitlementApplication['status'];
             $this->session->{self::SESSION_IS_REMS_REGISTERED}
                 = $status === RemsService::STATUS_APPROVED;
@@ -496,19 +508,18 @@ class RemsService implements
     /**
      * Get application.
      *
-     * @param int $id Id
+     * @param int  $id    Id
+     * @param bool $throw Throw exception?
      *
+     * @throws Exception
      * @return array|null
      */
-    protected function getApplication($id)
+    protected function getApplication($id, $throw = false)
     {
-        try {
-            return $this->sendRequest(
-                "applications/$id", [], 'GET', RemsService::TYPE_USER, null, false
-            );
-        } catch (\Exception $e) {
-            return null;
-        }
+        return $this->sendRequest(
+            "applications/$id", [], 'GET', RemsService::TYPE_USER,
+            null, false, $throw
+        );
     }
 
     /**
@@ -554,6 +565,7 @@ class RemsService implements
      * Return REMS user id (eppn) of the current authenticated user.
      *
      * @return string
+     * @throws Exception
      */
     protected function getUserId()
     {
@@ -590,6 +602,7 @@ class RemsService implements
      * @param null|string $body                Request body
      * @param boolean     $requireRegistration Require that
      * the user has been registered to REMS during the session?
+     * @param boolean     $throw               Throw exception?
      *
      * @return string
      * @throws Exception
@@ -600,18 +613,35 @@ class RemsService implements
         $method = 'GET',
         $userType = RemsService::TYPE_USER,
         $body = null,
-        $requireRegistration = true
+        $requireRegistration = true,
+        $throw = false
     ) {
+        $handleException = function ($err) use ($throw) {
+            if ($throw) {
+                throw new \Exception($err);
+            } else {
+                return '';
+            }
+        };
+        
         if (!$this->authenticated) {
-            throw new \Exception(
-                'Attempting to call REMS before the user has been authenticated.'
-            );
+            if ($throw) {
+                return $handleException(
+                    'Attempting to call REMS before the user has been authenticated.'
+                );
+            } else {
+                return '';
+            }
         }
         if ($requireRegistration && !$this->isUserRegisteredDuringSession()) {
-            throw new \Exception(
-                'Attempting to call REMS before the user has been registered'
-                . ' during the session'
-            );
+            if ($throw) {
+                return $handleException(
+                    'Attempting to call REMS before the user has been registered'
+                    . ' during the session'
+                );
+            } else {
+                return '';
+            }
         }
 
         $userId = null;
@@ -631,7 +661,7 @@ class RemsService implements
         if ($userId === null) {
             $err = "Invalid userType: $userType for url: $url";
             $this->error($err);
-            throw new \Exception($err);
+            return $handleException($err);
         }
 
         $contentType = $body['contentType'] ?? 'application/json';
@@ -660,14 +690,14 @@ class RemsService implements
         } catch (\Exception $e) {
             $err = $formatError($e, null);
             $this->error($err);
-            throw new \Exception('REMS request error');
+            return $handleException('REMS request error');
         }
 
         $err = $formatError(null, $response);
 
         if (!$response->isSuccess() || $response->getStatusCode() !== 200) {
             $this->error($err);
-            throw new \Exception('REMS request error');
+            return $handleException('REMS request error');
         }
 
         $response = json_decode($response->getBody(), true);
@@ -676,7 +706,7 @@ class RemsService implements
             && (!isset($response['success']) || !$response['success'])
         ) {
             $this->error($err);
-            throw new \Exception('REMS request error');
+            return $handleException('REMS request error');
         }
 
         return $response;
