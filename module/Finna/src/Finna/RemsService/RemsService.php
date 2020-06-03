@@ -248,7 +248,7 @@ class RemsService implements
             return $this->sendRequest(
                 'entitlements',
                 ['user' => $userId, 'resource' => $this->getResourceItemId()],
-                'GET', RemsService::TYPE_APPROVER, null, false, $throw
+                'GET', RemsService::TYPE_APPROVER, null, false
             );
         } catch (\Exception $e) {
             return [];
