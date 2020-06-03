@@ -122,8 +122,9 @@ class R2RestrictedRecordRegister extends \Zend\View\Helper\AbstractHelper
                     if ($blacklisted) {
                         $dateTime = $this->getView()->plugin('dateTime');
                         try {
-                            $blacklistedDate
-                                = $dateTime->convertToDisplayDate('Y-m-d', $blacklisted);
+                            $blacklistedDate = $dateTime->convertToDisplayDate(
+                                'Y-m-d', $blacklisted
+                            );
                         } catch (\Exception $e) {
                         }
                     }
