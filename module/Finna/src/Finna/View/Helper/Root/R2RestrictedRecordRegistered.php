@@ -102,7 +102,6 @@ class R2RestrictedRecordRegistered extends \Zend\View\Helper\AbstractHelper
                 $translator = $this->getView()->plugin('translate');
                 return '<div class="alert alert-danger">'
                     . $translator->translate('R2_rems_connect_error') . '</div>';
-
             }
 
             $tplParams = [

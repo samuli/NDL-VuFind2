@@ -619,7 +619,7 @@ class RemsService implements
                 return '';
             }
         };
-        
+
         if (!$this->authenticated) {
             if ($throw) {
                 return $handleException(
