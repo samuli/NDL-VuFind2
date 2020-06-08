@@ -42,6 +42,24 @@ use VuFind\Exception\MissingField as MissingFieldException;
 class UserList extends \VuFind\Db\Row\UserList
 {
     /**
+     * Session container for last list information.
+     *
+     * @var Container
+     */
+    protected $tagParser = null;
+
+    /**
+     * Constructor
+     *
+     * @param \Zend\Db\Adapter\Adapter $adapter Database adapter
+     * @param Container                $session Session container
+     */
+    public function setTagParser($tagParser)
+    {
+        $this->tagParser = $tagParser;
+    }
+
+    /**
      * Saves the properties to the database.
      *
      * This performs an intelligent insert/update, and reloads the
@@ -58,5 +76,56 @@ class UserList extends \VuFind\Db\Row\UserList
     {
         $this->finna_updated = date('Y-m-d H:i:s');
         return parent::save($user);
+    }
+
+    public function updateFromRequest($user, $request)
+    {
+        $id = parent::updateFromRequest($user, $request);
+        $linker = $this->getDbTable('resourcetags');
+        $linker->destroyLinks(null, $user->id, $this->id);
+        if ($tags = $request->get('listtags')) {
+            foreach ($this->tagParser->parse(implode(' ', $tags)) as $tag) {
+                $this->addListTag($tag, $user);
+            }
+        }
+        return $this->id;
+    }
+
+    /**
+     * Get an array of tags associated with this list.
+     *
+     * @return array
+     */
+    public function getListTags()
+    {
+        $table = $this->getDbTable('User');
+        $user = $table->select(['id' => $this->user_id])->current();
+        if (empty($user)) {
+            return [];
+        }
+        return $user->getTags(null, $this->id);
+    }
+
+    /**
+     * Add a tag to the list.
+     *
+     * @param string              $tagText The tag to save.
+     * @param \VuFind\Db\Row\User $user    The user posting the tag.
+     * @param string              $list_id The list associated with the tag
+     * (optional).
+     *
+     * @return void
+     */
+    public function addListTag($tagText, $user)
+    {
+        $tagText = trim($tagText);
+        if (!empty($tagText)) {
+            $tags = $this->getDbTable('tags');
+            $tag = $tags->getByText($tagText);
+            $linker = $this->getDbTable('resourcetags');
+            $linker->createLink(
+                null, $tag->id, is_object($user) ? $user->id : null, $this->id
+            );
+        }
     }
 }

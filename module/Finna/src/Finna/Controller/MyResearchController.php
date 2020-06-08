@@ -351,6 +351,13 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
                     $this->url()->fromRoute('myresearch-favorites')
                 );
             }
+            if ($list) {
+                $listTags = [];
+                foreach ($user->getListTags($list->id, $user->id) as $tag) {
+                    $listTags[$tag->id] = $tag->tag;
+                }
+                $view->listTags = $listTags;
+            }
         }
 
         if (!$user) {
@@ -358,7 +365,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
         }
 
         $view->sortList = $this->createSortList($results->getListObject());
-
+        
         return $view;
     }
 

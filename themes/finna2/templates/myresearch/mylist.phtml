@@ -53,10 +53,12 @@
         <div class="list-description markdown">
           <i class="list-description-edit fa fa-pen" aria-hidden="true"></i><div class="editable" data-markdown="<?=$this->escapeHtmlAttr($list ? $list->description : '')?>"><?=(!empty($list->description) ? $this->markdown()->toHtml($list->description) : $this->translate('Add list description'))?></div>
         </div>
+        <input id="list-tags" type="text" value="<?=$this->escapeHtmlAttr($this->escapeHtml(implode(' ', $this->listTags)))?>"></input>
       <?php else: ?>
         <h2 class="list-title no-edit"><span><?=$this->transEsc("All Favourites")?></span></h2>
       <?php endif; ?>
     </div>
+    <div>
   </div>
   <?php if ($template = $this->content()->findTemplateForLng("content/Additions/myresearch-favorites")): ?>
     <div class="myresearch-favorites">

@@ -148,6 +148,7 @@ finna.myList = (function finnaMyList() {
       } else {
         listParams.desc = description;
       }
+      listParams.listtags = $('#list-tags').val().split(',');
     }
 
     if (type === 'title') {

@@ -298,21 +298,24 @@ class Tags extends Gateway
             $select->join(
                 ['rt' => 'resource_tags'], 'tags.id = rt.tag_id', []
             );
-            $select->join(
-                ['r' => 'resource'], 'rt.resource_id = r.id', []
-            );
-            $select->join(
-                ['ur' => 'user_resource'], 'r.id = ur.resource_id', []
-            );
+            if (null !== $resourceId) {
+                $select->join(
+                    ['r' => 'resource'], 'rt.resource_id = r.id', []
+                );
+                $select->join(
+                    ['ur' => 'user_resource'], 'r.id = ur.resource_id', []
+                );
+            }
             $select->group(['tag'])->order([new Expression('lower(tag)')]);
 
-            $select->where->equalTo('ur.user_id', $userId)
-                ->equalTo('rt.user_id', $userId)
-                ->equalTo(
-                    'ur.list_id', 'rt.list_id',
-                    Predicate::TYPE_IDENTIFIER, Predicate::TYPE_IDENTIFIER
-                );
-
+            if (null !== $resourceId) {
+                $select->where->equalTo('ur.user_id', $userId)
+                    ->equalTo('rt.user_id', $userId)
+                    ->equalTo(
+                        'ur.list_id', 'rt.list_id',
+                        Predicate::TYPE_IDENTIFIER, Predicate::TYPE_IDENTIFIER
+                    );
+            }
             if (null !== $source) {
                 $select->where->equalTo('r.source', $source);
             }
