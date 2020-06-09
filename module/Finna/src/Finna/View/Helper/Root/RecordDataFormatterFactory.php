@@ -690,7 +690,7 @@ class RecordDataFormatterFactory
             foreach ($data as $type => $values) {
                 $final[] = [
                     'label' => "Access Restrictions:$type",
-                    'values' => array_values($values),
+                    'values' => array_values($values ?? []),
                     'options' => [
                         'pos' => $pos++,
                         'renderType' => 'RecordDriverTemplate',
