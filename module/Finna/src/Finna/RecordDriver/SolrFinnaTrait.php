@@ -1023,17 +1023,6 @@ trait SolrFinnaTrait
     }
 
     /**
-     * Set preferred language for display strings.
-     *
-     * @param string $language Language
-     *
-     * @return void
-     */
-    public function setPreferredLanguage($language)
-    {
-    }
-
-    /**
      * Return count of other versions available
      *
      * @return int
