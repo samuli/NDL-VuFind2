@@ -527,7 +527,11 @@ class RemsService implements
      */
     protected function getApplications($statuses = [])
     {
+        // TODO fetching applications by query doesn't seem to work.
+        // Fetch all and filter by status manually.
+
         $params = [];
+        /*
         if ($statuses) {
             $params['query'] = implode(
                 ' or ',
@@ -539,7 +543,7 @@ class RemsService implements
                 )
             );
         }
-
+        */
         try {
             $result = $this->sendRequest(
                 'my-applications',
@@ -548,6 +552,20 @@ class RemsService implements
         } catch (\Exception $e) {
             return [];
         }
+
+        $statuses = array_map(
+            function ($status) {
+                return "application.state/$status";
+            },
+            $statuses
+        );
+
+        $result = array_filter(
+            $result,
+            function ($application) use ($statuses) {
+                return in_array($application['application/state'], $statuses);
+            }
+        );
 
         return array_map(
             function ($application) {
