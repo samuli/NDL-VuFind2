@@ -21,9 +21,7 @@
  *
  * @category VuFind
  * @package  RecordDrivers
- * @author   Anna Pienimäki <anna.pienimaki@helsinki.fi>
  * @author   Ere Maijala <ere.maijala@helsinki.fi>
- * @author   Konsta Raunio <konsta.raunio@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:record_drivers Wiki
  */
@@ -34,9 +32,7 @@ namespace Finna\RecordDriver;
  *
  * @category VuFind
  * @package  RecordDrivers
- * @author   Anna Pienimäki <anna.pienimaki@helsinki.fi>
  * @author   Ere Maijala <ere.maijala@helsinki.fi>
- * @author   Konsta Raunio <konsta.raunio@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:record_drivers Wiki
  */
