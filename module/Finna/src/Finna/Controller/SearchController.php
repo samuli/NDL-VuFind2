@@ -203,7 +203,7 @@ class SearchController extends \VuFind\Controller\SearchController
     /**
      * StreetSearch action.
      *
-     * @return \Zend\View\Model\ViewModel
+     * @return \Laminas\View\Model\ViewModel
      */
     public function streetSearchAction()
     {
@@ -213,30 +213,11 @@ class SearchController extends \VuFind\Controller\SearchController
     /**
      * StreetSearch action alias.
      *
-     * @return \Zend\View\Model\ViewModel
+     * @return \Laminas\View\Model\ViewModel
      */
     public function streetAction()
     {
         return $this->forwardTo('Search', 'StreetSearch');
-    }
-
-    /**
-     * Save a search to the history in the database.
-     * Save search Id and type to memory
-     *
-     * @param \VuFind\Search\Base\Results $results Search results
-     *
-     * @return void
-     */
-    public function saveSearchToHistory($results)
-    {
-        parent::saveSearchToHistory($results);
-        $this->getSearchMemory()->rememberSearchData(
-            $results->getSearchId(),
-            $results->getParams()->getSearchType(),
-            $results->getUrlQuery()->isQuerySuppressed()
-                ? '' : $results->getParams()->getDisplayQuery()
-        );
     }
 
     /**
@@ -301,7 +282,7 @@ class SearchController extends \VuFind\Controller\SearchController
 
         $view = $this->forwardTo('Search', 'Results');
 
-        $view->overrideTitle = "browse_extended_$type";
+        $view->plugin('slot')->set('head-title', "browse_extended_$type");
         $type = strtolower($type);
         $view->browse = $type;
         $view->defaultBrowseHandler = $config['type'];

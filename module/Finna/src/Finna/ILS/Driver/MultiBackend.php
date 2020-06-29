@@ -294,7 +294,10 @@ class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
             )
         ) {
             return $driver->changePickupLocation(
-                $this->stripIdPrefixes($patron, $source), $holdDetails
+                $this->stripIdPrefixes($patron, $source),
+                $this->stripIdPrefixes(
+                    $holdDetails, $source, ['id', 'cat_username', 'item_id']
+                )
             );
         }
         throw new ILSException('No suitable backend driver found');
@@ -321,7 +324,12 @@ class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
             )
         ) {
             return $driver->changeRequestStatus(
-                $this->stripIdPrefixes($patron, $source), $holdDetails
+                $this->stripIdPrefixes(
+                    $patron, $source, ['id', 'cat_username', 'item_id']
+                ),
+                $this->stripIdPrefixes(
+                    $holdDetails, $source, ['id', 'cat_username', 'item_id']
+                )
             );
         }
         throw new ILSException('No suitable backend driver found');
@@ -599,7 +607,7 @@ class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
                     return $config;
                 }
             }
-        } catch (\Zend\Config\Exception\RuntimeException $e) {
+        } catch (\Laminas\Config\Exception\RuntimeException $e) {
             // Fall through
         }
         return parent::getDriverConfig($source);

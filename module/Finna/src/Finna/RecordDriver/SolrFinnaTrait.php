@@ -4,7 +4,7 @@
  *
  * PHP version 7
  *
- * Copyright (C) The National Library 2015-2019.
+ * Copyright (C) The National Library 2015-2020.
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License version 2,
@@ -316,17 +316,6 @@ trait SolrFinnaTrait
     }
 
     /**
-     * Return local record IDs (only works with dedup records)
-     *
-     * @return array
-     */
-    public function getLocalIds()
-    {
-        return isset($this->fields['local_ids_str_mv'])
-            ? $this->fields['local_ids_str_mv'] : [];
-    }
-
-    /**
      * Get an array of dedup and link data associated with the record.
      *
      * @return array
@@ -463,17 +452,6 @@ trait SolrFinnaTrait
             return $matches[1];
         }
         return null;
-    }
-
-    /**
-     * Get sector
-     *
-     * @return string
-     */
-    public function getSector()
-    {
-        $sector = (string)($this->fields['sector_str_mv'][0] ?? '');
-        return $sector;
     }
 
     /**
@@ -986,6 +964,7 @@ trait SolrFinnaTrait
         if (!isset($this->otherVersionsCount)) {
             $params = new \VuFindSearch\ParamBag();
             $params->add('rows', 0);
+            $this->addFilters($params);
             $results = $this->searchService->workExpressions(
                 $this->getSourceIdentifier(),
                 $this->getUniqueID(),
@@ -1018,6 +997,7 @@ trait SolrFinnaTrait
         if (!isset($this->otherVersions)) {
             $params = new \VuFindSearch\ParamBag();
             $params->add('rows', min($count, 100));
+            $this->addFilters($params);
             $this->otherVersions = $this->searchService->workExpressions(
                 $this->getSourceIdentifier(),
                 $includeSelf ? '' : $this->getUniqueID(),
@@ -1026,5 +1006,25 @@ trait SolrFinnaTrait
             );
         }
         return $this->otherVersions;
+    }
+
+    /**
+     * Add filters to params
+     *
+     * @param \VuFindSearch\ParamBag $paramBag Params
+     *
+     * @return void
+     */
+    protected function addFilters(\VuFindSearch\ParamBag $paramBag)
+    {
+        $filterConf = $this->mainConfig->Record->display_versions ?? "all";
+        if ('same_source' === $filterConf) {
+            // Add source filter
+            $paramBag->add(
+                'fq',
+                'datasource_str_mv:"' . addcslashes($this->getDataSource(), '"')
+                    . '"'
+            );
+        }
     }
 }

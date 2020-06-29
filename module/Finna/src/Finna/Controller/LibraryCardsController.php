@@ -93,7 +93,7 @@ class LibraryCardsController extends \VuFind\Controller\LibraryCardsController
 
         $view = parent::editCardAction();
 
-        if (!($view instanceof \Zend\View\Model\ViewModel)) {
+        if (!($view instanceof \Laminas\View\Model\ViewModel)) {
             return $view;
         }
 
@@ -345,7 +345,7 @@ class LibraryCardsController extends \VuFind\Controller\LibraryCardsController
     {
         // Verify hash
         $sessionManager = $this->serviceLocator->get(\VuFind\SessionManager::class);
-        $session = new \Zend\Session\Container('registerPatron', $sessionManager);
+        $session = new \Laminas\Session\Container('registerPatron', $sessionManager);
         $hash = $this->params()->fromQuery(
             'hash',
             $this->params()->fromPost('hash', '')
@@ -490,7 +490,7 @@ class LibraryCardsController extends \VuFind\Controller\LibraryCardsController
     {
         // Verify hash
         $sessionManager = $this->serviceLocator->get(\VuFind\SessionManager::class);
-        $session = new \Zend\Session\Container('registerPatron', $sessionManager);
+        $session = new \Laminas\Session\Container('registerPatron', $sessionManager);
         $hash = $this->params()->fromQuery(
             'hash',
             $this->params()->fromPost('hash', '')
@@ -599,8 +599,6 @@ class LibraryCardsController extends \VuFind\Controller\LibraryCardsController
                 return $view;
             }
 
-            $recoveryRecord->delete();
-
             $result = $catalog->recoverPassword(
                 [
                     'cat_username' => "$target." . $recoveryData['username'],
@@ -612,12 +610,16 @@ class LibraryCardsController extends \VuFind\Controller\LibraryCardsController
 
             if (!empty($result['success'])) {
                 $this->flashMessenger()->addSuccessMessage('new_password_success');
+                $recoveryRecord->delete();
+                return $this->redirect()->toRoute(
+                    'myresearch-home', [], ['query' => ['redirect' => 0]]
+                );
             } else {
-                $this->flashMessenger()->addErrorMessage('recovery_user_not_found');
+                $this->flashMessenger()->addErrorMessage('password_error_invalid');
+                if (!empty($result['error'])) {
+                    $this->flashMessenger()->addErrorMessage($result['error']);
+                }
             }
-            return $this->redirect()->toRoute(
-                'myresearch-home', [], ['query' => ['redirect' => 0]]
-            );
         }
         return $view;
     }
