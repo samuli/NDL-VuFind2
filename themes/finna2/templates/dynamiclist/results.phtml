@@ -1,53 +1,63 @@
 <!-- START of: finna - dynamiclist/results.phtml -->
-<div class="dynamic-list-results">
-    <?php ob_start(); ?>
-    <div class="pagination-container">
-        <?=$paginator ? $this->paginationControl($paginator, 'Sliding', 'Helpers/pagination-simple.phtml', ['params' => $this->ilsParams]) : ''?>
-    </div>
-    <?php
-        $paginator = ob_get_contents();
-        ob_end_clean();
-    ?>
-    <?= $paginator ?>
-    <div class="dynamic-list-header">
-        <h3><?=$this->transEsc("dynamic_list_$this->type")?></h3>
-    </div>
-    <?php foreach($this->records as $record): ?>
-        <div class="dynamic-list-result">
-        <?php
-            $ilsDetails = $record->getExtraDetail('ils_details');
-            $isRecord = is_a($record, 'VuFind\\RecordDriver\\SolrDefault');
-            $formats = $record->tryMethod('getFormats');
-            $format = $isRecord && $formats ? $this->record($record)->getFormatClass(end($formats)) : 'book';
-            $thumb = $this->record($record)->getThumbnail();
-        ?>
-            <?php if ($isRecord): ?>
-                <a href="<?= $this->url('record', ['id' => $ilsDetails['id']])?>">
-            <?php endif; ?>
-            <div class="dynamic-list-image-wrapper">
-                <?php if ($isRecord): ?>
-                    <?php if ($thumb): ?>
-                        <img class="dynamic-list-image" data-src="<?=$this->escapeHtmlAttr($thumb)?>" alt="kansikuva">
-                    <?php endif; ?>
-                <?php endif; ?>
-                <div class="dynamic-list-icon <?= ($isRecord && $thumb ? 'hidden' : '');?>">
-                    <span class="iconlabel format-<?=$format?>"></span>
-                </div>
-            </div>
-            <div class="dynamic-list-info">
-                <div class="dynamic-list-title">
-                    <p><?= substr($record->getTitle(), 0, 80) ?></p>
-                </div>
-                <div class="dynamic-list-generic">
-                    <p><?= $this->escapeHtml($ilsDetails['author']);?>
-                    <p><?= $this->transEsc($ilsDetails['mediaClass']);?></p>
-                </div>
-            </div>
-            <?php if ($isRecord): ?>
-                </a>
-            <?php endif; ?>
+<?php if($this->noSupport): ?>
+    <div class="dynamic-list-error"><?=$this->flashmessages()?></div>
+<?php else: ?>
+    <div class="dynamic-list-results">
+        <?php ob_start(); ?>
+        <div class="pagination-container">
+            <?=$paginator ? $this->paginationControl($paginator, 'Sliding', 'Helpers/pagination-simple.phtml', ['params' => $this->ilsParams]) : ''?>
         </div>
-    <?php endforeach; ?>
-    <?= $paginator ?>
-</div>
+        <?php
+            $paginator = ob_get_contents();
+            ob_end_clean();
+        ?>
+        <?= $paginator ?>
+        <div class="dynamic-list-header">
+            <h3><?=$this->transEsc("dynamic_list_$this->type")?></h3>
+        </div>
+        <?php foreach($this->records as $record): ?>
+            <div class="dynamic-list-result">
+            <?php
+                $ilsDetails = $record->getExtraDetail('ils_details');
+                $isRecord = is_a($record, 'VuFind\\RecordDriver\\SolrDefault');
+                $formats = $record->tryMethod('getFormats');
+                $format = $isRecord && $formats ? $this->record($record)->getFormatClass(end($formats)) : 'book';
+                $thumb = $this->record($record)->getThumbnail();
+                $author = $isRecord ? $record->getPrimaryAuthorForSearch() : $ilsDetails['author'];
+            ?>
+                <div class="dynamic-list-image-wrapper">
+                    <?php if ($isRecord): ?>
+                        <?php if ($thumb): ?>
+                            <a href="<?= $this->url('record', ['id' => $ilsDetails['id']])?>">
+                                <img class="dynamic-list-image" data-src="<?=$this->escapeHtmlAttr($thumb)?>" alt="kansikuva">
+                            </a>
+                        <?php endif; ?>
+                    <?php endif; ?>
+                    <div class="dynamic-list-icon <?= ($isRecord && $thumb ? 'hidden' : '');?>">
+                        <span class="iconlabel format-<?=$format?>"></span>
+                    </div>
+                </div>
+                <div class="dynamic-list-info">
+                    <div class="dynamic-list-title">
+                        <?php if ($isRecord): ?>
+                            <a href="<?= $this->url('record', ['id' => $ilsDetails['id']])?>">
+                        <?php endif; ?>
+                        <p><?= substr($record->getTitle(), 0, 80) ?></p>
+                        <?php if ($isRecord): ?>
+                            </a>
+                        <?php endif; ?>
+                    </div>
+                    <div class="dynamic-list-generic">
+                        <p><?= $this->escapeHtml($author);?>
+                        <p><?= $this->transEsc($ilsDetails['mediaClass']);?></p>
+                    </div>
+                </div>
+                <?php if ($isRecord): ?>
+                    </a>
+                <?php endif; ?>
+            </div>
+        <?php endforeach; ?>
+        <?= $paginator ?>
+    </div>
+<?php endif; ?>
 <!-- END of: finna - dynamiclist/results.phtml -->

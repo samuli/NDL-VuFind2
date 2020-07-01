@@ -1,40 +1,61 @@
 /*global VuFind, finna */
 finna.dynamicList = (function finnaDynamicList() {
   var settings = {
-    dots: true,
-    swipe: true,
-    lazyload: 'ondemand',
-    responsive: [
-      {
-        breakpoint: 5000,
-        settings: {
-          slidesToShow: 5,
-          slidesToScroll: 5
+    carousel: {
+      dots: true,
+      swipe: true,
+      lazyload: 'ondemand',
+      responsive: [
+        {
+          breakpoint: 5000,
+          settings: {
+            slidesToShow: 5,
+            slidesToScroll: 5
+          }
+        },
+        {
+          breakpoint: 1200,
+          settings: {
+            slidesToShow: 3,
+            slidesToScroll: 3
+          }
+        },
+        {
+          breakpoint: 500,
+          settings: {
+            slidesToShow: 2,
+            slidesToScroll: 2
+          }
         }
-      },
-      {
-        breakpoint: 1200,
-        settings: {
-          slidesToShow: 3,
-          slidesToScroll: 3
+      ]
+    },
+    list: {
+      dots: true,
+      swipe: true,
+      vertical: true,
+      lazyload: 'ondemand',
+      nextArrow: $('.dynamic-list-btn.down'),
+      prevArrow: $('.dynamic-list-btn.up'),
+      responsive: [
+        {
+          breakpoint: 5000,
+          settings: {
+            slidesToShow: 2,
+            slidesToScroll: 2
+          }
         }
-      },
-      {
-        breakpoint: 500,
-        settings: {
-          slidesToShow: 2,
-          slidesToScroll: 2
-        }
-      }
-    ]
+      ]
+    }
   };
 
   function handleImage(img) {
     var i = img[0];
     if (i.naturalWidth && i.naturalWidth === 10 && i.naturalHeight === 10) {
       img.hide();
-      img.siblings('.hidden').removeClass('hidden');
-      img.siblings('.dynamic-list-title').addClass('no-image');
+      img.closest('.image-wrapper').hide();
+      var parent = img.closest('.dynamic-list-item');
+      parent.find('.hidden').removeClass('hidden');
+      parent.find('.dynamic-list-title').addClass('no-image');
     }
   }
 
@@ -43,10 +64,11 @@ finna.dynamicList = (function finnaDynamicList() {
       $(this).one('inview', function getList() {
         var _ = $(this);
         var url = _.data('url');
+        var type = _.data('type');
         if (url.length) {
           $.getJSON(VuFind.path + url).done(function parseResult(response) {
             _.append(response.data.html);
-            _.find('.dynamic-list-item').each(function adjustImages() {
+            _.find('.dynamic-list-item').each(function adjustItems() {
               var img = $(this).find('img');
               if (img.length) {
                 img.on('load', function checkImage() {
@@ -54,10 +76,19 @@ finna.dynamicList = (function finnaDynamicList() {
                 });
               } else {
                 $(this).find('.hidden').removeClass('hidden');
+                img.closest('.image-wrapper').hide();
                 $(this).find('.dynamic-list-title').addClass('no-image');
               }
-            });                
-            _.find('.content').slick(settings);
+              if (type === 'carousel') {
+                img.hover(function hoverStart() {
+                  $(this).siblings('.dynamic-list-title').css('opacity', '1');
+                },
+                function hoverEnd() {
+                  $(this).siblings('.dynamic-list-title').css('opacity', '0');
+                });
+              }
+            });       
+            _.find('.content').slick(settings[type]);
           }).fail(function onFailure() {
                       
           });

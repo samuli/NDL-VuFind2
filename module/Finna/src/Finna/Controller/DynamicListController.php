@@ -73,44 +73,47 @@ class DynamicListController extends \VuFind\Controller\AbstractBase
         $type = $params['query'] ?? 'mostloaned';
         $page = $params['page'] ?? 1;
         $source = $params['source'] ?? DEFAULT_SEARCH_BACKEND;
+        $noSupport = false;
+        if ($catalog->checkFunction('getDynamicList', [])) {
+            // Paging from ils starts from 0 instead of 1
+            $result = $catalog->getDynamicList(
+                ['query' => $type, 'pageSize' => 20, 'page' => $page - 1]
+            );
+            $pageOptions = $this->getPaginationHelper()->getOptions(
+                $page,
+                $this->params()->fromQuery('sort'),
+                20,
+                []
+            );
+            // Build paginator if needed:
+            $paginator = $this->getPaginationHelper()->getPaginator(
+                $pageOptions, $result['count'], $result['records']
+            );
+            if ($paginator) {
+                $pageStart = $paginator->getAbsoluteItemNumber(1) - 1;
+                $pageEnd = $paginator->getAbsoluteItemNumber($pageOptions['limit']) - 1;
+            } else {
+                $pageStart = 0;
+                $pageEnd = $result['count'];
+            }
 
-        $check = $catalog->checkFunction('getDynamicList', []);
-        // Limit the amount of records to 20, for not too large requests
-        $result = $catalog->getDynamicList(
-            ['query' => $type, 'pageSize' => 20, 'page' => $page - 1]
-        );
-        $pageOptions = $this->getPaginationHelper()->getOptions(
-            $page,
-            $this->params()->fromQuery('sort'),
-            20,
-            $check
-        );
-        // Build paginator if needed:
-        $paginator = $this->getPaginationHelper()->getPaginator(
-            $pageOptions, $result['count'], $result['records']
-        );
-        if ($paginator) {
-            $pageStart = $paginator->getAbsoluteItemNumber(1) - 1;
-            $pageEnd = $paginator->getAbsoluteItemNumber($pageOptions['limit']) - 1;
-        } else {
-            $pageStart = 0;
-            $pageEnd = $result['count'];
-        }
-
-        $records = [];
-        $html = '';
-        if ($check) {
+            $records = [];
+            $html = '';
             $loader = $this->serviceLocator->get(\VuFind\Record\Loader::class);
             foreach ($result['records'] ?? [] as $key => $obj) {
                 $loadedRecord = $loader->load($obj['id'], $source, true);
                 $loadedRecord->setExtraDetail('ils_details', $obj);
                 $records[] = $loadedRecord;
             }
+            $ilsParams = $pageOptions['ilsParams'];
+            $ilsParams['query'] = $type;
+        } else {
+            $this->flashMessenger()->addErrorMessage('An error has occured');
+            $noSupport = true;
         }
-        $ilsParams = $pageOptions['ilsParams'];
-        $ilsParams['query'] = $type;
+
         $view = $this->createViewModel(
-            compact('records', 'paginator', 'ilsParams', 'type')
+            compact('records', 'paginator', 'ilsParams', 'type', 'noSupport')
         );
         $view->setTemplate('dynamiclist/results.phtml');
         return $view;

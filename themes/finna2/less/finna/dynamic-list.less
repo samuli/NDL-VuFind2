@@ -8,7 +8,45 @@
         }
     }
 
-    .content {
+    .dynamic-list-list.content {
+
+        .dynamic-list-item {
+            display: flex;
+            flex-flow: row nowrap;
+            height: 180px;
+            .image-wrapper {
+                display: flex;
+                flex: 0 0 180px;
+                justify-content: center;
+                margin-right: 10px;
+                img {
+                    margin-right: 10px;
+                    max-width: 100%;
+                    max-height: 180px;
+                    height: auto;
+                }
+            }
+        }
+        .dynamic-list-title .item-title {
+            font-weight: 600;
+        }
+        .dynamic-list-icon {
+            display: flex;
+            flex: 0 0 180px;
+            justify-content: center;
+            margin-right: 10px;
+            .iconlabel {
+                flex: 0 0 100%;
+                margin: 0;
+                border: 1px solid #d1d1d1;
+                line-height: 180px;
+                text-align: center;
+                font-size: 24px;
+                color: #d1d1d1;
+            }
+        }
+    }
+    .dynamic-list-carousel.content {
         .slick-track, .slick-list {
             height: 100%;
         }
@@ -32,9 +70,6 @@
                 padding: 0px 2px 2px;
                 z-index: 1;
                 opacity: 0;
-                &:hover {
-                    opacity: 1;
-                }
                 &.no-image {
                     opacity: 1;
                 }
@@ -77,6 +112,9 @@
     }
     display: flex;
     flex-flow: column wrap;
+    @media (max-width: @screen-xs-max) {
+        text-align: center;
+    }
     .dynamic-list-result {
         margin: 5px 0;
         .dynamic-list-title {
@@ -93,8 +131,13 @@
             align-items: center;
             justify-content: center;
             margin: 0 10px;
+            a {
+                display: flex;
+                max-height: 100%;
+            }
             img {
                 max-height: 100%;
+                object-fit: contain;
             }
             .dynamic-list-icon {
                 height: 100%;
@@ -117,7 +160,7 @@
         flex-flow: row nowrap;
         @media (max-width: @screen-xs-max) {
             flex-flow: column wrap;
+            align-items: center;
         }
-        color: @gray;
     }
 }

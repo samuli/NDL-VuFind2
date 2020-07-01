@@ -1,0 +1,40 @@
+<!-- START of: finna - ajax/dynamic-list-list.phtml -->
+<div class="dynamic-list-type">
+    <h3><a href="<?= $this->url('dynamic-list-results') ?>?query=<?=$this->query?>"><?= $this->transEsc("dynamic_list_$this->query") ?></a></h3>
+</div>
+<ul class="dynamic-list-list content">
+    <?php foreach ($this->records as $ind => $record): ?>
+        <?php
+            $ilsDetails = $record->getExtraDetail('ils_details');
+            $isRecord = is_a($record, 'VuFind\\RecordDriver\\SolrDefault');
+            $formats = $record->tryMethod('getFormats');
+            $format = $isRecord && $formats ? $this->record($record)->getFormatClass(end($formats)) : 'book';
+            $thumb = $isRecord ? $this->record($record)->getThumbnail() : false;
+            $author = $isRecord ? $record->getPrimaryAuthorForSearch() : $ilsDetails['author'];
+        ?>
+        <li class="dynamic-list-item">
+            <?php if ($thumb && $isRecord): ?>
+                <div class="image-wrapper">
+                    <img class="dynamic-list-image" src="<?=$this->escapeHtmlAttr($thumb)?>" alt="kansikuva">
+                </div>
+            <?php endif; ?>
+            <div class="dynamic-list-icon <?= ($isRecord && $thumb ? 'hidden' : '');?>">
+                <div class="iconlabel format-<?=$format?>"></div>
+            </div>
+            <div class="dynamic-list-title">
+                <?php if ($isRecord): ?>
+                    <a href="<?= $this->url('record', ['id' => $ilsDetails['id']])?>">
+                <?php endif; ?>
+                <p class="item-title"><?= substr($record->getTitle(), 0, 40); ?></p>
+                <?php if ($isRecord): ?>
+                    </a>
+                <?php endif; ?>
+                <p><?= $this->escapeHtml($author) ?></p>
+                <p><?= $this->transEsc($ilsDetails['mediaClass'] ?? '');?></p>
+            </div>
+        </div>
+    <?php endforeach; ?>
+</ul>
+<button type="button" class="dynamic-list-btn up">ylös</button>
+<button type="button" class="dynamic-list-btn down">alas</button>
+<!-- END of: finna - ajax/dynamic-list-carousel.phtml -->

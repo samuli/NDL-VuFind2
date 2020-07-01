@@ -51,11 +51,12 @@ class DynamicList extends \Zend\View\Helper\AbstractHelper
         $type = $params['type'] ?? 'carousel';
         $query = $params['query'] ?? 'mostloaned';
         $amount = $params['amount'] ?? 10;
+        $template = $params['template'] ?? 'carousel';
         $url = "/AJAX/JSON?method=dynamicList" . 
                 "&type={$type}&query={$query}&amount={$amount}";
 
         return $this->getView()->render(
-            'Helpers/dynamic-list.phtml', ['url' => $url]
+            'Helpers/dynamic-list.phtml', compact('url', 'type')
         );
     }
 }

@@ -88,9 +88,9 @@ class DynamicList extends \VuFind\AjaxHandler\AbstractBase
      */
     public function handleRequest(Params $params)
     {
-        $type = $params->fromQuery('query', 'mostloaned');
+        $query = $params->fromQuery('query', 'mostloaned');
         $amount = $params->fromQuery('amount', 10);
-        $template = $params->fromQuery('template', 'carousel');
+        $type = $params->fromQuery('type', 'carousel');
         $source = $params->fromQuery('source', DEFAULT_SEARCH_BACKEND);
         $amount = $amount > 20 ? 20 : $amount;
 
@@ -100,7 +100,7 @@ class DynamicList extends \VuFind\AjaxHandler\AbstractBase
         $html = '';
         if ($result) {
             $data = $this->ils->getDynamicList(
-                ['query' => $type, 'pageSize' => $amount]
+                ['query' => $query, 'pageSize' => $amount]
             );
             foreach ($data['records'] ?? [] as $key => $obj) {
                 $loadedRecord = $this->recordLoader->load($obj['id'], $source, true);
@@ -108,7 +108,7 @@ class DynamicList extends \VuFind\AjaxHandler\AbstractBase
                 $records[] = $loadedRecord;
             }
             $html = $this->renderer->partial(
-                "ajax/dynamic-list-$template.phtml", compact('records', 'type')
+                "ajax/dynamic-list-$type.phtml", compact('records', 'query')
             );
         } else {
             $html = "Could not load dynamic list $type";
