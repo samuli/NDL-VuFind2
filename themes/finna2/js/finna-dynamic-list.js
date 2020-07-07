@@ -30,12 +30,13 @@ finna.dynamicList = (function finnaDynamicList() {
       ]
     },
     list: {
-      dots: true,
+      dots: false,
       swipe: true,
       vertical: true,
+      verticalSwiping: true,
       lazyload: 'ondemand',
-      nextArrow: $('.dynamic-list-btn.down'),
-      prevArrow: $('.dynamic-list-btn.up'),
+      nextArrow: '<button type="button" class="slick-next dynamic-btn down">alas</button>',
+      prevArrow: '<button type="button" class="slick-prev dynamic-btn up">ylös</button>',
       responsive: [
         {
           breakpoint: 5000,
@@ -51,11 +52,9 @@ finna.dynamicList = (function finnaDynamicList() {
   function handleImage(img) {
     var i = img[0];
     if (i.naturalWidth && i.naturalWidth === 10 && i.naturalHeight === 10) {
-      img.hide();
-      img.closest('.image-wrapper').hide();
-      var parent = img.closest('.dynamic-list-item');
-      parent.find('.hidden').removeClass('hidden');
-      parent.find('.dynamic-list-title').addClass('no-image');
+      var holder = img.closest('.dynamic-list-result, .dynamic-list-item').eq(0);
+      holder.find('img, .image-wrapper, .dynamic-list-image-wrapper > a, .dynamic-list-image-wrapper > img').hide();
+      holder.find('.hidden').removeClass('hidden');
     }
   }
 
@@ -77,20 +76,30 @@ finna.dynamicList = (function finnaDynamicList() {
               } else {
                 $(this).find('.hidden').removeClass('hidden');
                 img.closest('.image-wrapper').hide();
-                $(this).find('.dynamic-list-title').addClass('no-image');
               }
-              if (type === 'carousel') {
-                img.hover(function hoverStart() {
-                  $(this).siblings('.dynamic-list-title').css('opacity', '1');
-                },
-                function hoverEnd() {
-                  $(this).siblings('.dynamic-list-title').css('opacity', '0');
-                });
-              }
-            });       
+            });
             _.find('.content').slick(settings[type]);
+            switch (type) {
+              case 'list':
+                // Better positioning for buttons
+                var prev = _.find('.slick-prev');
+                var next = _.find('.slick-next');
+
+                if (prev.length && next.length) {
+                  var wrapper = $('<div class="dynamic-btns"/>');
+                  wrapper.insertAfter(_.find('.slick-list'));
+                  wrapper.append(prev).append(next);
+                }
+                break;
+              case 'carousel':
+                break;
+              default:
+                break;
+            }
+              
+            }
           }).fail(function onFailure() {
-                      
+            // Error happened      
           });
         }
       });
@@ -99,7 +108,8 @@ finna.dynamicList = (function finnaDynamicList() {
 
   function initSearch() {
     $('.dynamic-list-result').each(function adjustImages() {
-      var img = $(this).find('img');
+      var _ = $(this);
+      var img = _.find('img');
       if (img.length) {
         img.unveil(100, function handleIcon() {
           $(this).on('load', function onImageLoaded() {
@@ -107,7 +117,7 @@ finna.dynamicList = (function finnaDynamicList() {
           });
         });
       } else {
-        $(this).find('.hidden').removeClass('hidden');
+        _.find('.hidden').removeClass('hidden');
       }
     });
   }

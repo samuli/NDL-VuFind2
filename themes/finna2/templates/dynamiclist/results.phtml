@@ -22,8 +22,9 @@
                 $isRecord = is_a($record, 'VuFind\\RecordDriver\\SolrDefault');
                 $formats = $record->tryMethod('getFormats');
                 $format = $isRecord && $formats ? $this->record($record)->getFormatClass(end($formats)) : 'book';
-                $thumb = $this->record($record)->getThumbnail();
+                $thumb = $isRecord ? $this->recordImage($this->record($record))->getLargeImage() . '&w=1024&h=1024&imgext=.jpeg' : false;
                 $author = $isRecord ? $record->getPrimaryAuthorForSearch() : $ilsDetails['author'];
+                $year = $isRecord ? ($record->getPublicationDates()[0] ?? '') : $ilsDetails['year'];
             ?>
                 <div class="dynamic-list-image-wrapper">
                     <?php if ($isRecord): ?>
@@ -48,8 +49,13 @@
                         <?php endif; ?>
                     </div>
                     <div class="dynamic-list-generic">
-                        <p><?= $this->escapeHtml($author);?>
-                        <p><?= $this->transEsc($ilsDetails['mediaClass']);?></p>
+                        <?php if ($isRecord): ?>
+                            <p>
+                                <?=$this->record($record)->getFormatList() ?> <?=$this->record($record)->getSourceIdElement() ?>
+                            </p>
+                        <?php endif; ?>
+                        <p><?= $this->escapeHtml($author);?></p>
+                        <p><?= $this->escapeHtml($year);?></p>
                     </div>
                 </div>
                 <?php if ($isRecord): ?>

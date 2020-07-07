@@ -1604,7 +1604,8 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
                 'title' => $obj->title ?? '-',
                 'mediaClass' => $obj->mediaClass ?? '-',
                 'icon' => $obj->mediaClassIcon ?? '-',
-                'author' => $obj->author ?? '-'
+                'author' => $obj->author ?? '-',
+                'year' => $obj->publicationYear ?? ''
             ];
             $formatted['records'][] = $record;
         }

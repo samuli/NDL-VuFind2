@@ -1,15 +1,29 @@
 .dynamic-list-wrapper {
-    .dynamic-list-carousel {
-        height: 200px;
-    }
     .dynamic-list-type {
         h3>a {
             color: @gray;
         }
     }
 
-    .dynamic-list-list.content {
+    .dynamic-list-icon {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        .iconlabel {
+            flex: 0 0 100%;
+            margin: 0;
+            border: 1px solid #d1d1d1;
+            text-align: center;
+            font-size: 24px;
+            color: #d1d1d1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+    }
 
+    .dynamic-list-list.content {
         .dynamic-list-item {
             display: flex;
             flex-flow: row nowrap;
@@ -30,29 +44,36 @@
         .dynamic-list-title .item-title {
             font-weight: 600;
         }
-        .dynamic-list-icon {
+        .dynamic-btns {
+            height: 30px;
             display: flex;
-            flex: 0 0 180px;
             justify-content: center;
+            align-items: center;
+        }
+        .dynamic-btn {
+            .rotate (90deg);
+            margin: 0 15px;
+            position: initial;
+        }
+        .dynamic-list-icon {
+            flex: 0 0 180px;
             margin-right: 10px;
             .iconlabel {
-                flex: 0 0 100%;
-                margin: 0;
-                border: 1px solid #d1d1d1;
                 line-height: 180px;
-                text-align: center;
-                font-size: 24px;
-                color: #d1d1d1;
             }
         }
     }
     .dynamic-list-carousel.content {
-        .slick-track, .slick-list {
+        .slick-list {
             height: 100%;
+        }
+        .slick-track {
+            display: flex;
         }
         .dynamic-list-item {
             padding: 2px;
             position: relative;
+            height: initial;
             p {
                 margin: 0 0 2px;
             }
@@ -61,6 +82,7 @@
                 word-break: break-word;
                 height: auto;
                 max-height: 100%;
+                font-weight: 600;
                 color: @carousel-slide-text-color;
                 background: @carousel-text-background-color;
                 transition: opacity 0.5s ease;
@@ -69,27 +91,21 @@
                 right: 2px;
                 padding: 0px 2px 2px;
                 z-index: 1;
-                opacity: 0;
-                &.no-image {
-                    opacity: 1;
+            }
+            .hidden-default {
+                .iconlabel {
+                    color: white;
                 }
             }
-            .dynamic-list-image {
-                height: 200px;
-                margin: auto;
+            a {
+                display: flex;
+                height: 100%;
+                width: 100%;
+                align-items: start;
+                justify-content: center;
             }
             .dynamic-list-icon {
                 height: 100%;
-                display: flex;
-                .iconlabel {
-                    flex: 0 0 100%;
-                    margin: 0;
-                    border: 1px solid #d1d1d1;
-                    line-height: 200px;
-                    text-align: center;
-                    font-size: 24px;
-                    color: #d1d1d1;
-                }
             }
         }
     }
@@ -109,6 +125,23 @@
 .dynamic-list-results {
     .pagination-container {
         margin: 10px 0;
+    }
+    .dynamic-list-icon {
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        height: 100%;
+        .iconlabel {
+            flex: 0 0 100%;
+            margin: 0;
+            border: 1px solid #d1d1d1;
+            text-align: center;
+            font-size: 24px;
+            color: #d1d1d1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
     }
     display: flex;
     flex-flow: column wrap;
@@ -145,12 +178,7 @@
                 display: flex;
                 .iconlabel {
                     flex: 0 0 100%;
-                    margin: 0;
-                    border: 1px solid #d1d1d1;
                     line-height: 200px;
-                    text-align: center;
-                    font-size: 24px;
-                    color: #d1d1d1;
                 }
             }
         }

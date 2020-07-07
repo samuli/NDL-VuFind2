@@ -10,20 +10,28 @@
             $isRecord = is_a($record, 'VuFind\\RecordDriver\\SolrDefault');
             $formats = $record->tryMethod('getFormats');
             $format = $isRecord && $formats ? $this->record($record)->getFormatClass(end($formats)) : 'book';
-            $thumb = $isRecord ? $this->record($record)->getThumbnail() : false;
+            $thumb = $isRecord ? $this->recordImage($this->record($record))->getLargeImage() . '&w=1024&h=1024&imgext=.jpeg' : false;
+            $author = $isRecord ? $record->getPrimaryAuthorForSearch() : $ilsDetails['author'];
+            $year = $isRecord ? ($record->getPublicationDates()[0] ?? '') : $ilsDetails['year'];
         ?>
         <div class="dynamic-list-item">
             <?php if ($isRecord): ?>
-                <a href="<?= $this->url('record', ['id' => $ilsDetails['id']])?>">
+                <a href="<?=$this->recordLink()->getUrl($this->driver)?>">
             <?php endif; ?>
             <div class="dynamic-list-title">
                 <p><?= substr($record->getTitle(), 0, 40); ?></p>
-                <p><?= $this->transEsc($ilsDetails['mediaClass'] ?? '');?></p>
+                <div class="hidden-default">
+                    <?php if ($isRecord): ?>
+                        <p><?=$this->record($record)->getFormatList() ?> <?=$this->record($record)->getSourceIdElement() ?></p>
+                    <?php endif; ?>
+                    <p><?= $this->escapeHtml($author);?></p>
+                    <p><?= $this->escapeHtml($year);?></p>
+                </div>
             </div>
-            <?php if ($isRecord): ?>
-                <?php if ($thumb): ?>
-                    <img class="dynamic-list-image" data-lazy="<?=$this->escapeHtmlAttr($thumb)?>" alt="kansikuva">
-                <?php endif; ?>
+            <?php if ($isRecord && $thumb): ?>
+                <div class="image-wrapper">
+                    <img class="dynamic-list-image" data-lazy="<?=$this->escapeHtmlAttr($thumb)?>" alt="<?=$this->transEsc("Image");?>">
+                </div>
             <?php endif; ?>
             <div class="dynamic-list-icon <?= ($isRecord && $thumb ? 'hidden' : '');?>">
                 <span class="iconlabel format-<?=$format?>"></span>
