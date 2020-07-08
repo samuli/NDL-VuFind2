@@ -550,12 +550,14 @@ class Connection extends \VuFind\ILS\Connection
      *
      * @param array $functionConfig Function configuration values
      * @param array $params         An array of function-specific params (or null)
-     * 
+     *
      * @return mixed array|false
      */
     protected function checkMethodgetDynamicList($functionConfig, $params)
     {
-        if (isset($functionConfig['enabled']) && $functionConfig['enabled']) {
+        if (isset($functionConfig['max_results'])
+            && $functionConfig['max_results']
+        ) {
             return $functionConfig;
         }
         return false;

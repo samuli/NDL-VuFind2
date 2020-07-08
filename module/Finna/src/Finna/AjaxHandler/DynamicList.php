@@ -95,26 +95,23 @@ class DynamicList extends \VuFind\AjaxHandler\AbstractBase
         $amount = $amount > 20 ? 20 : $amount;
 
         $result = $this->ils->checkFunction('getDynamicList', []);
-        $records = [];
-        $statusCode = 200;
-        $html = '';
-        if ($result) {
-            $data = $this->ils->getDynamicList(
-                ['query' => $query, 'pageSize' => $amount]
-            );
-            foreach ($data['records'] ?? [] as $key => $obj) {
-                $loadedRecord = $this->recordLoader->load($obj['id'], $source, true);
-                $loadedRecord->setExtraDetail('ils_details', $obj);
-                $records[] = $loadedRecord;
-            }
-            $html = $this->renderer->partial(
-                "ajax/dynamic-list-$type.phtml", compact('records', 'query')
-            );
-        } else {
-            $html = "Could not load dynamic list $type";
-            $statusCode = 500;
+        if (!$result) {
+            return $this->formatResponse('Missing configurations', 501);
         }
 
-        return $this->formatResponse(compact('html'), $statusCode);
+        $records = [];
+        $data = $this->ils->getDynamicList(
+            ['query' => $query, 'pageSize' => $amount]
+        );
+        foreach ($data['records'] ?? [] as $key => $obj) {
+            $loadedRecord = $this->recordLoader->load($obj['id'], $source, true);
+            $loadedRecord->setExtraDetail('ils_details', $obj);
+            $records[] = $loadedRecord;
+        }
+        $html = $this->renderer->partial(
+            "ajax/dynamic-list-$type.phtml", compact('records', 'query')
+        );
+
+        return $this->formatResponse(compact('html'), 200);
     }
 }

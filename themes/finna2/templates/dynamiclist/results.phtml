@@ -13,7 +13,7 @@
         ?>
         <?= $paginator ?>
         <div class="dynamic-list-header">
-            <h3><?=$this->transEsc("dynamic_list_$this->type")?></h3>
+            <h1><?=$this->transEsc("dynamic_list_$this->query")?></h1>
         </div>
         <?php foreach($this->records as $record): ?>
             <div class="dynamic-list-result">

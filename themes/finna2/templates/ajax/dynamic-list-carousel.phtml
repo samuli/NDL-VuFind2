@@ -16,7 +16,7 @@
         ?>
         <div class="dynamic-list-item">
             <?php if ($isRecord): ?>
-                <a href="<?=$this->recordLink()->getUrl($this->driver)?>">
+                <a href="<?=$this->recordLink()->getUrl($record)?>">
             <?php endif; ?>
             <div class="dynamic-list-title">
                 <p><?= substr($record->getTitle(), 0, 40); ?></p>

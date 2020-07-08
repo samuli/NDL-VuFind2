@@ -24,7 +24,7 @@
             </div>
             <div class="dynamic-list-title">
                 <?php if ($isRecord): ?>
-                    <a href="<?= $this->url('record', ['id' => $ilsDetails['id']])?>">
+                    <a href="<?=$this->recordLink()->getUrl($record)?>">
                 <?php endif; ?>
                 <p class="item-title"><?= substr($record->getTitle(), 0, 40); ?></p>
                 <?php if ($isRecord): ?>

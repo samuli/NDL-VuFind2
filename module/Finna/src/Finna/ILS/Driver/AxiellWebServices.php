@@ -1601,10 +1601,10 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
         foreach ($records as $key => $obj) {
             $record = [
                 'id' => $obj->id ?? '0',
-                'title' => $obj->title ?? '-',
-                'mediaClass' => $obj->mediaClass ?? '-',
-                'icon' => $obj->mediaClassIcon ?? '-',
-                'author' => $obj->author ?? '-',
+                'title' => $obj->title ?? '',
+                'mediaClass' => $obj->mediaClass ?? '',
+                'icon' => $obj->mediaClassIcon ?? '',
+                'author' => $obj->author ?? '',
                 'year' => $obj->publicationYear ?? ''
             ];
             $formatted['records'][] = $record;

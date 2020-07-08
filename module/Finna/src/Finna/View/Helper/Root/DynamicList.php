@@ -39,20 +39,21 @@ namespace Finna\View\Helper\Root;
 class DynamicList extends \Zend\View\Helper\AbstractHelper
 {
     /**
-     * Invoke with query, no need for other parameters as 10
+     * Invoke with query, no need for other parameters as 20
      * is maximum amount of items in this setting
      *
      * @param array $params to get dynamic lists
-     * 
+     *
      * @return ViewModel
      */
     public function __invoke($params = [])
     {
         $type = $params['type'] ?? 'carousel';
         $query = $params['query'] ?? 'mostloaned';
-        $amount = $params['amount'] ?? 10;
+        $amount = $params['amount'] ?? 20;
+        $amount = $amount > 20 ? 20 : $amount;
         $template = $params['template'] ?? 'carousel';
-        $url = "/AJAX/JSON?method=dynamicList" . 
+        $url = "/AJAX/JSON?method=dynamicList" .
                 "&type={$type}&query={$query}&amount={$amount}";
 
         return $this->getView()->render(

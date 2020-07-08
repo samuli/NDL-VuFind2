@@ -4,6 +4,8 @@ finna.dynamicList = (function finnaDynamicList() {
     carousel: {
       dots: true,
       swipe: true,
+      nextArrow: '<button type="button" aria-label=' + VuFind.translate("Next") + ' class="slick-next">' + VuFind.translate('Next') + '</button>',
+      prevArrow: '<button type="button" aria-label=' + VuFind.translate("Prev") + ' class="slick-prev">' + VuFind.translate('Prev') + '</button>',
       lazyload: 'ondemand',
       responsive: [
         {
@@ -35,8 +37,8 @@ finna.dynamicList = (function finnaDynamicList() {
       vertical: true,
       verticalSwiping: true,
       lazyload: 'ondemand',
-      nextArrow: '<button type="button" class="slick-next dynamic-btn down">alas</button>',
-      prevArrow: '<button type="button" class="slick-prev dynamic-btn up">ylös</button>',
+      nextArrow: '<button type="button" aria-label=' + VuFind.translate("Next") + ' class="slick-next dynamic-btn down">' + VuFind.translate('Next') + '</button>',
+      prevArrow: '<button type="button" aria-label=' + VuFind.translate("Prev") + ' class="slick-prev dynamic-btn up">' + VuFind.translate('Prev') + '</button>',
       responsive: [
         {
           breakpoint: 5000,
@@ -73,30 +75,35 @@ finna.dynamicList = (function finnaDynamicList() {
                 img.on('load', function checkImage() {
                   handleImage($(this));
                 });
+                if (type === 'carousel') {
+                  $(this).hover(function onHoverStart() {
+                    var title = $(this).find('.dynamic-list-title');
+                    if (!title.hasClass('active')) {
+                      title.addClass('active');
+                    }
+                  }, function onHoverEnd() {
+                    var title = $(this).find('.dynamic-list-title');
+                    if (title.hasClass('active')) {
+                      title.removeClass('active');
+                    }
+                  });
+                }
               } else {
                 $(this).find('.hidden').removeClass('hidden');
                 img.closest('.image-wrapper').hide();
               }
             });
             _.find('.content').slick(settings[type]);
-            switch (type) {
-              case 'list':
-                // Better positioning for buttons
-                var prev = _.find('.slick-prev');
-                var next = _.find('.slick-next');
+            if (type === 'list') {
+              // Better positioning for buttons
+              var prev = _.find('.slick-prev');
+              var next = _.find('.slick-next');
 
-                if (prev.length && next.length) {
-                  var wrapper = $('<div class="dynamic-btns"/>');
-                  wrapper.insertAfter(_.find('.slick-list'));
-                  wrapper.append(prev).append(next);
-                }
-                break;
-              case 'carousel':
-                break;
-              default:
-                break;
-            }
-              
+              if (prev.length && next.length) {
+                var wrapper = $('<div class="dynamic-btns"/>');
+                wrapper.insertAfter(_.find('.slick-list'));
+                wrapper.append(prev).append(next);
+              }
             }
           }).fail(function onFailure() {
             // Error happened      

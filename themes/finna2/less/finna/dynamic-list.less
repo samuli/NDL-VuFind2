@@ -77,6 +77,13 @@
             p {
                 margin: 0 0 2px;
             }
+            .hidden-default {
+                .iconlabel {
+                    color: white;
+                    font-weight: 600;
+                }
+                display: none;
+            }
             .dynamic-list-title {
                 position: absolute;
                 word-break: break-word;
@@ -91,10 +98,11 @@
                 right: 2px;
                 padding: 0px 2px 2px;
                 z-index: 1;
-            }
-            .hidden-default {
-                .iconlabel {
-                    color: white;
+                &.active {
+                    height: 100%;
+                    .hidden-default {
+                        display: block;  
+                    }
                 }
             }
             a {
@@ -120,6 +128,10 @@
             color: @gray;
         }
     }
+}
+
+.dynamic-list-error {
+    margin-top: 10px;
 }
 
 .dynamic-list-results {
@@ -159,7 +171,7 @@
         }
         .dynamic-list-image-wrapper {
             height: 200px;
-            width: 150px;
+            flex: 0 0 150px;
             display: flex;
             align-items: center;
             justify-content: center;
