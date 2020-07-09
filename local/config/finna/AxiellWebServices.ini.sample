@@ -197,7 +197,7 @@ method = driver
 options[1] = loan_history_forever
 options[0] = loan_history_never
 
-;Uncomment to enable dynamic lists from ils, requires catalogueaurora address to be set
+;Uncomment to enable dynamic lists from ils, requires catalogueaurora url to be set
 ;Only affects the controllers results page, not feed style results
 [getDynamicList]
 page_size = 20
