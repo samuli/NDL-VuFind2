@@ -16,7 +16,7 @@
         <li class="dynamic-list-item">
             <?php if ($thumb && $isRecord): ?>
                 <div class="image-wrapper">
-                    <img class="dynamic-list-image" src="<?=$this->escapeHtmlAttr($thumb)?>" alt="kansikuva">
+                    <img class="dynamic-list-image" src="<?=$this->escapeHtmlAttr($thumb)?>" alt="<?=$this->transEsc("Cover Image");?>">
                 </div>
             <?php endif; ?>
             <div class="dynamic-list-icon <?= ($isRecord && $thumb ? 'hidden' : '');?>">

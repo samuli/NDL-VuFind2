@@ -30,7 +30,7 @@
             </div>
             <?php if ($isRecord && $thumb): ?>
                 <div class="image-wrapper">
-                    <img class="dynamic-list-image" data-lazy="<?=$this->escapeHtmlAttr($thumb)?>" alt="<?=$this->transEsc("Image");?>">
+                    <img class="dynamic-list-image" data-lazy="<?=$this->escapeHtmlAttr($thumb)?>" alt="<?=$this->transEsc("Cover Image");?>">
                 </div>
             <?php endif; ?>
             <div class="dynamic-list-icon <?= ($isRecord && $thumb ? 'hidden' : '');?>">

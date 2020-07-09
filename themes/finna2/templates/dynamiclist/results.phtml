@@ -30,7 +30,7 @@
                     <?php if ($isRecord): ?>
                         <?php if ($thumb): ?>
                             <a href="<?= $this->url('record', ['id' => $ilsDetails['id']])?>">
-                                <img class="dynamic-list-image" data-src="<?=$this->escapeHtmlAttr($thumb)?>" alt="kansikuva">
+                                <img class="dynamic-list-image" data-src="<?=$this->escapeHtmlAttr($thumb)?>" alt="<?=$this->transEsc("Cover Image");?>">
                             </a>
                         <?php endif; ?>
                     <?php endif; ?>
