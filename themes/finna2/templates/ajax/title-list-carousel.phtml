@@ -1,9 +1,9 @@
-<!-- START of: finna - ajax/dynamic-list-carousel.phtml -->
-<div class="dynamic-list-type">
-    <h3><a href="<?= $this->url('dynamic-list-results') ?>?query=<?=$this->query?>"><?= $this->transEsc("dynamic_list_$this->query") ?></a></h3>
+<!-- START of: finna - ajax/title-list-carousel.phtml -->
+<div class="title-list-type">
+    <h3><a href="<?= $this->url('ils-title-list') ?>?query=<?=$this->query?>"><?= $this->transEsc("title_list_$this->query") ?></a></h3>
 </div>
 
-<div class="dynamic-list-carousel content">
+<div class="title-list-carousel content">
     <?php foreach ($this->records as $ind => $record): ?>
         <?php
             $ilsDetails = $record->getExtraDetail('ils_details');
@@ -14,11 +14,11 @@
             $author = $isRecord ? $record->getPrimaryAuthorForSearch() : $ilsDetails['author'];
             $year = $isRecord ? ($record->getPublicationDates()[0] ?? '') : $ilsDetails['year'];
         ?>
-        <div class="dynamic-list-item">
+        <div class="title-list-item">
             <?php if ($isRecord): ?>
                 <a href="<?=$this->recordLink()->getUrl($record)?>">
             <?php endif; ?>
-            <div class="dynamic-list-title">
+            <div class="title-list-title">
                 <p><?= substr($record->getTitle(), 0, 40); ?></p>
                 <div class="hidden-default">
                     <?php if ($isRecord): ?>
@@ -30,10 +30,10 @@
             </div>
             <?php if ($isRecord && $thumb): ?>
                 <div class="image-wrapper">
-                    <img class="dynamic-list-image" data-lazy="<?=$this->escapeHtmlAttr($thumb)?>" alt="<?=$this->transEsc("Cover Image");?>">
+                    <img class="title-list-image" data-lazy="<?=$this->escapeHtmlAttr($thumb)?>" alt="<?=$this->transEsc("Cover Image");?>">
                 </div>
             <?php endif; ?>
-            <div class="dynamic-list-icon <?= ($isRecord && $thumb ? 'hidden' : '');?>">
+            <div class="title-list-icon <?= ($isRecord && $thumb ? 'hidden' : '');?>">
                 <span class="iconlabel format-<?=$format?>"></span>
             </div>
             <?php if ($isRecord): ?>
@@ -42,4 +42,4 @@
         </div>
     <?php endforeach; ?>
 </div>
-<!-- END of: finna - ajax/dynamic-list-carousel.phtml -->
+<!-- END of: finna - ajax/title-list-carousel.phtml -->

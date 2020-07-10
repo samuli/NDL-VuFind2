@@ -33,7 +33,7 @@ use Zend\Mvc\Controller\Plugin\Params;
 use Zend\View\Renderer\RendererInterface;
 
 /**
- * DynamicList AJAX handler
+ * TitleList AJAX handler
  *
  * @category VuFind
  * @package  AJAX
@@ -41,7 +41,7 @@ use Zend\View\Renderer\RendererInterface;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development Wiki
  */
-class DynamicList extends \VuFind\AjaxHandler\AbstractBase
+class TitleList extends \VuFind\AjaxHandler\AbstractBase
 {
     /**
      * Record loader
@@ -94,13 +94,13 @@ class DynamicList extends \VuFind\AjaxHandler\AbstractBase
         $source = $params->fromQuery('source', DEFAULT_SEARCH_BACKEND);
         $amount = $amount > 20 ? 20 : $amount;
 
-        $result = $this->ils->checkFunction('getDynamicList', []);
+        $result = $this->ils->checkFunction('getTitleList', []);
         if (!$result) {
             return $this->formatResponse('Missing configurations', 501);
         }
 
         $records = [];
-        $data = $this->ils->getDynamicList(
+        $data = $this->ils->getTitleList(
             ['query' => $query, 'pageSize' => $amount]
         );
         foreach ($data['records'] ?? [] as $key => $obj) {
@@ -109,7 +109,7 @@ class DynamicList extends \VuFind\AjaxHandler\AbstractBase
             $records[] = $loadedRecord;
         }
         $html = $this->renderer->partial(
-            "ajax/dynamic-list-$type.phtml", compact('records', 'query')
+            "ajax/title-list-$type.phtml", compact('records', 'query')
         );
 
         return $this->formatResponse(compact('html'), 200);

@@ -220,6 +220,18 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
     ];
 
     /**
+     * Title list mappings
+     * 
+     * @var array
+     */
+    protected $titleListMapping = [
+        'new' => 'shownovelty',
+        'mostrequested' => 'mostreserved',
+        'mostborrowed' => 'mostloaned',
+        'lastreturned' => 'showlastreturned'
+    ];
+
+    /**
      * Messaging settings status code mappings
      *
      * @var array
@@ -1559,15 +1571,18 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
      *
      * @param array $params To fetch
      *
+     * @throws ILSException
      * @return array
      */
-    public function getDynamicList($params)
+    public function getTitleList($params)
     {
         $conf = [
             'arenaMember' => $this->arenaMember,
             'pageSize' => $params['pageSize'] ?? 20,
-            'page' => $params['page'] ?? 0,
-            'query' => $params['query'] ?? 'mostloaned'
+            'page' => isset($params['page']) ? $params['page'] - 1 : 0,
+            'query' => isset($params['query'])
+                ? $this->getDynamicMappedValue($params['query'])
+                : 'mostloaned'
         ];
 
         $function = 'Search';
@@ -1611,6 +1626,31 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
         }
 
         return $formatted;
+    }
+
+    /**
+     * Checks if key has a value in mapped list and returns it
+     * 
+     * @param string $key to map
+     * 
+     * @return string found value or key if does not exist
+     */
+    public function getDynamicMappedValue($key)
+    {
+        return $this->titleListMapping[$key] ?? $key;
+    }
+
+    /**
+     * Checks if value has a key in mapped list and returns it
+     * 
+     * @param string $value to map
+     * 
+     * @return string found key or value if does not exist
+     */
+    public function getDynamicMappedKey($value)
+    {
+        $found = array_search($value, $this->titleListMapping);
+        return $found ?: $value;
     }
 
     /**

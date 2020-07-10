@@ -36,7 +36,7 @@ namespace Finna\View\Helper\Root;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development:plugins:controllers Wiki
  */
-class DynamicList extends \Zend\View\Helper\AbstractHelper
+class TitleList extends \Zend\View\Helper\AbstractHelper
 {
     /**
      * Invoke with query, no need for other parameters as 20
@@ -53,11 +53,11 @@ class DynamicList extends \Zend\View\Helper\AbstractHelper
         $amount = $params['amount'] ?? 20;
         $amount = $amount > 20 ? 20 : $amount;
         $template = $params['template'] ?? 'carousel';
-        $url = "/AJAX/JSON?method=dynamicList" .
+        $url = "/AJAX/JSON?method=titleList" .
                 "&type={$type}&query={$query}&amount={$amount}";
 
         return $this->getView()->render(
-            'Helpers/dynamic-list.phtml', compact('url', 'type')
+            'Helpers/title-list.phtml', compact('url', 'type')
         );
     }
 }

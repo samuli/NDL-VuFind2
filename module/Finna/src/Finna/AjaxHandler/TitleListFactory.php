@@ -1,6 +1,6 @@
 <?php
 /**
- * Factory for DynamicList AJAX handler.
+ * Factory for TitleList AJAX handler.
  *
  * PHP version 7
  *
@@ -30,7 +30,7 @@ namespace Finna\AjaxHandler;
 use Interop\Container\ContainerInterface;
 
 /**
- * Factory for DynamicList AJAX handler.
+ * Factory for TitleList AJAX handler.
  *
  * @category VuFind
  * @package  AJAX
@@ -38,7 +38,7 @@ use Interop\Container\ContainerInterface;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development Wiki
  */
-class DynamicListFactory
+class TitleListFactory
     implements \Zend\ServiceManager\Factory\FactoryInterface
 {
     /**

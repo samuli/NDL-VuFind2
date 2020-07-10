@@ -178,7 +178,7 @@ class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
     }
 
     /**
-     * Update patron's email address
+     * Get dynamic lists from ILS
      *
      * @param array $params Query specific params
      *
@@ -186,14 +186,14 @@ class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
      *
      * @return array Associative array of the results
      */
-    public function getDynamicList($params)
+    public function getTitleList($params)
     {
         $driver = $this->getDriver($this->defaultDriver);
         $source = $this->getDefaultLoginDriver();
         if ($driver
-            && $this->methodSupported($driver, 'getDynamicList', [$params])
+            && $this->methodSupported($driver, 'getTitleList', [$params])
         ) {
-            $results = $driver->getDynamicList($params);
+            $results = $driver->getTitleList($params);
             return $this->addIdPrefixes($results, $source);
         }
         throw new ILSException('No suitable backend driver found');

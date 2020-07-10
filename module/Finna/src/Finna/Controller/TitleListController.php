@@ -30,7 +30,7 @@ namespace Finna\Controller;
 use VuFind\ILS\PaginationHelper;
 
 /**
- * This controller handles Dynamic lists from ILS
+ * This controller handles Title lists from ILS
  *
  * @category VuFind
  * @package  Controller
@@ -38,7 +38,7 @@ use VuFind\ILS\PaginationHelper;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development:plugins:controllers Wiki
  */
-class DynamicListController extends \VuFind\Controller\AbstractBase
+class TitleListController extends \VuFind\Controller\AbstractBase
 {
     /**
      * ILS Pagination Helper
@@ -74,13 +74,13 @@ class DynamicListController extends \VuFind\Controller\AbstractBase
         $page = $params['page'] ?? 1;
         $source = $params['source'] ?? DEFAULT_SEARCH_BACKEND;
         $noSupport = false;
-        if ($config = $catalog->checkFunction('getDynamicList', [])) {
+        if ($config = $catalog->checkFunction('getTitleList', [])) {
             // Lets see if config is within the limitations
             $pageSize = $config['page_size'] ?? 20;
             $pageSize = $pageSize > 100 ? 100 : $pageSize;
             // Paging from ils starts from 0 instead of 1
-            $result = $catalog->getDynamicList(
-                ['query' => $query, 'pageSize' => $pageSize, 'page' => $page - 1]
+            $result = $catalog->getTitleList(
+                ['query' => $query, 'pageSize' => $pageSize, 'page' => $page]
             );
             $pageOptions = $this->getPaginationHelper()->getOptions(
                 $page,

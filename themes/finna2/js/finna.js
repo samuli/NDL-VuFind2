@@ -28,7 +28,7 @@ var finna = (function finnaModule() {
         'StreetSearch',
         'finnaSurvey',
         'multiSelect',
-        'dynamicList'
+        'titleList'
       ];
 
       $.each(modules, function initModule(ind, module) {

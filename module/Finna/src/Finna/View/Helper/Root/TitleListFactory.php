@@ -1,6 +1,6 @@
 <?php
 /**
- * Factory for DynamicList view helper.
+ * Factory for TitleList view helper.
  *
  * PHP version 7
  *
@@ -31,7 +31,7 @@ use Interop\Container\ContainerInterface;
 use Zend\ServiceManager\Factory\FactoryInterface;
 
 /**
- * Dynamic list helper factory.
+ * Title list helper factory.
  *
  * @category VuFind
  * @package  Service
@@ -39,7 +39,7 @@ use Zend\ServiceManager\Factory\FactoryInterface;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development Wiki
  */
-class DynamicListFactory implements FactoryInterface
+class TitleListFactory implements FactoryInterface
 {
     /**
      * Create an object

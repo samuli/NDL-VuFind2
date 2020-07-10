@@ -57,12 +57,12 @@ $config = [
                     ]
                 ],
             ],
-            'dynamic-list-results' => [
+            'ils-title-list' => [
                 'type' => 'Zend\Router\Http\Literal',
                 'options' => [
-                    'route'    => '/DynamicList/Results',
+                    'route'    => '/ILSTitleList/Results',
                     'defaults' => [
-                        'controller' => 'Dynamic',
+                        'controller' => 'TitleList',
                         'action'     => 'Results',
                     ]
                 ],
@@ -217,7 +217,7 @@ $config = [
             'Finna\Controller\CommentsController' => 'VuFind\Controller\AbstractBaseFactory',
             'Finna\Controller\ContentController' => 'VuFind\Controller\AbstractBaseFactory',
             'Finna\Controller\CoverController' => 'Finna\Controller\CoverControllerFactory',
-            'Finna\Controller\DynamicListController' => 'VuFind\Controller\AbstractBaseFactory',
+            'Finna\Controller\TitleListController' => 'VuFind\Controller\AbstractBaseFactory',
             'Finna\Controller\EdsController' => 'VuFind\Controller\AbstractBaseFactory',
             'Finna\Controller\ErrorController' => 'VuFind\Controller\AbstractBaseFactory',
             'Finna\Controller\ExternalAuthController' => 'VuFind\Controller\AbstractBaseFactory',
@@ -247,8 +247,8 @@ $config = [
             'feedcontent' => 'Finna\Controller\FeedContentController',
             'LocationService' => 'Finna\Controller\LocationServiceController',
             'locationservice' => 'Finna\Controller\LocationServiceController',
-            'dynamic' => 'Finna\Controller\DynamicListController',
-            'Dynamic' => 'Finna\Controller\DynamicListController',
+            'titleList' => 'Finna\Controller\TitleListController',
+            'TitleList' => 'Finna\Controller\TitleListController',
             'MetaLib' => 'Finna\Controller\MetaLibController',
             'metalib' => 'Finna\Controller\MetaLibController',
             'MetaLibRecord' => 'Finna\Controller\MetaLibrecordController',
@@ -367,8 +367,8 @@ $config = [
                         'Finna\AjaxHandler\CommentRecordFactory',
                     'Finna\AjaxHandler\DeleteRecordComment' =>
                         'VuFind\AjaxHandler\DeleteRecordCommentFactory',
-                    'Finna\AjaxHandler\DynamicList' =>
-                        'Finna\AjaxHandler\DynamicListFactory',
+                    'Finna\AjaxHandler\TitleList' =>
+                        'Finna\AjaxHandler\TitleListFactory',
                     'Finna\AjaxHandler\EditList' =>
                         'Finna\AjaxHandler\EditListFactory',
                     'Finna\AjaxHandler\EditListResource' =>
@@ -429,7 +429,7 @@ $config = [
                     'changePickupLocation' => 'Finna\AjaxHandler\ChangePickupLocation',
                     'changeRequestStatus' => 'Finna\AjaxHandler\ChangeRequestStatus',
                     'checkRequestsAreValid' => 'Finna\AjaxHandler\CheckRequestsAreValid',
-                    'dynamicList' => 'Finna\AjaxHandler\DynamicList',
+                    'titleList' => 'Finna\AjaxHandler\TitleList',
                     'editList' => 'Finna\AjaxHandler\EditList',
                     'editListResource' => 'Finna\AjaxHandler\EditListResource',
                     'getAccountNotifications' => 'Finna\AjaxHandler\GetAccountNotifications',

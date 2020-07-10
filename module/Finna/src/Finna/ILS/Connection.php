@@ -546,18 +546,16 @@ class Connection extends \VuFind\ILS\Connection
     }
 
     /**
-     * Check if dynamic lists are enabled
+     * Check if title lists are enabled
      *
      * @param array $functionConfig Function configuration values
      * @param array $params         An array of function-specific params (or null)
      *
      * @return mixed array|false
      */
-    protected function checkMethodgetDynamicList($functionConfig, $params)
+    protected function checkMethodgetTitleList($functionConfig, $params)
     {
-        if (isset($functionConfig['max_results'])
-            && $functionConfig['max_results']
-        ) {
+        if (!empty($functionConfig['max_results'])) {
             return $functionConfig;
         }
         return false;

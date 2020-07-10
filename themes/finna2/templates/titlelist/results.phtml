@@ -1,8 +1,8 @@
 <!-- START of: finna - dynamiclist/results.phtml -->
 <?php if($this->noSupport): ?>
-    <div class="dynamic-list-error"><?=$this->flashmessages()?></div>
+    <div class="title-list-error"><?=$this->flashmessages()?></div>
 <?php else: ?>
-    <div class="dynamic-list-results">
+    <div class="title-list-results">
         <?php ob_start(); ?>
         <div class="pagination-container">
             <?=$paginator ? $this->paginationControl($paginator, 'Sliding', 'Helpers/pagination-simple.phtml', ['params' => $this->ilsParams]) : ''?>
@@ -12,11 +12,11 @@
             ob_end_clean();
         ?>
         <?= $paginator ?>
-        <div class="dynamic-list-header">
-            <h1><?=$this->transEsc("dynamic_list_$this->query")?></h1>
+        <div class="title-list-header">
+            <h1><?=$this->transEsc("title_list_$this->query")?></h1>
         </div>
         <?php foreach($this->records as $record): ?>
-            <div class="dynamic-list-result">
+            <div class="title-list-result">
             <?php
                 $ilsDetails = $record->getExtraDetail('ils_details');
                 $isRecord = is_a($record, 'VuFind\\RecordDriver\\SolrDefault');
@@ -26,20 +26,20 @@
                 $author = $isRecord ? $record->getPrimaryAuthorForSearch() : $ilsDetails['author'];
                 $year = $isRecord ? ($record->getPublicationDates()[0] ?? '') : $ilsDetails['year'];
             ?>
-                <div class="dynamic-list-image-wrapper">
+                <div class="title-list-image-wrapper">
                     <?php if ($isRecord): ?>
                         <?php if ($thumb): ?>
-                            <a href="<?= $this->url('record', ['id' => $ilsDetails['id']])?>">
-                                <img class="dynamic-list-image" data-src="<?=$this->escapeHtmlAttr($thumb)?>" alt="<?=$this->transEsc("Cover Image");?>">
+                            <a href="<?=$this->recordLink()->getUrl($record)?>">
+                                <img class="title-list-image" data-src="<?=$this->escapeHtmlAttr($thumb)?>" alt="<?=$this->transEsc("Cover Image");?>">
                             </a>
                         <?php endif; ?>
                     <?php endif; ?>
-                    <div class="dynamic-list-icon <?= ($isRecord && $thumb ? 'hidden' : '');?>">
+                    <div class="title-list-icon <?= ($isRecord && $thumb ? 'hidden' : '');?>">
                         <span class="iconlabel format-<?=$format?>"></span>
                     </div>
                 </div>
-                <div class="dynamic-list-info">
-                    <div class="dynamic-list-title">
+                <div class="title-list-info">
+                    <div class="title-list-title">
                         <?php if ($isRecord): ?>
                             <a href="<?= $this->url('record', ['id' => $ilsDetails['id']])?>">
                         <?php endif; ?>
@@ -48,7 +48,7 @@
                             </a>
                         <?php endif; ?>
                     </div>
-                    <div class="dynamic-list-generic">
+                    <div class="title-list-generic">
                         <?php if ($isRecord): ?>
                             <p>
                                 <?=$this->record($record)->getFormatList() ?> <?=$this->record($record)->getSourceIdElement() ?>
