@@ -178,7 +178,7 @@ class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
     }
 
     /**
-     * Get dynamic lists from ILS
+     * Get title lists from ILS
      *
      * @param array $params Query specific params
      *
@@ -188,8 +188,8 @@ class MultiBackend extends \VuFind\ILS\Driver\MultiBackend
      */
     public function getTitleList($params)
     {
-        $driver = $this->getDriver($this->defaultDriver);
-        $source = $this->getDefaultLoginDriver();
+        $source = $this->getSource($params['id']);
+        $driver = $this->getDriver($source);
         if ($driver
             && $this->methodSupported($driver, 'getTitleList', [$params])
         ) {

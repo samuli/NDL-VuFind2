@@ -92,16 +92,20 @@ class TitleList extends \VuFind\AjaxHandler\AbstractBase
         $amount = $params->fromQuery('amount', 10);
         $type = $params->fromQuery('type', 'carousel');
         $source = $params->fromQuery('source', DEFAULT_SEARCH_BACKEND);
+        
+        // Create a fake patron id so ILS driver can be properly acquired
+        $sourceId = $params->fromQuery('id', '');
+        $id = !empty($sourceId) ? $sourceId . '.123' : '';
         $amount = $amount > 20 ? 20 : $amount;
 
-        $result = $this->ils->checkFunction('getTitleList', []);
+        $result = $this->ils->checkFunction('getTitleList', ['id' => $id]);
         if (!$result) {
             return $this->formatResponse('Missing configurations', 501);
         }
 
         $records = [];
         $data = $this->ils->getTitleList(
-            ['query' => $query, 'pageSize' => $amount]
+            ['query' => $query, 'pageSize' => $amount, 'id' => $id]
         );
         foreach ($data['records'] ?? [] as $key => $obj) {
             $loadedRecord = $this->recordLoader->load($obj['id'], $source, true);
@@ -109,7 +113,7 @@ class TitleList extends \VuFind\AjaxHandler\AbstractBase
             $records[] = $loadedRecord;
         }
         $html = $this->renderer->partial(
-            "ajax/title-list-$type.phtml", compact('records', 'query')
+            "ajax/title-list-$type.phtml", compact('records', 'query', 'sourceId')
         );
 
         return $this->formatResponse(compact('html'), 200);

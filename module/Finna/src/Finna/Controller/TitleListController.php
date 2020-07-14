@@ -61,7 +61,7 @@ class TitleListController extends \VuFind\Controller\AbstractBase
     }
 
     /**
-     * Function to fetch results and display them for certain dynamic list
+     * Function to fetch results and display them for certain title list
      * type
      *
      * @return ViewModel
@@ -72,15 +72,22 @@ class TitleListController extends \VuFind\Controller\AbstractBase
         $params = $this->getRequest()->getQuery()->toArray();
         $query = $params['query'] ?? 'mostloaned';
         $page = $params['page'] ?? 1;
+        $sourceId = $params['id'] ?? '';
+        $id = $sourceId . '.123';
         $source = $params['source'] ?? DEFAULT_SEARCH_BACKEND;
         $noSupport = false;
-        if ($config = $catalog->checkFunction('getTitleList', [])) {
+        if ($config = $catalog->checkFunction('getTitleList', ['id' => $id])) {
             // Lets see if config is within the limitations
             $pageSize = $config['page_size'] ?? 20;
             $pageSize = $pageSize > 100 ? 100 : $pageSize;
             // Paging from ils starts from 0 instead of 1
             $result = $catalog->getTitleList(
-                ['query' => $query, 'pageSize' => $pageSize, 'page' => $page]
+                [
+                    'query' => $query,
+                    'pageSize' => $pageSize,
+                    'page' => $page,
+                    'id' => $id
+                ]
             );
             $pageOptions = $this->getPaginationHelper()->getOptions(
                 $page,
@@ -106,6 +113,7 @@ class TitleListController extends \VuFind\Controller\AbstractBase
 
             $ilsParams = $pageOptions['ilsParams'];
             $ilsParams['query'] = $query;
+            $ilsParams['id'] = $sourceId;
         } else {
             $this->flashMessenger()->addErrorMessage('An error has occured');
             $noSupport = true;
@@ -114,7 +122,7 @@ class TitleListController extends \VuFind\Controller\AbstractBase
         $view = $this->createViewModel(
             compact('records', 'paginator', 'ilsParams', 'query', 'noSupport')
         );
-        $view->setTemplate('dynamiclist/results.phtml');
+        $view->setTemplate('titlelist/results.phtml');
         return $view;
     }
 }

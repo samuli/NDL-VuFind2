@@ -1,6 +1,6 @@
 <!-- START of: finna - ajax/title-list-carousel.phtml -->
 <div class="title-list-type">
-    <h3><a href="<?= $this->url('ils-title-list') ?>?query=<?=$this->query?>"><?= $this->transEsc("title_list_$this->query") ?></a></h3>
+    <h3><a href="<?=$this->url('ils-title-list')?>?query=<?=$this->query?>&id=<?=$this->sourceId?>"><?= $this->transEsc("title_list_$this->query") ?></a></h3>
 </div>
 
 <div class="title-list-carousel content">
