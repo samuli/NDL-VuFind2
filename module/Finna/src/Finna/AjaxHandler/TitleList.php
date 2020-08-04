@@ -92,7 +92,7 @@ class TitleList extends \VuFind\AjaxHandler\AbstractBase
         $amount = $params->fromQuery('amount', 10);
         $type = $params->fromQuery('type', 'carousel');
         $source = $params->fromQuery('source', DEFAULT_SEARCH_BACKEND);
-        
+
         // Create a fake patron id so ILS driver can be properly acquired
         $sourceId = $params->fromQuery('id', '');
         $id = !empty($sourceId) ? $sourceId . '.123' : '';

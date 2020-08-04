@@ -221,7 +221,7 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
 
     /**
      * Title list mappings
-     * 
+     *
      * @var array
      */
     protected $titleListMapping = [
@@ -1630,9 +1630,9 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
 
     /**
      * Checks if key has a value in mapped list and returns it
-     * 
+     *
      * @param string $key to map
-     * 
+     *
      * @return string found value or key if does not exist
      */
     public function getDynamicMappedValue($key)
@@ -1642,9 +1642,9 @@ class AxiellWebServices extends \VuFind\ILS\Driver\AbstractBase
 
     /**
      * Checks if value has a key in mapped list and returns it
-     * 
+     *
      * @param string $value to map
-     * 
+     *
      * @return string found key or value if does not exist
      */
     public function getDynamicMappedKey($value)
