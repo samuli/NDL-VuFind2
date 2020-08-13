@@ -27,6 +27,9 @@
  */
 namespace Finna\Hierarchy\TreeDataSource;
 
+use VuFind\Hierarchy\TreeDataFormatter\PluginManager as FormatterManager;
+use VuFindSearch\Backend\Solr\Connector;
+
 /**
  * Hierarchy Tree Data Source (Solr)
  *
@@ -60,4 +63,23 @@ class R2 extends \VuFind\Hierarchy\TreeDataSource\Solr
      * @var string
      */
     protected $cachePrefix = 'R2';
+
+
+    /**
+     * Constructor.
+     *
+     * @param Connector        $connector Solr connector
+     * @param FormatterManager $fm        Formatter manager
+     * @param string           $cacheDir  Directory to hold cache results (optional)
+     * @param array            $filters   Filters to apply to Solr tree queries
+     * @param int              $batchSize Number of records retrieved in a batch
+     */
+    public function __construct(Connector $connector, FormatterManager $fm,
+        $cacheDir = null, $filters = [], $batchSize = 1000
+    ) {
+        parent::__construct($connector, $fm, $cacheDir, $filters, $batchSize);
+
+        // Disable hierarchy cache since record data varies between users/access levels.
+        $this->cacheDir = null;
+    }
 }
