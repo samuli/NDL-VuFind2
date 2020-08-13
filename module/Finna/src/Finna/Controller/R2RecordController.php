@@ -53,7 +53,7 @@ class R2recordController extends RecordController
      *
      * @param array $params Parameters to pass to ViewModel constructor.
      *
-     * @return \Zend\View\Model\ViewModel
+     * @return \Laminas\View\Model\ViewModel
      */
     protected function createViewModel($params = null)
     {

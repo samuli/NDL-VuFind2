@@ -28,11 +28,11 @@
  */
 namespace Finna\Search\Solr;
 
-use VuFindSearch\Backend\BackendInterface;
+use Laminas\EventManager\EventInterface;
 
-use Zend\EventManager\EventInterface;
-use Zend\EventManager\SharedEventManagerInterface;
-use Zend\ServiceManager\ServiceLocatorInterface;
+use Laminas\EventManager\SharedEventManagerInterface;
+use Laminas\ServiceManager\ServiceLocatorInterface;
+use VuFindSearch\Backend\BackendInterface;
 
 /**
  * Finna Solr extensions listener.
@@ -262,7 +262,11 @@ class SolrExtensionsListener
         ) {
             $params = $event->getParam('params');
             if ($params) {
-                $params->add('fq', '-hidden_component_boolean:true');
+                // Check that search is not for a known record id
+                $query = $event->getParam('query');
+                if (!$query || $query->getHandler() !== 'id') {
+                    $params->add('fq', '-hidden_component_boolean:true');
+                }
             }
         }
     }

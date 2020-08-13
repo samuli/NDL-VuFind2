@@ -339,17 +339,6 @@ trait SolrFinnaTrait
     }
 
     /**
-     * Return local record IDs (only works with dedup records)
-     *
-     * @return array
-     */
-    public function getLocalIds()
-    {
-        return isset($this->fields['local_ids_str_mv'])
-            ? $this->fields['local_ids_str_mv'] : [];
-    }
-
-    /**
      * Get an array of dedup and link data associated with the record.
      *
      * @return array
@@ -486,17 +475,6 @@ trait SolrFinnaTrait
             return $matches[1];
         }
         return null;
-    }
-
-    /**
-     * Get sector
-     *
-     * @return string
-     */
-    public function getSector()
-    {
-        $sector = (string)($this->fields['sector_str_mv'][0] ?? '');
-        return $sector;
     }
 
     /**
@@ -644,16 +622,6 @@ trait SolrFinnaTrait
     {
         return isset($this->fields['first_indexed'])
             ? $this->fields['first_indexed'] : '';
-    }
-
-    /**
-     * Show organisation menu on record page?
-     *
-     * @return boolean
-     */
-    public function showOrganisationMenu()
-    {
-        return true;
     }
 
     /**
@@ -1002,27 +970,6 @@ trait SolrFinnaTrait
     }
 
     /**
-     * Does this record contain restricted metadata?
-     *
-     * @return bool
-     */
-    public function hasRestrictedMetadata()
-    {
-        return false;
-    }
-
-    /**
-     * Is restricted metadata included with the record, i.e. is the user
-     * authorized to access restricted metadata?
-     *
-     * @return bool
-     */
-    public function isRestrictedMetadataIncluded()
-    {
-        return false;
-    }
-
-    /**
      * Return count of other versions available
      *
      * @return int
@@ -1040,6 +987,7 @@ trait SolrFinnaTrait
         if (!isset($this->otherVersionsCount)) {
             $params = new \VuFindSearch\ParamBag();
             $params->add('rows', 0);
+            $this->addFilters($params);
             $results = $this->searchService->workExpressions(
                 $this->getSourceIdentifier(),
                 $this->getUniqueID(),
@@ -1072,6 +1020,7 @@ trait SolrFinnaTrait
         if (!isset($this->otherVersions)) {
             $params = new \VuFindSearch\ParamBag();
             $params->add('rows', min($count, 100));
+            $this->addFilters($params);
             $this->otherVersions = $this->searchService->workExpressions(
                 $this->getSourceIdentifier(),
                 $includeSelf ? '' : $this->getUniqueID(),
@@ -1080,5 +1029,25 @@ trait SolrFinnaTrait
             );
         }
         return $this->otherVersions;
+    }
+
+    /**
+     * Add filters to params
+     *
+     * @param \VuFindSearch\ParamBag $paramBag Params
+     *
+     * @return void
+     */
+    protected function addFilters(\VuFindSearch\ParamBag $paramBag)
+    {
+        $filterConf = $this->mainConfig->Record->display_versions ?? "all";
+        if ('same_source' === $filterConf) {
+            // Add source filter
+            $paramBag->add(
+                'fq',
+                'datasource_str_mv:"' . addcslashes($this->getDataSource(), '"')
+                    . '"'
+            );
+        }
     }
 }

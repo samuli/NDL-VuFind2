@@ -49,7 +49,7 @@ class R2BackendFactory extends SolrDefaultBackendFactory
     /**
      * R2 configuration.
      *
-     * @var \Zend\Config\Config
+     * @var \Laminas\Config\Config
      */
     protected $R2Config;
 
@@ -63,7 +63,7 @@ class R2BackendFactory extends SolrDefaultBackendFactory
     /**
      * Authorization service
      *
-     * @var \ZfcRbac\Service\AuthorizationService
+     * @var \LmcRbacMvc\Service\AuthorizationService
      */
     protected $authService;
 
@@ -107,7 +107,8 @@ class R2BackendFactory extends SolrDefaultBackendFactory
         $this->R2Config = $sm->get('VuFind\Config\PluginManager')->get('R2');
         $this->solrCore = $this->R2Config->Index->default_core;
         $this->authManager = $sm->get(\VuFind\Auth\Manager::class);
-        $this->authService = $sm->get(\ZfcRbac\Service\AuthorizationService::class);
+        $this->authService
+            = $sm->get(\LmcRbacMvc\Service\AuthorizationService::class);
         $this->rems = $sm->get(\Finna\RemsService\RemsService::class);
 
         return parent::__invoke($sm, $name, $options);

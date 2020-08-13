@@ -68,7 +68,7 @@ class SuomifiFactory extends \VuFind\Auth\ShibbolethFactory
             : null;
 
         return new $requestedName(
-            $container->get(\Zend\Session\SessionManager::class),
+            $container->get(\Laminas\Session\SessionManager::class),
             $rems
         );
     }

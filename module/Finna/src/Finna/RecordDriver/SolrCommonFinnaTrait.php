@@ -45,6 +45,25 @@ trait SolrCommonFinnaTrait
     use FinnaRecordTrait;
 
     /**
+     * Date Converter
+     *
+     * @var \VuFind\Date\Converter
+     */
+    protected $dateConverter = null;
+
+    /**
+     * Attach date converter
+     *
+     * @param \VuFind\Date\Converter $dateConverter Date Converter
+     *
+     * @return void
+     */
+    public function attachDateConverter($dateConverter)
+    {
+        $this->dateConverter = $dateConverter;
+    }
+
+    /**
      * Sanitize HTML.
      * If validation is enabled and the stripped HTML is invalid,
      * all tags are stripped.
@@ -147,5 +166,57 @@ trait SolrCommonFinnaTrait
             $params = ['url' => $params];
         }
         return $params;
+    }
+
+    /**
+     * Get sector
+     *
+     * @return string
+     */
+    public function getSector()
+    {
+        return (string)($this->fields['sector_str_mv'][0] ?? '');
+    }
+
+    /**
+     * Return local record IDs (only works with dedup records)
+     *
+     * @return array
+     */
+    public function getLocalIds()
+    {
+        return isset($this->fields['local_ids_str_mv'])
+            ? $this->fields['local_ids_str_mv'] : [];
+    }
+
+    /**
+     * Show organisation menu on record page?
+     *
+     * @return boolean
+     */
+    public function showOrganisationMenu()
+    {
+        return true;
+    }
+
+    /**
+     * Does this record contain restricted metadata?
+     *
+     * @return bool
+     */
+    public function hasRestrictedMetadata()
+    {
+        return false;
+    }
+
+    /**
+     * Is restricted metadata included with the record, i.e. is the user
+     * authorized to access restricted metadata?
+     *
+     * @return bool
+     */
+    public function isRestrictedMetadataIncluded()
+    {
+        return false;
     }
 }

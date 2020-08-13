@@ -28,7 +28,7 @@
 namespace Finna\RemsService;
 
 use Interop\Container\ContainerInterface;
-use Zend\ServiceManager\Factory\FactoryInterface;
+use Laminas\ServiceManager\Factory\FactoryInterface;
 
 /**
  * RemsService factory.
@@ -62,13 +62,14 @@ class RemsServiceFactory implements FactoryInterface
             throw new \Exception('Unexpected options passed to factory.');
         }
 
-        $sessionContainer = new \Zend\Session\Container(
-            'rems_permission', $container->get(\Zend\Session\SessionManager::class)
+        $sessionContainer = new \Laminas\Session\Container(
+            'rems_permission',
+            $container->get(\Laminas\Session\SessionManager::class)
         );
-        $shibbolethSessionContainer = new \Zend\Session\Container(
-            'Shibboleth', $container->get(\Zend\Session\SessionManager::class)
+        $shibbolethSessionContainer = new \Laminas\Session\Container(
+            'Shibboleth', $container->get(\Laminas\Session\SessionManager::class)
         );
-        $auth = $container->get('ZfcRbac\Service\AuthorizationService');
+        $auth = $container->get('LmcRbacMvc\Service\AuthorizationService');
 
         return new $requestedName(
             $container->get(\VuFind\Config\PluginManager::class)

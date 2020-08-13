@@ -34,9 +34,9 @@ use FinnaSearch\Backend\R2\Connector;
 use VuFind\Auth\Manager;
 use VuFindSearch\Backend\BackendInterface;
 
-use Zend\EventManager\EventInterface;
-use Zend\EventManager\SharedEventManagerInterface;
-use ZfcRbac\Service\AuthorizationService;
+use Laminas\EventManager\EventInterface;
+use Laminas\EventManager\SharedEventManagerInterface;
+use LmcRbacMvc\Service\AuthorizationService;
 
 /**
  * Restricted Solr (R2) Search authentication listener.
@@ -66,14 +66,14 @@ class AuthenticationListener
     /**
      * Authorization service
      *
-     * @var ZfcRbac\Service\AuthorizationService
+     * @var LmcRbacMvc\Service\AuthorizationService
      */
     protected $authService;
 
     /**
      * Connector
      *
-     * @var ZfcRbac\Service\AuthorizationService
+     * @var FinnaSearch\Backend\R2\Connector
      */
     protected $connector;
 

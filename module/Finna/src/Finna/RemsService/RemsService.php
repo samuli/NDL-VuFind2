@@ -28,8 +28,8 @@
 namespace Finna\RemsService;
 
 use VuFind\Auth\Manager;
-use Zend\Config\Config;
-use Zend\Session\Container;
+use Laminas\Config\Config;
+use Laminas\Session\Container;
 
 /**
  * Resource Entitlement Management System (REMS) service
@@ -42,7 +42,7 @@ use Zend\Session\Container;
  */
 class RemsService implements
     \VuFindHttp\HttpServiceAwareInterface,
-    \Zend\Log\LoggerAwareInterface
+    \Laminas\Log\LoggerAwareInterface
 {
     use \VuFind\Log\LoggerAwareTrait {
         logError as error;

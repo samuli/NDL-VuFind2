@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Solr deduplication (merged records) listener.
  *
@@ -28,7 +27,7 @@
  */
 namespace Finna\Search\Solr;
 
-use Zend\EventManager\EventInterface;
+use Laminas\EventManager\EventInterface;
 
 /**
  * Solr merged record handling listener.
@@ -53,6 +52,11 @@ class DeduplicationListener extends \VuFind\Search\Solr\DeduplicationListener
         $saveEnabled = $this->enabled;
         $backend = $event->getTarget();
         if ($backend === $this->backend) {
+            // Check that we're not doing a known record search
+            $query = $event->getParam('query');
+            if ($query && $query->getHandler() === 'id') {
+                return $event;
+            }
             $params = $event->getParam('params');
             $context = $event->getParam('context');
             $allowedContexts = ['search', 'similar', 'workExpressions', 'getids'];
@@ -217,7 +221,7 @@ class DeduplicationListener extends \VuFind\Search\Solr\DeduplicationListener
         // Sort sources alphabetically if necessary
         if (!empty($mainConfig->Record->sort_sources)) {
             $translator
-                = $this->serviceLocator->get(\Zend\Mvc\I18n\Translator::class);
+                = $this->serviceLocator->get(\Laminas\Mvc\I18n\Translator::class);
             usort(
                 $recordSources,
                 function ($a, $b) use ($translator) {

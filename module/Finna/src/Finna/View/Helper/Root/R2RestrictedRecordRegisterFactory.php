@@ -28,7 +28,7 @@
 namespace Finna\View\Helper\Root;
 
 use Interop\Container\ContainerInterface;
-use Zend\ServiceManager\Factory\FactoryInterface;
+use Laminas\ServiceManager\Factory\FactoryInterface;
 
 /**
  * R2 restricted record helper factory.
@@ -65,7 +65,7 @@ class R2RestrictedRecordRegisterFactory implements FactoryInterface
         $r2Conf = $container->get(\VuFind\Config\PluginManager::class)
             ->get('R2');
         $enabled = $r2Conf->General->enabled ?? false;
-        $auth = $container->get('ZfcRbac\Service\AuthorizationService');
+        $auth = $container->get('LmcRbacMvc\Service\AuthorizationService');
 
         return new $requestedName(
             $enabled,

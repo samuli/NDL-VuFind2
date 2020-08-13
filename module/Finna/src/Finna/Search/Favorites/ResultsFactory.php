@@ -72,7 +72,7 @@ class ResultsFactory extends \VuFind\Search\Results\ResultsFactory
         );
         $obj->setRecordLoader($recordLoader);
 
-        $init = new \ZfcRbac\Initializer\AuthorizationServiceInitializer();
+        $init = new \LmcRbacMvc\Initializer\AuthorizationServiceInitializer();
         $init($container, $obj);
         return $obj;
     }

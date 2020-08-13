@@ -1113,15 +1113,11 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                     = explode(':', $config['titleHoldBibLevels']);
             }
             if (!empty($params['id']) && !empty($params['patron']['id'])) {
-                // Kludge to allow caching for two minutes
-                $cacheLifeTime = $this->cacheLifetime;
-                $this->cacheLifetime = 120;
                 $cacheKey = md5(
                     'request-options-' . $params['id'] . '-'
                     . $params['patron']['id']
                 );
                 $requestOptions = $this->getCachedData($cacheKey);
-                $this->cacheLifetime = $cacheLifeTime;
                 if (null === $requestOptions) {
                     // Check if we require the part_issue (description) field
                     $requestOptionsPath = '/bibs/' . urlencode($params['id'])
@@ -1129,7 +1125,7 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                         . urlencode($params['patron']['id']);
                     // Make the API request
                     $requestOptions = $this->makeRequest($requestOptionsPath);
-                    $this->putCachedData($cacheKey, $requestOptions->asXML());
+                    $this->putCachedData($cacheKey, $requestOptions->asXML(), 120);
                 } else {
                     $requestOptions = simplexml_load_string($requestOptions);
                 }
@@ -1601,7 +1597,7 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
         );
 
         // Set HTTP method
-        $client->setMethod(\Zend\Http\Request::METHOD_POST);
+        $client->setMethod(\Laminas\Http\Request::METHOD_POST);
 
         // Set body
         $client->setRawBody(json_encode($body));
@@ -1727,12 +1723,18 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                 ];
 
                 // Add summary
+                $externalInterfaceUrl = str_replace(
+                    '%%id%%',
+                    $id,
+                    $this->config['Holdings']['externalInterfaceUrl'] ?? ''
+                );
                 $summary = [
                     'available' => $items['available'],
                     'total' => $items['total'],
                     'availability' => null,
                     'callnumber' => null,
-                    'location' => '__HOLDINGSSUMMARYLOCATION__'
+                    'location' => '__HOLDINGSSUMMARYLOCATION__',
+                    'externalInterfaceUrl' => $externalInterfaceUrl,
                 ];
 
                 if ($displayRequests) {
@@ -2244,7 +2246,7 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
      * Create a holding entry
      *
      * @param string $id      Bib ID
-     * @param array  $holding Holding
+     * @param object $holding Holding
      *
      * @return array
      */
@@ -2351,10 +2353,7 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
     protected function getLocationExternalName($library, $location)
     {
         $cacheId = 'alma|locations|' . $library;
-        $saveLifetime = $this->cacheLifetime;
-        $this->cacheLifetime = 3600;
         $locations = $this->getCachedData($cacheId);
-        $this->cacheLifetime = $saveLifetime;
 
         if (null === $locations) {
             $xml = $this->makeRequest(
@@ -2367,7 +2366,7 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                     'externalName' => (string)$entry->external_name
                 ];
             }
-            $this->putCachedData($cacheId, $locations);
+            $this->putCachedData($cacheId, $locations, 3600);
         }
         return !empty($locations[$location]['externalName'])
             ? $locations[$location]['externalName']
@@ -2410,6 +2409,12 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                 ];
                 $sort = 0;
                 if ($record = $marc->next()) {
+                    $externalInterfaceUrl = str_replace(
+                        '%%id%%',
+                        (string)$bib->mms_id,
+                        $this->config['Holdings']['externalInterfaceUrl'] ?? ''
+                    );
+
                     // Physical
                     $physicalItems = $record->getFields('AVA');
                     foreach ($physicalItems as $field) {
@@ -2428,6 +2433,7 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                         );
                         $item['callnumber'] = $this->getMarcSubfield($field, 'd');
                         $item['sort'] = $sort++;
+                        $item['externalInterfaceUrl'] = $externalInterfaceUrl;
                         $status[] = $item;
                     }
                     // Electronic
@@ -2461,6 +2467,7 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
                             $item['item_notes'] = [$note];
                         }
                         $item['sort'] = $sort++;
+                        $item['externalInterfaceUrl'] = $externalInterfaceUrl;
                         $status[] = $item;
                     }
                     // Digital
@@ -2548,7 +2555,7 @@ class Alma extends \VuFind\ILS\Driver\Alma implements TranslatorAwareInterface
             );
         }
 
-        $this->putCachedData($cacheId, $result);
+        $this->putCachedData($cacheId, $result, 3600);
 
         return $result;
     }

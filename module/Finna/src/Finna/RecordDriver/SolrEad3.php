@@ -322,7 +322,7 @@ class SolrEad3 extends SolrEad
                     continue;
                 }
                 if ($desc = $this->getDisplayLabel($el, 'p', true)) {
-                    return $desc;
+                    return [$desc];
                 }
             }
         }

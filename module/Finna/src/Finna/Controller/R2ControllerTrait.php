@@ -27,7 +27,7 @@
  */
 namespace Finna\Controller;
 
-use Zend\Session\Container as SessionContainer;
+use Laminas\Session\Container as SessionContainer;
 
 /**
  * R2 controller trait.
@@ -43,11 +43,11 @@ trait R2ControllerTrait
     /**
      * Handle onDispatch event
      *
-     * @param \Zend\Mvc\MvcEvent $e Event
+     * @param \Laminas\Mvc\MvcEvent $e Event
      *
      * @return mixed
      */
-    public function onDispatch(\Zend\Mvc\MvcEvent $e)
+    public function onDispatch(\Laminas\Mvc\MvcEvent $e)
     {
         $helper = $this->getViewRenderer()->plugin('R2');
         if (!$helper->isAvailable()) {
@@ -262,7 +262,8 @@ trait R2ControllerTrait
      */
     protected function isAuthenticated()
     {
-        $auth = $this->serviceLocator->get('ZfcRbac\Service\AuthorizationService');
+        $auth
+            = $this->serviceLocator->get('LmcRbacMvc\Service\AuthorizationService');
         return $auth->isGranted('access.R2Authenticated');
     }
 }

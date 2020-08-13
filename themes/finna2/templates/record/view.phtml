@@ -20,7 +20,7 @@
 
   // Set up breadcrumbs:
   $this->layout()->breadcrumbs = '<li>' . $this->searchMemory()->getLastSearchLink($this->transEsc('Search'), '', '</li> ') .
-    '<li class="active">' . $this->recordLink()->getBreadcrumb($this->driver) . '</li> ';
+    '<li class="active" aria-current="page">' . $this->recordLink()->getBreadcrumb($this->driver) . '</li> ';
 
   $this->layout()->title = $this->driver->getShortTitle();
 
@@ -39,7 +39,8 @@
       'map_zoom_in' => 'map_zoom_in',
       'map_zoom_out' => 'map_zoom_out'
   ]);
-  if ($lastUrl = $this->searchMemory()->getLastSearchUrl()) {
+
+  if ($lastUrl = $this->searchMemory()->getLastSearchUrl() && $this->searchMemory()->getLastSearchClassId() === $this->searchClassId) {
       $params = $this->searchMemory()->getLastSearchParams($this->searchClassId);
       $filterList = $params->getFilterList(true);
 
@@ -69,7 +70,7 @@
       $this->layout()->userLang, $params
   );
   $noImage = empty($images[0]['urls']['medium']) && empty($images[0]['urls']['large']);
-  $largeImageLayout = !$noImage && in_array($this->driver->tryMethod('getRecordType'), ['lido', 'forward', 'ead']);
+  $largeImageLayout = !$noImage && in_array($this->driver->tryMethod('getRecordType'), ['lido', 'forward', 'ead', 'forwardAuthority']);
 ?>
 </div>
 <div class="container">
@@ -89,7 +90,7 @@
   </div>
 
   <?php ob_start(); ?>
-    <?php if ($this->resolver('record/record-organisation-menu.phtml') && in_array($this->driver->getSourceIdentifier(), ['Solr', 'R2']) && $this->driver->showOrganisationMenu()): ?>
+    <?php if ($this->resolver('record/record-organisation-menu.phtml') && in_array($this->driver->getSourceIdentifier(), ['Solr', 'SolrAuth', 'R2']) && $this->driver->showOrganisationMenu()): ?>
       <div class="organisation-menu">
           <?=$this->render('record/record-organisation-menu.phtml') ?>
       </div>
@@ -205,5 +206,5 @@
 </div>
 <?=$this->record($this->driver)->renderTemplate('toolbar_mobile.phtml') ?>
 <div>
-<?=$this->inlineScript(\Zend\View\Helper\HeadScript::SCRIPT, '$(document).ready(recordDocReady);', 'SET') ?>
+<?=$this->inlineScript(\Laminas\View\Helper\HeadScript::SCRIPT, '$(document).ready(recordDocReady);', 'SET') ?>
 <!-- END of: finna - record/view.phtml -->

@@ -65,7 +65,7 @@ class LoaderFactory extends \VuFind\Record\LoaderFactory
         if ($options['R2Restricted'] ?? false) {
             // Restricted record requested.
             // Revert to unrestricted if user is not authenticated.
-            $auth = $container->get('ZfcRbac\Service\AuthorizationService');
+            $auth = $container->get('LmcRbacMvc\Service\AuthorizationService');
             if (!$auth->isGranted('access.R2Authenticated')) {
                 unset($options['R2Restricted']);
             }

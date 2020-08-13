@@ -42,7 +42,7 @@ use Finna\RemsService\RemsService;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
-class R2RestrictedRecordRegister extends \Zend\View\Helper\AbstractHelper
+class R2RestrictedRecordRegister extends \Laminas\View\Helper\AbstractHelper
 {
     /**
      * Is R2 search enabled?
@@ -68,15 +68,15 @@ class R2RestrictedRecordRegister extends \Zend\View\Helper\AbstractHelper
     /**
      * Constructor
      *
-     * @param bool                $enabled       Is R2 enabled?
-     * @param \Zend\Config\Config $config        VuFind configuration
-     * @param RemsService         $rems          REMS service
-     * @param bool                $authenticated Is the user authenticated to
+     * @param bool                   $enabled       Is R2 enabled?
+     * @param \Laminas\Config\Config $config        VuFind configuration
+     * @param RemsService            $rems          REMS service
+     * @param bool                   $authenticated Is the user authenticated to
      * use REMS?
      */
     public function __construct(
         bool $enabled,
-        \Zend\Config\Config $config,
+        \Laminas\Config\Config $config,
         RemsService $rems,
         bool $authenticated
     ) {

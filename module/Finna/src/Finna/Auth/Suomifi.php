@@ -50,11 +50,11 @@ class Suomifi extends Shibboleth
     /**
      * Constructor
      *
-     * @param \Zend\Session\ManagerInterface $sessionManager Session manager
+     * @param \Laminas\Session\ManagerInterface $sessionManager Session manager
      * @param \Finna\RemsService\RemsService $remsService    REMS service
      */
     public function __construct(
-        \Zend\Session\ManagerInterface $sessionManager,
+        \Laminas\Session\ManagerInterface $sessionManager,
         $remsService = null
     ) {
         $this->sessionManager = $sessionManager;
@@ -64,7 +64,7 @@ class Suomifi extends Shibboleth
     /**
      * Attempt to authenticate the current user.  Throws exception if login fails.
      *
-     * @param \Zend\Http\PhpEnvironment\Request $request Request object containing
+     * @param \Laminas\Http\PhpEnvironment\Request $request Request object containing
      * account credentials.
      *
      * @throws AuthException
@@ -81,7 +81,7 @@ class Suomifi extends Shibboleth
                 // parent method does not hash the username
                 parent::getServerParam($request, $config->username)
             );
-            $session = new \Zend\Session\Container(
+            $session = new \Laminas\Session\Container(
                 'Shibboleth', $this->sessionManager
             );
             $session['username'] = $username;
@@ -108,7 +108,7 @@ class Suomifi extends Shibboleth
     /**
      * Set configuration.
      *
-     * @param \Zend\Config\Config $config Configuration to set
+     * @param \Laminas\Config\Config $config Configuration to set
      *
      * @return void
      */
@@ -117,7 +117,7 @@ class Suomifi extends Shibboleth
         // Replace Shibboleth config section with Shibboleth_suomifi
         $data = $config->toArray();
         $data['Shibboleth'] = $data['Shibboleth_suomifi'];
-        $config = new \Zend\Config\Config($data);
+        $config = new \Laminas\Config\Config($data);
 
         parent::setConfig($config);
     }
@@ -175,9 +175,9 @@ class Suomifi extends Shibboleth
      * Get a server parameter taking into account any environment variables
      * redirected by Apache mod_rewrite.
      *
-     * @param \Zend\Http\PhpEnvironment\Request $request Request object containing
+     * @param \Laminas\Http\PhpEnvironment\Request $request Request object containing
      * account credentials.
-     * @param string                            $param   Parameter name
+     * @param string                               $param   Parameter name
      *
      * @throws AuthException
      * @return mixed

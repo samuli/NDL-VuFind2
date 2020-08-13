@@ -38,7 +38,7 @@ use Finna\RemsService\RemsService;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     http://vufind.org/wiki/vufind2:developer_manual Wiki
  */
-class R2 extends \Zend\View\Helper\AbstractHelper
+class R2 extends \Laminas\View\Helper\AbstractHelper
 {
     /**
      * Is R2 search enabled?
