@@ -49,10 +49,10 @@ class TitleList extends \Zend\View\Helper\AbstractHelper
     public function __invoke($params = [])
     {
         $type = $params['type'] ?? 'carousel';
-        $query = $params['query'] ?? 'mostloaned';
+        $query = $params['query'] ?? 'new';
         $amount = $params['amount'] ?? 20;
         $amount = $amount > 20 ? 20 : $amount;
-        $template = $params['template'] ?? 'carousel';
+
         $id = $params['id'] ?? '';
         $url = "/AJAX/JSON?method=titleList" .
                 "&type={$type}&query={$query}&amount={$amount}&id={$id}";
