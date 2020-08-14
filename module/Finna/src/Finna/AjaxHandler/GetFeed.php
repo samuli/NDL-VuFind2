@@ -103,7 +103,6 @@ class GetFeed extends \VuFind\AjaxHandler\AbstractBase
         $this->recordLoader = $recordLoader;
         $this->ils = $ils;
         $this->renderer = $renderer;
-        $this->recordHelper = $recordHelper;
         $this->url = $url;
     }
 
@@ -132,8 +131,8 @@ class GetFeed extends \VuFind\AjaxHandler\AbstractBase
             if ($config = $this->feedService->getFeedConfig($id)) {
                 $config = $config['result'];
             }
-            
-            if (null === $config['result']['ilsList'] ?? null) {
+
+            if (null === ($ilsList = ($config['ilsList'] ?? null))) {
                 // Normal feed
                 $feed = $this->feedService->readFeed($id, $homeUrl);
             } else {
@@ -141,7 +140,7 @@ class GetFeed extends \VuFind\AjaxHandler\AbstractBase
 
                 
                 // TODO: read from params
-                $query = 'mostloaned';
+                $query = $ilsList ?? 'new';
                 $amount = 20;
                 $type = 'carousel';
                 $source = 'Solr';
@@ -218,8 +217,6 @@ class GetFeed extends \VuFind\AjaxHandler\AbstractBase
                 }
 
                 $feed = $feed->export('rss', false);
-
-                //die($feed);
 
                 // TODO: check if feed could be passed to FeedService without export/import via string
                 $feed = \Laminas\Feed\Reader\Reader::importString($feed);
