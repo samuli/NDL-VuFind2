@@ -131,7 +131,7 @@ class GetImageInformation extends \VuFind\AjaxHandler\AbstractBase
 
         if (null === ($source = $params->fromQuery('source'))) {
             list($source, $recId) = explode('.', $id, 2);
-            if ('pci' === $_source) {
+            if ('pci' === $source) {
                 $source = 'Primo';
             } else {
                 $source = 'Solr';
