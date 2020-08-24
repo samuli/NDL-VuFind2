@@ -643,7 +643,10 @@ $config = [
             ],
             'search_facetcache' => [
                 'aliases' => [
-                    'R2' => 'VuFind\Search\Solr\FacetCache'
+                    'R2' => 'Finna\Search\R2\FacetCache'
+                ],
+                'factories' => [
+                    'Finna\Search\R2\FacetCache' => 'VuFind\Search\Solr\FacetCacheFactory'
                 ]
             ],
             'search_options' => [
