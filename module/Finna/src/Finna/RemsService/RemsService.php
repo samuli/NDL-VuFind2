@@ -553,19 +553,21 @@ class RemsService implements
             return [];
         }
 
-        $statuses = array_map(
-            function ($status) {
-                return "application.state/$status";
-            },
-            $statuses
-        );
+        if ($statuses) {
+            $statuses = array_map(
+                function ($status) {
+                    return "application.state/$status";
+                },
+                $statuses
+            );
 
-        $result = array_filter(
-            $result,
-            function ($application) use ($statuses) {
-                return in_array($application['application/state'], $statuses);
-            }
-        );
+            $result = array_filter(
+                $result,
+                function ($application) use ($statuses) {
+                    return in_array($application['application/state'], $statuses);
+                }
+            );
+        }
 
         return array_map(
             function ($application) {
