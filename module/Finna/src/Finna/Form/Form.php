@@ -567,11 +567,6 @@ class Form extends \VuFind\Form\Form
      */
     public function getDisplayString($translationKey, $escape = null)
     {
-        $translationEmpty = $this->viewHelperManager->get('translationEmpty');
-        if ($translationEmpty->__invoke($translationKey)) {
-            return null;
-        }
-
         if (!$this->isR2RegisterForm($this->formId)) {
             return parent::getDisplayString($translationKey, $escape);
         }
@@ -580,12 +575,12 @@ class Form extends \VuFind\Form\Form
         switch ($translationKey) {
         case 'R2_register_form_help_pre_html':
             $url = $this->viewHelperManager->get('url')
-                ->__invoke('content-page', ['page' => 'help']);
+                ->__invoke('content-page', ['page' => 'tutkijasali']);
             return $this->translate($translationKey, ['%%url%%' => $url]);
 
         case 'R2_register_form_help_post_html':
             $url = $this->viewHelperManager->get('url')
-                ->__invoke('content-page', ['page' => 'help']);
+                ->__invoke('content-page', ['page' => 'privacy']);
             return $this->translate($translationKey, ['%%url%%' => $url]);
 
         case 'R2_register_form_usage_help_html':
