@@ -574,6 +574,7 @@ class Form extends \VuFind\Form\Form
         // R2 registration form help texts
         switch ($translationKey) {
         case 'R2_register_form_help_pre_html':
+        case 'R2_register_form_help_returninguser_pre_html':
             $url = $this->viewHelperManager->get('url')
                 ->__invoke('content-page', ['page' => 'tutkijasali']);
             return $this->translate($translationKey, ['%%url%%' => $url]);
