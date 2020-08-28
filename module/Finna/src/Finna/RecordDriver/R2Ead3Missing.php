@@ -43,6 +43,39 @@ namespace Finna\RecordDriver;
 class R2Ead3Missing extends R2Ead3
 {
     /**
+     * Get the full title of the record.
+     *
+     * @return string
+     */
+    public function getTitle()
+    {
+        return $this->translate('R2_restricted_record_title');
+    }
+
+    /**
+     * Return an array of associative URL arrays with one or more of the following
+     * keys:
+     *
+     * <li>
+     *   <ul>desc: URL description text to display (optional)</ul>
+     *   <ul>url: fully-formed URL (required if 'route' is absent)</ul>
+     *   <ul>route: VuFind route to build URL with (required if 'url' is absent)</ul>
+     *   <ul>routeParams: Parameters for route (optional)</ul>
+     *   <ul>queryString: Query params to append after building route (optional)</ul>
+     * </li>
+     *
+     * @return array
+     */
+    public function getURLs()
+    {
+        // Add url to record page so that it gets included in exported data.
+        return [[
+            'route' => 'r2record',
+            'routeParams' => ['id' => $this->getUniqueID()]]
+        ];
+    }
+
+    /**
      * Does this record contain restricted metadata?
      *
      * @return bool

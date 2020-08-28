@@ -74,7 +74,7 @@
 ?>
 </div>
 <div class="container">
-<div class="record source<?=$this->escapeHtmlAttr($this->driver->getSourceIdentifier())?> record-row <?= $largeImageLayout ? 'large-image-layout' : '' ?>">
+<div class="record source<?=$this->escapeHtmlAttr($this->driver->getSourceIdentifier())?> driver-<?=$this->escapeHtmlAttr($this->record($this->driver)->getDriverName())?> record-row <?= $largeImageLayout ? 'large-image-layout' : '' ?>">
   <?= $this->R2RestrictedRecordRegistered($this->driver, ['user' => $this->auth()->isLoggedIn()])?>
   <div>
       <?=$this->record($this->driver)->getToolbar()?>

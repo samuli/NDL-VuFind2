@@ -92,30 +92,6 @@ class R2Ead3 extends SolrEad3
     }
 
     /**
-     * Allow record to be emailed?
-     *
-     * @return boolean
-     */
-    public function emailRecordAllowed()
-    {
-        return false;
-    }
-
-    /**
-     * Indicate whether export is disabled for a particular format.
-     *
-     * @param string $format Export format
-     *
-     * @return bool
-     *
-     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
-     */
-    public function exportDisabled($format)
-    {
-        return true;
-    }
-
-    /**
      * Get access to the raw SimpleXMLElement object.
      *
      * @return \SimpleXMLElement
