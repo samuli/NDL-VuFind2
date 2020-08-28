@@ -402,6 +402,7 @@ finna.record = (function finnaRecord() {
     loadSimilarRecords();
     loadRecordDriverRelatedRecords();
     initRecordVersions();
+    finna.authority.initAuthorityResultInfo();
   }
 
   var my = {

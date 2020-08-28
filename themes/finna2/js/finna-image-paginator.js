@@ -314,7 +314,7 @@ finna.imagePaginator = (function imagePaginator() {
         clearTimeout(timeOut);
         timeOut = null;
       }
-      if (_.leafletHolder.length === 0) {
+      if (_.leafletHolder.length === 0 || typeof _.canvasElements.leaflet === 'undefined') {
         return;
       }
 
@@ -559,8 +559,9 @@ finna.imagePaginator = (function imagePaginator() {
       $('.image-details-container').addClass('hidden');
       var details = $('.image-details-container[data-img-index="' + imagePopup.attr('index') + '"]');
       details.removeClass('hidden');
-      var license = details.find('.truncate-field');
+      var license = details.find('.truncate-field, .copyright');
       if (license.length && !license.hasClass('truncated')) {
+        license.addClass("truncate-field");
         license.removeClass('truncate-done');
         finna.layout.initTruncate(details);
       }

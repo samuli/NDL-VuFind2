@@ -43,6 +43,7 @@ namespace Finna\RecordDriver;
 class SolrMarc extends \VuFind\RecordDriver\SolrMarc
 {
     use SolrFinnaTrait;
+    use MarcReaderTrait;
 
     /**
      * Fields that may contain subject headings, and their descriptions
@@ -64,11 +65,12 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
     /**
      * Constructor
      *
-     * @param \Zend\Config\Config $mainConfig     VuFind main configuration (omit for
-     * built-in defaults)
-     * @param \Zend\Config\Config $recordConfig   Record-specific configuration file
-     * (omit to use $mainConfig as $recordConfig)
-     * @param \Zend\Config\Config $searchSettings Search-specific configuration file
+     * @param \Laminas\Config\Config $mainConfig     VuFind main configuration (omit
+     * for built-in defaults)
+     * @param \Laminas\Config\Config $recordConfig   Record-specific configuration
+     * file (omit to use $mainConfig as $recordConfig)
+     * @param \Laminas\Config\Config $searchSettings Search-specific configuration
+     * file
      */
     public function __construct($mainConfig = null, $recordConfig = null,
         $searchSettings = null
@@ -259,7 +261,14 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
 
                     $subfields = $this->getSubfieldArray($field, ['a', 'b']);
                     if (!empty($subfields)) {
-                        $result[$classification][] = $subfields[0];
+                        $class = $subfields[0];
+                        if ($x = $this->getSubfieldArray($field, ['x'])) {
+                            if (preg_match('/^\w/', $x[0])) {
+                                $class .= '-';
+                            }
+                            $class .= $x[0];
+                        }
+                        $result[$classification][] = $class;
                     }
                 }
             }
@@ -440,7 +449,7 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
         // Try field 700 if 979 is empty
         if (!$componentParts) {
             foreach ($this->getMarcRecord()->getFields('700') as $field) {
-                if (!$field->getSubfield('t')) {
+                if ($field->getIndicator(2) != 2 || !$field->getSubfield('t')) {
                     continue;
                 }
                 $partOrderCounter++;
@@ -761,12 +770,16 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
                     );
                     $altSubfields = $this->stripTrailingPunctuation($altSubfields);
 
+                    $id = $field->getSubfield('0');
                     if (!empty($subfields)) {
                         $result[] = [
                             'name' => $this->stripTrailingPunctuation($subfields[0]),
                             'name_alt' => $altSubfields,
                             'date' => !empty($dates) ? $dates[0] : '',
-                            'role' => $role
+                            'role' => $role,
+                            'id' => $id ? $id->getData() : null,
+                            'type' => in_array($fieldCode, ['100', '700'])
+                                ? 'Personal Name' : 'Corporate Name'
                         ];
                     }
                 }
@@ -1161,6 +1174,7 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
         $results = [];
         foreach (['130', '240'] as $fieldCode) {
             foreach ($this->getMarcRecord()->getFields($fieldCode) as $field) {
+                $subfields = [];
                 foreach ($field->getSubfields() as $subfield) {
                     $subfields[] = $subfield->getData();
                 }
@@ -1259,11 +1273,73 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
         }
         // Alternatively, are there titles in 700 fields?
         foreach ($this->getMarcRecord()->getFields('700') as $field) {
-            if ($field->getSubfield('t')) {
+            if ($field->getIndicator(2) == 2 && $field->getSubfield('t')) {
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * Get all subject headings associated with this record with extended data.
+     * (see getAllSubjectHeadings).
+     *
+     * @return array
+     */
+    public function getAllSubjectHeadingsExtended()
+    {
+        return $this->getAllSubjectHeadings(true);
+    }
+
+    /**
+     * Get all subject headings associated with this record.  Each heading is
+     * returned as an array of chunks, increasing from least specific to most
+     * specific.
+     *
+     * @param bool $extended Whether to return a keyed array with the following
+     * keys:
+     * - heading: the actual subject heading chunks
+     * - type: heading type
+     * - source: source vocabulary
+     * - id: authority id (if defined)
+     * - authType: authority type (if id is defined)
+     *
+     * @return array
+     */
+    public function getAllSubjectHeadings($extended = false)
+    {
+        $result = parent::getAllSubjectHeadings($extended);
+        if (!$extended) {
+            return $result;
+        }
+
+        $subjectIdFields = ['Personal Name' => ['600'], 'Corporate Name' => ['610']];
+        foreach ($result as &$subject) {
+            if (!$heading = $subject['heading'][0] ?? null) {
+                continue;
+            }
+            $authId = $authType = null;
+
+            // Check if we can find an authority id with a matching heading
+            foreach ($subjectIdFields as $type => $codes) {
+                foreach ($codes as $code) {
+                    foreach ($this->getMarcRecord()->getFields($code) as $field) {
+                        $subfield = $field->getSubfield('a');
+                        if (!$subfield || trim($subfield->getData()) !== $heading) {
+                            continue;
+                        }
+                        if ($authId = $field->getSubfield('0')) {
+                            $authId = $authId->getData();
+                            $authType = $type;
+                            break 3;
+                        }
+                    }
+                }
+            }
+            $subject['id'] = $authId;
+            $subject['authType'] = $authType;
+        }
+        return $result;
     }
 
     /**
@@ -1361,25 +1437,6 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
             'value' => $title,
             'link'  => $link
         ];
-    }
-
-    /**
-     * Get selected subfields from a MARC field
-     *
-     * @param \File_MARC_Data_Field $field     Field
-     * @param array                 $subfields Subfields
-     *
-     * @return string
-     */
-    protected function getFieldSubfields(\File_MARC_Data_Field $field, $subfields)
-    {
-        $result = [];
-        foreach ($field->getSubfields() as $code => $content) {
-            if (in_array($code, $subfields)) {
-                $result[] = $content->getData();
-            }
-        }
-        return implode(' ', $result);
     }
 
     /**
@@ -1486,38 +1543,6 @@ class SolrMarc extends \VuFind\RecordDriver\SolrMarc
         }
 
         return array_values(array_unique($matches, SORT_REGULAR));
-    }
-
-    /**
-     * Strip trailing spaces and punctuation characters from a string
-     *
-     * @param string|array $input      String to strip
-     * @param string       $additional Additional punctuation characters
-     *
-     * @return string|array
-     */
-    protected function stripTrailingPunctuation($input, $additional = '')
-    {
-        $array = is_array($input);
-        if (!$array) {
-            $input = [$input];
-        }
-        foreach ($input as &$str) {
-            $str = mb_ereg_replace("[\s\/:;\,=\($additional]+\$", '', $str);
-            // Don't replace an initial letter (e.g. string "Smith, A.") followed by
-            // period
-            $thirdLast = substr($str, -3, 1);
-            if (substr($str, -1) == '.' && $thirdLast != ' ') {
-                $role = in_array(
-                    substr($str, -4),
-                    ['nid.', 'sid.', 'kuv.', 'ill.', 'säv.', 'col.']
-                );
-                if (!$role) {
-                    $str = substr($str, 0, -1);
-                }
-            }
-        }
-        return $array ? $input : $input[0];
     }
 
     /**

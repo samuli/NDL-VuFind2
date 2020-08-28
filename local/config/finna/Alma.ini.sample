@@ -94,6 +94,10 @@ titleHoldBibLevels = "monograph:monographpart:serial:serialpart:collectionpart:i
 ; pickupLocationRules[] = "loc=MAIN,SUB:group=STAFF:pickup=MAINLIB,RES_SHARE:work=true"
 ;pickupLocationRules[] = ""
 
+; By default a request cannot be canceled if the item is available for pickup.
+; Uncomment this to enable canceling of available requests.
+;allowCancelingAvailableRequests = true
+
 ; The "NewUser" section defines some default values that are used when creating an account
 ; in Alma via its API. This is only relevant if you use the authentication method "AlmaDatabase"
 ; in the "Authentication" section of the "config.ini" file.
@@ -193,6 +197,15 @@ indexes = "868az"
 ; * can be used to denote all physical material types:
 ;hiddenProcessTypes[*] = "ACQ"
 
+; Optional kink to an external interface such as Primo. Replace at least SOMETHING
+; and VIEWID with correct values.
+;externalInterfaceUrl = "https://SOMETHING.primo.exlibrisgroup.com/discovery/fulldisplay?context=L&vid=VIEWID:VU1&docid=alma%%id%%"
+
+; Set to false to disable displaying title hold button in results list
+;display_title_hold_in_results = false
+
+; Set to false to disable title hold button in holdings tab
+;display_title_hold_in_holdings = false
 
 [OnlinePayment]
 ; Whether online payment is enabled. Default is false.

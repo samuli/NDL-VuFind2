@@ -285,7 +285,7 @@ if (!$disableTitleHold
       $logged = $account->isLoggedIn();
       $link = null;
       if (!$logged) {
-        $link = $this->escapeHtmlAttr($holdingsLink . '?login=true&catalogLogin=true');
+        $link = $this->escapeHtmlAttr($holdingsLink . '?login=true&catalogLogin=true&target=' . $source);
       } elseif ($journal) {
         $link = $this->escapeHtmlAttr($holdingsLink);
       } else {
@@ -317,4 +317,28 @@ if (!$disableTitleHold
   </div>
 <?php endif; ?>
 </div>
+
+<?php if ($driver && $source && $externalInterfaceUrl = $summary['externalInterfaceUrl'] ?? ''):?>
+  <?=$this->record($driver)->renderTemplate('external-interface-link.phtml', ['driver' => $driver, 'source' => $source, 'link' => $externalInterfaceUrl ?? ''])?>
+<?php endif;?>
+
+<?php
+  $js = <<<JS
+finna.layout.initTruncate($('.holding-details'));
+VuFind.lightbox.bind($('.holding-details'));
+
+var item = $('.hiddenId[value="{$this->escapeHtmlAttr($id)}"]').closest('.record-container');
+item.find('.holdings-container.collapsible > .header').click(function onClickCollapsibleHeader() {
+  $(this).next('.holdings').toggleClass('collapsed');
+  $(this).find('.fa.arrow:first.right')
+    .removeClass('fa-arrow-down fa-arrow-right')
+    .addClass('fa-arrow-' + ($(this).next('.holdings').hasClass('collapsed') ? 'right' : 'down'));
+  $(this).find('.fa.arrow:first.down')
+    .removeClass('fa-arrow-down fa-arrow-up')
+    .addClass('fa-arrow-' + ($(this).next('.holdings').hasClass('collapsed') ? 'down' : 'up'));
+});
+JS;
+  echo $this->inlineScript(\Laminas\View\Helper\HeadScript::SCRIPT, $js, 'SET');
+?>
+
 <!-- END of: finna - ajax/status-full.phtml -->

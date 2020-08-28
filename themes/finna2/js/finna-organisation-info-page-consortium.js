@@ -59,9 +59,11 @@ finna.organisationInfoPageConsortium = (function organisationInfoPageConsortium(
       var logo = null;
       if ('logo' in consortiumData) {
         logo = finna.common.getField(consortiumData.logo, 'small');
-        $('<img/>').attr('src', logo).attr('alt', '').appendTo(infoField.find('.consortium-logo').removeClass('hide'));
+        $('<img/>').attr('src', logo).attr('alt', '').prependTo(infoField.find('.consortium-logo').removeClass('hide'));
       } else {
         infoField.addClass('no-logo');
+        var homePage = infoField.find('.homepage').detach();
+        homePage.appendTo(infoField);
       }
 
       var consortiumName = finna.common.getField(consortiumData, 'name');
@@ -78,14 +80,12 @@ finna.organisationInfoPageConsortium = (function organisationInfoPageConsortium(
         usageRights = finna.common.getField(finnaData, 'usage_info');
         if (usageRights) {
           usageHolder.html(usageRights);
-        } else {
-          usageRights = null;
         }
 
         var usagePerc = finna.common.getField(finnaData, 'usage_perc');
         if (usagePerc) {
           // Gauge
-          usageInfo.find('.gauge-meter').removeClass('hide');
+          $('.gauge-meter').removeClass('hide');
 
           var opts = {
             lines: 0,
@@ -114,8 +114,9 @@ finna.organisationInfoPageConsortium = (function organisationInfoPageConsortium(
 
         var finnaLink = finna.common.getField(finnaData, 'finnaLink');
         if (finnaLink) {
-          linksHolder = holder.find('.consortium-usage-rights .finna-link');
+          linksHolder = holder.find('.consortium-info-row .finna-link');
           linksHolder.removeClass('hide');
+          $('.links-panel').removeClass('hide');
           template = linksHolder.find('li.template').removeClass('template');
           $(finnaLink).each(function initFinnaLink(ind, obj) {
             var li = template.clone();

@@ -54,13 +54,6 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
     protected $simpleXML;
 
     /**
-     * Date Converter
-     *
-     * @var \VuFind\Date\Converter
-     */
-    protected $dateConverter;
-
-    /**
      * Blacklist for undisplayable file formats
      *
      * @var array
@@ -75,25 +68,14 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
     protected $cachedImages;
 
     /**
-     * Attach date converter
-     *
-     * @param \VuFind\Date\Converter $dateConverter Date Converter
-     *
-     * @return void
-     */
-    public function attachDateConverter($dateConverter)
-    {
-        $this->dateConverter = $dateConverter;
-    }
-
-    /**
      * Constructor
      *
-     * @param \Zend\Config\Config $mainConfig     VuFind main configuration (omit for
-     * built-in defaults)
-     * @param \Zend\Config\Config $recordConfig   Record-specific configuration file
-     * (omit to use $mainConfig as $recordConfig)
-     * @param \Zend\Config\Config $searchSettings Search-specific configuration file
+     * @param \Laminas\Config\Config $mainConfig     VuFind main configuration (omit
+     * for built-in defaults)
+     * @param \Laminas\Config\Config $recordConfig   Record-specific configuration
+     * file (omit to use $mainConfig as $recordConfig)
+     * @param \Laminas\Config\Config $searchSettings Search-specific configuration
+     * file
      */
     public function __construct($mainConfig = null, $recordConfig = null,
         $searchSettings = null
@@ -453,13 +435,19 @@ class SolrLido extends \VuFind\RecordDriver\SolrDefault
                     if (strlen($endDate) == 7) {
                         $endDateType = 'Y-m';
                     }
-                    $date = $this->dateConverter->convertToDisplayDate(
-                        $startDateType, $startDate
-                    );
+
+                    $date = $this->dateConverter
+                        ? $this->dateConverter->convertToDisplayDate(
+                            $startDateType, $startDate
+                        )
+                        : $startDate;
+
                     if ($startDate != $endDate) {
-                        $date .= '-' . $this->dateConverter->convertToDisplayDate(
-                            $endDateType, $endDate
-                        );
+                        $date .= '-' . ($this->dateConverter
+                            ? $this->dateConverter->convertToDisplayDate(
+                                $endDateType, $endDate
+                            )
+                            : $endDate);
                     }
                 }
             }
