@@ -214,6 +214,20 @@ table.content-table {
         padding: @table-finna-record-cell-padding;
         word-wrap: break-word;
       }
+      // grouped record fields
+      &.group {
+        // use non-bolded th's since the group has a separate title
+        th, td {
+          font-weight: normal;
+          line-height: 15px;
+        }
+        // add vertical space to the first row that follows the group
+        & + tr:not(.group) {
+            & th, td {
+                padding-top: 0.8em;
+            }
+        }
+      }
     }
   }
   ul {
