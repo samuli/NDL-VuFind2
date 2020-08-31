@@ -28,10 +28,10 @@
  */
 namespace FinnaSearch\Backend\R2;
 
-use VuFindSearch\Backend\Exception\HttpErrorException;
-use VuFindSearch\ParamBag;
-
 use Laminas\Http\Client as HttpClient;
+use VuFindSearch\Backend\Exception\HttpErrorException;
+
+use VuFindSearch\ParamBag;
 
 /**
  * Restricted Solr (R2) connector
