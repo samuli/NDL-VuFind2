@@ -603,11 +603,10 @@ username              = SHIB_eppn
 ; Secret key for hashing usernames before saving to user profile (required)
 hash_secret = ""
 
-; Should the username be stored in session? Required when using REMS.
-store_username_to_session = false
-; Public key path. Used to encrypt the user national identification.
-; Required if store_username_to_session is true
-public_key = ""
+; Should the encrypted username be stored in session? Required when using REMS.
+;store_username_to_session = true
+; Public key path for encrypting usernames. Required if store_username_to_session is true
+;public_key = ""
 
 ; Required: Shibboleth login URL.
 login = "https://www.finna.fi/Shibboleth.sso/Login"
@@ -619,7 +618,7 @@ logout = "https://www.finna.fi/Shibboleth.sso/Logout"
 logout_attribute       = SHIB_logouturl
 
 ; Optional: route that is shown in lightbox after the login.
-; This opens the registration form.
+;   Show REMS registration form after login
 post_login_lightbox_route = "feedback-form"
 post_login_lightbox_route_param = "id:R2Register"
 
