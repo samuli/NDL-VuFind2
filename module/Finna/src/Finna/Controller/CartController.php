@@ -77,14 +77,6 @@ class CartController extends \VuFind\Controller\CartController
             null, $this->translate('bulk_email_title')
         );
         $view->records = $this->getRecordLoader()->loadBatch($ids);
-        $view->records = array_values(
-            array_filter(
-                $view->records, function ($rec) {
-                    return $rec->tryMethod('emailRecordAllowed', [], true);
-                }
-            )
-        );
-
         // Set up Captcha
         $view->useCaptcha = $this->captcha()->active('email');
 
@@ -106,12 +98,6 @@ class CartController extends \VuFind\Controller\CartController
                 $this->flashMessenger()->addMessage($e->getMessage(), 'error');
             }
         }
-
-        if (empty($view->records)) {
-            $this->flashMessenger()
-                ->addMessage('bulk_email_not_supported', 'error');
-        }
-
         return $view;
     }
 
