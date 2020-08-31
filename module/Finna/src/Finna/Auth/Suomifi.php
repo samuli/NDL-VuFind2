@@ -51,14 +51,23 @@ class Suomifi extends Shibboleth
      * Constructor
      *
      * @param \Laminas\Session\ManagerInterface $sessionManager Session manager
-     * @param \Finna\RemsService\RemsService $remsService    REMS service
      */
     public function __construct(
-        \Laminas\Session\ManagerInterface $sessionManager,
-        $remsService = null
+        \Laminas\Session\ManagerInterface $sessionManager
     ) {
         $this->sessionManager = $sessionManager;
-        $this->remsService = $remsService;
+    }
+
+    /**
+     * Set REMS service
+     *
+     * @param \Finna\RemsService\RemsService $rems REMS service
+     *
+     * @return void
+     */
+    public function setRems($rems)
+    {
+        $this->remsService = $rems;
     }
 
     /**
