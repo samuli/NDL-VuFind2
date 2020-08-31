@@ -31,7 +31,7 @@ namespace FinnaSearch\Backend\R2;
 use VuFindSearch\Backend\Exception\HttpErrorException;
 use VuFindSearch\ParamBag;
 
-use Zend\Http\Client as HttpClient;
+use Laminas\Http\Client as HttpClient;
 
 /**
  * Restricted Solr (R2) connector
@@ -178,7 +178,7 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
         }
 
         $headers = $client->getRequest()->getHeaders();
-        $headers->removeHeader(new \Zend\Http\Header\GenericHeader('x-user-id'));
+        $headers->removeHeader(new \Laminas\Http\Header\GenericHeader('x-user-id'));
 
         if ($this->username) {
             $headers->addHeaderLine('x-user-id', urldecode($this->username));
@@ -188,9 +188,9 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
 
         if ($this->httpConfig['ssl_allow_selfsigned'] ?? false) {
             $adapter = $client->getAdapter();
-            if ($adapter instanceof \Zend\Http\Client\Adapter\Socket) {
+            if ($adapter instanceof \Laminas\Http\Client\Adapter\Socket) {
                 $adapter->setOptions(['sslallowselfsigned' => true]);
-            } elseif ($adapter instanceof \Zend\Http\Client\Adapter\Curl) {
+            } elseif ($adapter instanceof \Laminas\Http\Client\Adapter\Curl) {
                 $adapter->setOptions(
                     [
                         'curloptions' => [
