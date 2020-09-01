@@ -222,42 +222,6 @@ trait R2ControllerTrait
     }
 
     /**
-     * Get the record loader
-     *
-     * @param bool $restricted Include restricted metadata?
-     *
-     * @return \VuFind\Record\Loader
-     */
-    public function getRecordLoader($restricted = false)
-    {
-        // By default, this returns a record loader that returns drivers without
-        // restricted metadata.
-        $class = !$restricted
-            ? \VuFind\Record\Loader::class
-            : \Finna\Record\R2Loader::class;
-
-        return $this->serviceLocator->get($class);
-    }
-
-    /**
-     * Load record with restricted metadata.
-     *
-     * This tells RecordLoader to include the current user id in the request so
-     * that R2 index can return data that the user is allowed to see.
-     *
-     * @return null|\VuFind\RecordDriver\AbstractBase
-     */
-    protected function loadRecordWithRestrictedData()
-    {
-        $recordLoader = $this->getRecordLoader(true);
-        return $recordLoader->load(
-            $this->params()->fromRoute('id', $this->params()->fromQuery('id')),
-            $this->searchClassId,
-            false
-        );
-    }
-
-    /**
      * Is the user authenticated to use R2?
      *
      * @return bool

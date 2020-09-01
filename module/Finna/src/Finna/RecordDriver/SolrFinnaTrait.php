@@ -796,11 +796,11 @@ trait SolrFinnaTrait
     }
 
     /**
-     * Get related records (used by RecordDriverRelatedDeferred - Related module)
+     * Get related records (used by RecordDriverRelated - Related module)
      *
      * Returns an associative array of group => records, where each item in
      * records is either a record id or an array that has a 'wildcard' key
-     * with a Solr compatible pattern as it's value.
+     * with a Solr compatible pattern that is targeted to the 'id' field.
      *
      * Notes on wildcard queries:
      *  - Only the first record from the wildcard result set is returned.

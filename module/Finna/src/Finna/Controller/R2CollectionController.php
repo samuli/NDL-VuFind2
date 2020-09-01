@@ -39,7 +39,6 @@ namespace Finna\Controller;
 class R2collectionController extends CollectionController
 {
     use \Finna\Controller\R2ControllerTrait;
-    use \Finna\Controller\R2RecordControllerTrait;
 
     /**
      * Type of record to display
@@ -47,18 +46,4 @@ class R2collectionController extends CollectionController
      * @var string
      */
     protected $searchClassId = 'R2';
-
-    /**
-     * Create a new ViewModel.
-     *
-     * @param array $params Parameters to pass to ViewModel constructor.
-     *
-     * @return \Laminas\View\Model\ViewModel
-     */
-    protected function createViewModel($params = null)
-    {
-        $view = parent::createViewModel($params);
-        $view->driver = $this->loadRecordWithRestrictedData();
-        return $view;
-    }
 }

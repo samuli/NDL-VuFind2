@@ -39,7 +39,6 @@ namespace Finna\Controller;
 class R2recordController extends RecordController
 {
     use \Finna\Controller\R2ControllerTrait;
-    use \Finna\Controller\R2RecordControllerTrait;
 
     /**
      * Type of record to display
@@ -59,7 +58,6 @@ class R2recordController extends RecordController
     {
         $view = parent::createViewModel($params);
         $this->layout()->searchClassId = $view->searchClassId = $this->searchClassId;
-        $view->driver = $this->loadRecordWithRestrictedData();
         return $view;
     }
 }
