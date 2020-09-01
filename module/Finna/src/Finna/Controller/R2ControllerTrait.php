@@ -232,7 +232,7 @@ trait R2ControllerTrait
     {
         // By default, this returns a record loader that returns drivers without
         // restricted metadata.
-        $class = $restricted
+        $class = !$restricted
             ? \VuFind\Record\Loader::class
             : \Finna\Record\R2Loader::class;
 
