@@ -232,9 +232,11 @@ trait R2ControllerTrait
     {
         // By default, this returns a record loader that returns drivers without
         // restricted metadata.
-        $loader = $this->serviceLocator->get(\VuFind\Record\Loader::class);
-        $loader->setDefaultParams(['R2Restricted' => $restricted]);
-        return $loader;
+        $class = $restricted
+            ? \VuFind\Record\Loader::class
+            : \Finna\Record\R2Loader::class;
+
+        return $this->serviceLocator->get($class);
     }
 
     /**

@@ -1,6 +1,6 @@
 <?php
 /**
- * Hierarchy Controller
+ * Record loader for R2 records with restricted metadata.
  *
  * PHP version 7
  *
@@ -20,32 +20,28 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
  *
  * @category VuFind
- * @package  Controller
+ * @package  Record
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     https://vufind.org/wiki/development:plugins:controllers Wiki
+ * @link     http://vufind.org   Main Site
  */
-namespace Finna\Controller;
+namespace Finna\Record;
 
 /**
- * Hierarchy Controller
+ * Record loader for R2 records with restricted metadata.
  *
  * @category VuFind
- * @package  Controller
+ * @package  Record
  * @author   Samuli Sillanpää <samuli.sillanpaa@helsinki.fi>
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
- * @link     https://vufind.org/wiki/development:plugins:controllers Wiki
+ * @link     http://vufind.org   Main Site
  */
-class HierarchyController extends \VuFind\Controller\HierarchyController
+class R2Loader extends Loader
 {
     /**
-     * Get the record loader
+     * Default parameters that are passed to the backend when loading a record.
      *
-     * @return \VuFind\Record\Loader
+     * @var array
      */
-    public function getRecordLoader()
-    {
-        // Request restricted metadata.
-        return $this->serviceLocator->get(\VuFind\Record\R2Loader::class);
-    }
+    protected $defaultParams = ['R2Restricted' => true];
 }

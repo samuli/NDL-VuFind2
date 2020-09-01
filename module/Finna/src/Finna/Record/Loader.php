@@ -252,18 +252,6 @@ class Loader extends \VuFind\Record\Loader
     }
 
     /**
-     * Set default parameters that are passed to backend.
-     *
-     * @param array $params Parameters
-     *
-     * @return void
-     */
-    public function setDefaultParams($params = null)
-    {
-        $this->defaultParams = $params;
-    }
-
-    /**
      * Try to load a record using its old MetaLib ID
      *
      * @param string $id Record ID (e.g. FIN12345)

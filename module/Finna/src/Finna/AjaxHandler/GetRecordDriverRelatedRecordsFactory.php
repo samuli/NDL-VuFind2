@@ -65,7 +65,7 @@ class GetRecordDriverRelatedRecordsFactory
         }
         $result = new $requestedName(
             $container->get(\VuFind\Session\Settings::class),
-            $container->get(\VuFind\Record\Loader::class),
+            $container->get(\Finna\Record\R2Loader::class),
             $container->get(\VuFind\Search\SearchRunner::class),
             $container->get('ViewRenderer')
         );
