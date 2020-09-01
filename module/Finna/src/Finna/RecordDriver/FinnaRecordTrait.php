@@ -194,7 +194,7 @@ trait FinnaRecordTrait
     {
         return true;
     }
-    
+
     /**
      * Is authority functionality enabled?
      *
