@@ -423,6 +423,7 @@ finna.record = (function finnaRecord() {
     checkRequestsAreValid: checkRequestsAreValid,
     init: init,
     setupHoldingsTab: setupHoldingsTab,
+    setupLocationsEad3Tab: setupLocationsEad3Tab,
     initRecordVersions: initRecordVersions
   };
 
