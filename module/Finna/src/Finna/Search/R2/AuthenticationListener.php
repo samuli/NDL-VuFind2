@@ -28,8 +28,8 @@
  */
 namespace Finna\Search\R2;
 
-use Finna\RemsService\RemsService;
 use Finna\Service\R2Service;
+use Finna\Service\RemsService;
 use FinnaSearch\Backend\R2\Connector;
 
 use Laminas\EventManager\EventInterface;
@@ -150,7 +150,7 @@ class AuthenticationListener
                 ) {
                     // Pass the username to connector in order to
                     // get restricted metadata.
-                    $userId = \Finna\RemsService\RemsService::prepareUserId(
+                    $userId = $this->rems->prepareUserId(
                         $this->authManager->isLoggedIn()->username
                     );
                     $this->connector->setUsername(urlencode($userId));

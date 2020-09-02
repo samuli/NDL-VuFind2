@@ -29,7 +29,7 @@
  */
 namespace Finna\View\Helper\Root;
 
-use Finna\RemsService\RemsService;
+use Finna\Service\RemsService;
 
 /**
  * Helper class for restricted Solr R2 records.

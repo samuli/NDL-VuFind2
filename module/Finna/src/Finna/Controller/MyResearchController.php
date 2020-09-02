@@ -997,7 +997,7 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
             return $this->forceLogin();
         }
 
-        $rems = $this->serviceLocator->get('Finna\RemsService\RemsService');
+        $rems = $this->serviceLocator->get('Finna\Service\RemsService');
         return $this->createViewModel(['rems' => $rems]);
     }
 

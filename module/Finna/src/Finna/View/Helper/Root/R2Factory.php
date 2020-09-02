@@ -63,7 +63,7 @@ class R2Factory implements FactoryInterface
         }
 
         $r2 = $container->get(\Finna\Service\R2Service::class);
-        $rems = $container->get(\Finna\RemsService\RemsService::class);
+        $rems = $container->get(\Finna\Service\RemsService::class);
         return new $requestedName($r2->isEnabled(), $r2->isAuthenticated(), $rems);
     }
 }

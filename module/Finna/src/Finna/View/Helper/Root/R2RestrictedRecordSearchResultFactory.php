@@ -65,7 +65,7 @@ class R2RestrictedRecordSearchResultFactory implements FactoryInterface
         }
 
         $R2 = $container->get(\Finna\Service\R2Service::class);
-        $rems = $container->get('Finna\RemsService\RemsService');
+        $rems = $container->get('Finna\Service\RemsService');
 
         return new $requestedName($R2->isEnabled(), $rems->hasUserAccess());
     }

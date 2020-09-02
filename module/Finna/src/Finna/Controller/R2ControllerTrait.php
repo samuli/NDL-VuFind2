@@ -83,7 +83,7 @@ trait R2ControllerTrait
             return $formId;
         }
 
-        $rems = $this->serviceLocator->get('Finna\RemsService\RemsService');
+        $rems = $this->serviceLocator->get('Finna\Service\RemsService');
         try {
             $regId
                 = \Finna\Form\Form::getR2RegisterFormId(!$rems->isUserRegistered());
@@ -132,7 +132,7 @@ trait R2ControllerTrait
         }
 
         // Check user permission from REMS and show registration if needed.
-        $rems = $this->serviceLocator->get('Finna\RemsService\RemsService');
+        $rems = $this->serviceLocator->get('Finna\Service\RemsService');
         try {
             if ($rems->isUserBlacklisted()) {
                 return $getRedirect();
@@ -168,7 +168,7 @@ trait R2ControllerTrait
                 return $view;
             }
 
-            $rems = $this->serviceLocator->get('Finna\RemsService\RemsService');
+            $rems = $this->serviceLocator->get('Finna\Service\RemsService');
 
             // Collect submitted params required by REMS form
             $formParams = [];
