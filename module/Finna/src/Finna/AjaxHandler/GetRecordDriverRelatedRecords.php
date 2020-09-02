@@ -115,7 +115,8 @@ class GetRecordDriverRelatedRecords extends \VuFind\AjaxHandler\AbstractBase
                 foreach ($ids as &$id) {
                     if (is_string($id)) {
                         try {
-                            $records[$type][] = $this->recordLoader->load($id, $source);
+                            $records[$type][]
+                                = $this->recordLoader->load($id, $source);
                         } catch (\Exception $e) {
                         }
                     } elseif ($id = ($id['wildcard'] ?? null)) {
