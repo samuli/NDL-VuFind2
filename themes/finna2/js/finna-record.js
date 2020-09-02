@@ -327,7 +327,7 @@ finna.record = (function finnaRecord() {
     }
   }
 
-  function loadRecommendedRecords(selector, method)
+  function loadRelatedRecords(selector, method)
   {
     var el = $('.sidebar ' + selector);
     if (el.length === 0) {
@@ -355,12 +355,12 @@ finna.record = (function finnaRecord() {
 
   function loadSimilarRecords()
   {
-    loadRecommendedRecords('.similar-records', 'getSimilarRecords');
+    loadRelatedRecords('.similar-records', 'getSimilarRecords');
   }
 
   function loadRecordDriverRelatedRecords()
   {
-    loadRecommendedRecords('.record-driver-related-records', 'getRecordDriverRelatedRecords');
+    loadRelatedRecords('.record-driver-related-records', 'getRecordDriverRelatedRecords');
   }
 
   function initRecordVersions(_holder) {
