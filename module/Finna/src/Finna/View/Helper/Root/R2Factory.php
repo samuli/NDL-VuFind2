@@ -62,16 +62,8 @@ class R2Factory implements FactoryInterface
             throw new \Exception('Unexpected options sent to factory.');
         }
 
-        $r2Conf = $container->get(\VuFind\Config\PluginManager::class)
-            ->get('R2');
-        $enabled = $r2Conf->General->enabled ?? false;
-        $auth = $container->get(\LmcRbacMvc\Service\AuthorizationService::class);
+        $r2 = $container->get(\Finna\Service\R2Service::class);
         $rems = $container->get(\Finna\RemsService\RemsService::class);
-
-        return new $requestedName(
-            $enabled,
-            $auth->isGranted('access.R2Authenticated'),
-            $rems
-        );
+        return new $requestedName($r2->isEnabled(), $r2->isAuthenticated(), $rems);
     }
 }

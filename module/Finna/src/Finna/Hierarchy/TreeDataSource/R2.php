@@ -64,7 +64,6 @@ class R2 extends \VuFind\Hierarchy\TreeDataSource\Solr
      */
     protected $cachePrefix = 'R2';
 
-
     /**
      * Constructor.
      *
@@ -79,7 +78,8 @@ class R2 extends \VuFind\Hierarchy\TreeDataSource\Solr
     ) {
         parent::__construct($connector, $fm, $cacheDir, $filters, $batchSize);
 
-        // Disable hierarchy cache since record data varies between users/access levels.
+        // Disable hierarchy cache since record data varies between
+        // users/access levels.
         $this->cacheDir = null;
     }
 }

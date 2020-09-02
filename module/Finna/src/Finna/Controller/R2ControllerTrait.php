@@ -228,8 +228,7 @@ trait R2ControllerTrait
      */
     protected function isAuthenticated()
     {
-        $auth
-            = $this->serviceLocator->get('LmcRbacMvc\Service\AuthorizationService');
-        return $auth->isGranted('access.R2Authenticated');
+        return $this->serviceLocator->get(\Finna\Service\R2Service::class)
+            ->isAuthenticated();
     }
 }

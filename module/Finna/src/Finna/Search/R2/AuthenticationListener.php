@@ -29,14 +29,14 @@
 namespace Finna\Search\R2;
 
 use Finna\RemsService\RemsService;
+use Finna\Service\R2Service;
 use FinnaSearch\Backend\R2\Connector;
-
-use VuFind\Auth\Manager;
-use VuFindSearch\Backend\BackendInterface;
 
 use Laminas\EventManager\EventInterface;
 use Laminas\EventManager\SharedEventManagerInterface;
-use LmcRbacMvc\Service\AuthorizationService;
+
+use VuFind\Auth\Manager;
+use VuFindSearch\Backend\BackendInterface;
 
 /**
  * Restricted Solr (R2) Search authentication listener.
@@ -64,11 +64,11 @@ class AuthenticationListener
     protected $authManager;
 
     /**
-     * Authorization service
+     * R2 service
      *
-     * @var LmcRbacMvc\Service\AuthorizationService
+     * @var R2Service;
      */
-    protected $authService;
+    protected $R2Service;
 
     /**
      * Connector
@@ -87,24 +87,24 @@ class AuthenticationListener
     /**
      * Constructor.
      *
-     * @param BackendInterface     $backend     Search backend
-     * @param Manager              $authManager Authentication manager
-     * @param AuthorizationService $authService Authorization service
-     * @param Connector            $connector   Backend connector
-     * @param RemsService          $rems        REMS service
+     * @param BackendInterface $backend     Search backend
+     * @param Manager          $authManager Authentication manager
+     * @param R2Service        $R2Service   R2 service
+     * @param Connector        $connector   Backend connector
+     * @param RemsService      $rems        REMS service
      *
      * @return void
      */
     public function __construct(
         BackendInterface $backend,
         Manager $authManager,
-        AuthorizationService $authService,
+        R2Service $R2Service,
         Connector $connector,
         RemsService $rems
     ) {
         $this->backend = $backend;
         $this->authManager = $authManager;
-        $this->authService = $authService;
+        $this->R2Service = $R2Service;
         $this->connector = $connector;
         $this->rems = $rems;
     }
@@ -145,7 +145,7 @@ class AuthenticationListener
                 || in_array(true, $params->get('R2Restricted') ?? [])
             ) {
                 // Verify that the user is authorized.
-                if ($this->authService->isGranted('access.R2Authenticated')
+                if ($this->R2Service->isAuthenticated()
                     && $this->rems->isUserRegisteredDuringSession()
                 ) {
                     // Pass the username to connector in order to

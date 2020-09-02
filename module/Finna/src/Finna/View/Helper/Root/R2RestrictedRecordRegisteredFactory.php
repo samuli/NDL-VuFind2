@@ -62,13 +62,10 @@ class R2RestrictedRecordRegisteredFactory implements FactoryInterface
             throw new \Exception('Unexpected options sent to factory.');
         }
 
-        $r2Conf = $container->get(\VuFind\Config\PluginManager::class)
-            ->get('R2');
-        $enabled = $r2Conf->General->enabled ?? false;
-        $auth = $container->get('LmcRbacMvc\Service\AuthorizationService');
+        $R2 = $container->get(\Finna\Service\R2Service::class);
 
         return new $requestedName(
-            $enabled,
+            $R2->isEnabled(),
             $container->get('VuFind\Config\PluginManager')->get('config'),
             $container->get('Finna\RemsService\RemsService')
         );

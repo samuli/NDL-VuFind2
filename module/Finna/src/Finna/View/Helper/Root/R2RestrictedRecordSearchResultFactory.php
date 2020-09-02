@@ -64,12 +64,9 @@ class R2RestrictedRecordSearchResultFactory implements FactoryInterface
             throw new \Exception('Unexpected options sent to factory.');
         }
 
-        $r2Conf = $container->get(\VuFind\Config\PluginManager::class)
-            ->get('R2');
-        $enabled = $r2Conf->General->enabled ?? false;
-
+        $R2 = $container->get(\Finna\Service\R2Service::class);
         $rems = $container->get('Finna\RemsService\RemsService');
 
-        return new $requestedName($enabled, $rems->hasUserAccess());
+        return new $requestedName($R2->isEnabled(), $rems->hasUserAccess());
     }
 }

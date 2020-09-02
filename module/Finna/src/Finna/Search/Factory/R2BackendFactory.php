@@ -54,18 +54,18 @@ class R2BackendFactory extends SolrDefaultBackendFactory
     protected $R2Config;
 
     /**
+     * R2 service
+     *
+     * @var \Finna\Service\R2Service
+     */
+    protected $R2Service;
+
+    /**
      * Authentication manager
      *
      * @var \VuFind\Auth\Manager
      */
     protected $authManager;
-
-    /**
-     * Authorization service
-     *
-     * @var \LmcRbacMvc\Service\AuthorizationService
-     */
-    protected $authService;
 
     /**
      * Rems Service
@@ -87,8 +87,7 @@ class R2BackendFactory extends SolrDefaultBackendFactory
     public function __construct()
     {
         parent::__construct();
-        $this->facetConfig = 'facets-R2s';
-        $this->searchConfig = 'searches-R2';
+        $this->mainConfig = $this->facetConfig = $this->searchConfig = 'R2';
     }
 
     /**
@@ -105,10 +104,11 @@ class R2BackendFactory extends SolrDefaultBackendFactory
     public function __invoke(ContainerInterface $sm, $name, array $options = null)
     {
         $this->R2Config = $sm->get('VuFind\Config\PluginManager')->get('R2');
+        $this->R2Service = $sm->get(\Finna\Service\R2Service::class);
         $this->solrCore = $this->R2Config->Index->default_core;
         $this->authManager = $sm->get(\VuFind\Auth\Manager::class);
-        $this->authService
-            = $sm->get(\LmcRbacMvc\Service\AuthorizationService::class);
+        $this->R2Service
+            = $sm->get(\Finna\Service\R2Service::class);
         $this->rems = $sm->get(\Finna\RemsService\RemsService::class);
 
         return parent::__invoke($sm, $name, $options);
@@ -122,9 +122,8 @@ class R2BackendFactory extends SolrDefaultBackendFactory
     protected function createConnector()
     {
         $connector = parent::createConnector();
-        $connector->setApiAuthentication(
-            $this->R2Config->General->apiUser, $this->R2Config->General->apiKey
-        );
+        list($apiUser, $apiKey) = $this->R2Service->getCredentials();
+        $connector->setApiAuthentication($apiUser, $apiKey);
         $connector->setRems($this->rems);
         $connector->setHttpConfig($this->R2Config->Http->toArray());
 
@@ -170,7 +169,7 @@ class R2BackendFactory extends SolrDefaultBackendFactory
         $authListener = new AuthenticationListener(
             $backend,
             $this->authManager,
-            $this->authService,
+            $this->R2Service,
             $backend->getConnector(),
             $this->rems
         );

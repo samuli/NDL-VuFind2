@@ -39,18 +39,15 @@ namespace Finna\Search\R2;
 class Options extends \Finna\Search\Solr\Options
 {
     /**
-     * Configuration file to read facet settings from
+     * Constructor
      *
-     * @var string
+     * @param \VuFind\Config\PluginManager $configLoader Config loader
      */
-    protected $facetsIni = 'facets-R2';
-
-    /**
-     * Configuration file to read search settings from
-     *
-     * @var string
-     */
-    protected $searchIni = 'searches-R2';
+    public function __construct(\VuFind\Config\PluginManager $configLoader)
+    {
+        $this->mainIni = $this->searchIni = $this->facetsIni = 'R2';
+        parent::__construct($configLoader);
+    }
 
     /**
      * Return the route name for the search results action.

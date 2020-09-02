@@ -63,8 +63,8 @@ class LoaderFactory extends \VuFind\Record\LoaderFactory
         );
         $conf = $container->get('VuFind\Config\PluginManager')->get('R2');
         if ($conf->General->enabled ?? false) {
-            $auth = $container->get('LmcRbacMvc\Service\AuthorizationService');
-            if ($auth->isGranted('access.R2Authenticated')) {
+            $R2 = $container->get(\Finna\Service\R2Service::class);
+            if ($R2->isAuthenticated()) {
                 // Request R2 record with restricted metadata
                 $loader->setR2Authenticated(true);
             }

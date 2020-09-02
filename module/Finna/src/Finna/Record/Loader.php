@@ -72,9 +72,9 @@ class Loader extends \VuFind\Record\Loader
     }
 
     /**
-     * Set preferred language for display strings from RecordDriver.
+     * Set R2 authenticated mode.
      *
-     * @param string $language Language
+     * @param bool $mode Mode
      *
      * @return void
      */

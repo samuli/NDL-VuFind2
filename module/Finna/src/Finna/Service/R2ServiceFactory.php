@@ -1,6 +1,6 @@
 <?php
 /**
- * RemsService factory.
+ * Restricted Solr search R2 service factory.
  *
  * PHP version 7
  *
@@ -25,13 +25,13 @@
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development Wiki
  */
-namespace Finna\RemsService;
+namespace Finna\Service;
 
 use Interop\Container\ContainerInterface;
 use Laminas\ServiceManager\Factory\FactoryInterface;
 
 /**
- * RemsService factory.
+ * Restricted Solr search R2 service factory.
  *
  * @category VuFind
  * @package  Service
@@ -39,7 +39,7 @@ use Laminas\ServiceManager\Factory\FactoryInterface;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development Wiki
  */
-class RemsServiceFactory implements FactoryInterface
+class R2ServiceFactory implements FactoryInterface
 {
     /**
      * Create an object
@@ -62,22 +62,10 @@ class RemsServiceFactory implements FactoryInterface
             throw new \Exception('Unexpected options passed to factory.');
         }
 
-        $sessionContainer = new \Laminas\Session\Container(
-            'rems_permission',
-            $container->get(\Laminas\Session\SessionManager::class)
-        );
-        $shibbolethSessionContainer = new \Laminas\Session\Container(
-            'Shibboleth', $container->get(\Laminas\Session\SessionManager::class)
-        );
-        $R2 = $container->get(\Finna\Service\R2Service::class);
-
         return new $requestedName(
             $container->get(\VuFind\Config\PluginManager::class)
-                ->get('Rems'),
-            $sessionContainer,
-            $shibbolethSessionContainer['username'] ?? null,
-            $container->get('VuFind\Auth\Manager'),
-            $R2->isAuthenticated()
+                ->get('R2'),
+            $container->get('LmcRbacMvc\Service\AuthorizationService')
         );
     }
 }
