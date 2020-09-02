@@ -1219,7 +1219,6 @@ hide_holdings[] = "World Wide Web"
 ;    WorldCatSimilar - Similarity based on WorldCat lookup
 ;    WorkExpressions - Other expressions or versions of the record
 related[] = "SimilarDeferred"
-;related[] = "RecordDriverRelatedDeferred"
 
 ; Presenter roles that are displayed separately from other authors
 presenter_roles[] = "esitt"
