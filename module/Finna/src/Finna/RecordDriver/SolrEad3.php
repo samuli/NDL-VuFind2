@@ -654,7 +654,7 @@ class SolrEad3 extends SolrEad
      *
      * @return array
      */
-    public function getRelatedItems()
+    public function getRelatedRecords()
     {
         $record = $this->getXmlRecord();
 
@@ -694,6 +694,17 @@ class SolrEad3 extends SolrEad
         }
 
         return $relations;
+    }
+
+    /**
+     * Whether the record has related records declared in metadata.
+     * (used by RecordDriverRelated related module).
+     *
+     * @return bool
+     */
+    public function hasRelatedRecords()
+    {
+        return !empty($this->getRelatedRecords());
     }
 
     /**

@@ -405,6 +405,8 @@ $config = [
                         'Finna\AjaxHandler\GetOrganisationPageFeedFactory',
                     'Finna\AjaxHandler\GetPiwikPopularSearches' =>
                         'Finna\AjaxHandler\GetPiwikPopularSearchesFactory',
+                    'Finna\AjaxHandler\GetRecordDriverRelatedRecords' =>
+                        'Finna\AjaxHandler\GetRecordDriverRelatedRecordsFactory',
                     'Finna\AjaxHandler\GetRecordInfoByAuthority' =>
                         'Finna\AjaxHandler\GetRecordInfoByAuthorityFactory',
                     'Finna\AjaxHandler\GetRecordVersions' =>
@@ -449,6 +451,7 @@ $config = [
                     'getMyLists' => 'Finna\AjaxHandler\GetUserLists',
                     'getOrganisationInfo' => 'Finna\AjaxHandler\GetOrganisationInfo',
                     'getPiwikPopularSearches' => 'Finna\AjaxHandler\GetPiwikPopularSearches',
+                    'getRecordDriverRelatedRecords' => 'Finna\AjaxHandler\GetRecordDriverRelatedRecords',
                     'getRecordInfoByAuthority' => 'Finna\AjaxHandler\GetRecordInfoByAuthority',
                     'getRecordVersions' => 'Finna\AjaxHandler\GetRecordVersions',
                     'getSearchTabsRecommendations' => 'Finna\AjaxHandler\GetSearchTabsRecommendations',
@@ -783,14 +786,14 @@ $config = [
             ],
             'related' => [
                 'factories' => [
-                    'Finna\Related\RecordDriverRelated' => 'Finna\Related\RecordDriverRelatedFactory',
+                    'Finna\Related\RecordDriverRelatedDeferred' => 'Finna\Related\RecordDriverRelatedDeferredFactory',
                     'Finna\Related\Nothing' => 'Laminas\ServiceManager\Factory\InvokableFactory',
                     'Finna\Related\SimilarDeferred' => 'Laminas\ServiceManager\Factory\InvokableFactory',
                     'Finna\Related\WorkExpressions' => 'Finna\Related\WorkExpressionsFactory',
                 ],
                 'aliases' =>  [
                     'nothing' => 'Finna\Related\Nothing',
-                    'recorddriverrelated' => 'Finna\Related\RecordDriverRelated',
+                    'recorddriverrelateddeferred' => 'Finna\Related\RecordDriverRelatedDeferred',
                     'similardeferred' => 'Finna\Related\SimilarDeferred',
                     'workexpressions' => 'Finna\Related\WorkExpressions',
                 ]

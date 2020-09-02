@@ -327,27 +327,40 @@ finna.record = (function finnaRecord() {
     }
   }
 
-  function loadSimilarRecords()
+  function loadRecommendedRecords(selector, method)
   {
-    if ($('.similar-records').length === 0) {
+    var el = $('.sidebar ' + selector);
+    if (el.length === 0) {
       return;
     }
-    $.getJSON(
-      VuFind.path + '/AJAX/JSON',
-      {
-        method: 'getSimilarRecords',
-        id: $('.similar-records').data('id')
-      }
-    )
+    var spinner = el.find('.fa-spinner');
+    var data = {
+      method: method,
+      id: el.data('id')
+    };
+    if ('undefined' !== typeof el.data('source')) {
+      data.source = el.data('source');
+    }
+    $.getJSON(VuFind.path + '/AJAX/JSON', data)
       .done(function onGetSimilarRecordsDone(response) {
         if (response.data.length > 0) {
-          $('.sidebar .similar-records').html(response.data);
+          el.html(response.data);
         }
-        $('.similar-records .fa-spinner').addClass('hidden');
+        spinner.addClass('hidden');
       })
       .fail(function onGetSimilarRecordsFail() {
-        $('.similar-records .fa-spinner').addClass('hidden');
+        spinner.addClass('hidden');
       });
+  }
+
+  function loadSimilarRecords()
+  {
+    loadRecommendedRecords('.similar-records', 'getSimilarRecords');
+  }
+
+  function loadRecordDriverRelatedRecords()
+  {
+    loadRecommendedRecords('.record-driver-related-records', 'getRecordDriverRelatedRecords');
   }
 
   function initRecordVersions(_holder) {
@@ -401,6 +414,7 @@ finna.record = (function finnaRecord() {
     applyRecordAccordionHash(initialToggle);
     $(window).on('hashchange', applyRecordAccordionHash);
     loadSimilarRecords();
+    loadRecordDriverRelatedRecords();
     initRecordVersions();
     finna.authority.initAuthorityResultInfo();
   }
@@ -409,7 +423,6 @@ finna.record = (function finnaRecord() {
     checkRequestsAreValid: checkRequestsAreValid,
     init: init,
     setupHoldingsTab: setupHoldingsTab,
-    setupLocationsEad3Tab: setupLocationsEad3Tab,
     initRecordVersions: initRecordVersions
   };
 

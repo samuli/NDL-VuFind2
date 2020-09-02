@@ -782,9 +782,20 @@ trait SolrFinnaTrait
      *
      * @return array
      */
-    public function getRelatedItems()
+    public function getRelatedRecords()
     {
         return [];
+    }
+
+    /**
+     * Whether the record has related records declared in metadata.
+     * (used by RecordDriverRelated - Related module)
+     *
+     * @return bool
+     */
+    public function hasRelatedRecords()
+    {
+        return false;
     }
 
     /**
