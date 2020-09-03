@@ -61,13 +61,10 @@ class LoaderFactory extends \VuFind\Record\LoaderFactory
         $loader->setPreferredLanguage(
             $container->get('VuFind\Translator')->getLocale()
         );
-        $conf = $container->get('VuFind\Config\PluginManager')->get('R2');
-        if ($conf->General->enabled ?? false) {
-            $R2 = $container->get(\Finna\Service\R2Service::class);
-            if ($R2->isAuthenticated()) {
-                // Request R2 record with restricted metadata
-                $loader->setR2Authenticated(true);
-            }
+        $R2 = $container->get(\Finna\Service\R2Service::class);
+        if ($R2->isEnabled() && $R2->isAuthenticated()) {
+            // Request R2 record with restricted metadata
+            $loader->setR2Authenticated(true);
         }
         return $loader;
     }
