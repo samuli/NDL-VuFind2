@@ -46,11 +46,12 @@ use VuFindSearch\ParamBag;
 class Loader extends \VuFind\Record\Loader
 {
     /**
-     * Default parameters that are passed to the backend when loading a record.
+     * Backend specific default parameters that are passed to the backend
+     * when loading a record.
      *
      * @var array
      */
-    protected $defaultParams = null;
+    protected $defaultParams = [];
 
     /**
      * Preferred language for display strings from RecordDriver
@@ -81,7 +82,7 @@ class Loader extends \VuFind\Record\Loader
     public function setR2Authenticated($mode)
     {
         if ($mode) {
-            $this->defaultParams = ['R2Restricted' => true];
+            $this->defaultParams['R2'] = ['R2Restricted' => true];
         }
     }
 
@@ -113,35 +114,27 @@ class Loader extends \VuFind\Record\Loader
         }
         $missingException = false;
         try {
-            if ($this->defaultParams) {
-                $params = $params ?? new ParamBag();
-                foreach ($this->defaultParams as $key => $val) {
-                    $params->set($key, $val);
-                }
-            }
+            $params = $this->appendDefaultParams($params, $source);
             $result = parent::load($id, $source, $tolerateMissing, $params);
         } catch (RecordMissingException $e) {
             $missingException = $e;
         }
-
-        if ($missingException || $result instanceof \VuFind\RecordDriver\Missing
+        if ($source == 'Solr'
+            && ($missingException || $result instanceof \VuFind\RecordDriver\Missing)
         ) {
-            if ($source === 'Solr') {
-                if (preg_match('/\.(FIN\d+)/', $id, $matches)) {
-                    // Probably an old MetaLib record ID.
-                    // Try to find the record using its old MetaLib ID
-                    if ($mlRecord = $this->loadMetaLibRecord($matches[1])) {
-                        return $mlRecord;
-                    }
-                } elseif (preg_match('/^musketti\..+?:(.+)/', $id, $matches)) {
-                    // Old musketti record. Try to find the new record using the
-                    // inventory number.
-                    $newRecord = $this->loadRecordWithIdentifier(
-                        $matches[1], 'museovirasto'
-                    );
-                    if ($newRecord) {
-                        return $newRecord;
-                    }
+            if (preg_match('/\.(FIN\d+)/', $id, $matches)) {
+                // Probably an old MetaLib record ID. Try to find the record using
+                // its old MetaLib ID
+                if ($mlRecord = $this->loadMetaLibRecord($matches[1])) {
+                    return $mlRecord;
+                }
+            } elseif (preg_match('/^musketti\..+?:(.+)/', $id, $matches)) {
+                // Old musketti record. Try to find the new record using the
+                // inventory number.
+                $newRecord
+                    = $this->loadRecordWithIdentifier($matches[1], 'museovirasto');
+                if ($newRecord) {
+                    return $newRecord;
                 }
             }
         }
@@ -178,11 +171,10 @@ class Loader extends \VuFind\Record\Loader
     public function loadBatch(
         $ids, $tolerateBackendExceptions = false, $params = []
     ) {
-        if ($this->defaultParams) {
-            $params = array_merge($this->defaultParams, $params);
-        }
         // loadBatch needs source specific parameters.
-        // We only need to pass 'R2Restricted' param for R2.
+        if (isset($this->defaultParams['R2'])) {
+            $params = array_merge($this->defaultParams['R2'], $params);
+        }
         $sourceParams = ['R2' => new ParamBag()];
         foreach ($params as $key => $val) {
             $sourceParams['R2']->set($key, $val);
@@ -218,30 +210,29 @@ class Loader extends \VuFind\Record\Loader
             return $result;
         }
 
+        $params = $this->appendDefaultParams($params, $source);
         $records = parent::loadBatchForSource(
             $ids, $source, $tolerateBackendExceptions, $params
         );
 
         // Check the results for missing MetaLib IRD records and try to load them
-        // with their old MetaLib IDs.
-        // Replace generic Missing drivers with R2 specific.
+        // with their old MetaLib IDs
         foreach ($records as &$record) {
-            if ($record instanceof \VuFind\RecordDriver\Missing) {
-                $source = $record->getSourceIdentifier();
+            if ($record instanceof \VuFind\RecordDriver\Missing
+                && $record->getSourceIdentifier() == 'Solr'
+            ) {
                 $id = $record->getUniqueID();
-                if ($source == 'Solr') {
-                    if (preg_match('/\.(FIN\d+)/', $id, $matches)) {
-                        if ($mlRecord = $this->loadMetaLibRecord($matches[1])) {
-                            $record = $mlRecord;
-                        }
-                    } elseif (preg_match('/^musketti\..+?:(.+)/', $id, $matches)) {
-                        // Old musketti record. Try to find the new record using the
-                        // inventory number.
-                        $newRecord = $this
-                            ->loadRecordWithIdentifier($matches[1], 'museovirasto');
-                        if ($newRecord) {
-                            $record = $newRecord;
-                        }
+                if (preg_match('/\.(FIN\d+)/', $id, $matches)) {
+                    if ($mlRecord = $this->loadMetaLibRecord($matches[1])) {
+                        $record = $mlRecord;
+                    }
+                } elseif (preg_match('/^musketti\..+?:(.+)/', $id, $matches)) {
+                    // Old musketti record. Try to find the new record using the
+                    // inventory number.
+                    $newRecord = $this
+                        ->loadRecordWithIdentifier($matches[1], 'museovirasto');
+                    if ($newRecord) {
+                        $record = $newRecord;
                     }
                 }
             }
@@ -294,5 +285,25 @@ class Loader extends \VuFind\Record\Loader
         $results = $this->searchService->search('Solr', $query, 0, 1, $params)
             ->getRecords();
         return !empty($results) ? $results[0] : false;
+    }
+
+    /**
+     * Append default search parameters.
+     *
+     * @param ParamBag $params    Parameters to be appended
+     * @param string   $backendId Backend id
+     *
+     * @return ParamBag
+     */
+    protected function appendDefaultParams(
+        ParamBag $params = null, $backendId = DEFAULT_SEARCH_BACKEND
+    ) {
+        if (isset($this->defaultParams[$backendId])) {
+            $params = $params ?? new ParamBag();
+            foreach ($this->defaultParams[$backendId] as $key => $val) {
+                $params->set($key, $val);
+            }
+        }
+        return $params;
     }
 }
