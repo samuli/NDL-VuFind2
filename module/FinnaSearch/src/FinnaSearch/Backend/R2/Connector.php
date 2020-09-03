@@ -68,7 +68,7 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
     /**
      * REMS service
      *
-     * @var \Finna\RemsService\RemsService
+     * @var \Finna\Service\RemsService
      */
     protected $rems;
 
@@ -119,7 +119,7 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
     /**
      * Set REMS service
      *
-     * @param \Finna\RemsService\RemsService $rems REMS service
+     * @param \Finna\Service\RemsService $rems REMS service
      *
      * @return void
      */
