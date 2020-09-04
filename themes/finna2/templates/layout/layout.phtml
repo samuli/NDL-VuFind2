@@ -357,9 +357,6 @@ JS;
         </div>
       </div>
     </header>
-    <?php if ($template = $this->content()->findTemplateForLng("content/Additions/header-post")): ?>
-      <div><?=$this->render($template)?></div>
-    <?php endif; ?>
     <section role="search" class="searchContent<?=$currentTabClass?>">
       <h1 class="sr-only"><?=$this->transEsc('Search')?></h1>
         <?php if ($this->layout()->templateName === 'home' && $this->layout()->templateDir === 'search'): ?>
