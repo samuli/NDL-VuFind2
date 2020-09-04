@@ -59,7 +59,7 @@ class Resource extends \VuFind\Db\Row\Resource
         }
 
         // Save only record id for restricted Solr R2 records
-        if ($driver instanceOf \Finna\RecordDriver\R2Ead3) {
+        if ($driver instanceof \Finna\RecordDriver\R2Ead3) {
             $this->title = '';
             $this->author = $this->year = $this->extra_metadata = null;
         }
