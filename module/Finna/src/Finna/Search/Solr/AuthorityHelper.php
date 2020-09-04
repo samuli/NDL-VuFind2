@@ -347,9 +347,6 @@ class AuthorityHelper
     protected function formatDisplayText($record, $role = null)
     {
         $displayText = $record->getTitle();
-        if (empty($displayText) && $altTitles = $record->getAlternativeTitles()) {
-            $displayText = $altTitles[0];
-        }
         if ($role) {
             $role = mb_strtolower(
                 $this->translator->translate("CreatorRoles::$role")
