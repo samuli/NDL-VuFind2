@@ -51,6 +51,8 @@
 #   or a different set of fields is configured in 'fields' list):
 #      hideSenderInfo (boolean) Hide default sender fields (name & email)
 #
+#   hideRecipientInfo (boolean) Hide recipient info (default = false)
+#
 #   help
 #     pre (string)  Help text displayed at the beginning of the form (translation key).
 #     post (string) Help text displayed at the end of the form (translation key)
@@ -213,6 +215,7 @@ forms:
         label: feedback_message
         required: true
 
+  # REMS registration form for new users
   R2Register:
     allowLocalOverride: false
     title: "R2_register_form_title"
@@ -249,6 +252,7 @@ forms:
         required: true
         label: First Name
         help: R2_register_form_userinfo
+
       - name: lastname
         type: text
         required: true
@@ -270,6 +274,7 @@ forms:
           - R2_register_form_age
         required: true
 
+  # REMS registration form for returning users
   R2RegisterReturningUser:
     allowLocalOverride: false
     title: "R2_register_form_title"
@@ -298,6 +303,7 @@ forms:
         label: R2_register_form_usage
         help:
           post: R2_register_form_usage_help_html
+
         placeholder: Select
         required: true
       - name: firstname
@@ -305,6 +311,7 @@ forms:
         required: true
         label: First Name
         help: R2_register_form_userinfo
+
       - name: lastname
         type: text
         required: true
