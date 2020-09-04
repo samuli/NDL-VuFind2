@@ -540,6 +540,7 @@ finna.imagePaginator = (function imagePaginator() {
           }
           _.trigger.trigger('removeclick');
           $(image).parents('.grid').addClass('no-image');
+          $(image).parents('.result').addClass('no-image');
         }
         if (!_.isList && _.images.length <= 1) {
           _.root.closest('.media-left').not('.audio').addClass('hidden-xs');
@@ -653,6 +654,9 @@ finna.imagePaginator = (function imagePaginator() {
   FinnaPaginator.prototype.loadImageInformation = function loadImageInformation() {
     var _ = this;
     var src = VuFind.path + '/AJAX/JSON?method=getImageInformation&id=' + encodeURIComponent(_.settings.recordId) + '&index=' + _.openImageIndex;
+    if (typeof _.settings.recordSource != 'undefined') {
+      src += '&source=' + encodeURIComponent(_.settings.recordSource);
+    }
 
     if (typeof publicList !== 'undefined') {
       src += '&publicList=1';
