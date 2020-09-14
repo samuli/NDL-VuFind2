@@ -1,5 +1,5 @@
 <?php
-return [
+$config = [
     'extends' => 'bootstrap3',
     'helpers' => [
         'factories' => [
@@ -261,3 +261,5 @@ return [
     ],
     'favicon' => 'favicon.ico',
 ];
+include 'components.config.php';
+return $config;
