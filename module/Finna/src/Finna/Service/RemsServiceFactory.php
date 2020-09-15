@@ -62,22 +62,25 @@ class RemsServiceFactory implements FactoryInterface
             throw new \Exception('Unexpected options passed to factory.');
         }
 
+        $sessionManager = $container->get(\Laminas\Session\SessionManager::class);
+
         $sessionContainer = new \Laminas\Session\Container(
             'rems_permission',
-            $container->get(\Laminas\Session\SessionManager::class)
+            $sessionManager
         );
         $shibbolethSessionContainer = new \Laminas\Session\Container(
-            'Shibboleth', $container->get(\Laminas\Session\SessionManager::class)
+            'Shibboleth', $sessionManager
         );
-        $R2 = $container->get(\Finna\Service\R2Service::class);
+        $auth = $container->get('LmcRbacMvc\Service\AuthorizationService');
+        $user = $container->get('VuFind\Auth\Manager')->isLoggedIn();
 
         return new $requestedName(
             $container->get(\VuFind\Config\PluginManager::class)
                 ->get('Rems'),
             $sessionContainer,
-            $shibbolethSessionContainer['username'] ?? null,
-            $container->get('VuFind\Auth\Manager'),
-            $R2->isAuthenticated()
+            $shibbolethSessionContainer['identity_number'] ?? null,
+            $user ? $user->username : null,
+            $auth->isGranted('access.R2Authenticated')
         );
     }
 }

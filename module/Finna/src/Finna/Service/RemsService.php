@@ -70,7 +70,7 @@ class RemsService implements
     const TYPE_USER = 2;
 
     /**
-     * Configuration
+     * REMS configuration
      *
      * @var Config
      */
@@ -91,7 +91,14 @@ class RemsService implements
     protected $auth;
 
     /**
-     * Is the user authenticated to use REMS?
+     * User id of the current user.
+     *
+     * @var string|null
+     */
+    protected $userId;
+
+    /**
+     * Is the user authenticated?
      *
      * @var bool
      */
@@ -102,32 +109,32 @@ class RemsService implements
      *
      * @var string
      */
-    protected $userIdentificationNumber = null;
+    protected $userIdentityNumber = null;
 
     /**
      * Constructor.
      *
-     * @param Config         $config        Configuration
-     * @param SessionManager $session       Session container
-     * @param String|null    $userId        National identification number of
-     * current user
-     * @param Manager        $auth          Auth manager
-     * @param bool           $authenticated Is the user authenticated to use REMS?
+     * @param Config         $config             REMS configuration
+     * @param SessionManager $session            Session container
+     * @param String|null    $userIdentityNumber National identification number
+     * of current user
+     * @param string|null    $userId             ID of current user
+     * @param bool           $authenticated      Is the user authenticated?
      */
     public function __construct(
         Config $config,
         Container $session = null,
-        // $userId is null when the Suomifi authentication module is created
-        // (before login, when displaying the login page)
+        // $userIdentityNumber is null when the Suomifi authentication
+        // module is created (before login, when displaying the login page)
+        $userIdentityNumber,
         $userId,
-        Manager $auth,
-        $authenticated
+        bool $authenticated
     ) {
         $this->config = $config;
         $this->session = $session;
-        $this->auth = $auth;
+        $this->userIdentityNumber = $userIdentityNumber;
+        $this->userId = $userId;
         $this->authenticated = $authenticated;
-        $this->userIdentificationNumber = $userId;
     }
 
     /**
@@ -173,8 +180,16 @@ class RemsService implements
      */
     public function hasUserAccess($ignoreCache = false, $throw = false)
     {
-        return $this->getAccessPermission($ignoreCache, $throw)
-            === RemsService::STATUS_APPROVED;
+        try {
+            return $this->getAccessPermission($ignoreCache)
+                === RemsService::STATUS_APPROVED;
+        } catch (\Exception $e) {
+            if ($throw) {
+                throw $e;
+            } else {
+                return false;
+            }
+        }
     }
 
     /**
@@ -271,7 +286,7 @@ class RemsService implements
             return null;
         }
 
-        // Fetch entitlement application and its upsage purpose
+        // Fetch entitlement application and its usage purpose
         $applicationId = $entitlements[0]['application-id'];
         if ($application = $this->getApplication($applicationId, $throw)) {
             $status = $this->mapRemsStatus($application['application/state']);
@@ -303,11 +318,11 @@ class RemsService implements
      */
     public function registerUser(
         string $email,
-        $firstname = null,
-        $lastname = null,
-        $formParams = []
+        string $firstname = '',
+        string $lastname = '',
+        array $formParams = []
     ) {
-        if (empty($this->userIdentificationNumber)) {
+        if (empty($this->userIdentityNumber)) {
             throw new \Exception('User national identification number not present');
         }
         if ($this->hasUserEntitlements()) {
@@ -315,16 +330,11 @@ class RemsService implements
             throw new \Exception('User already has entitlements');
         }
 
-        $commonName = $firstname;
-        if ($lastname) {
-            $commonName = $commonName ? " $lastname" : $lastname;
-        }
-
         // 1. Create user
         $params = [
             'userid' => $this->getUserId(),
             'email' => $email,
-            'name' => $commonName
+            'name' => trim("$firstname $lastname")
         ];
 
         $this->sendRequest(
@@ -362,7 +372,7 @@ class RemsService implements
                 ['field' => $fieldIds['license'],
                  'value' => $formParams['license'] ?? null],
                 ['field' => $fieldIds['user_id'],
-                 'value' => $this->userIdentificationNumber]
+                 'value' => $this->userIdentityNumber]
             ]
         ];
 
@@ -510,11 +520,9 @@ class RemsService implements
      */
     public function prepareUserId($userId)
     {
-        // Strip organisation-id (subdomain) from username
-        if (false !== strpos($userId, ':')) {
-            list($domain, $userId) = explode(':', $userId, 2);
-        }
-        return $userId;
+        // Strip configured prefix from username
+        $parts = explode(':', $userId, 2);
+        return $parts[1] ?? $userId;
     }
 
     /**
@@ -543,27 +551,13 @@ class RemsService implements
      */
     protected function getApplications($statuses = [])
     {
-        // TODO fetching applications by query doesn't seem to work.
-        // Fetch all and filter by status manually.
+        // Fetching applications by query doesn't work with REMS api.
+        // Therefore fetch all and filter by status manually.
 
-        $params = [];
-        /*
-        if ($statuses) {
-            $params['query'] = implode(
-                ' or ',
-                array_map(
-                    function ($status) {
-                        return "application/state:application.state/{$status}";
-                    },
-                    $statuses
-                )
-            );
-        }
-        */
         try {
             $result = $this->sendRequest(
                 'my-applications',
-                $params, 'GET', RemsService::TYPE_USER, null, false
+                null, 'GET', RemsService::TYPE_USER, null, false
             );
         } catch (\Exception $e) {
             return [];
@@ -601,11 +595,10 @@ class RemsService implements
      */
     protected function getUserId()
     {
-        if (!$user = $this->auth->isLoggedIn()) {
+        if (!$this->userId) {
             throw new \Exception('REMS: user not logged');
         }
-        $id = $user->username;
-        return $this->prepareUserId($id);
+        return $this->prepareUserId($this->userId);
     }
 
     /**
@@ -614,7 +607,7 @@ class RemsService implements
      * @param string      $url                 URL (relative)
      * @param array       $params              Request parameters
      * @param string      $method              GET|POST
-     * @param int         $userType            Rems user type (see TYPE_ADMIN etc)
+     * @param int         $apiUser             Rems API user type (see TYPE_ADMIN etc)
      * @param null|string $body                Request body
      * @param boolean     $requireRegistration Require that
      * the user has been registered to REMS during the session?
@@ -627,7 +620,7 @@ class RemsService implements
         $url,
         $params = [],
         $method = 'GET',
-        $userType = RemsService::TYPE_USER,
+        $apiUser = RemsService::TYPE_USER,
         $body = null,
         $requireRegistration = true,
         $throw = false
@@ -662,7 +655,7 @@ class RemsService implements
 
         $userId = null;
 
-        switch ($userType) {
+        switch ($apiUser) {
         case RemsService::TYPE_USER:
             $userId = $this->getUserId();
             break;
@@ -675,7 +668,7 @@ class RemsService implements
         }
 
         if ($userId === null) {
-            $err = "Invalid userType: $userType for url: $url";
+            $err = "Invalid apiUser: $apiUser for url: $url";
             $this->error($err);
             return $handleException($err);
         }
@@ -687,31 +680,23 @@ class RemsService implements
             $client->setRawBody($body['content']);
         }
 
-        $formatError = function ($exception, $response) use ($client, $params) {
-            $err = "REMS: request failed: " . $client->getRequest()->getUriString()
-            . ', params: ' . var_export($params, true);
-            if ($response !== null) {
-                $err .= ', statusCode: ' . $response->getStatusCode() . ': '
-                    . $response->getReasonPhrase()
-                    . ', response content: ' . $response->getBody();
-            }
-            if ($exception !== null) {
-                $err .= ', exception: ' . $exception->getMessage();
-            }
-            return $err;
-        };
-
         try {
             $response = $client->send();
         } catch (\Exception $e) {
-            $err = $formatError($e, null);
+            $err = 'REMS: request failed: '
+                . $client->getRequest()->getUriString()
+                . ', params: ' . var_export($params, true)
+                . ', exception: ' . $exception->getMessage();
             $this->error($err);
             return $handleException('REMS request error');
         }
 
-        $err = $formatError(null, $response);
-
         if (!$response->isSuccess() || $response->getStatusCode() !== 200) {
+            $err = 'REMS: request failed: '
+                . $client->getRequest()->getUriString()
+                . ', statusCode: ' . $response->getStatusCode() . ': '
+                . $response->getReasonPhrase()
+                . ', response content: ' . $response->getBody();
             $this->error($err);
             return $handleException('REMS request error');
         }
@@ -721,6 +706,11 @@ class RemsService implements
         if ($method === 'POST'
             && (!isset($response['success']) || !$response['success'])
         ) {
+            $err = 'REMS: POST request failed: '
+                . $client->getRequest()->getUriString()
+                . ', statusCode: ' . $response->getStatusCode() . ': '
+                . $response->getReasonPhrase()
+                . ', response content: ' . $response->getBody();
             $this->error($err);
             return $handleException('REMS request error');
         }
@@ -792,7 +782,7 @@ class RemsService implements
     /**
      * Get REMS catalogue item id from configuration
      *
-     * @return string|null
+     * @return int|null
      */
     protected function getCatalogItemId()
     {
