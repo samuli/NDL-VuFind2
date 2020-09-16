@@ -252,4 +252,24 @@ class Bootstrapper
         $routeName = $routeMatch !== null ? $routeMatch->getMatchedRouteName() : '';
         return substr($routeName, -3) === 'Api';
     }
+
+    /**
+     * Set up language handling.
+     *
+     * @return void
+     */
+    protected function initSuomifiLogoutListener()
+    {
+        $callback = function ($event) use ($config, $sm) {
+            $r2Config = $sm->get(\VuFind\Config\PluginManager::class)->get('Rems');
+            if (!$r2Config->R2->enabled ?? false) {
+                return;
+            }
+            $rems = $sm->get(\Finna\Service\RemsService::class);
+            $rems->onLogout();
+        };
+        $this->events->attach(
+            'Finna\Auth\Suomifi', \Finna\Auth\Suomifi::EVENT_LOGOUT, $callback, 9000
+        );
+    }
 }
