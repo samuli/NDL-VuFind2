@@ -28,6 +28,7 @@
 namespace Finna\Service;
 
 use Laminas\Config\Config;
+use Laminas\EventManager\SharedEventManagerInterface;
 use Laminas\Session\Container;
 use VuFind\Auth\Manager;
 
@@ -249,6 +250,19 @@ class RemsService implements
     public function hasUserEntitlements()
     {
         return !empty($this->getEntitlements());
+    }
+
+    /**
+     * Attach listener to shared event manager.
+     *
+     * @param SharedEventManagerInterface $manager Shared event manager
+     *
+     * @return void
+     */
+    public function attach(
+        SharedEventManagerInterface $manager
+    ) {
+        $manager->attach('Finna\Auth\Suomifi', 'logout', [$this, 'onLogout']);
     }
 
     /**
@@ -708,11 +722,11 @@ class RemsService implements
     }
 
     /**
-     * Callback after logout has been requested.
+     * Callback after Suomifi logout has been requested.
      *
      * @return void
      */
-    public function onLogoutPre()
+    protected function onLogout()
     {
         if ($this->isUserRegisteredDuringSession()) {
             $this->closeOpenApplications();

@@ -62,7 +62,8 @@ class SuomifiFactory extends \VuFind\Auth\ShibbolethFactory
         }
 
         $result = new $requestedName(
-            $container->get(\Laminas\Session\SessionManager::class)
+            $container->get(\Laminas\Session\SessionManager::class),
+            $container->get('SharedEventManager')
         );
 
         $config
