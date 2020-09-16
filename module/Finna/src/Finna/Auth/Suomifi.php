@@ -28,6 +28,7 @@
 namespace Finna\Auth;
 
 use Laminas\EventManager\EventManager;
+use Laminas\EventManager\EventManagerInterface;
 use VuFind\Exception\Auth as AuthException;
 
 /**
@@ -66,6 +67,8 @@ class Suomifi extends Shibboleth
         EventManager $events
     ) {
         $this->sessionManager = $sessionManager;
+
+        $events->setIdentifiers(['Finna\Auth\Suomifi']);
         $this->events = $events;
     }
 
@@ -107,7 +110,7 @@ class Suomifi extends Shibboleth
      */
     public function logout($url)
     {
-        $this->events->trigger(self::EVENT_LOGOUT, $this, []);
+        $this->events->trigger(self::EVENT_LOGOUT, 'Finna\Auth\Suomifi', []);
         return parent::logout($url);
     }
 

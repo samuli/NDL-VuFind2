@@ -29,6 +29,7 @@ namespace Finna\Service;
 
 use Laminas\Config\Config;
 use Laminas\EventManager\SharedEventManagerInterface;
+use Laminas\EventManager\EventInterface;
 use Laminas\Session\Container;
 use VuFind\Auth\Manager;
 
@@ -259,10 +260,12 @@ class RemsService implements
      *
      * @return void
      */
-    public function attach(
-        SharedEventManagerInterface $manager
-    ) {
-        $manager->attach('Finna\Auth\Suomifi', 'logout', [$this, 'onLogout']);
+    public function attach(SharedEventManagerInterface $manager)
+    {
+        $manager->attach(
+            'Finna\Auth\Suomifi', \Finna\Auth\Suomifi::EVENT_LOGOUT,
+            [$this, 'onLogout']
+        );
     }
 
     /**
