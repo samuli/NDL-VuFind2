@@ -724,9 +724,11 @@ class RemsService implements
     /**
      * Callback after Suomifi logout has been requested.
      *
+     * @param EventInterface $event Event
+     *
      * @return void
      */
-    protected function onLogout()
+    public function onLogout(EventInterface $event)
     {
         if ($this->isUserRegisteredDuringSession()) {
             $this->closeOpenApplications();
