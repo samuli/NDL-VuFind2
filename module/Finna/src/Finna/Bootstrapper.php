@@ -263,7 +263,7 @@ class Bootstrapper
         $sm = $this->event->getApplication()->getServiceManager();
         $callback = function ($event) use ($sm) {
             $r2Config = $sm->get(\VuFind\Config\PluginManager::class)->get('R2');
-            if (!$r2Config->R2->enabled ?? false) {
+            if (!($r2Config->R2->enabled ?? false)) {
                 return;
             }
             $rems = $sm->get(\Finna\Service\RemsService::class);
