@@ -27,6 +27,7 @@
  */
 namespace Finna\Auth;
 
+use Finna\Service\RemsService;
 use Laminas\EventManager\EventManager;
 use Laminas\EventManager\EventManagerInterface;
 use VuFind\Exception\Auth as AuthException;
@@ -57,19 +58,29 @@ class Suomifi extends Shibboleth
     protected $events = null;
 
     /**
+     * RemsService
+     *
+     * @var RemsService
+     */
+    protected $rems = null;
+
+    /**
      * Constructor
      *
      * @param \Laminas\Session\ManagerInterface $sessionManager Session manager
      * @param EventManager                      $events         Event manager
+     * @param RemsService                       $rems           RemsService
      */
     public function __construct(
         \Laminas\Session\ManagerInterface $sessionManager,
-        EventManager $events
+        EventManager $events,
+        RemsService $rems
     ) {
         $this->sessionManager = $sessionManager;
 
-        $events->setIdentifiers(['Finna\Auth\Suomifi']);
+        $events->setIdentifiers(['Suomifi']);
         $this->events = $events;
+        $this->rems = $rems;
     }
 
     /**

@@ -474,7 +474,7 @@ class RemsService implements
                 ];
                 $this->sendRequest(
                     'applications/close',
-                    null, 'POST', RemsService::TYPE_APPROVER,
+                    [], 'POST', RemsService::TYPE_APPROVER,
                     ['content' => json_encode($params)]
                 );
             }
@@ -572,11 +572,10 @@ class RemsService implements
     {
         // Fetching applications by query doesn't work with REMS api.
         // Therefore fetch all and filter by status manually.
-
         try {
             $result = $this->sendRequest(
                 'my-applications',
-                null, 'GET', RemsService::TYPE_USER, null, false
+                [], 'GET', RemsService::TYPE_USER, null, false
             );
         } catch (\Exception $e) {
             return [];
