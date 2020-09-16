@@ -74,7 +74,7 @@ class RemsServiceFactory implements FactoryInterface
         $auth = $container->get('LmcRbacMvc\Service\AuthorizationService');
         $user = $container->get('VuFind\Auth\Manager')->isLoggedIn();
 
-        $rems = $requestedName(
+        $rems = new $requestedName(
             $container->get(\VuFind\Config\PluginManager::class)
                 ->get('Rems'),
             $sessionContainer,
