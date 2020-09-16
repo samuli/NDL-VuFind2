@@ -78,7 +78,7 @@ class Suomifi extends Shibboleth
     ) {
         $this->sessionManager = $sessionManager;
 
-        $events->setIdentifiers(['Suomifi']);
+        $events->setIdentifiers(['Finna\Auth\Suomifi']);
         $this->events = $events;
         $this->rems = $rems;
     }
