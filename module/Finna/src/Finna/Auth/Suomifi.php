@@ -58,29 +58,19 @@ class Suomifi extends Shibboleth
     protected $events = null;
 
     /**
-     * RemsService
-     *
-     * @var RemsService
-     */
-    protected $rems = null;
-
-    /**
      * Constructor
      *
      * @param \Laminas\Session\ManagerInterface $sessionManager Session manager
      * @param EventManager                      $events         Event manager
-     * @param RemsService                       $rems           RemsService
      */
     public function __construct(
         \Laminas\Session\ManagerInterface $sessionManager,
-        EventManager $events,
-        RemsService $rems
+        EventManager $events
     ) {
         $this->sessionManager = $sessionManager;
 
         $events->setIdentifiers(['Finna\Auth\Suomifi']);
         $this->events = $events;
-        $this->rems = $rems;
     }
 
     /**
