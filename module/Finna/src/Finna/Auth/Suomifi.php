@@ -43,6 +43,13 @@ use VuFind\Exception\Auth as AuthException;
 class Suomifi extends Shibboleth
 {
     /**
+     * Login event.
+     *
+     * @var string
+     */
+    const EVENT_LOGIN = 'login';
+
+    /**
      * Logout event.
      *
      * @var string
@@ -97,6 +104,9 @@ class Suomifi extends Shibboleth
             );
             $session['identity_number'] = $encrypted;
         }
+        $this->events->trigger(
+            self::EVENT_LOGIN, 'Finna\Auth\Suomifi', ['user' => $result]
+        );
         return $result;
     }
 
