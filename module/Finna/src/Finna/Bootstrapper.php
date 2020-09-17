@@ -267,7 +267,7 @@ class Bootstrapper
                 return;
             }
             // Open REMS registration form after Suomifi login
-            $lightboxUrl = $sm->get(\Laminas\View\HelperPluginManager::class)
+            $lightboxUrl = $sm->get('ViewHelperManager')
                 ->get('url')->__invoke('feedback-form', ['id' => 'R2Register']);
 
             $followup = $sm->get(\Laminas\Mvc\Controller\PluginManager::class)
