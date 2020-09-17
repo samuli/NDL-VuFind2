@@ -54,7 +54,7 @@ class Suomifi extends Shibboleth
      *
      * @var EventManager
      */
-    protected $events = null;
+    protected $events;
 
     /**
      * Constructor
