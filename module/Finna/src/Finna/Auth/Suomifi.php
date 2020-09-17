@@ -27,9 +27,7 @@
  */
 namespace Finna\Auth;
 
-use Finna\Service\RemsService;
 use Laminas\EventManager\EventManager;
-use Laminas\EventManager\EventManagerInterface;
 use VuFind\Exception\Auth as AuthException;
 
 /**
