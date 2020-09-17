@@ -86,16 +86,16 @@ class Suomifi extends Shibboleth
         $result = parent::authenticate($request);
 
         $config = $this->getConfig()->Shibboleth;
-        if ($config->store_username_to_session ?? false) {
-            // Store encrypted username to session
-            $username = $this->encrypt(
-                // parent method does not hash the username
+        if ($config->store_identity_number_to_session ?? false) {
+            // Store encrypted user identity nunber to session
+            $encrypted = $this->encrypt(
+                // parent method does not hash Shibboleth variable
                 parent::getServerParam($request, $config->username)
             );
             $session = new \Laminas\Session\Container(
                 'Shibboleth', $this->sessionManager
             );
-            $session['identity_number'] = $username;
+            $session['identity_number'] = $encrypted;
         }
         return $result;
     }
