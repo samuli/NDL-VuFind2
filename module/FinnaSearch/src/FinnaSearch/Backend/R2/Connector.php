@@ -241,11 +241,11 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
                 );
             }
             if ($this->username) {
-                $blacklisted = null;
-                if ($blacklistedAt = $headers->get('x-user-blacklisted')) {
-                    $blacklisted = $blacklistedAt->getFieldValue();
+                $blocklisted = null;
+                if ($blocklistedAt = $headers->get('x-user-blacklisted')) {
+                    $blocklisted = $blocklistedAt->getFieldValue();
                 }
-                $this->rems->setBlacklistStatusFromConnector($blacklisted);
+                $this->rems->setBlocklistStatusFromConnector($blocklisted);
             }
         }
 

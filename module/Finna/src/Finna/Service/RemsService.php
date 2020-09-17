@@ -61,7 +61,7 @@ class RemsService implements
     // Session keys
     const SESSION_IS_REMS_REGISTERED = 'is-rems-user';
     const SESSION_ACCESS_STATUS = 'access-status';
-    const SESSION_BLACKLISTED = 'blacklisted';
+    const SESSION_BLOCKLISTED = 'blocklisted';
     const SESSION_USAGE_PURPOSE = 'usage-purpose';
 
     // REMS API user types
@@ -210,32 +210,32 @@ class RemsService implements
     }
 
     /**
-     * Check if the user is blacklisted.
+     * Check if the user is blocklisted.
      *
-     * Returns the date when the user was blacklisted or
-     * false if the user is not blacklisted.
+     * Returns the date when the user was blocklisted or
+     * false if the user is not blocklisted.
      *
      * @param bool $ignoreCache Ignore cache?
      *
      * @throws Exception
      * @return string|false
      */
-    public function isUserBlacklisted($ignoreCache = false)
+    public function isUserBlocklisted($ignoreCache = false)
     {
         if (!$ignoreCache) {
-            $access = $this->session->{self::SESSION_BLACKLISTED} ?? null;
+            $access = $this->session->{self::SESSION_BLOCKLISTED} ?? null;
             if ($access) {
                 return $access;
             }
         }
-        $blacklist = $this->sendRequest(
+        $blocklist = $this->sendRequest(
             'blacklist',
             ['user' => $this->getUserId(), 'resource' => $this->getResourceItemId()],
             'GET', RemsService::TYPE_APPROVER, null, false
         );
-        if (!empty($blacklist)) {
-            $addedAt = $blacklist[0]['blacklist/added-at'];
-            $this->session->{self::SESSION_BLACKLISTED} = $addedAt;
+        if (!empty($blocklist)) {
+            $addedAt = $blocklist[0]['blacklist/added-at'];
+            $this->session->{self::SESSION_BLOCKLISTED} = $addedAt;
             return $addedAt;
         }
         return false;
@@ -362,16 +362,16 @@ class RemsService implements
         $params =  [
             'application-id' => $applicationId,
             'field-values' =>  [
-                ['field' => $fieldIds['firstname'], 'value' => $firstname],
-                ['field' => $fieldIds['lastname'], 'value' => $lastname],
-                ['field' => $fieldIds['email'], 'value' => $email],
-                ['field' => $fieldIds['usage_purpose'],
+                ['form' => 2, 'field' => $fieldIds['firstname'], 'value' => $firstname],
+                ['form' => 2, 'field' => $fieldIds['lastname'], 'value' => $lastname],
+                ['form' => 2, 'field' => $fieldIds['email'], 'value' => $email],
+                ['form' => 2, 'field' => $fieldIds['usage_purpose'],
                  'value' => $formParams['usage_purpose']],
-                ['field' => $fieldIds['age'],
-                 'value' => $formParams['age'] ?? null],
-                ['field' => $fieldIds['license'],
-                 'value' => $formParams['license'] ?? null],
-                ['field' => $fieldIds['user_id'],
+                ['form' => 2, 'field' => $fieldIds['age'],
+                 'value' => $formParams['age'][0] ?? null],
+                ['form' => 2, 'field' => $fieldIds['license'],
+                 'value' => $formParams['license'][0] ?? null],
+                ['form' => 2, 'field' => $fieldIds['user_id'],
                  'value' => $this->userIdentityNumber]
             ]
         ];
@@ -498,17 +498,17 @@ class RemsService implements
     }
 
     /**
-     * Set blacklist status of current user.
+     * Set blocklist satus of current user.
      * This is called from R2 backend connector.
      *
-     * @param string|null $status Blacklist added date or
-     * null if the user is not blacklisted.
+     * @param string|null $status Blocklist added date or
+     * null if the user is not blocklisted.
      *
      * @return void
      */
-    public function setBlacklistStatusFromConnector($status)
+    public function setBlocklistStatusFromConnector($status)
     {
-        $this->session->{self::SESSION_BLACKLISTED} = $status;
+        $this->session->{self::SESSION_BLOCKLISTED} = $status;
     }
 
     /**
@@ -696,9 +696,9 @@ class RemsService implements
         ) {
             $err = 'REMS: POST request failed: '
                 . $client->getRequest()->getUriString()
-                . ', statusCode: ' . $response->getStatusCode() . ': '
-                . $response->getReasonPhrase()
-                . ', response content: ' . $response->getBody();
+                . ', params: ' . var_export($params, true)
+                . ', body: ' . var_export($client->getRequest()->getContent(), true)                
+                . ', response: ' . var_export($response, true);
             $this->error($err);
             return $handleException('REMS request error');
         }
@@ -717,7 +717,7 @@ class RemsService implements
             $this->closeOpenApplications();
         }
         $this->session->{self::SESSION_ACCESS_STATUS} = null;
-        $this->session->{self::SESSION_BLACKLISTED} = null;
+        $this->session->{self::SESSION_BLOCKLISTED} = null;
         $this->session->{self::SESSION_USAGE_PURPOSE} = null;
         $this->session->{self::SESSION_IS_REMS_REGISTERED} = null;
     }

@@ -10,7 +10,7 @@
   try {
     $hasAccess = $this->rems->hasUserAccess(true);
     $usagePurpose = $this->rems->getUsagePurpose();
-    $blacklisted = $this->rems->isUserBlacklisted(true);
+    $blocklisted = $this->rems->isUserBlocklisted(true);
   } catch (\Exception $e) {
     $error = true;
   }
