@@ -362,16 +362,16 @@ class RemsService implements
         $params =  [
             'application-id' => $applicationId,
             'field-values' =>  [
-                ['form' => 2, 'field' => $fieldIds['firstname'], 'value' => $firstname],
-                ['form' => 2, 'field' => $fieldIds['lastname'], 'value' => $lastname],
-                ['form' => 2, 'field' => $fieldIds['email'], 'value' => $email],
-                ['form' => 2, 'field' => $fieldIds['usage_purpose'],
+                ['field' => $fieldIds['firstname'], 'value' => $firstname],
+                ['field' => $fieldIds['lastname'], 'value' => $lastname],
+                ['field' => $fieldIds['email'], 'value' => $email],
+                ['field' => $fieldIds['usage_purpose'],
                  'value' => $formParams['usage_purpose']],
-                ['form' => 2, 'field' => $fieldIds['age'],
+                ['field' => $fieldIds['age'],
                  'value' => $formParams['age'][0] ?? null],
-                ['form' => 2, 'field' => $fieldIds['license'],
+                ['field' => $fieldIds['license'],
                  'value' => $formParams['license'][0] ?? null],
-                ['form' => 2, 'field' => $fieldIds['user_id'],
+                ['field' => $fieldIds['user_id'],
                  'value' => $this->userIdentityNumber]
             ]
         ];
@@ -697,7 +697,7 @@ class RemsService implements
             $err = 'REMS: POST request failed: '
                 . $client->getRequest()->getUriString()
                 . ', params: ' . var_export($params, true)
-                . ', body: ' . var_export($client->getRequest()->getContent(), true)                
+                . ', body: ' . var_export($client->getRequest()->getContent(), true)
                 . ', response: ' . var_export($response, true);
             $this->error($err);
             return $handleException('REMS request error');
