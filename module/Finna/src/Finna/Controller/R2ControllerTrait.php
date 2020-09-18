@@ -92,8 +92,7 @@ trait R2ControllerTrait
         //    (this method gets called again after the login).
         // 2. For logged users, check if the user has been registered to REMS
         //    and replace form id with the id for returning users.
-        if (!$user = $this->getUser()
-        ) {
+        if (!($user = $this->getUser())) {
             return $formId;
         }
 
