@@ -61,10 +61,8 @@ class R2Service
      * @param Config               $config      Configuration
      * @param AuthorizationService $authService Authorization service
      */
-    public function __construct(
-        Config $config,
-        $authService
-    ) {
+    public function __construct(Config $config, AuthorizationService $authService)
+    {
         $this->config = $config;
         $this->authService = $authService;
     }
