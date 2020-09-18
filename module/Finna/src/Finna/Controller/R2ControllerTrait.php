@@ -28,7 +28,6 @@
 namespace Finna\Controller;
 
 use Laminas\ServiceManager\ServiceLocatorInterface;
-use Laminas\Session\Container as SessionContainer;
 
 /**
  * R2 controller trait.
@@ -134,7 +133,7 @@ trait R2ControllerTrait
             }
         };
 
-        if (!$user = $this->getUser()) {
+        if (!($user = $this->getUser())) {
             // Not logged, prompt login
             return $this->forceLogin();
         }
