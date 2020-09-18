@@ -193,22 +193,6 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
         $client->setHeaders($headers);
         $client->setAuth($this->apiUser, $this->apiPassword);
 
-        if ($this->httpConfig['ssl_allow_selfsigned'] ?? false) {
-            $adapter = $client->getAdapter();
-            if ($adapter instanceof \Laminas\Http\Client\Adapter\Socket) {
-                $adapter->setOptions(['sslallowselfsigned' => true]);
-            } elseif ($adapter instanceof \Laminas\Http\Client\Adapter\Curl) {
-                $adapter->setOptions(
-                    [
-                        'curloptions' => [
-                            CURLOPT_SSL_VERIFYPEER => false,
-                            CURLOPT_SSL_VERIFYHOST => false
-                        ]
-                    ]
-                );
-            }
-        }
-
         $this->debug(
             sprintf(
                 '=> R2 Search headers: x-user-id: %s',
