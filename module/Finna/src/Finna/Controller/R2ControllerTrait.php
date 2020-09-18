@@ -168,8 +168,6 @@ trait R2ControllerTrait
 
         if ($this->formWasSubmitted('submit')) {
             // Handle submitted registration form
-            $user = $this->getUser();
-
             $form = $this->serviceLocator->get('VuFind\Form\Form');
             $form->setFormId($formId);
 
