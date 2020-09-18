@@ -73,6 +73,13 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
     protected $rems;
 
     /**
+     * HTTP options
+     *
+     * @var array
+     */
+    protected $httpOptions = [];
+
+    /**
      * R2 field used to store unique identifier
      *
      * $uniqueKey field is not unique in R2 but is still treated as unique by VuFind.
@@ -129,15 +136,15 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
     }
 
     /**
-     * Set HTTP configuration.
+     * Set HTTP options
      *
-     * @param Config $config Configuration
+     * @param array $options HTTP options
      *
      * @return void
      */
-    public function setHttpConfig($config)
+    public function setHttpOptions(array $options)
     {
-        $this->httpConfig = $config;
+        $this->httpOptions = $options;
     }
 
     /**
@@ -241,11 +248,11 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
                 );
             }
             if ($this->username) {
-                $blacklisted = null;
-                if ($blacklistedAt = $headers->get('x-user-blacklisted')) {
-                    $blacklisted = $blacklistedAt->getFieldValue();
+                $blocklisted = null;
+                if ($blocklistedAt = $headers->get('x-user-blacklisted')) {
+                    $blocklisted = $blocklistedAt->getFieldValue();
                 }
-                $this->rems->setBlacklistStatusFromConnector($blacklisted);
+                $this->rems->setBlocklistStatusFromConnector($blocklisted);
             }
         }
 
@@ -253,5 +260,24 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
             throw HttpErrorException::createFromResponse($response);
         }
         return $response->getBody();
+    }
+
+    /**
+     * Create the HTTP client.
+     *
+     * @param string $url    Target URL
+     * @param string $method Request method
+     *
+     * @return HttpClient
+     */
+    protected function createClient($url, $method)
+    {
+        $client = parent::createClient($url, $method);
+
+        $options = array_merge(
+            ['timeout' => $this->timeout], $this->httpOptions
+        );
+        $client->setOptions($options);
+        return $client;
     }
 }
