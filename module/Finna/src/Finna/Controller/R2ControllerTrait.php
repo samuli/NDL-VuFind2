@@ -27,6 +27,7 @@
  */
 namespace Finna\Controller;
 
+use Laminas\ServiceManager\ServiceLocatorInterface;
 use Laminas\Session\Container as SessionContainer;
 
 /**
@@ -40,6 +41,19 @@ use Laminas\Session\Container as SessionContainer;
  */
 trait R2ControllerTrait
 {
+    use \VuFind\Log\LoggerAwareTrait;
+
+    /**
+     * Constructor
+     *
+     * @param ServiceLocatorInterface $sm Service locator
+     */
+    public function __construct(ServiceLocatorInterface $sm)
+    {
+        $this->setLogger($sm->get('VuFind\Logger'));
+        parent::__construct($sm);
+    }
+
     /**
      * Handle onDispatch event
      *
@@ -196,7 +210,7 @@ trait R2ControllerTrait
                 );
             } catch (\Exception $e) {
                 $this->flashMessenger()->addErrorMessage('R2_register_error');
-                $this->flashMessenger()->addErrorMessage($e->getMessage());
+                $this->logError('REMS registration error: ' . $e->getMessage());
             }
 
             return $getRedirect();
