@@ -259,7 +259,7 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
         $client = parent::createClient($url, $method);
 
         $options = array_merge(
-            ['timeout' => $this->timeout], $this->httpOptions
+            $this->httpOptions, ['timeout' => $this->timeout]
         );
         $client->setOptions($options);
         return $client;
