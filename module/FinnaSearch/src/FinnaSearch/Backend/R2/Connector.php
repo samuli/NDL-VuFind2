@@ -49,28 +49,28 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
      *
      * @var string
      */
-    protected $username;
+    protected $username = '';
 
     /**
      * API username
      *
      * @var string
      */
-    protected $apiUser;
+    protected $apiUser = '';
 
     /**
      * API password
      *
      * @var string
      */
-    protected $apiPassword;
+    protected $apiPassword = '';
 
     /**
      * REMS service
      *
-     * @var \Finna\RemsService\RemsService
+     * @var \Finna\Service\RemsService
      */
-    protected $rems;
+    protected $rems = null;
 
     /**
      * HTTP options
@@ -126,7 +126,7 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
     /**
      * Set REMS service
      *
-     * @param \Finna\RemsService\RemsService $rems REMS service
+     * @param \Finna\Service\RemsService $rems REMS service
      *
      * @return void
      */
