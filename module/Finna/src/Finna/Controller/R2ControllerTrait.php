@@ -178,7 +178,7 @@ trait R2ControllerTrait
             $params = $this->params()->fromPost();
             $form->setData($params);
 
-            if (! $form->isValid()) {
+            if (!$form->isValid()) {
                 return $view;
             }
 
