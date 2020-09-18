@@ -82,7 +82,7 @@ trait R2ControllerTrait
      */
     protected function replaceR2RegisterFormId($formId)
     {
-        if (! \Finna\Form\Form::isR2RegisterForm($formId, true)) {
+        if (!\Finna\Form\Form::isR2RegisterForm($formId, true)) {
             // Not a R2 registration form for new users
             return null;
         }
