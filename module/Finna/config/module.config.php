@@ -225,6 +225,7 @@ $config = [
             'Finna\Controller\ErrorController' => 'VuFind\Controller\AbstractBaseFactory',
             'Finna\Controller\ExternalAuthController' => 'VuFind\Controller\AbstractBaseFactory',
             'Finna\Controller\FeedbackController' => 'VuFind\Controller\AbstractBaseFactory',
+            'Finna\Controller\R2FeedbackController' => 'VuFind\Controller\AbstractBaseFactory',
             'Finna\Controller\FeedContentController' => 'VuFind\Controller\AbstractBaseFactory',
             'Finna\Controller\LibraryCardsController' => 'VuFind\Controller\AbstractBaseFactory',
             'Finna\Controller\LocationServiceController' => 'VuFind\Controller\AbstractBaseFactory',
@@ -255,6 +256,9 @@ $config = [
             'locationservice' => 'Finna\Controller\LocationServiceController',
             'r2collection' => 'Finna\Controller\R2CollectionController',
             'R2Collection' => 'Finna\Controller\R2CollectionController',
+            'r2feedback' => 'Finna\Controller\R2FeedbackController',
+            'R2Feedback' => 'Finna\Controller\R2FeedbackController',
+            'VuFind\Controller\FeedbackController' => 'Finna\Controller\FeedbackController',
             'r2record' => 'Finna\Controller\R2RecordController',
             'R2Record' => 'Finna\Controller\R2RecordController',
             'R2' => 'Finna\Controller\R2SearchController',
@@ -313,6 +317,7 @@ $config = [
             'Finna\Feed\Feed' => 'Finna\Feed\FeedFactory',
             'Finna\Feed\LinkedEvents' => 'Finna\Feed\LinkedEventsFactory',
             'Finna\Form\Form' => 'Finna\Form\FormFactory',
+            'Finna\Form\R2Form' => 'Finna\Form\FormFactory',
             'Finna\ILS\Connection' => 'VuFind\ILS\ConnectionFactory',
             'Finna\LocationService\LocationService' => 'Finna\LocationService\LocationServiceFactory',
             'Finna\Mailer\Mailer' => 'VuFind\Mailer\Factory',
@@ -893,6 +898,7 @@ $recordRoutes = [
 // Define dynamic routes -- controller => [route name => action]
 $dynamicRoutes = [
     'Comments' => ['inappropriate' => 'inappropriate/[:id]'],
+    'R2Feedback' => ['feedback-form' => 'Form/[:id]'],
     'LibraryCards' => ['newLibraryCardPassword' => 'newPassword/[:id]'],
     'MyResearch' => ['sortList' => 'SortList/[:id]']
 ];
