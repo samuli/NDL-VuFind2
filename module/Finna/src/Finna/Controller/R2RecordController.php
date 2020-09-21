@@ -51,18 +51,6 @@ class R2recordController extends RecordController
     protected $searchClassId = 'R2';
 
     /**
-     * Constructor
-     *
-     * @param ServiceLocatorInterface $sm     Service manager
-     * @param Config                  $config VuFind configuration
-     */
-    public function __construct(ServiceLocatorInterface $sm, Config $config)
-    {
-        $this->setLogger($sm->get('VuFind\Logger'));
-        parent::__construct($sm, $config);
-    }
-
-    /**
      * Create a new ViewModel.
      *
      * @param array $params Parameters to pass to ViewModel constructor.
