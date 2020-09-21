@@ -118,4 +118,31 @@ class R2Form extends Form
 
         return parent::getDisplayString($translationKey, $escape);
     }
+
+    /**
+     * Parse form configuration.
+     *
+     * @param string $formId Form id
+     * @param array  $config Configuration
+     * @param array  $params Additional form parameters.
+     *
+     * @return array
+     */
+    protected function parseConfig($formId, $config, $params)
+    {
+        $elements = parent::parseConfig($formId, $config, $params);
+
+        // Set name fields to readonly. This will still post the fields
+        // (in contrast to disabled)
+        foreach (['firstname', 'lastname'] as $field) {
+            foreach ($elements as &$el) {
+                if ($el['name'] !== $field) {
+                    continue;
+                }
+                $el['settings']['readonly'] = 'readonly';
+            }
+        }
+
+        return $elements;
+    }
 }
