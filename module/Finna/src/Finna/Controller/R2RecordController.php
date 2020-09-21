@@ -27,6 +27,9 @@
  */
 namespace Finna\Controller;
 
+use Laminas\Config\Config;
+use Laminas\ServiceManager\ServiceLocatorInterface;
+
 /**
  * Restricted Solr (R2) record Controller
  *
@@ -46,6 +49,18 @@ class R2recordController extends RecordController
      * @var string
      */
     protected $searchClassId = 'R2';
+
+    /**
+     * Constructor
+     *
+     * @param ServiceLocatorInterface $sm     Service manager
+     * @param Config                  $config VuFind configuration
+     */
+    public function __construct(ServiceLocatorInterface $sm, Config $config)
+    {
+        $this->setLogger($sm->get('VuFind\Logger'));
+        parent::__construct($sm, $config);
+    }
 
     /**
      * Create a new ViewModel.
