@@ -1,6 +1,6 @@
 <?php
 /**
- * Feedback Controller
+ * R2 Feedback Controller
  *
  * PHP version 7
  *
@@ -34,7 +34,7 @@ use Finna\Form\Form;
 use Laminas\ServiceManager\ServiceLocatorInterface;
 
 /**
- * Feedback Controller
+ * R2 Feedback Controller
  *
  * @category VuFind
  * @package  Controller
@@ -68,9 +68,7 @@ class R2FeedbackController extends FeedbackController
     public function formAction()
     {
         $formId = $this->params()->fromRoute('id', $this->params()->fromQuery('id'));
-        $isR2Form = \Finna\Form\R2Form::isR2RegisterForm($formId);
-
-        if (!$isR2Form) {
+        if (!\Finna\Form\R2Form::isR2RegisterForm($formId)) {
             return;
         }
 
@@ -80,12 +78,12 @@ class R2FeedbackController extends FeedbackController
             if ($formId === \Finna\Form\R2Form::R2_REGISTER_FORM
                 && $this->getUser()
             ) {
-                // Replace R2 new user registration form id with the id for returning
-                // user registration form.
                 $rems
                     = $this->serviceLocator->get(\Finna\Service\RemsService::class);
                 try {
                     if ($rems->isUserRegistered()) {
+                        // Replace R2 new user registration form id with the id for
+                        // returning user registration form.
                         return $this->forwardTo(
                             'R2Feedback', 'Form',
                             ['id'
@@ -96,7 +94,7 @@ class R2FeedbackController extends FeedbackController
                 }
             }
         }
-        
+
         $inLightbox
             = $this->getRequest()->getQuery('layout', 'no') === 'lightbox'
                || 'layout/lightbox' == $this->layout()->getTemplate();
@@ -121,7 +119,7 @@ class R2FeedbackController extends FeedbackController
         // Verify that user is authenticated to access restricted R2 data.
         $isAuthenticated
             = $this->serviceLocator->get(\Finna\Service\R2Service::class)
-                ->isAuthenticated();
+            ->isAuthenticated();
         if (!$isAuthenticated) {
             return $getRedirect();
         }
@@ -155,7 +153,6 @@ class R2FeedbackController extends FeedbackController
             $view->setTemplate('feedback/form');
             $params = $this->params()->fromPost();
             $form->setData($params);
-
 
             if (!$form->isValid()) {
                 return $view;
