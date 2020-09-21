@@ -48,7 +48,7 @@ class Followup extends \Laminas\View\Helper\AbstractHelper
      * @var FollowupPlugin
      */
     protected $followup;
-    
+
     /**
      * Constructor
      *
@@ -82,11 +82,4 @@ class Followup extends \Laminas\View\Helper\AbstractHelper
     {
         return $this->followup->retrieveAndClear(...$args);
     }
-
-
-    public function store(...$args)
-    {
-        return $this->followup->store(...$args);
-    }
-
 }

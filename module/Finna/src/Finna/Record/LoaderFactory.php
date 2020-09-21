@@ -69,6 +69,14 @@ class LoaderFactory extends \VuFind\Record\LoaderFactory
             }
         } catch (\Exception $e) {
         }
+
+        $redirectSources
+            = $container->get(\VuFind\Config\PluginManager::class)->get('config')
+            ->Record->missing_record_redirect ?? null;
+        if ($redirectSources) {
+            $loader->setRecordRedirectionRules($redirectSources);
+        }
+
         return $loader;
     }
 }
