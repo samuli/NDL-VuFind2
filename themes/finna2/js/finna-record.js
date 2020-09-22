@@ -327,13 +327,13 @@ finna.record = (function finnaRecord() {
     }
   }
 
-  function loadRelatedRecords(selector, method)
+  function loadRecommendedRecords(selector, method)
   {
     var el = $('.sidebar ' + selector);
     if (el.length === 0) {
       return;
     }
-    var spinner = el.find('.fa-spinner');
+    var spinner = el.find('.fa-spinner').removeClass('hide');
     var data = {
       method: method,
       id: el.data('id')
@@ -343,24 +343,25 @@ finna.record = (function finnaRecord() {
     }
     $.getJSON(VuFind.path + '/AJAX/JSON', data)
       .done(function onGetSimilarRecordsDone(response) {
-        if (response.data.length > 0) {
-          el.html(response.data);
+        if (response.data.html.length > 0) {
+          el.html(response.data.html);
         }
         spinner.addClass('hidden');
       })
       .fail(function onGetSimilarRecordsFail() {
         spinner.addClass('hidden');
+        el.text(VuFind.translate('error_occurred'));
       });
   }
 
   function loadSimilarRecords()
   {
-    loadRelatedRecords('.similar-records', 'getSimilarRecords');
+    loadRecommendedRecords('.similar-records', 'getSimilarRecords');
   }
 
   function loadRecordDriverRelatedRecords()
   {
-    loadRelatedRecords('.record-driver-related-records', 'getRecordDriverRelatedRecords');
+    loadRecommendedRecords('.record-driver-related-records', 'getRecordDriverRelatedRecords');
   }
 
   function initRecordVersions(_holder) {
