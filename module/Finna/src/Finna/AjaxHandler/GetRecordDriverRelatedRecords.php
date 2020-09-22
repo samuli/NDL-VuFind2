@@ -126,8 +126,8 @@ class GetRecordDriverRelatedRecords extends \VuFind\AjaxHandler\AbstractBase
                     } elseif ($id = ($id['wildcard'] ?? null)) {
                         // Wildcard id. Needed when the indexed record id's
                         // differ from the ones used in metadata.
-                        // For example archive record id's are prefixed with
-                        // archive top-level id's).
+                        // For example indexed archive record id's are prefixed
+                        // with archive top-level id's.
                         $results = $this->searchRunner->run(
                             ['lookfor' => 'id:' . addcslashes($id, '"')],
                             $source,
