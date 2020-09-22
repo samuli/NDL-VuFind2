@@ -812,7 +812,7 @@ trait SolrFinnaTrait
      *
      * Returns an associative array of group => records, where each item in
      * records is either a record id or an array that has a 'wildcard' key
-     * with a Solr compatible pattern that is targeted to the 'id' field.
+     * with a Solr compatible pattern as it's value.
      *
      * Notes on wildcard queries:
      *  - Only the first record from the wildcard result set is returned.
@@ -820,13 +820,13 @@ trait SolrFinnaTrait
      *    the same datasource as the issuing record.
      *
      * The array may contain the following keys:
-     *   - parents
-     *   - children
      *   - continued-from
-     *   - other
+     *   - part-of
+     *   - contains
+     *   - see-also
      *
      * Examples:
-     * - parents
+     * - continued-from
      *     - source1.1234
      *     - ['wildcard' => '*1234']
      *     - ['wildcard' => 'source*1234*']

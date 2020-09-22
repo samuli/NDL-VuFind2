@@ -115,6 +115,7 @@ class GetRecordDriverRelatedRecords extends \VuFind\AjaxHandler\AbstractBase
                 // Show first 10 records
                 $ids = array_slice($ids, 0, 10);
                 foreach ($ids as &$id) {
+                    // Normal record id.
                     if (is_string($id)) {
                         try {
                             $records[$type][]
@@ -123,6 +124,10 @@ class GetRecordDriverRelatedRecords extends \VuFind\AjaxHandler\AbstractBase
                             // Ignore missing record
                         }
                     } elseif ($id = ($id['wildcard'] ?? null)) {
+                        // Wildcard id. Needed when the indexed record id's
+                        // differ from the ones used in metadata.
+                        // For example archive record id's are prefixed with
+                        // archive top-level id's).
                         $results = $this->searchRunner->run(
                             ['lookfor' => 'id:' . addcslashes($id, '"')],
                             $source,
