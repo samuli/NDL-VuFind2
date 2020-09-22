@@ -329,8 +329,8 @@ finna.record = (function finnaRecord() {
     }
     $.getJSON(VuFind.path + '/AJAX/JSON', data)
       .done(function onGetSimilarRecordsDone(response) {
-        if (response.data.length > 0) {
-          el.html(response.data);
+        if (response.data.html.length > 0) {
+          el.html(response.data.html);
         }
         spinner.addClass('hidden');
       })

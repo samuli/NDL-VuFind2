@@ -150,6 +150,6 @@ class GetRecordDriverRelatedRecords extends \VuFind\AjaxHandler\AbstractBase
             }
         }
 
-        return $this->formatResponse($html);
+        return $this->formatResponse(compact('html'));
     }
 }
