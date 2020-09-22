@@ -112,6 +112,8 @@ class GetRecordDriverRelatedRecords extends \VuFind\AjaxHandler\AbstractBase
             foreach ($related as $type => $ids) {
                 $records[$type] = [];
 
+                // Show first 10 records
+                $ids = array_slice($ids, 0, 10);
                 foreach ($ids as &$id) {
                     if (is_string($id)) {
                         try {
