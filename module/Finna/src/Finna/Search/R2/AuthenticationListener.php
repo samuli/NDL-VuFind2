@@ -139,7 +139,7 @@ class AuthenticationListener
             // 2. If the search context is retrieve or retrieveBatch,
             // and restricted metadata was requested.
             if (!in_array($context, ['retrieve', 'retrieveBatch'])
-                || in_array(true, $params->get('R2Restricted') ?? [])
+                || ($params && in_array(true, $params->get('R2Restricted') ?? []))
             ) {
                 // Verify that the user is authorized.
                 if ($this->R2SupportService->isAuthenticated()
