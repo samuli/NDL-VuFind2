@@ -336,6 +336,7 @@ finna.record = (function finnaRecord() {
       })
       .fail(function onGetSimilarRecordsFail() {
         spinner.addClass('hidden');
+        el.text(VuFind.translate('error_occurred'));
       });
   }
 
