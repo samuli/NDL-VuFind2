@@ -741,13 +741,13 @@ class SolrEad3 extends SolrEad
      *    the same datasource as the issuing record.
      *
      * The array may contain the following keys:
-     *   - parents
-     *   - children
      *   - continued-from
-     *   - other
+     *   - part-of
+     *   - contains
+     *   - see-also
      *
      * Examples:
-     * - parents
+     * - continued-from
      *     - source1.1234
      *     - ['wildcard' => '*1234']
      *     - ['wildcard' => 'source*1234*']
