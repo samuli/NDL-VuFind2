@@ -128,9 +128,6 @@ class GetRecordDriverRelatedRecords extends \VuFind\AjaxHandler\AbstractBase
                                 $params->setLimit(1);
                                 $params->setPage(1);
                                 $params->resetFacetConfig();
-                                $params->addFilter(
-                                    'datasource_str_mv:' . $driver->getDatasource()
-                                );
                                 $options = $params->getOptions();
                                 $options->disableHighlighting();
                                 $options->spellcheckEnabled(false);
