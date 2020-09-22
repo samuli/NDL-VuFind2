@@ -319,7 +319,7 @@ finna.record = (function finnaRecord() {
     if (el.length === 0) {
       return;
     }
-    var spinner = el.find('.fa-spinner');
+    var spinner = el.find('.fa-spinner').removeClass('hide');
     var data = {
       method: method,
       id: el.data('id')
