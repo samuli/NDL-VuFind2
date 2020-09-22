@@ -802,17 +802,6 @@ trait SolrFinnaTrait
     }
 
     /**
-     * Whether the record has related records declared in metadata.
-     * (used by RecordDriverRelated - Related module)
-     *
-     * @return bool
-     */
-    public function hasRelatedRecords()
-    {
-        return false;
-    }
-
-    /**
      * Get work identification keys
      *
      * @return array
