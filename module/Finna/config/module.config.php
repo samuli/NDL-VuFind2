@@ -786,14 +786,14 @@ $config = [
             ],
             'related' => [
                 'factories' => [
-                    'Finna\Related\RecordDriverRelatedDeferred' => 'Finna\Related\RecordDriverRelatedDeferredFactory',
+                    'Finna\Related\RecordDriverRelated' => 'Finna\Related\RecordDriverRelatedFactory',
                     'Finna\Related\Nothing' => 'Laminas\ServiceManager\Factory\InvokableFactory',
                     'Finna\Related\SimilarDeferred' => 'Laminas\ServiceManager\Factory\InvokableFactory',
                     'Finna\Related\WorkExpressions' => 'Finna\Related\WorkExpressionsFactory',
                 ],
                 'aliases' =>  [
                     'nothing' => 'Finna\Related\Nothing',
-                    'recorddriverrelateddeferred' => 'Finna\Related\RecordDriverRelatedDeferred',
+                    'recorddriverrelated' => 'Finna\Related\RecordDriverRelated',
                     'similardeferred' => 'Finna\Related\SimilarDeferred',
                     'workexpressions' => 'Finna\Related\WorkExpressions',
                 ]

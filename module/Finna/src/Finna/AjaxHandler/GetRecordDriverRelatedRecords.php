@@ -112,14 +112,22 @@ class GetRecordDriverRelatedRecords extends \VuFind\AjaxHandler\AbstractBase
             foreach ($related as $type => $ids) {
                 $records[$type] = [];
 
+                // Show first 10 records
+                $ids = array_slice($ids, 0, 10);
                 foreach ($ids as &$id) {
+                    // Normal record id.
                     if (is_string($id)) {
                         try {
                             $records[$type][]
                                 = $this->recordLoader->load($id, $source);
                         } catch (\Exception $e) {
+                            // Ignore missing record
                         }
                     } elseif ($id = ($id['wildcard'] ?? null)) {
+                        // Wildcard id. Needed when the indexed record id's
+                        // differ from the ones used in metadata.
+                        // For example archive record id's are prefixed with
+                        // archive top-level id's).
                         $results = $this->searchRunner->run(
                             ['lookfor' => 'id:' . addcslashes($id, '"')],
                             $source,
@@ -127,9 +135,6 @@ class GetRecordDriverRelatedRecords extends \VuFind\AjaxHandler\AbstractBase
                                 $params->setLimit(1);
                                 $params->setPage(1);
                                 $params->resetFacetConfig();
-                                $params->addFilter(
-                                    'datasource_str_mv:' . $driver->getDatasource()
-                                );
                                 $options = $params->getOptions();
                                 $options->disableHighlighting();
                                 $options->spellcheckEnabled(false);
@@ -146,12 +151,12 @@ class GetRecordDriverRelatedRecords extends \VuFind\AjaxHandler\AbstractBase
             }
             if ($records) {
                 $html = $this->renderer->partial(
-                    'Related/RecordDriverRelated.phtml',
+                    'Related/RecordDriverRelatedRecordList.phtml',
                     ['results' => $records]
                 );
             }
         }
 
-        return $this->formatResponse($html);
+        return $this->formatResponse(compact('html'));
     }
 }
