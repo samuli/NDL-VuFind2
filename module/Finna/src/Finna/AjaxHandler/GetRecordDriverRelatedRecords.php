@@ -107,14 +107,19 @@ class GetRecordDriverRelatedRecords extends \VuFind\AjaxHandler\AbstractBase
         $driver = $this->recordLoader->load($id, $source);
 
         $html = '';
-        if ($related = $driver->tryMethod('getRelatedRecords', [], null)) {
+        if ($related = $driver->getRelatedRecords()) {
             $records = [];
             foreach ($related as $type => $ids) {
                 $records[$type] = [];
 
                 foreach ($ids as &$id) {
                     if (is_string($id)) {
-                        $records[$type][] = $this->recordLoader->load($id, $source);
+                        try {
+                            $records[$type][]
+                                = $this->recordLoader->load($id, $source);
+                        } catch (\Exception $e) {
+                            // Ignore missing record
+                        }
                     } elseif ($id = ($id['wildcard'] ?? null)) {
                         $results = $this->searchRunner->run(
                             ['lookfor' => 'id:' . addcslashes($id, '"')],
