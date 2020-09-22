@@ -39,7 +39,7 @@ use Laminas\ServiceManager\Factory\FactoryInterface;
  * @license  http://opensource.org/licenses/gpl-2.0.php GNU General Public License
  * @link     https://vufind.org/wiki/development Wiki
  */
-class RecordDriverRelatedDeferredFactory implements FactoryInterface
+class RecordDriverRelatedFactory implements FactoryInterface
 {
     /**
      * Create an object
@@ -59,6 +59,6 @@ class RecordDriverRelatedDeferredFactory implements FactoryInterface
         ContainerInterface $container, $requestedName, array $options = null
     ) {
         $recordLoader = $container->get('VuFind\Record\Loader');
-        return new \Finna\Related\RecordDriverRelatedDeferred($recordLoader);
+        return new \Finna\Related\RecordDriverRelated($recordLoader);
     }
 }

@@ -147,7 +147,7 @@ class GetRecordDriverRelatedRecords extends \VuFind\AjaxHandler\AbstractBase
             }
             if ($records) {
                 $html = $this->renderer->partial(
-                    'Related/RecordDriverRelated.phtml',
+                    'Related/RecordDriverRelatedRecordList.phtml',
                     ['results' => $records]
                 );
             }
