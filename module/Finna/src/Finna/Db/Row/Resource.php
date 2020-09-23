@@ -57,13 +57,21 @@ class Resource extends \VuFind\Db\Row\Resource
             $this->year = $driver->tryMethod('getYear')
                 ? $driver->tryMethod('getYear') : null;
         }
+        return $this;
+    }
 
+    /**
+     * Save
+     *
+     * @return int
+     */
+    public function save()
+    {
         // Save only record id for restricted Solr R2 records
-        if ($driver instanceOf \Finna\RecordDriver\R2Ead3) {
+        if ($this->source === 'R2') {
             $this->title = '';
             $this->author = $this->year = $this->extra_metadata = null;
         }
-
-        return $this;
+        return parent::save();
     }
 }
