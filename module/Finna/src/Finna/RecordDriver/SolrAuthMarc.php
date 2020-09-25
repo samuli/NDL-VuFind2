@@ -251,7 +251,6 @@ class SolrAuthMarc extends \VuFind\RecordDriver\SolrAuthMarc
                         $result
                     );
                 } else {
-                    $detail = '';
                     $dates = $this->getFieldSubFields($field, ['s','t'], false);
                     $detail = sprintf('%s-%s', $dates['s'] ?? '', $dates['t'] ?? '');
                     $result[] = ['data' => $groups[0], 'detail' => $detail];
