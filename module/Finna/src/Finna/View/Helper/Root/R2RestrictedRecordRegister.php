@@ -144,8 +144,6 @@ class R2RestrictedRecordRegister extends \Laminas\View\Helper\AbstractHelper
                     $note = $params['note'];
                 } elseif ($driver) {
                     $note = 'R2_restricted_record_note_html';
-                } else {
-                    $note = 'R2_restricted_record_note_frontpage_html';
                 }
             }
 
