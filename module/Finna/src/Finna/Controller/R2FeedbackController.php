@@ -89,13 +89,9 @@ class R2FeedbackController extends FeedbackController
             }
         }
 
-        $inLightbox
-            = $this->getRequest()->getQuery('layout', 'no') === 'lightbox'
-               || 'layout/lightbox' == $this->layout()->getTemplate();
-
-        $getRedirect = function () use ($inLightbox) {
+        $getRedirect = function () {
             // Logged but not authorized (wrong login method etc), close form
-            if ($inLightbox) {
+            if ($this->inLightbox()) {
                 // Login completed inside lightbox: refresh page
                 $response = $this->getResponse();
                 $response->setStatusCode(205);
