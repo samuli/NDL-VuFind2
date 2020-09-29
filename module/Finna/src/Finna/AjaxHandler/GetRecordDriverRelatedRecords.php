@@ -29,7 +29,6 @@ namespace Finna\AjaxHandler;
 
 use VuFind\Record\Loader;
 use VuFind\Search\SearchRunner;
-use VuFind\Session\Settings as SessionSettings;
 use Zend\Mvc\Controller\Plugin\Params;
 use Zend\View\Renderer\RendererInterface;
 
@@ -68,16 +67,14 @@ class GetRecordDriverRelatedRecords extends \VuFind\AjaxHandler\AbstractBase
     /**
      * Constructor
      *
-     * @param SessionSettings   $ss           Session settings
      * @param Loader            $loader       Record loader
      * @param SearchRunner      $searchRunner Search runner
      * @param RendererInterface $renderer     View renderer
      */
     public function __construct(
-        SessionSettings $ss, Loader $loader, SearchRunner $searchRunner,
+        Loader $loader, SearchRunner $searchRunner,
         RendererInterface $renderer
     ) {
-        $this->sessionSettings = $ss;
         $this->recordLoader = $loader;
         $this->searchRunner = $searchRunner;
         $this->renderer = $renderer;
@@ -92,8 +89,6 @@ class GetRecordDriverRelatedRecords extends \VuFind\AjaxHandler\AbstractBase
      */
     public function handleRequest(Params $params)
     {
-        $this->disableSessionWrites();  // avoid session write timing bug
-
         $id = $params->fromPost('id', $params->fromQuery('id'));
 
         if (empty($id)) {

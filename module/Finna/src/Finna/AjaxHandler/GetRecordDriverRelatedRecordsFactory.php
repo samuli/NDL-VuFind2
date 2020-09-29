@@ -64,7 +64,6 @@ class GetRecordDriverRelatedRecordsFactory
             throw new \Exception('Unexpected options passed to factory.');
         }
         $result = new $requestedName(
-            $container->get(\VuFind\Session\Settings::class),
             $container->get(\VuFind\Record\Loader::class),
             $container->get(\VuFind\Search\SearchRunner::class),
             $container->get('ViewRenderer')
