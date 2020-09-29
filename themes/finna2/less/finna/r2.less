@@ -65,13 +65,16 @@
   padding: 15px;
   border-radius: 5px;
   box-shadow: 1px 5px 6px -3px rgba(0, 0, 0, 0.32);
-  //display: inline-flex;
-  align-items: center;
+  display: inline-flex;
+  //align-items: center;
   .icon {
     //margin-right: 20px;
   }
   h5 {
     margin-top: 0;
+  }
+  .metadata {
+    margin-bottom: 10px;
   }
   .r2-register,
   .register {
@@ -96,14 +99,18 @@
     }
   }
   .r2-restricted-content {
-    margin-top: 10px;
+   // margin-top: 10px;
   }
 }
-@media (min-width: @screen-sm-min) {
+@media (max-width: @screen-sm-min) {
   .r2-restricted-record-register {
+    display: block;
+    .r2-restricted-info {
+      float: left;
+    }
     .r2-restricted-content {
       margin-top: 0;
-      margin-left: 35px;
+      //margin-left: 35px;
     }
   }
 }
