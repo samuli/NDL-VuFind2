@@ -30,6 +30,7 @@
 namespace Finna\Controller;
 
 use Finna\Form\Form;
+use Finna\Form\R2Form;
 
 use Laminas\ServiceManager\ServiceLocatorInterface;
 
@@ -68,15 +69,14 @@ class R2FeedbackController extends FeedbackController
     public function formAction()
     {
         $formId = $this->params()->fromRoute('id', $this->params()->fromQuery('id'));
-        if (!\Finna\Form\R2Form::isR2RegisterForm($formId)) {
+        if (!R2Form::isR2RegisterForm($formId)) {
             return;
         }
 
         $submitted = $this->formWasSubmitted('submit');
 
         if (!$submitted) {
-            if ($formId === \Finna\Form\R2Form::R2_REGISTER_FORM
-                && $this->getUser()
+            if ($formId === R2Form::R2_REGISTER_FORM && $this->getUser()
             ) {
                 $rems
                     = $this->serviceLocator->get(\Finna\Service\RemsService::class);
@@ -86,8 +86,7 @@ class R2FeedbackController extends FeedbackController
                         // returning user registration form.
                         return $this->forwardTo(
                             'R2Feedback', 'Form',
-                            ['id'
-                             => \Finna\Form\R2Form::R2_REGISTER_RETURNING_USER_FORM]
+                            ['id' => R2Form::R2_REGISTER_RETURNING_USER_FORM]
                         );
                     }
                 } catch (\Exception $e) {
