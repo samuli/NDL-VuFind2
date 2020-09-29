@@ -68,6 +68,11 @@ class R2FeedbackController extends FeedbackController
             return;
         }
 
+        if (!($user = $this->getUser())) {
+            // Not logged, prompt login
+            return $this->forceLogin();
+        }
+
         $submitted = $this->formWasSubmitted('submit');
 
         if (!$submitted) {
@@ -100,11 +105,6 @@ class R2FeedbackController extends FeedbackController
                 return $this->redirect()->toRoute('search-home');
             }
         };
-
-        if (!($user = $this->getUser())) {
-            // Not logged, prompt login
-            return $this->forceLogin();
-        }
 
         // Verify that user is authenticated to access restricted R2 data.
         $isAuthenticated
