@@ -68,13 +68,12 @@ class GetRecordDriverRelatedRecords extends \VuFind\AjaxHandler\AbstractBase
     /**
      * Constructor
      *
-     * @param SessionSettings   $ss           Session settings
      * @param Loader            $loader       Record loader
      * @param SearchRunner      $searchRunner Search runner
      * @param RendererInterface $renderer     View renderer
      */
     public function __construct(
-        SessionSettings $ss, Loader $loader, SearchRunner $searchRunner,
+        Loader $loader, SearchRunner $searchRunner,
         RendererInterface $renderer
     ) {
         $this->recordLoader = $loader;
@@ -91,8 +90,6 @@ class GetRecordDriverRelatedRecords extends \VuFind\AjaxHandler\AbstractBase
      */
     public function handleRequest(Params $params)
     {
-        $this->disableSessionWrites();  // avoid session write timing bug
-
         $id = $params->fromPost('id', $params->fromQuery('id'));
 
         if (empty($id)) {
