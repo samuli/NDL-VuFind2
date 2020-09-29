@@ -77,7 +77,6 @@ class GetRecordDriverRelatedRecords extends \VuFind\AjaxHandler\AbstractBase
         SessionSettings $ss, Loader $loader, SearchRunner $searchRunner,
         RendererInterface $renderer
     ) {
-        $this->sessionSettings = $ss;
         $this->recordLoader = $loader;
         $this->searchRunner = $searchRunner;
         $this->renderer = $renderer;
@@ -140,11 +139,11 @@ class GetRecordDriverRelatedRecords extends \VuFind\AjaxHandler\AbstractBase
                                 $options->spellcheckEnabled(false);
                             }
                         );
-                        if (!$results instanceof \VuFind\Search\EmptySet\Results
-                            && count($results->getResults())
-                        ) {
+                        if (!($results instanceof \VuFind\Search\EmptySet\Results)) {
                             $results = $results->getResults();
-                            $records[$type][] = reset($results);
+                            if (!empty($results)) {
+                                $records[$type][] = reset($results);
+                            }
                         }
                     }
                 }
