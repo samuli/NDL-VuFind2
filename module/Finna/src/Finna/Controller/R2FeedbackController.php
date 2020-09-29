@@ -47,6 +47,11 @@ class R2FeedbackController extends FeedbackController
 {
     use \VuFind\Log\LoggerAwareTrait;
 
+    /**
+     * Feedback form class
+     *
+     * @var string
+     */
     protected $formClass = \Finna\Form\R2Form::class;
 
     /**
