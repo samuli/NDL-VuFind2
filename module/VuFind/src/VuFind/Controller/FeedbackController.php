@@ -32,6 +32,13 @@ class FeedbackController extends AbstractBase
     protected $formClass = \VuFind\Form\Form::class;
 
     /**
+     * Feedback form class
+     *
+     * @var string
+     */
+    protected $formClass = \VuFind\Form\Form::class;
+
+    /**
      * Display Feedback home form.
      *
      * @return \Laminas\View\Model\ViewModel

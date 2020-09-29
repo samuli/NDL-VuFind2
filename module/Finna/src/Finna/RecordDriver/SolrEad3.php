@@ -121,7 +121,7 @@ class SolrEad3 extends SolrEad
             }
             $url = (string)$attr->href;
             $desc = $attr->linktitle ?? $url;
-            if (!$this->urlBlacklisted($url, $desc)) {
+            if (!$this->urlBlocked($url, $desc)) {
                 $urls[] = [
                     'url' => $url,
                     'desc' => (string)$desc
