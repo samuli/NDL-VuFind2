@@ -29,8 +29,6 @@ use VuFind\Form\Form;
  */
 class FeedbackController extends AbstractBase
 {
-    protected $formClass = \VuFind\Form\Form::class;
-
     /**
      * Feedback form class
      *
