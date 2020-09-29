@@ -14,7 +14,7 @@
   </div>
 <?php elseif (!$this->user && $this->id): ?>
   <?php
-    // Record page
+    // Register prompt on record page
     $setupJS['initModal'] = true;
     // Explicitly redirect Collection page login to Record controller
     $registerFormUrl = $this->url('r2record', ['id' => $this->id])
@@ -56,6 +56,7 @@
   </div>
 <?php else: ?>
    <?php
+   // Register prompt outside record page.
    if ($this->sessionExpired) {
      $setupJS['initModal'] = true;
      $setupJS['openModal'] = true;
