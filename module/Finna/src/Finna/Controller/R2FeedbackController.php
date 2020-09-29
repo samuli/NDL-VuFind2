@@ -44,6 +44,7 @@ use Laminas\ServiceManager\ServiceLocatorInterface;
  * @link     http://vufind.org   Main Site
  */
 class R2FeedbackController extends FeedbackController
+    implements \Laminas\Log\LoggerAwareInterface
 {
     use \VuFind\Log\LoggerAwareTrait;
 
@@ -53,17 +54,6 @@ class R2FeedbackController extends FeedbackController
      * @var string
      */
     protected $formClass = \Finna\Form\R2Form::class;
-
-    /**
-     * Constructor
-     *
-     * @param ServiceLocatorInterface $sm Service locator
-     */
-    public function __construct(ServiceLocatorInterface $sm)
-    {
-        $this->setLogger($sm->get('VuFind\Logger'));
-        parent::__construct($sm);
-    }
 
     /**
      * Handles rendering and submit of dynamic forms.
