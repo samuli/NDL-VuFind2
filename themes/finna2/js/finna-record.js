@@ -327,41 +327,40 @@ finna.record = (function finnaRecord() {
     }
   }
 
-  function loadRecommendedRecords(selector, method)
+  function loadRecommendedRecords(container, method)
   {
-    var el = $('.sidebar ' + selector);
-    if (el.length === 0) {
+    if (container.length === 0) {
       return;
     }
-    var spinner = el.find('.fa-spinner').removeClass('hide');
+    var spinner = container.find('.fa-spinner').removeClass('hide');
     var data = {
       method: method,
-      id: el.data('id')
+      id: container.data('id')
     };
-    if ('undefined' !== typeof el.data('source')) {
-      data.source = el.data('source');
+    if ('undefined' !== typeof container.data('source')) {
+      data.source = container.data('source');
     }
     $.getJSON(VuFind.path + '/AJAX/JSON', data)
       .done(function onGetSimilarRecordsDone(response) {
         if (response.data.html.length > 0) {
-          el.html(response.data.html);
+          container.html(response.data.html);
         }
         spinner.addClass('hidden');
       })
       .fail(function onGetSimilarRecordsFail() {
         spinner.addClass('hidden');
-        el.text(VuFind.translate('error_occurred'));
+        container.text(VuFind.translate('error_occurred'));
       });
   }
 
   function loadSimilarRecords()
   {
-    loadRecommendedRecords('.similar-records', 'getSimilarRecords');
+    loadRecommendedRecords($('.sidebar .similar-records'), 'getSimilarRecords');
   }
 
   function loadRecordDriverRelatedRecords()
   {
-    loadRecommendedRecords('.record-driver-related-records', 'getRecordDriverRelatedRecords');
+    loadRecommendedRecords($('.sidebar .record-driver-related-records'), 'getRecordDriverRelatedRecords');
   }
 
   function initRecordVersions(_holder) {
