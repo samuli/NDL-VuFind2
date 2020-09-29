@@ -136,7 +136,7 @@ class R2FeedbackController extends FeedbackController
         }
 
         if ($submitted) {
-            $form = $this->serviceLocator->get(\Finna\Form\R2Form::class);
+            $form = $this->serviceLocator->get($this->formClass);
             $form->setFormId($formId);
 
             $view = $this->createViewModel(compact('form', 'formId', 'user'));
