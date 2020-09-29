@@ -29,7 +29,6 @@ namespace Finna\AjaxHandler;
 
 use VuFind\Record\Loader;
 use VuFind\Search\SearchRunner;
-use VuFind\Session\Settings as SessionSettings;
 use Zend\Mvc\Controller\Plugin\Params;
 use Zend\View\Renderer\RendererInterface;
 
