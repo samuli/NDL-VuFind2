@@ -158,6 +158,7 @@ class R2RestrictedRecordRegister extends \Laminas\View\Helper\AbstractHelper
 
             $params = [
                 'note' => $note,
+                'instructions' => $params['instructions'] ?? null,
                 'registerLabel' => $params['registerLabel'] ?? 'R2_register',
                 'showInfoLink' => !($params['hideInfoLink'] ?? false),
                 'showInfo' => !($params['hideInfo'] ?? false),
