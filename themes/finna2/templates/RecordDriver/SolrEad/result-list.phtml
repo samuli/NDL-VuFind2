@@ -97,6 +97,7 @@ if ($img):
         <?php $recordHelper = $this->record($this->driver); ?>
         <?=$recordHelper->getOnlineUrls('results');?>
         <?=$recordHelper->getPreviews();?>
+        <?= $this->R2RestrictedRecordSearchResult($this->driver, 'info') ?>
         <?=$this->render('list/list-notes.phtml')?>
         <?php /* Hierarchy tree link */ ?>
         <?php $hierarchySource = $this->driver->getSourceIdentifier() ?? 'Solr'; ?>
