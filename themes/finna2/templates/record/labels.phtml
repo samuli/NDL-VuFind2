@@ -3,7 +3,7 @@
     <?php foreach ($labels as $label): ?>
       <?php
         $tooltip = "RecordLabelTooltip:{$label}";
-        if (true || $this->R2()->isRegistered()) {
+        if ($this->R2()->isRegistered()) {
           $tooltip .= '_registered';
         }
         $tooltip .= '_html';
