@@ -138,7 +138,7 @@
   <?php if ($this->R2()->hasUserAccess()): ?>
     <?= $this->R2RestrictedRecordRegistered(null, ['user' => $this->auth()->isLoggedIn(), 'throw' => true, 'hideInfo' => true])?>
   <?php else: ?>
-    <div class="r2-restricted-hint alert alert-success" role="status">
+    <div class="r2-restricted-hint alert alert-info" role="status">
       <i class="fa fa-info3 fa-lg"></i> <?=$this->transEsc('R2_register_hint')?>
     </div>
   <?php endif ?>
