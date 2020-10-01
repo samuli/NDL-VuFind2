@@ -24,7 +24,7 @@
   ?>
   <?= $this->partial('Helpers/R2RestrictedRecordPrompt.phtml', compact('registerFormUrl', 'showInfo', 'showInfoLink', 'note', 'registerLabel', 'instructions')) ?>
 <?php elseif ($this->blocklisted): ?>
-  <div class="alert-info authorization-notification alert alert-danger" role="alert"><?= $this->translate('R2_accessrights_blocklisted_html', ['%%name%%' => $this->name, '%%url%%' => $this->url('feedback-home'), '%%date_added%%' => $this->blocklistedDate]) ?></div>
+  <div class="authorization-notification alert alert-danger" role="alert"><?= $this->translate('R2_accessrights_blocklisted_html', ['%%name%%' => $this->name, '%%url%%' => $this->url('feedback-home'), '%%date_added%%' => $this->blocklistedDate]) ?></div>
 <?php elseif ($this->registered): ?>
   <div class="r2-restricted-record-register">
     <?php if ($this->note): ?>
