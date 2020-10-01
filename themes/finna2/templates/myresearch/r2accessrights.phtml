@@ -46,11 +46,11 @@
             </tr>
           </tbody>
         </table>
-      <?php else: ?>
-        <?= $this->R2RestrictedRecordRegister(null, ['user' => $this->auth()->isLoggedIn(), 'ignoreCache' => true, 'instructions' => 'R2_restricted_register_instructions_myresearch_html', 'hideInfo' => true, 'note' => 'R2_accessrights_register'])?>
         <div class="alert alert-info r2-change-usage-purpose" role="status">
           <i class="fa fa-info3 fa-lg"></i> <?= $this->translate('R2_change_usage_purpose_html', ['%%url%%' => $this->url('myresearch-logout')])?>
         </div>
+      <?php else: ?>
+        <?= $this->R2RestrictedRecordRegister(null, ['user' => $this->auth()->isLoggedIn(), 'ignoreCache' => true, 'instructions' => 'R2_restricted_register_instructions_myresearch_html', 'hideInfo' => true, 'note' => 'R2_accessrights_register'])?>
       <?php endif; ?>
     <?php endif; ?>
   </div>
