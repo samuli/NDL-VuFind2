@@ -334,7 +334,7 @@ class RemsService implements
         array $formParams = []
     ) {
         if (empty($this->userIdentityNumber)) {
-            //throw new \Exception('User national identification number not present');
+            throw new \Exception('User national identification number not present');
         }
         if ($this->hasUserEntitlements()) {
             // User has an open approved application, abort.
@@ -369,8 +369,6 @@ class RemsService implements
 
         $fieldIds = $this->config->RegistrationForm->field;
         $formId = (int)$this->config->RegistrationForm->id;
-
-        $this->userIdentityNumber = '123';
 
         // 3. Save draft
         $params =  [
