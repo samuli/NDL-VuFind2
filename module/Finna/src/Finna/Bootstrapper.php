@@ -28,6 +28,8 @@
  */
 namespace Finna;
 
+use Finna\Service\RemsService;
+
 use Laminas\Console\Console;
 use Laminas\Mvc\MvcEvent;
 
@@ -296,8 +298,7 @@ class Bootstrapper
         $sm = $this->event->getApplication()->getServiceManager();
         $callback = function ($event) use ($sm) {
             // Close REMS appliations before Suomifi logout
-            $rems = $sm->get(\Finna\Service\RemsService::class);
-            $rems->onLogout();
+            $sm->get(RemsService::class)->onLogout();
         };
 
         $sm->get('SharedEventManager')->attach(
@@ -318,6 +319,9 @@ class Bootstrapper
 
         $sm = $this->event->getApplication()->getServiceManager();
         $callback = function ($event) use ($sm) {
+            if (!$sm->get(RemsService::class)->isUserRegisteredDuringSession()) {
+                return;
+            }
             $url = $sm->get(\VuFind\Auth\Manager::class)->logout('');
 
             $session = $sm->get(\Laminas\Session\SessionManager::class);
