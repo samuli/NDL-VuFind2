@@ -481,7 +481,8 @@ class RemsService implements
         case 'manual-revoked':
             $status = self::STATUS_REVOKED;
             break;
-        case 'session-expired':
+        case 'session-expired-closed':
+            // REMS session closed due to user's inactivity
             $status = self::STATUS_EXPIRED;
             break;
         default:
