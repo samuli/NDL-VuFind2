@@ -260,12 +260,11 @@ class Bootstrapper
      */
     protected function initSuomifiLoginListener()
     {
+        if (!$this->isR2Enabled()) {
+            return;
+        }
         $sm = $this->event->getApplication()->getServiceManager();
         $callback = function ($event) use ($sm) {
-            $r2Config = $sm->get(\VuFind\Config\PluginManager::class)->get('R2');
-            if (!($r2Config->R2->enabled ?? false)) {
-                return;
-            }
             // Open REMS registration form after Suomifi login
             $lightboxUrl = $sm->get('ViewHelperManager')
                 ->get('url')->__invoke('r2feedback-form', ['id' => 'R2Register']);
@@ -291,12 +290,12 @@ class Bootstrapper
      */
     protected function initSuomifiLogoutListener()
     {
+        if (!$this->isR2Enabled()) {
+            return;
+        }
         $sm = $this->event->getApplication()->getServiceManager();
         $callback = function ($event) use ($sm) {
-            $r2Config = $sm->get(\VuFind\Config\PluginManager::class)->get('R2');
-            if (!($r2Config->R2->enabled ?? false)) {
-                return;
-            }
+            // Close REMS appliations before Suomifi logout
             $rems = $sm->get(\Finna\Service\RemsService::class);
             $rems->onLogout();
         };
@@ -304,5 +303,49 @@ class Bootstrapper
         $sm->get('SharedEventManager')->attach(
             'Finna\Auth\Suomifi', \Finna\Auth\Suomifi::EVENT_LOGOUT, $callback
         );
+    }
+
+    /**
+     * Set up REMS session closed listener. This is triggered by R2 connector.
+     *
+     * @return void
+     */
+    protected function initRemsSessionExpiredListener()
+    {
+        if (!$this->isR2Enabled()) {
+            return;
+        }
+
+        $sm = $this->event->getApplication()->getServiceManager();
+        $callback = function ($event) use ($sm) {
+            $url = $sm->get(\VuFind\Auth\Manager::class)->logout('', true);
+
+            $session = $sm->get(\Laminas\Session\SessionManager::class);
+            $session->start();
+            $session->regenerateId();
+
+            $manager = $sm->get('ControllerPluginManager');
+            $flash = $manager->get('Laminas\Mvc\Plugin\FlashMessenger\FlashMessenger')
+                ->addErrorMessage('R2_rems_session_expired');
+
+            return $manager->get('Redirect')->toRoute('myresearch-home');
+        };
+
+        $sm->get('SharedEventManager')->attach(
+            \FinnaSearch\Backend\R2\Connector::class,
+            \FinnaSearch\Backend\R2\Connector::EVENT_REMS_SESSION_EXPIRED, $callback
+        );
+    }
+
+    /**
+     * Check if R2 search is enabled.
+     *
+     * @return bool
+     */
+    protected function isR2Enabled()
+    {
+        $sm = $this->event->getApplication()->getServiceManager();
+        $r2Config = $sm->get(\VuFind\Config\PluginManager::class)->get('R2');
+        return $r2Config->R2->enabled ?? false;
     }
 }
