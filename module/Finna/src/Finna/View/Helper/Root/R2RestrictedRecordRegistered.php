@@ -105,7 +105,7 @@ class R2RestrictedRecordRegistered extends \Laminas\View\Helper\AbstractHelper
             }
 
             $warning = null;
-            if ($this->rems->isSearchLimitExceeded('monthly')) {
+            if ($this->rems->isSearchLimitExceeded('daily')) {
                 $warning = 'R2_daily_limit_exceeded';
             } else if ($this->rems->isSearchLimitExceeded('monthly')) {
                 $warning = 'R2_monthly_limit_exceeded';
