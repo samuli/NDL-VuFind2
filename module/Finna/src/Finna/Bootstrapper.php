@@ -318,7 +318,7 @@ class Bootstrapper
 
         $sm = $this->event->getApplication()->getServiceManager();
         $callback = function ($event) use ($sm) {
-            $url = $sm->get(\VuFind\Auth\Manager::class)->logout('', true);
+            $url = $sm->get(\VuFind\Auth\Manager::class)->logout('');
 
             $session = $sm->get(\Laminas\Session\SessionManager::class);
             $session->start();
