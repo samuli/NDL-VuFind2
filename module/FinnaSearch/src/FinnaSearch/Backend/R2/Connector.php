@@ -28,6 +28,7 @@
  */
 namespace FinnaSearch\Backend\R2;
 
+use Laminas\EventManager\EventManager;
 use Laminas\Http\Client as HttpClient;
 use VuFindSearch\Backend\Exception\HttpErrorException;
 
@@ -44,6 +45,27 @@ use VuFindSearch\ParamBag;
  */
 class Connector extends \VuFindSearch\Backend\Solr\Connector
 {
+    /**
+     * R2 daily request limit exceeded.
+     *
+     * @var string
+     */
+    const EVENT_DAILY_REQUEST_LIMIT_EXCEEDED = 'daily-request-limit-exceeded';
+
+    /**
+     * R2 monthly request limit exceeded.
+     *
+     * @var string
+     */
+    const EVENT_MONTHLY_REQUEST_LIMIT_EXCEEDED = 'monthly-request-limit-exceeded';
+
+    /**
+     * REMS session expired.
+     *
+     * @var string
+     */
+    const EVENT_REMS_SESSION_EXPIRED = 'rems-session-expired';
+
     /**
      * Username
      *
@@ -97,6 +119,14 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
      */
     protected $httpConfig;
 
+
+    /**
+     * Event manager
+     *
+     * @var EventManager
+     */
+    protected $events;
+
     /**
      * Set API user and password for authentication to index.
      *
@@ -133,6 +163,19 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
     public function setRems($rems)
     {
         $this->rems = $rems;
+    }
+
+    /**
+     * Set event manager.
+     *
+     * @param \Finna\Service\RemsService $rems REMS service
+     *
+     * @return void
+     */
+    public function setEventManager($events)
+    {
+        $events->setIdentifiers([__CLASS__]);
+        $this->events = $events;
     }
 
     /**
@@ -237,6 +280,18 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
                     $blocklisted = $blocklistedAt->getFieldValue();
                 }
                 $this->rems->setBlocklistStatusFromConnector($blocklisted);
+            }
+            if ($headers->get('x-user-session-expired-closed')) {
+                $this->events->trigger(self::EVENT_REMS_SESSION_EXPIRED);
+            }
+            $events = [
+                'x-user-daily-request-limit-exceeded' => self::EVENT_DAILY_REQUEST_LIMIT_EXCEEDED,
+                'x-user-monthly-request-limit-exceeded' => self::EVENT_MONTHLY_REQUEST_LIMIT_EXCEEDED,
+            ];
+            foreach ($events as $header => $event) {
+                if ($headers->get($header)) {
+                    $this->events->trigger($event, __CLASS__, []);
+                }
             }
         }
 

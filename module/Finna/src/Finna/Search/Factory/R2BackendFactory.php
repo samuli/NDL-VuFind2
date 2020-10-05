@@ -35,6 +35,8 @@ use VuFindSearch\Backend\Solr\Connector;
 
 use VuFindSearch\Backend\Solr\Response\Json\RecordCollectionFactory;
 
+use Laminas\EventManager\EventManager;
+
 /**
  * Abstract factory for R2 backends.
  *
@@ -66,6 +68,13 @@ class R2BackendFactory extends SolrDefaultBackendFactory
      * @var \Finna\Service\RemsService
      */
     protected $rems;
+
+    /**
+     * Event manager.
+     *
+     * @var EventManager
+     */
+    protected $events;
 
     /**
      * Solr connector class
@@ -100,6 +109,7 @@ class R2BackendFactory extends SolrDefaultBackendFactory
         $this->R2SupportService = $sm->get(\Finna\Service\R2SupportService::class);
         $this->solrCore = $this->R2Config->Index->default_core;
         $this->rems = $sm->get(\Finna\Service\RemsService::class);
+        $this->events = new EventManager($sm->get('SharedEventManager'));
 
         return parent::__invoke($sm, $name, $options);
     }
@@ -117,6 +127,7 @@ class R2BackendFactory extends SolrDefaultBackendFactory
             $credentials['apiUser'], $credentials['apiKey']
         );
         $connector->setRems($this->rems);
+        $connector->setEventManager($this->events);
         $connector->setHttpOptions($this->R2Config->Http->toArray());
 
         return $connector;
