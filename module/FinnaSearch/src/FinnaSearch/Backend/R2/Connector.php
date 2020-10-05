@@ -284,13 +284,14 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
             if ($headers->get('x-user-session-expired-closed')) {
                 $this->events->trigger(self::EVENT_REMS_SESSION_EXPIRED);
             }
-            $events = [
-                'x-user-daily-request-limit-exceeded' => self::EVENT_DAILY_REQUEST_LIMIT_EXCEEDED,
-                'x-user-monthly-request-limit-exceeded' => self::EVENT_MONTHLY_REQUEST_LIMIT_EXCEEDED,
+
+            $limits = [
+                'x-user-daily-request-limit-exceeded' => 'daily',
+                'x-user-monthly-request-limit-exceeded' => 'monthly'
             ];
-            foreach ($events as $header => $event) {
+            foreach ($limits as $header => $type) {
                 if ($headers->get($header)) {
-                    $this->events->trigger($event, __CLASS__, []);
+                    $this->rems->setSearchLimitExceededFromConnector($type);
                 }
             }
         }

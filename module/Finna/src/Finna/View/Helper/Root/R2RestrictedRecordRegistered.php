@@ -104,9 +104,16 @@ class R2RestrictedRecordRegistered extends \Laminas\View\Helper\AbstractHelper
                     . $translator->translate('R2_rems_connect_error') . '</div>';
             }
 
+            $warning = null;
+            if ($this->rems->isSearchLimitExceeded('monthly')) {
+                $warning = 'R2_daily_limit_exceeded';
+            } else if ($this->rems->isSearchLimitExceeded('monthly')) {
+                $warning = 'R2_monthly_limit_exceeded';
+            }
             $tplParams = [
                 'usagePurpose' => $this->rems->getUsagePurpose(),
-                'showInfo' => !($params['hideInfo'] ?? false)
+                'showInfo' => !($params['hideInfo'] ?? false),
+                'warning' => $warning
             ];
 
             return $this->getView()->render(

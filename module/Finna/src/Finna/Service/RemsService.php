@@ -63,6 +63,9 @@ class RemsService implements
     const SESSION_BLOCKLISTED = 'blocklisted';
     const SESSION_USAGE_PURPOSE = 'usage-purpose';
 
+    const SESSION_DAILY_LIMIT_EXCEEDED = 'daily-limit-exceeded';
+    const SESSION_MONTHLY_LIMIT_EXCEEDED = 'monthly-limit-exceeded';
+
     // REMS API user types
     const TYPE_ADMIN = 0;
     const TYPE_APPROVER = 1;
@@ -202,6 +205,22 @@ class RemsService implements
     }
 
     /**
+     * Is search limit exceeded?
+     *
+     * @param string $type daily|monthly
+     *
+     * @return bool
+     */
+    public function isSearchLimitExceeded($type = 'daily')
+    {
+        $res = $this->session->{
+            $type === 'daily'
+                ? self::SESSION_DAILY_LIMIT_EXCEEDED
+                : self::SESSION_MONTHLY_LIMIT_EXCEEDED};
+        return $res ?: false;
+    }
+
+    /**
      * Check if the user is blocklisted.
      *
      * Returns the date when the user was blocklisted or
@@ -315,7 +334,7 @@ class RemsService implements
         array $formParams = []
     ) {
         if (empty($this->userIdentityNumber)) {
-            throw new \Exception('User national identification number not present');
+            //throw new \Exception('User national identification number not present');
         }
         if ($this->hasUserEntitlements()) {
             // User has an open approved application, abort.
@@ -350,6 +369,8 @@ class RemsService implements
 
         $fieldIds = $this->config->RegistrationForm->field;
         $formId = (int)$this->config->RegistrationForm->id;
+
+        $this->userIdentityNumber = '123';
 
         // 3. Save draft
         $params =  [
@@ -503,6 +524,25 @@ class RemsService implements
     public function setBlocklistStatusFromConnector($status)
     {
         $this->session->{self::SESSION_BLOCKLISTED} = $status;
+    }
+
+
+    /**
+     * Set blocklist satus of current user.
+     * This is called from R2 backend connector.
+     *
+     * @param string|null $status Blocklist added date or
+     * null if the user is not blocklisted.
+     *
+     * @return void
+     */
+    public function setSearchLimitExceededFromConnector($type)
+    {
+        if ($type === 'daily') {
+            $this->session->{self::SESSION_DAILY_LIMIT_EXCEEDED} = true;
+        } elseif ($type === 'monthly') {
+            $this->session->{self::SESSION_MONTHLY_LIMIT_EXCEEDED} = true;
+        }
     }
 
     /**
