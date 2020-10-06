@@ -307,38 +307,43 @@ class Bootstrapper
     }
 
     /**
-     * Set up REMS session closed listener. This is triggered by R2 connector.
+     * Set up REMS session expiration warning listener.
      *
      * @return void
      */
-    protected function initRemsSessionExpiredListener()
+    protected function initRemsSessionExpirationWarningListener()
     {
         if (!$this->isR2Enabled()) {
             return;
         }
-
         $sm = $this->event->getApplication()->getServiceManager();
         $callback = function ($event) use ($sm) {
-            if (!$sm->get(RemsService::class)->isUserRegisteredDuringSession()) {
-                return;
+            $session = new \Laminas\Session\Container(
+                \Finna\View\Helper\Root\SystemMessages::SESSION_NAME,
+                $sm->get(\Laminas\Session\SessionManager::class)
+            );
+            $messages = $session['messages'] ?? [];
+
+            $key = 'R2_session_expiring';
+            unset($session->messages[$key]);
+
+            $expirationTime
+                = $sm->get(RemsService::class)->getSessionExpirationTime();
+
+            if ($expirationTime) {
+                // Add warning to session variable.
+                // The message is displayed by SystemMessages
+                $format = 'H:i';
+                $time =  $sm->get(\VuFind\Date\Converter::class)
+                    ->convertToDisplayTime(
+                        $format, date($format, $expirationTime->getTimeStamp())
+                    );
+                $messages[$key] = ['%%expire%%' => $time];
+                $session->messages = $messages;
             }
-            $url = $sm->get(\VuFind\Auth\Manager::class)->logout('');
-
-            $session = $sm->get(\Laminas\Session\SessionManager::class);
-            $session->start();
-            $session->regenerateId();
-
-            $manager = $sm->get('ControllerPluginManager');
-            $flash = $manager->get('Laminas\Mvc\Plugin\FlashMessenger\FlashMessenger')
-                ->addErrorMessage('R2_rems_session_expired');
-
-            return $manager->get('Redirect')->toRoute('myresearch-home');
         };
-
-        $sm->get('SharedEventManager')->attach(
-            \FinnaSearch\Backend\R2\Connector::class,
-            \FinnaSearch\Backend\R2\Connector::EVENT_REMS_SESSION_EXPIRED, $callback
-        );
+        
+        $this->events->attach('dispatch', $callback, 9000);
     }
 
     /**
