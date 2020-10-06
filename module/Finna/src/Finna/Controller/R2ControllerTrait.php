@@ -87,13 +87,14 @@ trait R2ControllerTrait
      */
     public function onRemsSessionExpired(EventInterface $event)
     {
-        $url = $this->url()->fromRoute('myresearch-home');
-        $url = $this->serviceLocator->get(\VuFind\Auth\Manager::class)->logout($url);
+        $url = $this->serviceLocator->get(\VuFind\Auth\Manager::class)
+            ->logout($this->url()->fromRoute('myresearch-home'));
 
-        $session
-            = $this->serviceLocator->get(\Laminas\Session\SessionManager::class);
+        $session = $this->serviceLocator->get(\Laminas\Session\SessionManager::class);
+        // Logout closed the previous session. Start a new one:
+        $session->start();
+        // Use a new session id so that any single logout hook doesn't destroy it:
         $session->regenerateId();
-
         $this->flashMessenger()->addErrorMessage('R2_rems_session_expired');
 
         return $this->redirect()->toUrl($url);
