@@ -27,6 +27,8 @@
  */
 namespace Finna\Controller;
 
+use Laminas\EventManager\EventInterface;
+use Laminas\EventManager\SharedEventManagerInterface;
 use Laminas\ServiceManager\ServiceLocatorInterface;
 
 /**
@@ -55,5 +57,45 @@ trait R2ControllerTrait
         }
 
         return parent::onDispatch($e);
+    }
+
+    /**
+     * Attach listener to shared event manager.
+     *
+     * @param SharedEventManagerInterface $manager Shared event manager
+     *
+     * @return void
+     */
+    public function attachDefaultListeners()
+    {
+        parent::attachDefaultListeners();
+
+        $events = $this->serviceLocator->get('SharedEventManager');
+        $events->attach(
+            \FinnaSearch\Backend\R2\Connector::class,
+            \FinnaSearch\Backend\R2\Connector::EVENT_REMS_SESSION_EXPIRED,
+            [$this, 'onRemsSessionExpired']
+        );
+    }
+
+    /**
+     * REMS session expired listener.
+     *
+     * @param EventInterface $event Event
+     *
+     * @return EventInterface
+     */
+    public function onRemsSessionExpired(EventInterface $event)
+    {
+        $url = $this->url()->fromRoute('myresearch-home');
+        $url = $this->serviceLocator->get(\VuFind\Auth\Manager::class)->logout($url);
+
+        $session
+            = $this->serviceLocator->get(\Laminas\Session\SessionManager::class);
+        $session->regenerateId();
+
+        $this->flashMessenger()->addErrorMessage('R2_rems_session_expired');
+
+        return $this->redirect()->toUrl($url);
     }
 }
