@@ -66,6 +66,8 @@ class RemsService implements
     const SESSION_DAILY_LIMIT_EXCEEDED = 'daily-limit-exceeded';
     const SESSION_MONTHLY_LIMIT_EXCEEDED = 'monthly-limit-exceeded';
 
+    const SESSION_USER_REGISTERED_TIME = 'user-registered-time';
+
     // REMS API user types
     const TYPE_ADMIN = 0;
     const TYPE_APPROVER = 1;
@@ -202,6 +204,37 @@ class RemsService implements
         } catch (\Exception $e) {
             return false;
         }
+    }
+
+    /**
+     * Return timestamp when REMS session expires if the expiration time
+     * is within the configured threshold.
+     *
+     * @return null|int
+     */
+    public function getSessionExpirationTime()
+    {
+        $general = $this->config->General;
+        if (!($sessionMaxAge = $general->sessionMaxAge ?? null)) {
+            return null;
+        }
+        if (!$sessionWarning = ($general->sessionExpirationWarning ?? null)) {
+            return null;
+        }
+
+        if ($registeredTime
+            = ($this->session->{RemsService::SESSION_USER_REGISTERED_TIME} ?: null)
+        ) {
+            $sessionAge = (time()-$registeredTime)/60;
+            if (($sessionAge+$sessionWarning) > $sessionMaxAge) {
+                $interval = date_interval_create_from_date_string(
+                    "{$sessionMaxAge} minutes"
+                );
+                return (new \DateTime())
+                    ->setTimeStamp($registeredTime)->add($interval);
+            }
+        }
+        return null;
     }
 
     /**
@@ -403,6 +436,7 @@ class RemsService implements
         );
 
         $this->session->{RemsService::SESSION_IS_REMS_REGISTERED} = true;
+        $this->session->{RemsService::SESSION_USER_REGISTERED_TIME} = time();
         $this->session->{RemsService::SESSION_USAGE_PURPOSE}
             = $formParams['usage_purpose_text'];
 
@@ -752,6 +786,9 @@ class RemsService implements
         $this->session->{self::SESSION_BLOCKLISTED} = null;
         $this->session->{self::SESSION_USAGE_PURPOSE} = null;
         $this->session->{self::SESSION_IS_REMS_REGISTERED} = null;
+        $this->session->{self::SESSION_USER_REGISTERED_TIME} = null;
+        $this->session->{self::SESSION_DAILY_LIMIT_EXCEEDED} = null;
+        $this->session->{self::SESSION_MONTHLY_LIMIT_EXCEEDED} = null;
     }
 
     /**
