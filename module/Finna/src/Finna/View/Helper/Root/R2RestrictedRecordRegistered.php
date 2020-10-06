@@ -94,7 +94,7 @@ class R2RestrictedRecordRegistered extends \Laminas\View\Helper\AbstractHelper
             $user = $params['user'] ?? null;
             try {
                 if (!$user
-                    || !$this->rems->hasUserAccess(false, $params['throw'] ?? false)
+                    || !$this->rems->hasUserAccess(true, $params['throw'] ?? false)
                 ) {
                     return null;
                 }
