@@ -526,20 +526,20 @@ class RemsService implements
 
 
     /**
-     * Set blocklist satus of current user.
+     * Set search limit exceeded status.
      * This is called from R2 backend connector.
      *
-     * @param string|null $status Blocklist added date or
-     * null if the user is not blocklisted.
+     * @param string $type     daily|monthly
+     * @param bool   $exceeded Limit exceeded?
      *
      * @return void
      */
-    public function setSearchLimitExceededFromConnector($type)
+    public function setSearchLimitExceededFromConnector($type, $exceeded)
     {
         if ($type === 'daily') {
-            $this->session->{self::SESSION_DAILY_LIMIT_EXCEEDED} = true;
+            $this->session->{self::SESSION_DAILY_LIMIT_EXCEEDED} = $exceeded;
         } elseif ($type === 'monthly') {
-            $this->session->{self::SESSION_MONTHLY_LIMIT_EXCEEDED} = true;
+            $this->session->{self::SESSION_MONTHLY_LIMIT_EXCEEDED} = $exceeded;
         }
     }
 

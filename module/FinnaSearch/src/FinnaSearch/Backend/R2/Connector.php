@@ -290,9 +290,9 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
                 'x-user-monthly-request-limit-exceeded' => 'monthly'
             ];
             foreach ($limits as $header => $type) {
-                if ($headers->get($header)) {
-                    $this->rems->setSearchLimitExceededFromConnector($type);
-                }
+                $this->rems->setSearchLimitExceededFromConnector(
+                    $type, (bool)$headers->get($header)
+                );
             }
         }
 
