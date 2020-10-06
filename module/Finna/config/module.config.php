@@ -270,6 +270,8 @@ $config = [
             'organisationinfo' => 'Finna\Controller\OrganisationInfoController',
             'ListPage' => 'Finna\Controller\ListController',
             'listpage' => 'Finna\Controller\ListController',
+            'r2feedback' => 'Finna\Controller\R2FeedbackController',
+            'R2Feedback' => 'Finna\Controller\R2FeedbackController',
 
             // Overrides:
             'VuFind\Controller\AuthorityController' => 'Finna\Controller\AuthorityController',
@@ -901,7 +903,8 @@ $dynamicRoutes = [
     'Comments' => ['inappropriate' => 'inappropriate/[:id]'],
     'R2Feedback' => ['r2feedback-form' => 'Form/[:id]'],
     'LibraryCards' => ['newLibraryCardPassword' => 'newPassword/[:id]'],
-    'MyResearch' => ['sortList' => 'SortList/[:id]']
+    'MyResearch' => ['sortList' => 'SortList/[:id]'],
+    'R2Feedback' => ['r2feedback-form' => 'Form/[:id]']
 ];
 
 $staticRoutes = [

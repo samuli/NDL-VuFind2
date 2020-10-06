@@ -1,5 +1,6 @@
 ---
 # REMS registration forms
+# See FeedbackForms.yaml for supported configuration options.
 #-----------------------------------------------------------------------------------
 
 forms:
