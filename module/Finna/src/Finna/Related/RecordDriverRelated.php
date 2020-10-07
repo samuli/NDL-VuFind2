@@ -39,9 +39,9 @@ namespace Finna\Related;
 class RecordDriverRelated implements \VuFind\Related\RelatedInterface
 {
     /**
-     * Records
+     * Record driver
      *
-     * @var array
+     * @var \VuFind\RecordDriver\AbstractBase
      */
     protected $driver;
 
