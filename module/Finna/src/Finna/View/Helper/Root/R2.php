@@ -117,16 +117,4 @@ class R2 extends \Laminas\View\Helper\AbstractHelper
     {
         return $this->rems->hasUserAccess($ignoreCache);
     }
-
-    /**
-     * Check if search limit is exceeded,
-     *
-     * @param string $type daily|monthly
-     *
-     * @return bool
-     */
-    public function isSearchLimitExceeded($type)
-    {
-        return $this->rems->isSearchLimitExceeded($type);
-    }
 }
