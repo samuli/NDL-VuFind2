@@ -29,7 +29,6 @@ namespace Finna\Controller;
 
 use Laminas\EventManager\EventInterface;
 use Laminas\EventManager\SharedEventManagerInterface;
-use Laminas\ServiceManager\ServiceLocatorInterface;
 
 /**
  * R2 controller trait.

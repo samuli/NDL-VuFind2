@@ -27,9 +27,6 @@
  */
 namespace Finna\Controller;
 
-use Laminas\Config\Config;
-use Laminas\ServiceManager\ServiceLocatorInterface;
-
 /**
  * Restricted Solr (R2) record Controller
  *

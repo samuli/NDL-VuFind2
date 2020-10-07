@@ -225,8 +225,8 @@ class RemsService implements
         if ($registeredTime
             = ($this->session->{RemsService::SESSION_USER_REGISTERED_TIME} ?: null)
         ) {
-            $sessionAge = (time()-$registeredTime)/60;
-            if (($sessionAge+$sessionWarning) > $sessionMaxAge) {
+            $sessionAge = (time() - $registeredTime) / 60;
+            if (($sessionAge + $sessionWarning) > $sessionMaxAge) {
                 $interval = date_interval_create_from_date_string(
                     "{$sessionMaxAge} minutes"
                 );
@@ -557,7 +557,6 @@ class RemsService implements
     {
         $this->session->{self::SESSION_BLOCKLISTED} = $status;
     }
-
 
     /**
      * Set search limit exceeded status.

@@ -28,7 +28,7 @@
  */
 namespace Finna\View\Helper\Root;
 
-use \VuFind\Controller\Plugin\Followup as FollowupPlugin;
+use VuFind\Controller\Plugin\Followup as FollowupPlugin;
 
 /**
  * Followup view helper.

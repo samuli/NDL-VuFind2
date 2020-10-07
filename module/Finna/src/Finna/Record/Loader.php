@@ -89,7 +89,7 @@ class Loader extends \VuFind\Record\Loader
     {
         $this->defaultParams['R2'] = ['R2Restricted' => true];
     }
-    
+
     /**
      * Set record redirection rules.
      *

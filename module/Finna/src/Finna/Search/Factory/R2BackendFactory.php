@@ -30,12 +30,12 @@ namespace Finna\Search\Factory;
 
 use Finna\Search\R2\AuthenticationListener;
 use Interop\Container\ContainerInterface;
+use Laminas\EventManager\EventManager;
 use VuFindSearch\Backend\Solr\Backend;
+
 use VuFindSearch\Backend\Solr\Connector;
 
 use VuFindSearch\Backend\Solr\Response\Json\RecordCollectionFactory;
-
-use Laminas\EventManager\EventManager;
 
 /**
  * Abstract factory for R2 backends.

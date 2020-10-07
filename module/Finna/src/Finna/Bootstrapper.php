@@ -342,7 +342,7 @@ class Bootstrapper
                 $session->messages = $messages;
             }
         };
-        
+
         $this->events->attach('dispatch', $callback, 9000);
     }
 

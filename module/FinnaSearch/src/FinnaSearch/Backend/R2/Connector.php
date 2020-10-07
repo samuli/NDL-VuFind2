@@ -119,7 +119,6 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
      */
     protected $httpConfig;
 
-
     /**
      * Event manager
      *
