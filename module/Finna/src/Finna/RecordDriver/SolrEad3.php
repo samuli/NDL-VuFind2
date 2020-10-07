@@ -591,8 +591,9 @@ class SolrEad3 extends SolrEad
                     $type = (string)$attr->encodinganalog;
                     if (in_array($type, $types)) {
                         $label = $type === 'ahaa:KR7'
-                               ? $this->getDisplayLabel($access->p->name, 'part', true)
-                               : $this->getDisplayLabel($access, 'p', true);
+                            ? $this->getDisplayLabel(
+                                $access->p->name, 'part', true
+                            ) : $this->getDisplayLabel($access, 'p', true);
                         if ($label) {
                             $restrictions[$type] = $label;
                         }

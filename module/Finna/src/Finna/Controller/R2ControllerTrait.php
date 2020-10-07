@@ -61,8 +61,6 @@ trait R2ControllerTrait
     /**
      * Attach listener to shared event manager.
      *
-     * @param SharedEventManagerInterface $manager Shared event manager
-     *
      * @return void
      */
     public function attachDefaultListeners()
@@ -89,7 +87,8 @@ trait R2ControllerTrait
         $url = $this->serviceLocator->get(\VuFind\Auth\Manager::class)
             ->logout($this->url()->fromRoute('myresearch-home'));
 
-        $session = $this->serviceLocator->get(\Laminas\Session\SessionManager::class);
+        $session
+            = $this->serviceLocator->get(\Laminas\Session\SessionManager::class);
         // Logout closed the previous session. Start a new one:
         $session->start();
         // Use a new session id so that any single logout hook doesn't destroy it:
