@@ -119,16 +119,6 @@ class R2 extends \Laminas\View\Helper\AbstractHelper
     }
 
     /**
-     * Check if user is registered to REMS during this session.
-     *
-     * @return bool
-     */
-    public function isSessionExpired()
-    {
-        return $this->rems->isSessionExpired();
-    }
-
-    /**
      * Check if search limit is exceeded,
      *
      * @param string $type daily|monthly
