@@ -668,7 +668,6 @@ $config = [
                     'Finna\Search\Combined\Options' => 'VuFind\Search\OptionsFactory',
                     'Finna\Search\EDS\Options' => 'VuFind\Search\EDS\OptionsFactory',
                     'Finna\Search\R2\Options' => 'VuFind\Search\Options\OptionsFactory',
-                    'Finna\Search\R2Collection\Options' => 'VuFind\Search\Options\OptionsFactory',
                     'Finna\Search\Primo\Options' => 'VuFind\Search\OptionsFactory',
                     'Finna\Search\SolrAuth\Options' => 'VuFind\Search\OptionsFactory',
                 ],
@@ -678,12 +677,14 @@ $config = [
                     'VuFind\Search\Primo\Options' => 'Finna\Search\Primo\Options',
                     'VuFind\Search\SolrAuth\Options' => 'Finna\Search\SolrAuth\Options',
 
+                    'Finna\Search\R2Collection\Options' => 'VuFind\Search\SolrCollection\Options',
+
                     // Counterpart for EmptySet Params:
                     'Finna\Search\EmptySet\Options' => 'VuFind\Search\EmptySet\Options',
                     'Finna\Search\MixedList\Options' => 'VuFind\Search\MixedList\Options',
                     'Blender' => 'Finna\Search\Blender\Options',
                     'R2' => 'Finna\Search\R2\Options',
-                    'R2Collection' => 'Finna\Search\R2Collection\Options',
+                    'R2Collection' => 'VuFind\Search\SolrCollection\Options',
                     'SolrAuth' => 'Finna\Search\SolrAuth\Options'
                 ]
             ],
