@@ -370,12 +370,10 @@ class SolrEad3 extends SolrEad
             if (!$label || !$val) {
                 continue;
             }
-            $key = "Unit ID:$label";
-            $translated = $this->translate($key);
-            if ($translated !== $key) {
-                $label = $translated;
-            }
-            $ids[] = ['data' => $val, 'detail' => $label];
+            $ids[] = [
+                'data' => $val,
+                'detail' => $this->translate("Unit ID:$label", [], $label)
+            ];
         }
 
         return $ids;
