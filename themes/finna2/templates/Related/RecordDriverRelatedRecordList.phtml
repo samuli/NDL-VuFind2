@@ -1,4 +1,4 @@
-<?php if ($data = $this->results): ?>
+<?php if (!($data = $this->results)) { return; } ?>
 <div class="related-records">
   <h1><?=$this->transEsc('Related Items')?></h1>
   <ul class="list-group">
@@ -20,4 +20,3 @@
     <?php endforeach; ?>
   </ul>
 </div>
-<?php endif; ?>

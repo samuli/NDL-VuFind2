@@ -43,7 +43,7 @@ class RecordDriverRelated implements \VuFind\Related\RelatedInterface
      *
      * @var \VuFind\RecordDriver\AbstractBase
      */
-    protected $driver;
+    protected $driver = null;
 
     /**
      * Constructor
@@ -74,6 +74,9 @@ class RecordDriverRelated implements \VuFind\Related\RelatedInterface
      */
     public function hasRelatedRecords()
     {
+        if (!$this->driver) {
+            return false;
+        }
         return $this->driver->tryMethod('hasRelatedRecords', [], false);
     }
 
@@ -84,6 +87,9 @@ class RecordDriverRelated implements \VuFind\Related\RelatedInterface
      */
     public function getRecordId()
     {
+        if (!$this->driver) {
+            return '';
+        }
         return $this->driver->getUniqueID();
     }
 
@@ -94,6 +100,9 @@ class RecordDriverRelated implements \VuFind\Related\RelatedInterface
      */
     public function getRecordSource()
     {
+        if (!$this->driver) {
+            return '';
+        }
         return $this->driver->getSourceIdentifier();
     }
 }
