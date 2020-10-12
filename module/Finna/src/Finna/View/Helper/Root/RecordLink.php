@@ -86,7 +86,7 @@ class RecordLink extends \VuFind\View\Helper\Root\RecordLink
     public function getEmbeddedVideoUrl($url)
     {
         $parts = parse_url($url);
-        if (false === $parts || !isset($parts['host'])) {
+        if (!$parts || !isset($parts['host'])) {
             return '';
         }
         $embedUrl = '';
