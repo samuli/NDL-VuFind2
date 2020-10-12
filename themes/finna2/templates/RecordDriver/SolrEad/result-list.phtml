@@ -44,6 +44,13 @@ if ($img):
         <div class="dateyeartype">
           <div class="resultItemFormat"><?=$this->record($this->driver)->getFormatList() ?> <?=$this->record($this->driver)->getSourceIdElement() ?></div>
           <?=$this->render('record/labels.phtml', ['labels' => $this->driver->getRecordLabels()]); ?>
+          <?php $summAuthors = $this->driver->getPrimaryAuthorsWithHighlighting(); if (!empty($summAuthors)): ?>
+            <div class="truncate-field" data-rows="1">
+              <?php $authorCount = count($summAuthors); foreach ($summAuthors as $i => $summAuthor): ?>
+                <a href="<?=$this->record($this->driver)->getLink('author', $this->highlight($summAuthor, null, true, false))?>"><?=$this->highlight($summAuthor)?></a><?=$i + 1 < $authorCount ? ' ; ' : ''?>
+              <?php endforeach; ?>
+            </div>
+          <?php endif; ?>
           <div class="resultHierarchyLinks">
             <?php // The funky comparison below is due to Laminas translator not supporting empty values (see ExtendedIniReader) ?>
             <?php if (!$this->translationEmpty('Archive Repository')): ?><span class="small"><?=$this->transEsc('Archive Repository')?>:</span><?php endif; ?>
