@@ -759,6 +759,8 @@ $config = [
                         'VuFind\RecordDriver\NameBasedConfigFactory',
                     'Finna\RecordDriver\R2Ead3' =>
                         'VuFind\RecordDriver\NameBasedConfigFactory',
+                    'Finna\RecordDriver\R2Ead3Missing' =>
+                        'VuFind\RecordDriver\NameBasedConfigFactory',
                     'Finna\RecordDriver\SolrAuthDefault' =>
                         'VuFind\RecordDriver\SolrDefaultWithoutSearchServiceFactory',
                     'Finna\RecordDriver\SolrDefault' =>
@@ -790,6 +792,8 @@ $config = [
                 ],
                 'aliases' => [
                     'r2ead3' => 'Finna\RecordDriver\R2Ead3',
+                    'r2ead3missing' => 'Finna\RecordDriver\R2Ead3Missing',
+
                     'SolrAuthEaccpf' => 'Finna\RecordDriver\SolrAuthEaccpf',
                     'SolrAuthForwardAuthority' => 'Finna\RecordDriver\SolrAuthForward',
                     'SolrAuthMarcAuthority' => 'Finna\RecordDriver\SolrAuthMarc',

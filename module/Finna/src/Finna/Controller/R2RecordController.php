@@ -27,6 +27,8 @@
  */
 namespace Finna\Controller;
 
+use VuFindSearch\ParamBag;
+
 /**
  * Restricted Solr (R2) record Controller
  *
@@ -59,5 +61,51 @@ class R2recordController extends RecordController
         $view = parent::createViewModel($params);
         $this->layout()->searchClassId = $view->searchClassId = $this->searchClassId;
         return $view;
+    }
+
+    /**
+     * Home (default) action -- forward to requested (or default) tab.
+     *
+     * @return mixed
+     */
+    public function homeAction()
+    {
+        $result = parent::homeAction();
+        if ($this->driver instanceof \Finna\RecordDriver\R2Ead3Missing) {
+            // REMS application closed during session. Handle exception.
+            $this->flashMessenger()->addMessage('R2_session_expired_title', 'error');
+            return $this->createViewModel()->setTemplate('r2record/missing.phtml');
+        }
+        return $result;
+    }
+
+    /**
+     * Load the record requested by the user; note that this is not done in the
+     * init() method since we don't want to perform an expensive search twice
+     * when homeAction() forwards to another method.
+     *
+     * @param ParamBag $params Search backend parameters
+     * @param bool     $force  Set to true to force a reload of the record, even if
+     * already loaded (useful if loading a record using different parameters)
+     *
+     * @return AbstractRecordDriver
+     */
+    protected function loadRecord(ParamBag $params = null, bool $force = false)
+    {
+        try {
+            return parent::loadRecord($params, $force);
+        } catch (\VuFind\Exception\RecordMissing $e) {
+            $r2 = $this->getViewRenderer()->plugin('R2');
+            if (!$r2->isRegistered() || $r2->hasUserAccess()) {
+                throw $e;
+            }
+            $id = $this->params()->fromRoute('id', $this->params()->fromQuery('id'));
+            $driver = $this->serviceLocator
+                ->get(\VuFind\RecordDriver\PluginManager::class)
+                ->get('r2ead3missing');
+            $driver->setRawData(['id' => $id]);
+            $this->driver = $driver;
+            return $driver;
+        }
     }
 }
