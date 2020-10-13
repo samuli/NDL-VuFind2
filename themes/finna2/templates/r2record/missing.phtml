@@ -1,11 +1,20 @@
 <div class="container">
   <div class="record record-row missing">
     <?= $this->flashmessages() ?>
-    <p><?= $this->transEsc('R2_session_expired') ?></p>
-    <?= $this->partial(
-          'Helpers/R2RestrictedRecordPrompt.phtml',
-          ['registerFormUrl' => $this->url('r2feedback-form', ['id' => 'R2Register']), 'registerLabel' => 'R2_register']
-        )
+    <?php
+      $registered = $this->R2()->isRegistered();
+      $hasAccess = $this->R2()->hasUserAccess();
     ?>
+    <?php if ($registered && !$hasAccess): ?>
+      <p><?= $this->transEsc('R2_session_expired_title') ?></p>
+      <p><?= $this->transEsc('R2_session_expired') ?></p>
+    <?php endif ?>
+    <?php if (!$hasAccess): ?>
+      <?= $this->partial(
+            'Helpers/R2RestrictedRecordPrompt.phtml',
+            ['registerFormUrl' => $this->url('r2feedback-form', ['id' => 'R2Register']), 'registerLabel' => 'R2_register']
+          )
+      ?>
+    <?php endif ?>
   </div>
 </div>

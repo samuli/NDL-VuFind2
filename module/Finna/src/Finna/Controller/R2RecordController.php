@@ -72,8 +72,9 @@ class R2recordController extends RecordController
     {
         $result = parent::homeAction();
         if ($this->driver instanceof \Finna\RecordDriver\R2Ead3Missing) {
-            // REMS application closed during session. Handle exception.
-            $this->flashMessenger()->addMessage('R2_session_expired_title', 'error');
+            // Show customized record not found page with register prompt if
+            // REMS application was closed during session.
+            $this->flashMessenger()->addMessage('Cannot find record', 'error');
             return $this->createViewModel()->setTemplate('r2record/missing.phtml');
         }
         return $result;
@@ -95,10 +96,6 @@ class R2recordController extends RecordController
         try {
             return parent::loadRecord($params, $force);
         } catch (\VuFind\Exception\RecordMissing $e) {
-            $r2 = $this->getViewRenderer()->plugin('R2');
-            if (!$r2->isRegistered() || $r2->hasUserAccess()) {
-                throw $e;
-            }
             $id = $this->params()->fromRoute('id', $this->params()->fromQuery('id'));
             $driver = $this->serviceLocator
                 ->get(\VuFind\RecordDriver\PluginManager::class)
