@@ -15,7 +15,9 @@
 <?php elseif (!$this->user && $this->id): ?>
   <?php
     // Register prompt on record page
-    $setupJS['initModal'] = true;
+    $script = '$(document).ready(function() { finna.R2.initModal(); });';
+    echo $this->headScript()->appendFile('finna-R2.js');
+    $this->headScript()->appendScript($script);
     // Explicitly redirect Collection page login to Record controller
     $registerFormUrl = $this->url('r2record', ['id' => $this->id])
       . '?login=true'
@@ -42,32 +44,4 @@
    ?>
    <?= $this->partial('Helpers/R2RestrictedRecordPrompt.phtml', compact('registerFormUrl', 'showInfo', 'note', 'registerLabel', 'instructions')) ?>
 <?php endif; ?>
-
-<?php
-if (!empty($setupJS)) {
-  $script = '$(document).ready(function() {';
-  foreach ($setupJS as $type => $mode) {
-    switch ($type) {
-      case 'initModal':
-        $script .= 'finna.R2.initModal();';
-        break;
-      case 'openModal':
-        // Session expired, prompt to re-register
-        $modalContent = '<h2>' . $this->translate('R2_session_expired_title') . '</h2>';
-        $modalContent .= '<p>' . $this->translate('R2_session_expired') . '</p>';
-        $modalContent .= '<div class="r2-register">';
-        $modalContent .= '<div class="register-btn"><a onClick="finna.R2.openRegistration();" class="btn btn-primary btn-r2-register"><i class="fa fa-research"></i> ' . $this->translate($this->registerLabel) . '</a></div>';
-        $modalContent .= '<p><a href="#" onClick="VuFind.lightbox.close(); return false;">' . $this->translate('R2_session_expired_cancel') . '</a></p>';
-        $modalContent .= '</div>';
-
-        $this->headScript()->prependScript("VuFind.R2Registration = '" . $registerFormUrl . "';");
-        $script .= 'VuFind.lightbox.render(\'' . $modalContent . '\');';
-        break;
-    }
-  }
-  $script .= '});';
-  echo $this->headScript()->appendFile('finna-R2.js');
-  $this->headScript()->appendScript($script);
-}
-?>
 <!-- END of: finna - Helpers/R2RestrictedRecordPermission.phtml -->
