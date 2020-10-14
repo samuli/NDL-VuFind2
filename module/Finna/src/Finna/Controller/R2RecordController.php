@@ -43,6 +43,7 @@ use VuFindSearch\ParamBag;
 class R2recordController extends RecordController
 {
     use \Finna\Controller\R2ControllerTrait;
+    use \Finna\Controller\R2RecordControllerTrait;
 
     /**
      * Type of record to display
@@ -63,38 +64,6 @@ class R2recordController extends RecordController
         $view = parent::createViewModel($params);
         $this->layout()->searchClassId = $view->searchClassId = $this->searchClassId;
         return $view;
-    }
-
-    /**
-     * Home (default) action -- forward to requested (or default) tab.
-     *
-     * @return mixed
-     */
-    public function homeAction()
-    {
-        $result = parent::homeAction();
-        if ($this->driver instanceof \Finna\RecordDriver\R2Ead3Missing) {
-            // Show customized record not found page with register prompt if
-            // REMS application was closed during session.
-            $this->flashMessenger()->addMessage('Cannot find record', 'error');
-
-            $r2 = $this->getViewRenderer()->plugin('R2');
-            $rems = $this->serviceLocator->get(\Finna\Service\RemsService::class);
-
-            $view = $this->createViewModel()->setTemplate('r2record/missing.phtml');
-            $view->hasAccess = $r2->hasUserAccess();
-
-            $warning = null;
-            if ($rems->isSearchLimitExceeded('daily')) {
-                $warning = 'R2_daily_limit_exceeded';
-            } elseif ($rems->isSearchLimitExceeded('monthly')) {
-                $warning = 'R2_monthly_limit_exceeded';
-            }
-            $view->warning = $warning;
-
-            return $view;
-        }
-        return $result;
     }
 
     /**
