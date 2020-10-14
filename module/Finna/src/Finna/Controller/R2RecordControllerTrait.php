@@ -27,6 +27,8 @@
  */
 namespace Finna\Controller;
 
+use VuFindSearch\ParamBag;
+
 /**
  * R2 record controller trait.
  *

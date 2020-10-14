@@ -29,8 +29,6 @@ namespace Finna\Controller;
 
 use Finna\Service\RemsService;
 
-use VuFindSearch\ParamBag;
-
 /**
  * Restricted Solr (R2) record Controller
  *
