@@ -65,30 +65,4 @@ class R2recordController extends RecordController
         $this->layout()->searchClassId = $view->searchClassId = $this->searchClassId;
         return $view;
     }
-
-    /**
-     * Load the record requested by the user; note that this is not done in the
-     * init() method since we don't want to perform an expensive search twice
-     * when homeAction() forwards to another method.
-     *
-     * @param ParamBag $params Search backend parameters
-     * @param bool     $force  Set to true to force a reload of the record, even if
-     * already loaded (useful if loading a record using different parameters)
-     *
-     * @return AbstractRecordDriver
-     */
-    protected function loadRecord(ParamBag $params = null, bool $force = false)
-    {
-        try {
-            return parent::loadRecord($params, $force);
-        } catch (\VuFind\Exception\RecordMissing $e) {
-            $id = $this->params()->fromRoute('id', $this->params()->fromQuery('id'));
-            $driver = $this->serviceLocator
-                ->get(\VuFind\RecordDriver\PluginManager::class)
-                ->get('r2ead3missing');
-            $driver->setRawData(['id' => $id]);
-            $this->driver = $driver;
-            return $driver;
-        }
-    }
 }
