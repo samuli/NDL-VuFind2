@@ -27,6 +27,8 @@
  */
 namespace Finna\Controller;
 
+use Finna\Service\RemsService;
+
 use VuFindSearch\ParamBag;
 
 /**
@@ -75,7 +77,22 @@ class R2recordController extends RecordController
             // Show customized record not found page with register prompt if
             // REMS application was closed during session.
             $this->flashMessenger()->addMessage('Cannot find record', 'error');
-            return $this->createViewModel()->setTemplate('r2record/missing.phtml');
+
+            $r2 = $this->getViewRenderer()->plugin('R2');
+            $rems = $this->serviceLocator->get(\Finna\Service\RemsService::class);
+
+            $view = $this->createViewModel()->setTemplate('r2record/missing.phtml');
+            $view->hasAccess = $r2->hasUserAccess();
+
+            $warning = null;
+            if ($rems->isSearchLimitExceeded('daily')) {
+                $warning = 'R2_daily_limit_exceeded';
+            } elseif ($rems->isSearchLimitExceeded('monthly')) {
+                $warning = 'R2_monthly_limit_exceeded';
+            }
+            $view->warning = $warning;
+
+            return $view;
         }
         return $result;
     }
