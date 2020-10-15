@@ -879,7 +879,7 @@ class SolrEad3 extends SolrEad
             }
         }
 
-        $items = $items ? compact('info', 'items') : null;
+        $items = $items ? compact('info', 'items') : [];
         return $items;
     }
 
