@@ -941,7 +941,7 @@ class SolrEad3 extends SolrEad
     /**
      * Sort an array of image URLs in place.
      *
-     * @param array $urls   URLs
+     * @param array  $urls  URLs
      * @param string $field Field to use for sorting.
      * The field value is casted to int before sorting.
      *
