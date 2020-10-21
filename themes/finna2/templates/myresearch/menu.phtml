@@ -64,13 +64,12 @@
     }
 
     $r2 = $r2SearchEnabled ? [
-      'active' => $activeToLower === 'r2-accessrights',
       'url' => 'myresearch-r2accessrights',
-      'translation' => 'R2_accessrights_menu_heading',
+      'translation' => 'R2_accessrights_menu_heading'
     ] : null;
 
     $nonLibraryItems = [
-      $r2,
+      'r2-accessrights' => $r2,
       'profile' => [
         'url' => 'myresearch-profile',
         'translation' => 'Profile',
@@ -98,7 +97,7 @@
     $menuListItems = array_merge($menuListItems, $nonLibraryItems);
 
     $desktopList = [
-      'r2' => $r2,
+      'r2-accessrights',
       'open-loans' => [
         'active' => in_array($activeToLower, ['checkedout', 'historicloans', 'holds', 'storageretrievalrequests', 'illrequests']),
         'url' => 'myresearch-checkedout',
