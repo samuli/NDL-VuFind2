@@ -349,6 +349,34 @@ class Bootstrapper
     }
 
     /**
+     * Set up REMS registration listener.
+     *
+     * @return void
+     */
+    protected function initRemsRegistrationListener()
+    {
+        if (!$this->isR2Enabled()) {
+            return;
+        }
+        $sm = $this->event->getApplication()->getServiceManager();
+        $callback = function ($event) use ($sm) {
+            $table = $sm->get(\VuFind\Db\Table\PluginManager::class)
+                ->get('ExternalSession');
+            $params = $event->getParams();
+            if ($remsUserId = ($params['user'] ?? null)) {
+                $sessionId
+                    = $sm->get(\Laminas\Session\SessionManager::class)->getId();
+                $table->addSessionMapping("{$sessionId}REMS", $remsUserId);
+            }
+        };
+
+        $sm->get('SharedEventManager')->attach(
+            'Finna\Service\RemsService',
+            \Finna\Service\RemsService::EVENT_USER_REGISTERED, $callback
+        );
+    }
+
+    /**
      * Check if R2 search is enabled.
      *
      * @return bool
