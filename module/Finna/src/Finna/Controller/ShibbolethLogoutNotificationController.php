@@ -71,12 +71,17 @@ class ShibbolethLogoutNotificationController
     public function logoutNotification($sessionId)
     {
         if ($this->r2Enabled) {
+            $table = $this->getTable('ExternalSession');
+            $row = $table->getByExternalSessionId(trim($sessionId));
+            if (empty($row)) {
+                return;
+            }
+
             $remsId = $row['session_id'] . 'REMS';
-            if ($remsRow = $table->select(['session_id' => $remsId])->current()) {
-                if ($remsUsername = ($remsRow['external_session_id'] ?? '')) {
-                    $this->serviceLocator->get(\Finna\Service\RemsService::class)
-                        ->closeOpenApplicationsForUser($remsUsername);
-                }
+            $remsRow = $table->select(['session_id' => $remsId])->current();
+            if ($remsUsername = ($remsRow['external_session_id'] ?? '')) {
+                $this->serviceLocator->get(\Finna\Service\RemsService::class)
+                    ->closeOpenApplicationsForUser($remsUsername);
             }
         }
         parent::logoutNotification($sessionId);
