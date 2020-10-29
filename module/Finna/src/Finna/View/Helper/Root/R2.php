@@ -101,9 +101,9 @@ class R2 extends \Laminas\View\Helper\AbstractHelper
      *
      * @return bool
      */
-    public function isRegistered()
+    public function isRegistered($checkEntitlements = false)
     {
-        return $this->rems->isUserRegisteredDuringSession();
+        return $this->rems->isUserRegisteredDuringSession($checkEntitlements);
     }
 
     /**
