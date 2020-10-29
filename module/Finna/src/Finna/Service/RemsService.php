@@ -572,6 +572,10 @@ class RemsService implements
         default:
             $status = self::STATUS_CLOSED;
         }
+        if ($status !== self::STATUS_APPROVED) {
+            $this->session->{self::SESSION_USER_REGISTERED_TIME} = null;
+            $this->session->{self::SESSION_IS_REMS_REGISTERED} = null;
+        }
         $this->session->{self::SESSION_ACCESS_STATUS} = $status;
     }
 
