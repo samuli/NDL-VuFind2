@@ -99,6 +99,8 @@ class R2 extends \Laminas\View\Helper\AbstractHelper
     /**
      * Check if user is registered to REMS during this session.
      *
+     * @param bool $checkEntitlements Also check entitlements?
+     *
      * @return bool
      */
     public function isRegistered($checkEntitlements = false)
