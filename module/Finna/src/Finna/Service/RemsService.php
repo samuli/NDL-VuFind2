@@ -479,6 +479,8 @@ class RemsService implements
                 = 'R2_register_form_usage_'
                   . $entitlementApplication['usagePurpose'];
         } else {
+            $this->session->{self::SESSION_USER_REGISTERED_TIME} = null;
+            $this->session->{self::SESSION_IS_REMS_REGISTERED} = null;
             return null;
         }
 
