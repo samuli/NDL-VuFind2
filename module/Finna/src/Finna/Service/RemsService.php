@@ -27,7 +27,6 @@
  */
 namespace Finna\Service;
 
-use FinnaSearch\Backend\R2\Connector;
 use Laminas\Config\Config;
 use Laminas\EventManager\EventManager;
 use Laminas\Session\Container;
