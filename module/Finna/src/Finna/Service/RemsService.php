@@ -246,13 +246,13 @@ class RemsService implements
      *
      * @return bool
      */
-    public function isSearchLimitExceeded($type = Connector::REQUEST_LIMIT_DAILY)
+    public function isSearchLimitExceeded($type = 'daily')
     {
         if (!$this->validateSearchLimit($type)) {
             return false;
         }
         $res = $this->session->{
-            $type === Connector::REQUEST_LIMIT_DAILY
+            $type === 'daily'
                 ? self::SESSION_DAILY_LIMIT_EXCEEDED
                 : self::SESSION_MONTHLY_LIMIT_EXCEEDED};
         return $res ?: false;
@@ -616,9 +616,9 @@ class RemsService implements
             );
             return;
         }
-        if ($type === Connector::REQUEST_LIMIT_DAILY) {
+        if ($type === 'daily') {
             $this->session->{self::SESSION_DAILY_LIMIT_EXCEEDED} = $exceeded;
-        } elseif ($type === Connector::REQUEST_LIMIT_MONTHLY) {
+        } elseif ($type === 'monthly') {
             $this->session->{self::SESSION_MONTHLY_LIMIT_EXCEEDED} = $exceeded;
         }
     }
@@ -924,11 +924,15 @@ class RemsService implements
         return $statusMap[$remsStatus] ?? 'unknown';
     }
 
+    /**
+     * Validate search limit type.
+     *
+     * @param string $limit Limit
+     *
+     * @return bol
+     */
     protected function validateSearchLimit($limit)
     {
-        return in_array(
-            $limit,
-            [Connector::REQUEST_LIMIT_DAILY, Connector::REQUEST_LIMIT_MONTHLY]
-        );
+        return in_array($limit, ['daily', 'monthly']);
     }
 }
