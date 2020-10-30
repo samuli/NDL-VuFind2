@@ -67,6 +67,20 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
     const EVENT_REMS_SESSION_EXPIRED = 'rems-session-expired';
 
     /**
+     * Daily request limit.
+     *
+     * @var string
+     */
+    const REQUEST_LIMIT_DAILY = 'daily';
+
+    /**
+     * Monthly request limit.
+     *
+     * @var string
+     */
+    const REQUEST_LIMIT_MONTHLY = 'monthly';
+
+    /**
      * Username
      *
      * @var string
@@ -285,8 +299,10 @@ class Connector extends \VuFindSearch\Backend\Solr\Connector
             }
 
             $limits = [
-                'x-user-daily-request-limit-exceeded' => 'daily',
-                'x-user-monthly-request-limit-exceeded' => 'monthly'
+                'x-user-daily-request-limit-exceeded'
+                    => self::REQUEST_LIMIT_DAILY,
+                'x-user-monthly-request-limit-exceeded'
+                    => self::REQUEST_LIMIT_MONTHLY
             ];
             foreach ($limits as $header => $type) {
                 $this->rems->setSearchLimitExceededFromConnector(

@@ -27,6 +27,7 @@
  */
 namespace Finna\Service;
 
+use FinnaSearch\Backend\R2\Connector;
 use Laminas\Config\Config;
 use Laminas\EventManager\EventManager;
 use Laminas\Session\Container;
@@ -245,10 +246,13 @@ class RemsService implements
      *
      * @return bool
      */
-    public function isSearchLimitExceeded($type = 'daily')
+    public function isSearchLimitExceeded($type = Connector::REQUEST_LIMIT_DAILY)
     {
+        if (!$this->validateSearchLimit($type)) {
+            return false;
+        }
         $res = $this->session->{
-            $type === 'daily'
+            $type === Connector::REQUEST_LIMIT_DAILY
                 ? self::SESSION_DAILY_LIMIT_EXCEEDED
                 : self::SESSION_MONTHLY_LIMIT_EXCEEDED};
         return $res ?: false;
@@ -606,9 +610,15 @@ class RemsService implements
      */
     public function setSearchLimitExceededFromConnector($type, $exceeded)
     {
-        if ($type === 'daily') {
+        if (!$this->validateSearchLimit($limit)) {
+            $this->error(
+                "Error setting search limit exceeded with type $type"
+            );
+            return;
+        }
+        if ($type === Connector::REQUEST_LIMIT_DAILY) {
             $this->session->{self::SESSION_DAILY_LIMIT_EXCEEDED} = $exceeded;
-        } elseif ($type === 'monthly') {
+        } elseif ($type === Connector::REQUEST_LIMIT_MONTHLY) {
             $this->session->{self::SESSION_MONTHLY_LIMIT_EXCEEDED} = $exceeded;
         }
     }
@@ -912,5 +922,13 @@ class RemsService implements
         ];
 
         return $statusMap[$remsStatus] ?? 'unknown';
+    }
+
+    protected function validateSearchLimit($limit)
+    {
+        return in_array(
+            $limit,
+            [Connector::REQUEST_LIMIT_DAILY, Connector::REQUEST_LIMIT_MONTHLY]
+        );
     }
 }
