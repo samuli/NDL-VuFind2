@@ -209,7 +209,7 @@ class RemsService implements
      * Return timestamp when REMS session expires if the expiration time
      * is within the configured threshold.
      *
-     * @return null|int
+     * @return null|DateTime
      */
     public function getSessionExpirationTime()
     {
