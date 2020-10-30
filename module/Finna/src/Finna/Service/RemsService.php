@@ -610,7 +610,7 @@ class RemsService implements
      */
     public function setSearchLimitExceededFromConnector($type, $exceeded)
     {
-        if (!$this->validateSearchLimit($limit)) {
+        if (!$this->validateSearchLimit($type)) {
             $this->error(
                 "Error setting search limit exceeded with type $type"
             );
