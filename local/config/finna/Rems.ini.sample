@@ -18,6 +18,7 @@ sessionMaxAge = 480
 sessionExpirationWarning = 15
 
 [RegistrationForm]
+id =
 
 ; REMS registration form field id's
 field[firstname] = firstname
