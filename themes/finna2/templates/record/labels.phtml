@@ -2,7 +2,7 @@
   <ul class="record-labels">
     <?php foreach ($labels as $label): ?>
       <?php
-        $tooltip = "RecordLabelTooltip:{$label}";
+        $tooltip = "RecordLabelTooltip-{$label}";
         if ($this->R2()->isRegistered()) {
           $tooltip .= '_registered';
         }
