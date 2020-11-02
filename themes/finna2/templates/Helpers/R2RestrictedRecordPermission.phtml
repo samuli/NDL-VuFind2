@@ -1,12 +1,4 @@
 <!-- START of: finna - Helpers/R2RestrictedRecordPermission.phtml -->
-<?php
-  $registerFormUrl = $this->url('r2feedback-form', ['id' => 'R2Register']);
-  if ($this->id) {
-    $registerFormUrl
-      .= '?recordId=' . $this->escapeHtmlAttr($this->id)
-      . ($this->collection ? '&collection=1' : '');
-  }
-?>
 <?php if ($this->weakLogin): ?>
   <div class="r2-restricted-record-register alert alert-danger" role="alert">
     <p><strong><?= $this->translate('R2_register_weak_loginmethod') ?></strong></p>
@@ -27,8 +19,8 @@
   <div class="authorization-notification alert alert-danger" role="alert"><?= $this->translate('R2_accessrights_blocklisted_html', ['%%name%%' => $this->name, '%%url%%' => $this->url('feedback-home'), '%%date_added%%' => $this->blocklistedDate]) ?></div>
 <?php else: ?>
    <?php
-   // Register prompt outside record page.
-   $linkUrl = $this->user ? $registerFormUrl : $this->url('myresearch-r2accessrights');
+     // Register prompt outside record page.
+     $registerFormUrl = $this->url('r2feedback-form', ['id' => 'R2Register']);
    ?>
    <?= $this->partial('Helpers/R2RestrictedRecordPrompt.phtml', compact('registerFormUrl', 'showInfo', 'note', 'warning', 'registerLabel', 'instructions')) ?>
 <?php endif; ?>
