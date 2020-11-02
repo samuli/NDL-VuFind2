@@ -16,7 +16,6 @@
   <?php
     // Register prompt on record page
     $script = '$(document).ready(function() { finna.R2.initModal(); });';
-    echo $this->headScript()->appendFile('finna-R2.js');
     $this->headScript()->appendScript($script);
     // Explicitly redirect Collection page login to Record controller
     $registerFormUrl = $this->url('r2record', ['id' => $this->id])
