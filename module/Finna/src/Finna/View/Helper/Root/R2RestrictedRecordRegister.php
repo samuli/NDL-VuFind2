@@ -100,9 +100,9 @@ class R2RestrictedRecordRegister extends \Laminas\View\Helper\AbstractHelper
         }
 
         // Driver is null when the helper is called outside record page
-        if (!$driver || $driver->hasRestrictedMetadata()) {
+        if (!$driver || $driver->tryMethod('hasRestrictedMetadata')) {
             $user = $params['user'] ?? null;
-            if ($driver ? $driver->isRestrictedMetadataIncluded() : false) {
+            if ($driver ? $driver->tryMethod('isRestrictedMetadataIncluded') : false) {
                 return null;
             }
             $blocklisted = $registered = $sessionClosed = false;
