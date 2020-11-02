@@ -14,7 +14,7 @@
       . '&recordId=' . $this->escapeHtmlAttr($this->id)
       . ($this->collection ? '&collection=1' : '');
   ?>
-  <?= $this->partial('Helpers/R2RestrictedRecordPrompt.phtml', compact('registerFormUrl', 'showInfo', 'note', 'warning', 'registerLabel', 'instructions')) ?>
+  <?= $this->partial('Helpers/R2RestrictedRecordPrompt.phtml', compact('registerFormUrl', 'showInfo', 'warning')) ?>
 <?php elseif ($this->blocklisted): ?>
   <div class="authorization-notification alert alert-danger" role="alert"><?= $this->translate('R2_accessrights_blocklisted_html', ['%%name%%' => $this->name, '%%url%%' => $this->url('feedback-home'), '%%date_added%%' => $this->blocklistedDate]) ?></div>
 <?php else: ?>
@@ -22,6 +22,6 @@
      // Register prompt outside record page.
      $registerFormUrl = $this->url('r2feedback-form', ['id' => 'R2Register']);
    ?>
-   <?= $this->partial('Helpers/R2RestrictedRecordPrompt.phtml', compact('registerFormUrl', 'showInfo', 'note', 'warning', 'registerLabel', 'instructions')) ?>
+   <?= $this->partial('Helpers/R2RestrictedRecordPrompt.phtml', compact('registerFormUrl', 'showInfo', 'warning')) ?>
 <?php endif; ?>
 <!-- END of: finna - Helpers/R2RestrictedRecordPermission.phtml -->
