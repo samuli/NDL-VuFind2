@@ -99,7 +99,7 @@ class R2RestrictedRecordRegister extends \Laminas\View\Helper\AbstractHelper
             return null;
         }
 
-        // Driver is null when the helper is called is called outside record page
+        // Driver is null when the helper is called outside record page
         if (!$driver || $driver->hasRestrictedMetadata()) {
             $user = $params['user'] ?? null;
             if ($driver ? $driver->isRestrictedMetadataIncluded() : false) {
