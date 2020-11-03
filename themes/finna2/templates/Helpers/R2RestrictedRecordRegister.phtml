@@ -1,4 +1,4 @@
-<!-- START of: finna - Helpers/R2RestrictedRecordPermission.phtml -->
+<!-- START of: finna - Helpers/R2RestrictedRecordRegister.phtml -->
 <?php if ($this->weakLogin): ?>
   <div class="r2-restricted-record-register alert alert-danger" role="alert">
     <p><strong><?= $this->translate('R2_register_weak_loginmethod') ?></strong></p>
@@ -24,4 +24,4 @@
    ?>
    <?= $this->partial('Helpers/R2RestrictedRecordPrompt.phtml', compact('registerFormUrl', 'showInfo', 'warning', 'note', 'instructions')) ?>
 <?php endif; ?>
-<!-- END of: finna - Helpers/R2RestrictedRecordPermission.phtml -->
+<!-- END of: finna - Helpers/R2RestrictedRecordRegister.phtml -->

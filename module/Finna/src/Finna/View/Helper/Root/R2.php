@@ -269,7 +269,7 @@ class R2 extends \Laminas\View\Helper\AbstractHelper
             ];
 
             return $this->getView()->render(
-                'Helpers/R2RestrictedRecordPermission.phtml', $params
+                'Helpers/R2RestrictedRecordRegister.phtml', $params
             );
         }
 
