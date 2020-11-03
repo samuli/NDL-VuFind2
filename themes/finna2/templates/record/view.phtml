@@ -79,7 +79,7 @@
 </div>
 <div class="container">
 <div class="record source<?=$this->escapeHtmlAttr($this->driver->getSourceIdentifier())?> record-row <?= $largeImageLayout ? 'large-image-layout' : '' ?>">
-  <?= $this->R2RestrictedRecordRegistered($this->driver, ['user' => $this->auth()->isLoggedIn()])?>
+  <?= $this->R2()->registeredInfo($this->driver) ?>
   <div>
       <?=$this->record($this->driver)->getToolbar()?>
   </div>
