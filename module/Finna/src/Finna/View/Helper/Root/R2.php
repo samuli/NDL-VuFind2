@@ -153,11 +153,12 @@ class R2 extends \Laminas\View\Helper\AbstractHelper
                 if (!$this->rems->hasUserAccess(true, $params['throw'] ?? false)) {
                     // Registration hint on search results page.
                     if ($params['show_register_hint'] ?? false) {
+                        $translator = $this->getView()->plugin('translate');
                         return
                             '<div class="r2-restricted-hint alert alert-info"'
                             . ' role="status">'
                             . '<i class="fa fa-info3 fa-lg"></i> '
-                            . $this->transEsc('R2_register_hint')
+                            . $translator->transEsc('R2_register_hint')
                             . '</div>';
                     }
                     return null;
