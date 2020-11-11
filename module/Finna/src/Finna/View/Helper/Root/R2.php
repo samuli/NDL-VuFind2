@@ -79,7 +79,7 @@ class R2 extends \Laminas\View\Helper\AbstractHelper
      * @param RemsService $rems          RemsService
      */
     public function __construct(
-        bool $enabled, $user, bool $authenticated, RemsService $rems
+        bool $enabled, ?User $user, bool $authenticated, RemsService $rems
     ) {
         $this->enabled = $enabled;
         $this->user = $user;
