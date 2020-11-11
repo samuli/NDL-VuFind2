@@ -16,7 +16,7 @@
     <?= $this->translate($this->instructions ?? 'R2_restricted_register_instructions_html') ?>
     <div class="register" role="alert">
       <p class="register-btn">
-        <a href="<?= $this->escapeHtmlAttr(this->registerFormUrl) ?>" data-lightbox data-lightbox-title="<?=$this->transEsc("R2_register_form_title")?>" class="btn btn-primary btn-uppercase btn-r2-register">
+        <a href="<?= $this->escapeHtmlAttr($this->registerFormUrl) ?>" data-lightbox data-lightbox-title="<?=$this->transEsc("R2_register_form_title")?>" class="btn btn-primary btn-uppercase btn-r2-register">
           <i class="fa fa-lg fa-user"></i> <?=$this->transEsc('R2_register')?>
         </a>
       </p>
