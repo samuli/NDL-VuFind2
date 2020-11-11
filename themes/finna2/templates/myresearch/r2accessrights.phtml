@@ -4,8 +4,7 @@
   $this->headTitle($this->translate('R2_accessrights_title'));
 
   // Set up breadcrumbs:
-  $currPage = 'R2AccessRights';
-  $this->layout()->breadcrumbs = '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li> <li class="active">' . $this->transEsc($currPage) . '</li>';
+  $this->layout()->breadcrumbs = '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li> <li class="active">' . $this->transEsc('R2AccessRights') . '</li>';
   $error = false;
   try {
     $hasAccess = $this->rems->hasUserAccess(true);
