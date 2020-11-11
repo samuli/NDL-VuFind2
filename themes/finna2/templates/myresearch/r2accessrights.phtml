@@ -5,14 +5,6 @@
 
   // Set up breadcrumbs:
   $this->layout()->breadcrumbs = '<li><a href="' . $this->url('myresearch-home') . '">' . $this->transEsc('Your Account') . '</a></li> <li class="active">' . $this->transEsc('R2AccessRights') . '</li>';
-  $error = false;
-  try {
-    $hasAccess = $this->rems->hasUserAccess(true);
-    $usagePurpose = $this->rems->getUsagePurpose();
-    $blocklisted = $this->rems->isUserBlocklisted(true);
-  } catch (\Exception $e) {
-    $error = true;
-  }
 ?>
 
 <!-- Leftside navigationbar -->
@@ -26,11 +18,10 @@
     <div class="useraccount-header">
       <h2><?=$this->transEsc('R2_accessrights_title')?></h2>
     </div>
-    <?php if ($error): ?>
+    <?php if ($this->error): ?>
       <div class="alert alert-danger"><?=$this->transEsc('R2_rems_connect_error')?></div>
     <?php else: ?>
-      <?php if ($hasAccess): ?>
-        <?php $usagePurpose = $this->rems->getUsagePurpose(); ?>
+      <?php if ($this->hasAccess): ?>
         <table class="table useraccount-table">
           <tbody>
             <tr class="headers">
@@ -40,7 +31,7 @@
             <tr class="myresearch-row">
               <td><?=$this->translate('R2_accessrights_info_html')?></td>
               <td>
-                <p><?=$this->translate($usagePurpose)?></p>
+                <p><?=$this->translate($this->usagePurpose)?></p>
               </td>  
             </tr>
             <tr>
