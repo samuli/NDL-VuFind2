@@ -332,7 +332,7 @@ class Bootstrapper
             if ($expirationTime) {
                 // Add warning to session variable.
                 // The message is displayed by SystemMessages
-                $format = 'H:i';
+                $format = 'd.m. H:i';
                 $time = $sm->get(\VuFind\Date\Converter::class)
                     ->convertToDisplayTime(
                         $format, date($format, $expirationTime->getTimeStamp())
