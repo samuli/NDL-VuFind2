@@ -94,7 +94,7 @@ class R2 extends \Laminas\View\Helper\AbstractHelper
      */
     public function isAvailable()
     {
-        return (bool)$this->enabled;
+        return $this->enabled;
     }
 
     /**
