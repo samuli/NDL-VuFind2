@@ -372,8 +372,11 @@ class MyResearchController extends \VuFind\Controller\MyResearchController
                 );
             }
 
-            foreach ($results->getResults() as $rec) {
-                if ('R2' === $rec->getSourceIdentifier()) {
+            $resources = $this->getTable('Resource')->getFavorites(
+                $user->id, $list->id
+            );
+            foreach ($resources as $rec) {
+                if ('R2' === $rec->source) {
                     $this->flashMessenger()
                         ->addMessage('R2_mylist_restricted', 'info');
                     break;
