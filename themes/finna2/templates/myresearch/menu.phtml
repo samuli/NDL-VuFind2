@@ -99,22 +99,6 @@
 
     $desktopList = [
       'r2-accessrights',
-      'open-loans' => [
-        'active' => in_array($activeToLower, ['checkedout', 'historicloans', 'holds', 'storageretrievalrequests', 'illrequests']),
-        'url' => 'myresearch-checkedout',
-        'translation' => 'checked_out_menu_heading',
-        'dropdown' => true,
-        'ulId' => 'myLoans',
-        'show' => !$ilsOffline && $showLibraryTabs,
-        'children' => [
-          'checkedout',
-          'historicloans',
-          'holds',
-          'storageretrievalrequests',
-          'illrequests'
-        ],
-        'statusKey' => 'loans-menu',
-      ],
       'checkedout',
       'historicloans',
       'holds',
