@@ -909,7 +909,6 @@ $recordRoutes = [
 // Define dynamic routes -- controller => [route name => action]
 $dynamicRoutes = [
     'Comments' => ['inappropriate' => 'inappropriate/[:id]'],
-    'R2Feedback' => ['r2feedback-form' => 'Form/[:id]'],
     'LibraryCards' => ['newLibraryCardPassword' => 'newPassword/[:id]'],
     'MyResearch' => ['sortList' => 'SortList/[:id]'],
     'R2Feedback' => ['r2feedback-form' => 'Form/[:id]']
