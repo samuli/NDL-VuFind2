@@ -545,7 +545,6 @@ finna.imagePaginator = (function imagePaginator() {
           }
           _.trigger.trigger('removeclick');
           $(image).parents('.grid').addClass('no-image');
-          $(image).parents('.result').addClass('no-image');
         }
         if (!_.isList && _.images.length <= 1) {
           _.root.closest('.media-left').not('.audio').addClass('hidden-xs');
