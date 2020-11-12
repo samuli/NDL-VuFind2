@@ -1,4 +1,4 @@
-/*global finna */
+/*global finna, VuFind */
 finna.organisationInfoWidget = (function finnaOrganisationInfoWidget() {
   var holder = null;
   var service = null;
@@ -90,13 +90,13 @@ finna.organisationInfoWidget = (function finnaOrganisationInfoWidget() {
           var addFullOpeningTimes = true;
           var firstElement = obj.times[0];
           var lastElement = obj.times[obj.times.length - 1];
+          var info = 'info' in obj ? obj.info : null;
           $.each(obj.times, function handleOpenTimes(tind, time) {
             var selfservice = !!time.selfservice;
             selfserviceAvail = selfserviceAvail || 'selfservice' in time;
 
             var date = dayCnt === 0 ? obj.date : '';
             var day = dayCnt === 0 ? obj.day : '';
-            var info = 'info' in time ? time.info : null;
 
             if (currentDate !== obj.date) {
               dayCnt = 0;
@@ -109,17 +109,17 @@ finna.organisationInfoWidget = (function finnaOrganisationInfoWidget() {
                 var timeRow = timeRowTpl.clone();
                 timeRow.find('.date').text(date);
                 timeRow.find('.name').text(day);
+                if (info === null) {
+                  timeRow.find('.info').hide();
+                } else {
+                  timeRow.find('.info').text(info);
+                }
                 if (addFullOpeningTimes && obj.times.length > 1) {
                   timeRow.find('.opens').text(firstElement.opens);
                   timeRow.find('.closes').text(lastElement.closes);
                   dayRow.append(timeRow);
                   timeRow = timeRowTpl.clone();
                   addFullOpeningTimes = false;
-                }
-                if (info == null) {
-                  timeRow.find('.info').hide();
-                } else {
-                  timeRow.find('.info').text(info);
                 }
                 timeRow.find('.opens').text(timeOpens);
                 timeRow.find('.closes').text(timeCloses);
@@ -200,6 +200,12 @@ finna.organisationInfoWidget = (function finnaOrganisationInfoWidget() {
     schedulesHolder.stop(true, false).fadeTo(200, 1);
   }
 
+  function keyHandler(e, element) {
+    if (e.key === 'Enter') {
+      element.click();
+    }
+  }
+
   function attachWeekNaviListener() {
     holder.find('.week-navi').unbind('click').click(function onClickWeekNavi() {
       if ($(this).hasClass('disabled')) {
@@ -225,6 +231,8 @@ finna.organisationInfoWidget = (function finnaOrganisationInfoWidget() {
           schedulesLoaded(id, response);
         }
       );
+    }).on('keydown', function onWeekNaviKeydown(e) {
+      keyHandler(e, $(this));
     });
   }
 
@@ -241,10 +249,19 @@ finna.organisationInfoWidget = (function finnaOrganisationInfoWidget() {
     updatePrevBtn(response);
     updateNextBtn(response);
     if ('phone' in response) {
-      holder.find('.phone').attr('data-original-title', response.phone).show();
+      holder.find('.phone')
+        .attr('data-original-title', response.phone)
+        .on('keydown', function onPhoneKeydown(e) {
+          keyHandler(e, $(this));
+        }).show();
     }
     if ('emails' in response) {
-      holder.find('.emails').attr('data-original-title', response.emails).attr('data-toggle', 'tooltip').show();
+      holder.find('.emails')
+        .attr('data-original-title', response.emails)
+        .attr('data-toggle', 'tooltip')
+        .on('keydown', function onEmailsKeydown(e) {
+          keyHandler(e, $(this));
+        }).show();
       finna.layout.initToolTips(holder);
     }
 
@@ -253,7 +270,10 @@ finna.organisationInfoWidget = (function finnaOrganisationInfoWidget() {
       if (links.length) {
         $.each(links, function handleLink(ind, obj) {
           if (obj.name.includes('Facebook')) {
-            holder.find('.facebook').attr('href', obj.url).show();
+            holder.find('.facebook')
+              .attr('href', obj.url)
+              .attr('aria-label', VuFind.translate('organisation_info_facebook') + ' (' + VuFind.translate('external_link') + ')')
+              .show();
           }
         });
       }
@@ -306,7 +326,7 @@ finna.organisationInfoWidget = (function finnaOrganisationInfoWidget() {
     }
 
     if ('email' in data) {
-      holder.find('.email.info-element').wrap($('<a/>').attr('href', 'mailto:' + data.email)).show();
+      holder.find('.email.info-element').show();
     }
 
     var detailsLinkHolder = holder.find('.details-link').show();
@@ -320,7 +340,9 @@ finna.organisationInfoWidget = (function finnaOrganisationInfoWidget() {
     if ('mapUrl' in data && 'address' in data) {
       var map = holder.find('.map');
       map.find('> a').attr('href', data.mapUrl);
-      map.find('.map-address').text(data.address);
+      map.find('.map-address')
+        .text(data.address)
+        .attr('aria-label', data.address + ' (' + VuFind.translate('external_link') + ')');
       map.show();
     }
 
@@ -363,7 +385,10 @@ finna.organisationInfoWidget = (function finnaOrganisationInfoWidget() {
       if (String(id) === String(obj.id)) {
         found = true;
       }
-      $('<li role="menuitem"><input type="hidden" value="' + obj.id + '"></input>' + obj.name + '</li>').appendTo(menu);
+      $('<li role="menuitem" tabindex="0"><input type="hidden" value="' + obj.id + '"></input>' + obj.name + '</li>')
+        .on('keydown', function onOrganisationKeydown(e) {
+          keyHandler(e, $(this));
+        }).appendTo(menu);
       organisationList[obj.id] = obj;
     });
 
