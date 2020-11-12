@@ -200,7 +200,6 @@ $config = [
                     ]
                 ]
             ],
-
         ],
     ],
     'route_manager' => [
@@ -244,6 +243,8 @@ $config = [
             'Finna\Controller\SearchController' => 'VuFind\Controller\AbstractBaseFactory',
             'Finna\Controller\ShibbolethLogoutNotificationController' => 'Finna\Controller\ShibbolethLogoutNotificationControllerFactory',
             'Finna\Controller\ListController' => 'Finna\Controller\ListControllerFactory',
+            'Finna\Controller\L1Controller' => 'VuFind\Controller\AbstractBaseFactory',
+            'Finna\Controller\L1recordController' => 'VuFind\Controller\AbstractBaseWithConfigFactory',
         ],
         'aliases' => [
             'AuthorityRecord' => 'Finna\Controller\AuthorityRecordController',
@@ -273,6 +274,10 @@ $config = [
             'listpage' => 'Finna\Controller\ListController',
             'r2feedback' => 'Finna\Controller\R2FeedbackController',
             'R2Feedback' => 'Finna\Controller\R2FeedbackController',
+            'L1' => 'Finna\Controller\L1Controller',
+            'l1' => 'Finna\Controller\L1Controller',
+            'L1Record' => 'Finna\Controller\L1recordController',
+            'l1record' => 'Finna\Controller\L1recordController',
 
             // Overrides:
             'VuFind\Controller\AuthorityController' => 'Finna\Controller\AuthorityController',
@@ -311,6 +316,7 @@ $config = [
     'service_manager' => [
         'allow_override' => true,
         'factories' => [
+            'Finna\Autocomplete\PluginManager' => 'VuFind\ServiceManager\AbstractPluginManagerFactory',
             'Finna\Auth\ILSAuthenticator' => 'VuFind\Auth\ILSAuthenticatorFactory',
             'Finna\Auth\Manager' => 'VuFind\Auth\ManagerFactory',
             'Finna\Cache\Manager' => 'VuFind\Cache\ManagerFactory',
@@ -329,6 +335,8 @@ $config = [
             'Finna\OnlinePayment\OnlinePayment' => 'Finna\OnlinePayment\OnlinePaymentFactory',
             'Finna\OnlinePayment\Session' => 'Finna\OnlinePayment\OnlinePaymentSessionFactory',
             'Finna\OrganisationInfo\OrganisationInfo' => 'Finna\OrganisationInfo\OrganisationInfoFactory',
+            'Finna\Record\Loader' => 'Finna\Record\LoaderFactory',
+            'Finna\RecordDriver\PluginManager' => 'VuFind\ServiceManager\AbstractPluginManagerFactory',
             'Finna\RecordTab\PluginManager' => 'VuFind\ServiceManager\AbstractPluginManagerFactory',
             'Finna\RecordTab\TabManager' => 'VuFind\RecordTab\TabManagerFactory',
             'Finna\Role\PermissionManager' => 'VuFind\Role\PermissionManagerFactory',
@@ -347,6 +355,7 @@ $config = [
             'Laminas\Session\SessionManager' => 'Finna\Session\ManagerFactory',
         ],
         'aliases' => [
+            'VuFind\Autocomplete\PluginManager' => 'Finna\Autocomplete\PluginManager',
             'VuFind\Auth\Manager' => 'Finna\Auth\Manager',
             'VuFind\Auth\ILSAuthenticator' => 'Finna\Auth\ILSAuthenticator',
             'VuFind\Cache\Manager' => 'Finna\Cache\Manager',
@@ -512,6 +521,7 @@ $config = [
                 'factories' => [
                     'Finna\Autocomplete\R2' => 'Finna\Autocomplete\SolrFactory',
                     'Finna\Autocomplete\Solr' => 'Finna\Autocomplete\SolrFactory',
+                    'Finna\Autocomplete\L1' => 'Finna\Autocomplete\SolrFactory',
                 ],
                 'aliases' => [
                     'VuFind\Autocomplete\Solr' => 'Finna\Autocomplete\Solr',
@@ -654,6 +664,7 @@ $config = [
                     'Solr' => 'Finna\Search\Factory\SolrDefaultBackendFactory',
                     'SolrAuth' => 'Finna\Search\Factory\SolrAuthBackendFactory',
                     'Blender' => 'Finna\Search\Factory\BlenderBackendFactory',
+                    'L1' => 'Finna\Search\Factory\L1BackendFactory',
                 ],
             ],
             'search_facetcache' => [
@@ -673,6 +684,8 @@ $config = [
                     'Finna\Search\R2\Options' => 'VuFind\Search\Options\OptionsFactory',
                     'Finna\Search\Primo\Options' => 'VuFind\Search\OptionsFactory',
                     'Finna\Search\SolrAuth\Options' => 'VuFind\Search\OptionsFactory',
+
+                    'Finna\Search\L1\Options' => 'VuFind\Search\OptionsFactory',
                 ],
                 'aliases' => [
                     'VuFind\Search\Combined\Options' => 'Finna\Search\Combined\Options',
@@ -688,7 +701,8 @@ $config = [
                     'Blender' => 'Finna\Search\Blender\Options',
                     'R2' => 'Finna\Search\R2\Options',
                     'R2Collection' => 'VuFind\Search\SolrCollection\Options',
-                    'SolrAuth' => 'Finna\Search\SolrAuth\Options'
+                    'SolrAuth' => 'Finna\Search\SolrAuth\Options',
+                    'L1' => 'Finna\Search\L1\Options',
                 ]
             ],
             'search_params' => [
@@ -704,6 +718,8 @@ $config = [
                     'Finna\Search\MixedList\Params' => 'VuFind\Search\Params\ParamsFactory',
                     'Finna\Search\Solr\Params' => 'Finna\Search\Solr\ParamsFactory',
                     'Finna\Search\SolrAuth\Params' => 'Finna\Search\Solr\ParamsFactory',
+
+                    'Finna\Search\L1\Params' => 'Finna\Search\Solr\ParamsFactory',
                 ],
                 'aliases' => [
                     'VuFind\Search\Combined\Params' => 'Finna\Search\Combined\Params',
@@ -718,7 +734,8 @@ $config = [
                     'Blender' => 'Finna\Search\Blender\Params',
                     'R2' => 'Finna\Search\R2\Params',
                     'R2Collection' => 'Finna\Search\R2Collection\Params',
-                    'SolrAuth' => 'Finna\Search\SolrAuth\Params'
+                    'SolrAuth' => 'Finna\Search\SolrAuth\Params',
+                    'L1' => 'Finna\Search\L1\Params',
                 ]
             ],
             'search_results' => [
@@ -731,6 +748,7 @@ $config = [
                     'Finna\Search\Primo\Results' => 'VuFind\Search\Results\ResultsFactory',
                     'Finna\Search\Solr\Results' => 'VuFind\Search\Solr\ResultsFactory',
                     'Finna\Search\SolrAuth\Results' => 'VuFind\Search\Solr\ResultsFactory',
+                    'Finna\Search\L1\Results' => 'Finna\Search\L1\ResultsFactory',
                 ],
                 'aliases' => [
                     'VuFind\Search\Combined\Results' => 'Finna\Search\Combined\Results',
@@ -741,7 +759,8 @@ $config = [
 
                     'Blender' => 'Finna\Search\Blender\Results',
                     'R2' => 'Finna\Search\R2\Results',
-                    'R2Collection' => 'Finna\Search\R2Collection\Results'
+                    'R2Collection' => 'Finna\Search\R2Collection\Results',
+                    'L1' => 'Finna\Search\L1\Results',
                 ]
             ],
             'content_covers' => [
@@ -903,7 +922,8 @@ $recordRoutes = [
    'solrauthrecord' => 'AuthorityRecord',
    'r2record' => 'R2Record',
    'r2collection' => 'R2Collection',
-   'r2collectionrecord' => 'R2Record'
+   'r2collectionrecord' => 'R2Record',
+    'l1record' => 'L1Record'
 ];
 
 // Define dynamic routes -- controller => [route name => action]
@@ -927,7 +947,8 @@ $staticRoutes = [
     'OrganisationInfo/Home',
     'PCI/Home', 'PCI/Search', 'PCI/Record',
     'Search/StreetSearch',
-    'Barcode/Show', 'Search/MapFacet', 'Search/Blended'
+    'Barcode/Show', 'Search/MapFacet', 'Search/Blended',
+    'L1/Advanced', 'L1/FacetList', 'L1/Home', 'L1/Results'
 ];
 
 $routeGenerator = new \VuFind\Route\RouteGenerator();
@@ -936,6 +957,20 @@ $routeGenerator->addDynamicRoutes($config, $dynamicRoutes);
 $routeGenerator->addStaticRoutes($config, $staticRoutes);
 
 // This needs to be defined after VuFind's record routes...
+$config['router']['routes']['l1record-feedback'] = [
+    'type'    => 'Laminas\Router\Http\Segment',
+    'options' => [
+        'route'    => '/L1Record/[:id]/Feedback',
+        'constraints' => [
+            'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
+            'action'     => '[a-zA-Z][a-zA-Z0-9_-]*',
+        ],
+        'defaults' => [
+            'controller' => 'L1Record',
+            'action'     => 'Feedback',
+        ]
+    ]
+];
 $config['router']['routes']['r2record-feedback'] = [
     'type'    => 'Zend\Router\Http\Segment',
     'options' => [
