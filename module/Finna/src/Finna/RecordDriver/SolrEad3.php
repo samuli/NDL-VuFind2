@@ -524,7 +524,9 @@ class SolrEad3 extends SolrEad
                         continue;
                     }
                     $href = (string)$attr->href;
-                    if ($this->urlBlocked($href) || !$this->isUrlLoadable($href)) {
+                    if ($this->urlBlocked($href)
+                        || !$this->isUrlLoadable($href, $this->getUniqueID())
+                    ) {
                         continue;
                     }
                     $images[$size][] = [
