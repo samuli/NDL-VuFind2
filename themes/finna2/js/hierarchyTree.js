@@ -158,7 +158,7 @@ $(document).ready(function hierarchyTreeReady() {
   // Code for the search button
   hierarchyID = $("#hierarchyTree").find(".hiddenHierarchyId")[0].value;
   recordID = $("#hierarchyTree").find(".hiddenRecordId")[0].value || 'Solr';
-  hierarchySource = $("#hierarchyTree").find(".hiddenHierarchySource");
+  hierarchySource = $("#hierarchyTree").find(".hiddenRecordSource");
   hierarchySource = hierarchySource.length ? hierarchySource[0].value : 'Solr';
 
   htmlID = htmlEncodeId(recordID);
