@@ -56,13 +56,6 @@ class AuthenticationListener
     protected $backend;
 
     /**
-     * Authentication manager
-     *
-     * @var Manager
-     */
-    protected $authManager;
-
-    /**
      * R2 service
      *
      * @var R2SupportService;
