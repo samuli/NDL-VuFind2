@@ -60,7 +60,7 @@ class AuthenticationListener
      *
      * @var R2SupportService;
      */
-    protected $R2SupportService;
+    protected $r2SupportService;
 
     /**
      * Connector
@@ -90,7 +90,7 @@ class AuthenticationListener
         Connector $connector, RemsService $rems
     ) {
         $this->backend = $backend;
-        $this->R2SupportService = $r2;
+        $this->r2SupportService = $r2;
         $this->connector = $connector;
         $this->rems = $rems;
     }
@@ -124,7 +124,7 @@ class AuthenticationListener
             $this->connector->setUsername(null);
             // Attempt to retrieve restricted metadata from the backend
             // when the user is successfuly registered to REMS
-            if ($this->R2SupportService->isAuthenticated()
+            if ($this->r2SupportService->isAuthenticated()
                 && $this->rems->isUserRegisteredDuringSession()
                 && $this->rems->hasUserAccess()
             ) {
