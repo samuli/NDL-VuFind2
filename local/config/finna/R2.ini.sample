@@ -3,12 +3,12 @@
 ; ----------------------------------------------
 [R2]
 enabled = false
-apiUser = 
-apiKey = 
+apiUser =
+apiKey =
 
 [Index]
-url             = 
-default_core    = 
+url             =
+default_core    =
 
 [Http]
 
@@ -19,88 +19,121 @@ default_core    =
 ; This section contains global settings affecting search behavior.
 [General]
 default_handler      = AllFields    ; Search handler to use if none is specified
-
-; This setting controls the default sort order of search results if no search-
-; specific setting was present in the [DefaultSortingByType] section below; the
-; selected option should be one of the options present in the [Sorting] section
-; below.
 default_sort         = "relevance,id asc"
-
-; This setting controls the sort order to be used for empty search when relevance
-; sort is selected. Since relevance doesn't have a meaningful function with an empty
-; search, this can be set to e.g. "title".
 empty_search_relevance_override = "last_indexed desc,id asc"
-
-; This setting controls the default view for search results; the selected option
-; should be one of the options present in the [Views] section below.
 default_view         = list
-
-; This setting controls the view options list type. If this is set true, view options
-; will be shown as icons instead of dropdown list.
 view_options_icons   = true
-
-; This section controls the result limit options for search results. default_limit
-; sets the default number of results per page. limit_options is a comma-separated
-; list of numbers to be presented to the end-user. If only one limit is required,
-; set default_limit and leave limit_options commented out.
-; WARNING: using large limits may require you to raise your PHP memory limits to
-; avoid errors.
 default_limit        = 20
 default_limit_grid   = 50
 default_limit_condensed = 100
 limit_options        = 20,50,100
-
-; If this setting is true, boolean operators in searches (AND/OR/NOT) will only
-; be recognized if they are ALL UPPERCASE.  If set to false, they will be
-; recognized regardless of case.  If set to a comma-separated list of operators
-; (e.g. "AND,NOT") then only the listed operators will be case-sensitive.
 case_sensitive_bools = true
-
-; If this setting is true, range operators in searches ([a TO b] or {a TO b})
-; will only be recognized if the word "TO" is ALL UPPERCASE.  Additionally, the
-; edges of the range may be treated in a case sensitive manner.  If set to false,
-; ranges will be recognized regardless of case -- this will allow better matching
-; at the cost of a bit of extra server-side processing.
 case_sensitive_ranges = true
 
-; These are the default recommendations modules to use when no specific setting
-; are found in the [TopRecommendations], [SideRecommendations] or
-; [NoResultsRecommendations] sections below.
-; See the comments above those sections for details on legal settings.  You may
-; repeat these lines to load multiple recommendations.
-;default_top_recommend[] = TopFacets:ResultsTop
-;default_top_recommend[] = AuthorityRecommend
 default_noresults_recommend[] = SwitchType
 default_noresults_recommend[] = SwitchQuery
 default_noresults_recommend[] = SpellingSuggestions
 default_side_recommend[] = SideFacetsDeferred:Results:CheckboxFacets:R2
 
-; Set this to true in order to highlight keywords from the search query when they
-; appear in fields displayed in search results.
 highlighting = true
-
-; Set this to restrict the list of fields that will be highlighted (the hl.fl
-; Solr parameter); default = '*' for all fields:
 highlighting_fields = "author,author2,author_additional,author_fuller,container_title,contents,culture,description,dewey-full,edition,era,genre,geographic,institution,isbn,issn,language,lccn,material,measurements,publication_place_txt_mv,publisher,series,series2,title,title_alt,title_full,title_new,title_old,topic"
 
-; Set this to true in order to include a text snippet in the search results when
-; a keyword match is found in a field that is not normally displayed as part of
-; the listing.  For finer control over which fields are used for snippets, see
-; the record driver code (web/RecordDrivers/IndexRecord.php).
-;
-; For control over snippet captions, see the [Snippet_Captions] section below.
 snippets = true
-
-; When you filter a search using facets, VuFind will present a checkbox that can
-; be used to apply those filters to the next search you perform.  This setting
-; controls its default state: on (true) or off (false).
 retain_filters_by_default = true
 
-; Whether to hide merged component parts
 hide_component_parts = true
-
-; Maximum result to display
 result_limit = 100000
+
+[Cache]
+type = File
+
+[Basic_Searches]
+AllFields           = "All Fields"
+Title               = Title
+;JournalTitle        = "Journal Title"
+Author              = Author
+Subject             = Subject
+CallNumber          = "Call Number"
+ISN                 = "ISBN/ISSN"
+;Coordinate        = Coordinates
+tag                 = Tag
+
+[Advanced_Searches]
+AllFields           = adv_search_all
+Title               = adv_search_title
+;JournalTitle        = adv_search_journaltitle
+Author              = adv_search_author
+Subject             = adv_search_subject
+CallNumber          = adv_search_callnumber
+ISN                 = adv_search_isn
+publisher           = adv_search_publisher
+Series              = adv_search_series
+year                = adv_search_year
+toc                 = adv_search_toc
+;Coordinate        = Coordinates
+
+[Sorting]
+relevance = sort_relevance
+year = sort_year
+year asc = "sort_year asc"
+callnumber-sort = sort_callnumber
+;dewey-sort = sort_callnumber
+author = sort_author
+title = sort_title
+
+[DefaultSortingByType]
+CallNumber = callnumber-sort
+
+[SideRecommendations]
+;Subject[]          = SideFacets
+;Subject[]          = OpenLibrarySubjectsDeferred:lookfor:5:true:topic,place,person,time
+
+[TopRecommendations]
+Author[]            = AuthorFacets
+Author[]            = SpellingSuggestions
+;Author[]           = WorldCatIdentities
+CallNumber[]        = "TopFacets:ResultsTop"
+
+[NoResultsRecommendations]
+CallNumber[] = SwitchQuery::wildcard:truncatechar
+CallNumber[] = RemoveFilters
+;CallNumber[] = AlphaBrowseLink:lcc
+
+[RSS]
+sort = "last_indexed desc"
+
+[Snippet_Captions]
+author2 = "Other Authors"
+contents = "Table of Contents"
+topic = "Subjects"
+container_title = "Journal Title"
+
+[StripFields]
+
+[Views]
+list = List
+grid = Grid
+condensed = Condensed
+
+[HiddenFilters]
+;institution = "MyInstitution"
+
+[RawHiddenFilters]
+;0 = "format:\"Book\" OR format:\"Journal\""
+;1 = "language:\"English\" OR language:\"French\""
+
+[ConditionalHiddenFilters]
+;0 = "-conditionalFilter.MyUniversity|format:Book"
+;1 = "conditionalFilter.MyUniversity|format:Article"
+
+[Records]
+;deduplication = true
+;sources = alli,testsrc
+
+[MoreLikeThis]
+;useMoreLikeThisHandler = true
+;params = "qf=title,title_short,callnumber-label,topic,language,author,publishDate mintf=1 mindf=1";
+;count = 5
 
 [Autocomplete]
 enabled = true
@@ -108,6 +141,7 @@ default_handler = R2
 
 [Record]
 ;related[] = "RecordDriverRelatedDeferred"
+
 
 ; ---------------------
 ; Facet settings
