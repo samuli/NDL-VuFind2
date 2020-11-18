@@ -58,7 +58,7 @@ class R2BackendFactory extends SolrDefaultBackendFactory
     /**
      * R2 service
      *
-     * @var \Finna\Service\r2SupportService
+     * @var \Finna\Service\R2SupportService
      */
     protected $r2SupportService;
 
@@ -106,7 +106,7 @@ class R2BackendFactory extends SolrDefaultBackendFactory
     public function __invoke(ContainerInterface $sm, $name, array $options = null)
     {
         $this->r2Config = $sm->get('VuFind\Config\PluginManager')->get('R2');
-        $this->r2SupportService = $sm->get(\Finna\Service\r2SupportService::class);
+        $this->r2SupportService = $sm->get(\Finna\Service\R2SupportService::class);
         $this->solrCore = $this->r2Config->Index->default_core;
         $this->rems = $sm->get(\Finna\Service\RemsService::class);
         $this->events = new EventManager($sm->get('SharedEventManager'));
