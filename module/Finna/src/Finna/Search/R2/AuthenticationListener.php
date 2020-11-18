@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Restricted Solr (R2) Search authenticationlistener.
+ * Restricted Solr (R2) Search authentication listener.
  *
  * PHP version 7
  *
