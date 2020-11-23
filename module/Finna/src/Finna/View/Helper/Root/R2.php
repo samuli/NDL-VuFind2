@@ -218,15 +218,14 @@ class R2 extends \Laminas\View\Helper\AbstractHelper
             $blocklisted = $registered = $sessionClosed = false;
             $blocklistedDate = null;
             try {
-                if ($this->rems->hasUserAccess(
-                    $params['ignoreCache'] ?? false, true
-                )
-                ) {
+                $ignoreCache = $params['ignoreCache'] ?? false;
+                if ($this->rems->hasUserAccess($ignoreCache, true)) {
                     // Already registered
                     return null;
                 } else {
                     $blocklisted
-                        = $this->user ? $this->rems->isUserBlocklisted() : false;
+                        = $this->user ? $this->rems->isUserBlocklisted($ignoreCache)
+                        : false;
                     if ($blocklisted) {
                         $dateTime = $this->getView()->plugin('dateTime');
                         try {
@@ -236,7 +235,7 @@ class R2 extends \Laminas\View\Helper\AbstractHelper
                         } catch (\Exception $e) {
                         }
                     }
-                    $status = $this->rems->getAccessPermission();
+                    $status = $this->rems->getAccessPermission($ignoreCache);
                     $sessionClosed = in_array(
                         $status,
                         [RemsService::STATUS_EXPIRED, RemsService::STATUS_REVOKED]
