@@ -71,20 +71,30 @@ class R2 extends \Laminas\View\Helper\AbstractHelper
     protected $rems;
 
     /**
+     * Blocklist email
+     *
+     * @var string
+     */
+    protected $blocklistEmail;
+
+    /**
      * Constructor
      *
-     * @param bool        $enabled       Is R2 enabled?
-     * @param User|null   $user          Current user
-     * @param bool        $authenticated Is user authenticated to use R2?
-     * @param RemsService $rems          RemsService
+     * @param bool        $enabled        Is R2 enabled?
+     * @param User|null   $user           Current user
+     * @param bool        $authenticated  Is user authenticated to use R2?
+     * @param RemsService $rems           RemsService
+     * @param string      $blocklistEmail Email address for blocklist inquiries
      */
     public function __construct(
-        bool $enabled, ?User $user, bool $authenticated, RemsService $rems
+        bool $enabled, ?User $user, bool $authenticated, RemsService $rems,
+        string $blocklistEmail
     ) {
         $this->enabled = $enabled;
         $this->user = $user;
         $this->authenticated = $authenticated;
         $this->rems = $rems;
+        $this->blocklistEmail = $blocklistEmail;
     }
 
     /**
@@ -261,6 +271,7 @@ class R2 extends \Laminas\View\Helper\AbstractHelper
                 'collection' => $driver ? $driver->isCollection() : false,
                 'blocklisted' => $blocklisted,
                 'blocklistedDate' => $blocklistedDate,
+                'blocklistedEmail' => $this->blocklistEmail,
                 'formId' => 'R2Register',
             ];
 
