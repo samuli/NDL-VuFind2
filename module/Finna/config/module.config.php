@@ -950,6 +950,7 @@ $staticRoutes = [
     'LocationService/Modal',
     'R2/Home', 'R2/Results', 'R2/Advanced',
     'MetaLib/Home', 'MetaLib/Search', 'MetaLib/Advanced',
+    'MyResearch/R2AccessRights',
     'MyResearch/SaveCustomOrder', 'MyResearch/PurgeHistoricLoans',
     'MyResearch/R2AccessRights',
     'OrganisationInfo/Home',
