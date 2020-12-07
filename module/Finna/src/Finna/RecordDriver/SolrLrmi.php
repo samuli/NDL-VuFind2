@@ -58,6 +58,16 @@ class SolrLrmi extends SolrQdc
     ];
 
     /**
+     * File formats that can be used as preview images when converted to PDF.
+     *
+     * @var array
+     */
+    protected $previewableConvertedFileFormats = [
+        'pdf', 'pptx', 'ppt', 'docx', 'html',
+        'odt', 'rtf', 'txt', 'odp', 'png', 'jpg', 'doc'
+    ];
+
+    /**
      * Usage rights map
      *
      * @var array
@@ -344,7 +354,11 @@ class SolrLrmi extends SolrQdc
                 $pdfs = array_filter(
                     $materials,
                     function ($material) {
-                        return !empty($material['pdfUrl']);
+                        return !empty($material['pdfUrl'])
+                            && in_array(
+                                $material['format'],
+                                $this->previewableConvertedFileFormats
+                            );
                     }
                 );
             }
