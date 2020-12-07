@@ -411,7 +411,7 @@ class SolrLrmi extends SolrQdc
                     if ((string)$materialUrlFormat === 'application/pdf') {
                         // PDF version of material
                         $pdfUrl = (string)$materialUrl;
-                    } else if (!$url) {
+                    } elseif (!$url) {
                         // Material in original format
                         $url = $this->isDownloadableFileFormat($format)
                             ? (string)$materialUrl : '';
