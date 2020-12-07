@@ -331,20 +331,38 @@ class SolrLrmi extends SolrQdc
 
         // Attempt to find a PDF file to be converted to a coverimage
         if ($includePdf && empty($result) && $materials = $this->getMaterials()) {
-            foreach ($materials as $material) {
-                if ($material['format'] === 'pdf') {
-                    $url = $material['url'];
-                    $result[] = [
-                        'urls' => [
-                            'small' => $url,
-                            'medium' => $url,
-                            'large' => $url
-                        ],
-                        'description' => '',
-                        'rights' => []
-                    ];
-                    break;
+            // First, find PDF-materials
+            $pdfs = array_filter(
+                $materials,
+                function ($material) {
+                    return $material['format'] === 'pdf';
                 }
+            );
+
+            // ... if not found, try materials that have been converted to PDF
+            if (empty($pdfs)) {
+                $pdfs = array_filter(
+                    $materials,
+                    function ($material) {
+                        return !empty($material['pdfUrl']);
+                    }
+                );
+            }
+            $pdfs = array_values($pdfs);
+
+            if (!empty($pdfs)) {
+                $pdf = $pdfs[0];
+                // Prefer original PDF-files over converted ones
+                $url = $pdf['format'] === 'pdf' ? $pdf['url'] : $pdf['pdfUrl'];
+                $result[] = [
+                    'urls' => [
+                        'small' => $url,
+                        'medium' => $url,
+                        'large' => $url
+                    ],
+                    'description' => '',
+                    'rights' => []
+                ];
             }
         }
 
@@ -373,14 +391,25 @@ class SolrLrmi extends SolrQdc
                     ? 'html'
                     : $this->getFileFormat((string)$material->url);
 
-                $url = $this->isDownloadableFileFormat($format)
-                    ? (string)$material->url : '';
+                $url = $pdfUrl = null;
+                foreach ($material->url as $materialUrl) {
+                    $materialUrlFormat = $materialUrl->attributes()->format;
+                    if ((string)$materialUrlFormat === 'application/pdf') {
+                        // PDF version of material
+                        $pdfUrl = (string)$materialUrl;
+                    } else if (!$url) {
+                        // Material in original format
+                        $url = $this->isDownloadableFileFormat($format)
+                            ? (string)$materialUrl : '';
+                    }
+                }
+
                 $titles = $this->getMaterialTitles($material->name, $locale);
                 $title = $titles[$locale] ?? $titles['default'];
                 $position = (int)$material->position ?? 0;
                 $filesize = (string)$material->filesize ?? null;
                 $materials[] = compact(
-                    'url', 'title', 'format', 'filesize', 'position'
+                    'url', 'pdfUrl', 'title', 'format', 'filesize', 'position'
                 );
             }
         }
