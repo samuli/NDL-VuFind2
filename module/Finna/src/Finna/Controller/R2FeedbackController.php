@@ -139,6 +139,9 @@ class R2FeedbackController extends FeedbackController
 
             $view = $this->createViewModel(compact('form', 'formId', 'user'));
             $view->setTemplate('feedback/form');
+            $view->useCaptcha
+                = $this->captcha()->active($formId) && $form->useCaptcha();
+
             $params = $this->params()->fromPost();
             $form->setData($params);
 
