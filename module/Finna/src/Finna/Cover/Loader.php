@@ -187,6 +187,9 @@ class Loader extends \VuFind\Cover\Loader
         case 'tiff':
             $contentType = 'image/tiff';
             break;
+        case 'pdf':
+            $contentType = 'application/pdf';
+            break;
         default:
             $contentType = 'image/jpeg';
             break;

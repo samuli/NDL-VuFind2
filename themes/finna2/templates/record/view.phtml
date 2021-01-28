@@ -80,7 +80,7 @@
   if (!$noImage && $format === 'qdc') {
     $allImages = $this->driver->getAllImages(null, true);
     if ($allImages && $allImages[0]['pdf'] ?? false) {
-      echo '<script>var pdfUrl = "' . $allImages[0]['urls']['large'] . '";</script>';
+      echo '<script>var pdfUrl = "' . $allImages[0]['urls']['large'] . '"; var recordId = "' . $this->driver->getUniqueID() . '"; </script>';
     }
   }
 ?>
