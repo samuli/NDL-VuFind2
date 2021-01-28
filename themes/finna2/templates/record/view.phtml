@@ -73,8 +73,16 @@
   $images = $recordImage->getAllImagesAsCoverLinks(
       $this->layout()->userLang, $params
   );
+
+  $format = $this->driver->tryMethod('getRecordFormat');
   $noImage = empty($images[0]['urls']['medium']) && empty($images[0]['urls']['large']);
-  $largeImageLayout = !$noImage && in_array($this->driver->tryMethod('getRecordFormat'), ['lido', 'forward', 'ead', 'ead3', 'forwardAuthority']);
+  $largeImageLayout = !$noImage && in_array($format, ['lido', 'forward', 'ead', 'ead3', 'qdc', 'forwardAuthority']);
+  if (!$noImage && $format === 'qdc') {
+    $allImages = $this->driver->getAllImages(null, true);
+    if ($allImages && $allImages[0]['pdf'] ?? false) {
+      echo '<script>var pdfUrl = "' . $allImages[0]['urls']['large'] . '";</script>';
+    }
+  }
 ?>
 </div>
 <div class="container">
