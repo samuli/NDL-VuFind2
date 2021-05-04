@@ -71,34 +71,51 @@ finna.authority = (function finnaAuthority() {
 
   function initInlineInfoLinks()
   {
+    var toggleHandle = function onToggleHandle(handle, open) {
+      handle
+        .removeClass(open ? 'fa-handle-open' : 'fa-handle-close')
+        .addClass(open ? 'fa-handle-close' : 'fa-handle-open');
+    };
     $('div.authority').each(function initAuthority() {
       var $authority = $(this);
       $authority.find('a.show-info').on('click', function onClickShowInfo() {
-        var $authorityInfo = $authority.find('.authority-info .content');
-        if (!$authority.hasClass('loaded')) {
-          $authority.addClass('loaded');
-          $.getJSON(
-            VuFind.path + '/AJAX/JSON',
-            {
-              method: 'getAuthorityInfo',
-              id: $authority.data('authority'),
-              type: $authority.data('type'),
-              source: $authority.data('source')
-            }
-          )
-            .done(function onGetAuthorityInfoDone(response) {
-              $authorityInfo.html(typeof response.data.html !== 'undefined' ? response.data.html : '--');
-            })
-            .fail(function onGetAuthorityInfoFail() {
-              $authorityInfo.text(VuFind.translate('error_occurred'));
-            });
+        if (!$authority.hasClass('open')) {
+          var $authorityInfo = $authority.find('.authority-info .content');
+          if (!$authority.hasClass('loaded')) {
+            $authority.addClass('loaded');
+            $.getJSON(
+              VuFind.path + '/AJAX/JSON',
+              {
+                method: 'getAuthorityInfo',
+                id: $authority.data('authority'),
+                type: $authority.data('type'),
+                source: $authority.data('source')
+              }
+            )
+              .done(function onGetAuthorityInfoDone(response) {
+                $authorityInfo.find('.fa-spinner').remove();
+                if (typeof response.data.html !== 'undefined') {
+                  $authorityInfo.html(response.data.html);
+                } else {
+                  $authorityInfo.find('.no-info').removeClass('hide');
+                }
+              })
+              .fail(function onGetAuthorityInfoFail() {
+                $authorityInfo.text(VuFind.translate('error_occurred'));
+              });
+          }
+          $authority.addClass('open');
+          toggleHandle($(this).parent().find('i.handle'), true);
+        } else {
+          $authority.removeClass('open');
+          toggleHandle($(this).parent().find('i.handle'), false);
         }
-        $authority.addClass('open');
         return false;
       });
 
       $authority.find('a.hide-info').on('click', function onClickHideInfo() {
         $authority.removeClass('open');
+        toggleHandle($authority.find('i.handle'), false);
         return false;
       });
     });

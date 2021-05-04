@@ -349,8 +349,13 @@ class Record extends \VuFind\View\Helper\Root\Record
             $preserveSearchTabsFilters
         );
 
+        $showInlineInfo = !empty($params['showInlineInfo'])
+          && $this->isAuthorityInlineInfoEnabled();
+
         if (!$this->isAuthorityEnabled()
-            || !in_array($urlType, ['authority-search', 'authority-page'])
+            || (!$showInlineInfo
+                && !in_array($urlType, ['authority-search', 'authority-page'])
+            )
         ) {
             $author = [
                'name' => $data['name'] ?? null,
@@ -371,7 +376,7 @@ class Record extends \VuFind\View\Helper\Root\Record
         }
 
         $authId = $this->driver->getAuthorityId($id, $type);
-        $authorityType = $params['authorityType'] ?? null;
+        $authorityType = $params['authorityType'] ?? 'Personal Name';
         $authorityType
             = $this->config->Authority->typeMap->{$authorityType} ?? $authorityType;
 
@@ -382,8 +387,7 @@ class Record extends \VuFind\View\Helper\Root\Record
            'label' => $lookfor,
            'id' => $authId,
            'authorityLink' => $id && $this->isAuthorityLinksEnabled(),
-           'showInlineInfo' => !empty($params['showInlineInfo'])
-               && $this->isAuthorityInlineInfoEnabled(),
+           'showInlineInfo' => $showInlineInfo,
            'recordSource' => $this->driver->getDataSource(),
            'type' => $type,
            'authorityType' => $authorityType,
