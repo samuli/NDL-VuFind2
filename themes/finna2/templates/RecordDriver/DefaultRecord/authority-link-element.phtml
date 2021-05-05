@@ -19,9 +19,7 @@
     <span class="authority-label"><?=$this->escapeHtml($this->label)?></span>
   </a><?= $additionalDataEl?><?php if (!empty($this->description)): ?> <span class="authority-description"><?="({$this->escapeHtml($this->description)})"?></span><?php endif; ?>
   <?php if ($this->showInlineInfo): ?>
-    <span>
-      <a href="#" class="show-info"><i class="fa <?=$authorityIcon?>"> </i><?=$this->translate('authority_show_info')?> <i class="fa fa-handle-open handle"></i></a>
-    </span>
+    <a href="#" class="show-info"><i class="fa <?=$authorityIcon?>"> </i><?=$this->translate('authority_show_info')?> <i class="fa fa-handle-open handle"></i></a>
     <div class="authority-info">
       <div class="content">
         <i class="fa fa-spin fa-spinner"></i>
