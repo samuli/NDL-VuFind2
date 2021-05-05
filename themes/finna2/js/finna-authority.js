@@ -94,8 +94,10 @@ finna.authority = (function finnaAuthority() {
             )
               .done(function onGetAuthorityInfoDone(response) {
                 $authorityInfo.find('.fa-spinner').remove();
-                if (typeof response.data.html !== 'undefined') {
-                  $authorityInfo.html(response.data.html);
+                var desc = typeof response.data.html !== 'undefined' ? response.data.html : null;
+                if (desc && desc.trim()) {
+                  $authorityInfo.html(desc);
+                  finna.layout.initTruncate($authorityInfo);
                 } else {
                   $authorityInfo.find('.no-info').removeClass('hide');
                 }
@@ -105,6 +107,8 @@ finna.authority = (function finnaAuthority() {
               });
           }
           $authority.addClass('open');
+          // trigger parent collapsed area open so that authority info is not hidden
+          $authority.closest('.truncate-field.truncated').next('.more-link').click();
           toggleHandle($(this).parent().find('i.handle'), true);
         } else {
           $authority.removeClass('open');
