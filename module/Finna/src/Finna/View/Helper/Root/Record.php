@@ -350,12 +350,11 @@ class Record extends \VuFind\View\Helper\Root\Record
         );
 
         $showInlineInfo = !empty($params['showInlineInfo'])
-          && $this->isAuthorityInlineInfoEnabled();
+          && $this->isAuthorityInlineInfoEnabled() && $id;
 
         if (!$this->isAuthorityEnabled()
             || (!$showInlineInfo
-                && !in_array($urlType, ['authority-search', 'authority-page'])
-            )
+            && !in_array($urlType, ['authority-search', 'authority-page']))
         ) {
             $author = [
                'name' => $data['name'] ?? null,
