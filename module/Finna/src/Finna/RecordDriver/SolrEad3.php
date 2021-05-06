@@ -1431,10 +1431,10 @@ class SolrEad3 extends SolrEad
                     }
                 }
             }
-            if ($lang['default']) {
+            if ($lang['default'] ?? false) {
                 $defaultLanguageResults[] = $name;
             }
-            if ($lang['preferred']) {
+            if ($lang['preferred'] ?? false) {
                 $languageResults[] = $name;
             }
         }
