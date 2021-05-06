@@ -361,6 +361,7 @@ class Record extends \VuFind\View\Helper\Root\Record
                'date' => !empty($data['date']) ? $data['date'] : null,
                'affiliation' => !empty($data['affiliation'])
                    ? $data['affiliation'] : null,
+               'description' => $data['description'] ?? null
             ];
 
             if (!empty($params['displayRole'])) {
@@ -417,8 +418,8 @@ class Record extends \VuFind\View\Helper\Root\Record
             }
         }
 
-        if (!empty($params['description'])) {
-            $elementParams['description'] = $params['description'];
+        if (!empty($params['description']) && !empty($data['description'])) {
+            $elementParams['description'] = $data['description'];
         }
 
         return $this->renderTemplate('authority-link-element.phtml', $elementParams);
