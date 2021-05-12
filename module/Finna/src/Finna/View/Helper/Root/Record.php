@@ -344,7 +344,7 @@ class Record extends \VuFind\View\Helper\Root\Record
         // Discard search tabs hiddenFilters when jumping to Authority page
         $preserveSearchTabsFilters = $linkType !== AuthorityHelper::LINK_TYPE_PAGE;
 
-        [$url, $urlType] = $this->getLink(
+        [$escapedUrl, $urlType] = $this->getLink(
             $type, $lookfor, $params + compact('id', 'linkType'), true,
             $preserveSearchTabsFilters
         );
@@ -372,7 +372,7 @@ class Record extends \VuFind\View\Helper\Root\Record
             }
             // NOTE: currently this fallbacks always to a author-link
             // (extend to handle subject/topic fallbacks when needed).
-            return $this->getAuthorLinkElement($url, $author);
+            return $this->getAuthorLinkElement($author);
         }
 
         $authId = $this->driver->getAuthorityId($id, $type);
@@ -381,7 +381,7 @@ class Record extends \VuFind\View\Helper\Root\Record
             = $this->config->Authority->typeMap->{$authorityType} ?? $authorityType;
 
         $elementParams = [
-           'url' => trim($url),
+           'escapedUrl' => trim($escapedUrl),
            'record' => $this->driver,
            'searchAction' => $params['searchAction'] ?? null,
            'label' => $lookfor,
@@ -440,15 +440,13 @@ class Record extends \VuFind\View\Helper\Root\Record
     /**
      * Utility function for rendering an author search link element.
      *
-     * @param string $url  Link URL
      * @param array  $data Author data (name, role, date)
      *
      * @return string HTML
      */
-    protected function getAuthorLinkElement($url, $data)
+    protected function getAuthorLinkElement($data)
     {
         $params = [
-           'url' => $url,
            'record' => $this->driver,
            'author' => $data
         ];
