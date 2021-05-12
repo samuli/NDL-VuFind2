@@ -440,7 +440,7 @@ class Record extends \VuFind\View\Helper\Root\Record
     /**
      * Utility function for rendering an author search link element.
      *
-     * @param array  $data Author data (name, role, date)
+     * @param array $data Author data (name, role, date)
      *
      * @return string HTML
      */
