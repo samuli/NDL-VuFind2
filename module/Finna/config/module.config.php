@@ -162,6 +162,20 @@ $config = [
                     ]
                 ]
             ],
+            'record-requestform' => [
+                'type'    => 'Laminas\Router\Http\Segment',
+                'options' => [
+                    'route'    => '/Record/[:id]/RequestForm/[:formId]',
+                    'constraints' => [
+                        'controller' => '[a-zA-Z][a-zA-Z0-9_-]*',
+                        'action'     => '[a-zA-Z][a-zA-Z0-9_-]*',
+                    ],
+                    'defaults' => [
+                        'controller' => 'Record',
+                        'action'     => 'RequestForm',
+                    ]
+                ]
+            ],
             'record-preview' => [
                 'type' => 'Laminas\Router\Http\Literal',
                 'options' => [

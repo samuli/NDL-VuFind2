@@ -197,6 +197,25 @@ class Record extends \VuFind\View\Helper\Root\Record
     }
 
     /**
+     * Is request form enabled.
+     *
+     * @param string $formId Form ID
+     *
+     * @return boolean
+     */
+    public function requestFormEnabled(string $formId) : bool
+    {
+        $sources = $this->config->Record->request_form_sources[$formId] ?? null;
+        if (!$sources) {
+            return false;
+        }
+        if ($sources === '*') {
+            return true;
+        }
+        return in_array($this->driver->getDataSource(), explode(',', $sources));
+    }
+
+    /**
      * Return record driver
      *
      * @return \VuFind\RecordDriver\AbstractBase

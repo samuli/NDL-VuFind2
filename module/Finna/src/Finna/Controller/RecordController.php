@@ -50,6 +50,25 @@ class RecordController extends \VuFind\Controller\RecordController
      */
     public function feedbackAction()
     {
+        return $this->getRecordForm('FeedbackRecord');
+    }
+
+    /**
+     * Create record request form.
+     *
+     * @return \Laminas\View\Model\ViewModel
+     * @throws \Exception
+     */
+    public function requestFormAction()
+    {
+        if (!($formId = $this->params()->fromRoute('formId', $this->params()->fromQuery('formId')))) {
+            throw new \Exception('Missing formId');
+        }
+        return $this->getRecordForm($formId);
+    }
+
+    protected function getRecordForm($id)
+    {
         $driver = $this->loadRecord();
         $recordPlugin = $this->getViewRenderer()->plugin('record');
 
@@ -60,7 +79,7 @@ class RecordController extends \VuFind\Controller\RecordController
 
         return $this->redirect()->toRoute(
             'feedback-form',
-            ['id' => 'FeedbackRecord'],
+            ['id' => $id],
             ['query' => [
                 'data' => $data,
                 'layout' => $this->getRequest()->getQuery('layout', false),
