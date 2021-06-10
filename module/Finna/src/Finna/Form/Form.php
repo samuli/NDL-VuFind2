@@ -568,7 +568,8 @@ class Form extends \VuFind\Form\Form
         $elements = parent::getFormElements($config);
 
         $includeRecordData = in_array(
-            $this->formId, array_merge(['FeedbackRecord'], self::RECORD_REQUEST_FORMS)
+            $this->formId,
+            array_merge(['FeedbackRecord'], self::RECORD_REQUEST_FORMS)
         );
 
         if ($includeRecordData) {
@@ -682,7 +683,8 @@ class Form extends \VuFind\Form\Form
 
         $fields = array_merge(
             $fields,
-            ['hideRecipientInfo', 'hideSenderInfo', 'sendMethod', 'senderInfoHelp', 'includeBarcode']
+            ['hideRecipientInfo', 'hideSenderInfo', 'sendMethod', 'senderInfoHelp',
+             'includeBarcode']
         );
 
         return $fields;

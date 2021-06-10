@@ -61,7 +61,10 @@ class RecordController extends \VuFind\Controller\RecordController
      */
     public function requestFormAction()
     {
-        if (!($formId = $this->params()->fromRoute('formId', $this->params()->fromQuery('formId')))) {
+        if (!($formId = $this->params()->fromRoute(
+            'formId', $this->params()->fromQuery('formId')
+        ))
+        ) {
             throw new \Exception('Missing formId');
         }
         return $this->getRecordForm($formId);
