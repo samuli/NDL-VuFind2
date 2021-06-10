@@ -52,14 +52,13 @@ class Form extends \VuFind\Form\Form
      */
     const HANDLER_DATABASE = 'database';
 
-
     /**
      * List of forms that are allowed to send user's library card barcode
-     * the form data.
+     * along with the form data.
      *
      * @var array
      */
-    const BARCODE_ALLOWED = ['RepositoryLibraryRequest'];
+    const RECORD_REQUEST_FORMS = ['RepositoryLibraryRequest'];
 
     /**
      * Form id
@@ -103,7 +102,6 @@ class Form extends \VuFind\Form\Form
      */
     protected $userCatUsername = null;
 
-
     /**
      * View helper manager
      *
@@ -145,7 +143,7 @@ class Form extends \VuFind\Form\Form
         parent::setFormId($formId, $params);
         $this->setName($formId);
         if ($this->formSettings['includeBarcode'] ?? false) {
-            if (!in_array($this->formId, self::BARCODE_ALLOWED)) {
+            if (!in_array($this->formId, self::RECORD_REQUEST_FORMS)) {
                 throw new \VuFind\Exception\RecordMissing(
                     'Library card barcode can not be used with this form.'
                 );
@@ -569,7 +567,11 @@ class Form extends \VuFind\Form\Form
     {
         $elements = parent::getFormElements($config);
 
-        if ($this->formId === 'FeedbackRecord') {
+        $includeRecordData = in_array(
+            $this->formId, array_merge(['FeedbackRecord'], self::RECORD_REQUEST_FORMS)
+        );
+
+        if ($includeRecordData) {
             // Add hidden fields for record data
             foreach (['record_id', 'record', 'record_info'] as $key) {
                 $elements[$key]
