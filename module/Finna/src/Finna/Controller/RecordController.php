@@ -282,9 +282,16 @@ class RecordController extends \VuFind\Controller\RecordController
         }
 
         // Block invalid requests:
-        $validRequest = $catalog->checkRequestIsValid(
-            $driver->getUniqueID(), $gatheredDetails, $patron
-        );
+        try {
+            $validRequest = $catalog->checkRequestIsValid(
+                $driver->getUniqueID(),
+                $gatheredDetails,
+                $patron
+            );
+        } catch (\VuFind\Exception\ILS $e) {
+            $this->flashMessenger()->addErrorMessage('ils_connection_failed');
+            return $this->redirectToRecord('#top');
+        }
         if ((is_array($validRequest) && !$validRequest['valid']) || !$validRequest) {
             $this->flashMessenger()->addErrorMessage(
                 is_array($validRequest)
@@ -316,7 +323,12 @@ class RecordController extends \VuFind\Controller\RecordController
             // group, so make sure pickup locations match with the group
             $pickupDetails['requestGroupId'] = $requestGroups[0]['id'];
         }
-        $pickup = $catalog->getPickUpLocations($patron, $pickupDetails);
+        try {
+            $pickup = $catalog->getPickUpLocations($patron, $pickupDetails);
+        } catch (\VuFind\Exception\ILS $e) {
+            $this->flashMessenger()->addErrorMessage('ils_connection_failed');
+            return $this->redirectToRecord('#top');
+        }
 
         // Process form submissions if necessary:
         if (null !== $this->params()->fromPost('placeHold')) {
@@ -347,8 +359,13 @@ class RecordController extends \VuFind\Controller\RecordController
                 $holdDetails = $gatheredDetails + ['patron' => $patron];
 
                 // Attempt to place the hold:
-                $function = (string)$checkHolds['function'];
-                $results = $catalog->$function($holdDetails);
+                try {
+                    $function = (string)$checkHolds['function'];
+                    $results = $catalog->$function($holdDetails);
+                } catch (\VuFind\Exception\ILS $e) {
+                    $this->flashMessenger()
+                        ->addErrorMessage('ils_connection_failed');
+                }
 
                 // Success: Go to Display Holds
                 if (isset($results['success']) && $results['success'] == true) {
@@ -356,7 +373,7 @@ class RecordController extends \VuFind\Controller\RecordController
                         'html' => true,
                         'msg' => 'hold_place_success_html',
                         'tokens' => [
-                            '%%url%%' => $this->url()->fromRoute('myresearch-holds')
+                            '%%url%%' => $this->url()->fromRoute('holds-list')
                         ],
                     ];
                     $this->flashMessenger()->addMessage($msg, 'success');
@@ -757,5 +774,64 @@ class RecordController extends \VuFind\Controller\RecordController
             return $response;
         }
         return $result;
+    }
+
+    /**
+     * Download 3D model
+     *
+     * @return \Laminas\Http\Response
+     */
+    public function downloadModelAction()
+    {
+        $params = $this->params();
+        $index = $params->fromQuery('index');
+        $format = $params->fromQuery('format');
+        $response = $this->getResponse();
+        if ($format && $index) {
+            $driver = $this->loadRecord();
+            $id = $driver->getUniqueID();
+            $models = $driver->tryMethod('getModels');
+            $url = $models[$index][$format]['preview'] ?? false;
+            if (!empty($url)) {
+                $fileName = urlencode($id) . '-' . $index . '.' . $format;
+                $fileLoader = $this->serviceLocator->get(\Finna\File\Loader::class);
+                $file = $fileLoader->getFile(
+                    $url, $fileName, 'Models', 'public'
+                );
+                if (empty($file['result'])) {
+                    $response->setStatusCode(500);
+                } else {
+                    $contentType = '';
+                    switch ($format) {
+                    case 'gltf':
+                        $contentType = 'model/gltf+json';
+                        break;
+                    case 'glb':
+                        $contentType = 'model/gltf+binary';
+                        break;
+                    default:
+                        $contentType = 'application/octet-stream';
+                        break;
+                    }
+                    // Set headers for downloadable file
+                    header("Content-Type: $contentType");
+                    header(
+                        "Content-disposition: attachment; filename=\"{$fileName}\""
+                    );
+                    header('Pragma: public');
+                    header('Content-Length: ' . filesize($file['path']));
+                    if (ob_get_level()) {
+                        ob_end_clean();
+                    }
+                    readfile($file['path']);
+                }
+            } else {
+                $response->setStatusCode(404);
+            }
+        } else {
+            $response->setStatusCode(400);
+        }
+
+        return $response;
     }
 }

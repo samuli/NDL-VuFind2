@@ -17,6 +17,10 @@ autoConfigure = "0"
 ; the getServerStatus AJAX call will return an error regardless of actual status
 ; allowing the server to be disabled from a load-balancer.
 ;healthCheckFile = /tmp/disable_vufind
+; This setting allows a redirection message to production system to be displayed in
+; a pre-production view. The regexp contains the rule to change the URL for
+; production.
+;preProductionRedirect = "/(https:.*?)\.finna-pre\.fi(.*)/i###$1.finna.fi$2"
 
 ; This section will need to be customized for your installation
 [Site]
@@ -1704,3 +1708,19 @@ url = "https://my.surveypal.com/Finnasurvey"
 showLabels[*] = false
 showLabels[Primo] = true
 
+; 3D model settings
+[Models]
+; If uncommented and set to true, will open in a popup
+;popup = false
+; How long should the models be cached, defaults at 1 week
+cacheTime = 604800
+; Ambient light intensity
+ambientIntensity = 1
+; Hemisphere light intensity
+hemisphereIntensity = 0.3
+; Angle to adjust padding between border of viewer and model
+viewerPaddingAngle = 35
+; If debug is uncommented and true, will display additional data on the viewer
+;debug = true
+; Array of institutions which have proper preview images to show
+;previewImages['museovirasto_testi'] = true
