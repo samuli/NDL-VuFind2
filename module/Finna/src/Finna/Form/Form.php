@@ -162,7 +162,7 @@ class Form extends \VuFind\Form\Form
             }
 
             if ($this->user && ($catUsername = $this->user->cat_username)) {
-                list($source, $barcode) = explode('.', $catUsername);
+                [$source, $barcode] = explode('.', $catUsername);
                 $this->userCatUsername = $barcode;
             }
         }
@@ -490,7 +490,6 @@ class Form extends \VuFind\Form\Form
         $label = $this->translate('feedback_user_login_method');
         $params[$label]
             = ['type' => 'text', 'label' => $label, 'value' => $loginMethod];
-
 
         if ($this->user) {
             $label = $this->translate('feedback_user_roles');
