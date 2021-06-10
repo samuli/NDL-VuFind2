@@ -67,6 +67,14 @@ class RecordController extends \VuFind\Controller\RecordController
         return $this->getRecordForm($formId);
     }
 
+    /**
+     * Helper for building a route to a record form
+     * (Feedback, Repository library request).
+     *
+     * @param string $id Form id
+     *
+     * @return \Laminas\View\Model\ViewModel
+     */
     protected function getRecordForm($id)
     {
         $driver = $this->loadRecord();

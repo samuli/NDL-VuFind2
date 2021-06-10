@@ -197,7 +197,7 @@ class Record extends \VuFind\View\Helper\Root\Record
     }
 
     /**
-     * Is request form enabled.
+     * Is record request form enabled.
      *
      * @param string $formId Form ID
      *
