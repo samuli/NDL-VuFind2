@@ -36,9 +36,9 @@
             $requestEnabled = $this->record($this->driver)->requestFormEnabled($requestForm);
             $user = $this->auth()->isLoggedIn();
             if ($requestEnabled && $user && $user->getLibraryCards()->count()): ?>
-            <li class="repository-library-request"><?=$this->transEsc('repository_library_request')?></li>
-            <li><a href="<?=$this->recordLink()->getActionUrlWithParams($this->driver, 'RequestForm', ['formId' => $requestForm])?>" data-lightbox class="btn btn-primary repository-library-request-order"><?=$this->transEsc('repository_library_request_order')?></a></li>
-          <?php endif; ?>
+              <li class="repository-library-request"><?=$this->transEsc('repository_library_request')?></li>
+              <li><a href="<?=$this->recordLink()->getActionUrlWithParams($this->driver, 'RequestForm', ['formId' => $requestForm])?>" data-lightbox class="btn btn-primary repository-library-request-order"><?=$this->transEsc('repository_library_request_order')?></a></li>
+            <?php endif; ?>
         </ul>
       </li>
     </ul>
