@@ -230,18 +230,27 @@ forms:
     sendMethod: "database"
     includeBarcode: true
     onlyForLoggedUsers: true
-    emailSubject: "Varastokirjastotilaus tietueesta: %%record%%"
-    response: Thank you for your feedback.
+    emailSubject: "Varastokirjastotilaus: %%record%%"
+    response: repository_library_request_response
     senderInfoRequired: true
-    hideSenderInfo: false
+    hideSenderInfo: true
+    hideRecipientInfo: true
     help:
-      pre:
+      pre: repository_library_request_info
     fields:
       - name: pickup
         type: select
         options:
           - 2/Vaski/1/1/
+          - 2/Vaski/5/100/
+          - 2/Vaski/6/110/
         label: preferred_pickup_location
+      - name: email
+        type: email
+        label: feedback_email
+        required: true
       - name: message
         type: textarea
         label: feedback_message
+        settings:
+          - [placeholder, repository_library_request_message]
