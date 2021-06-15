@@ -121,15 +121,16 @@ class GetRecordDriverRelatedRecords extends \VuFind\AjaxHandler\AbstractBase
                         $field = $id['field'] ?? 'identifier';
                         // Search by id in the specified Solr field
                         $results = $this->searchRunner->run(
-                            ['lookfor' =>
-                                "{$field}:" . addcslashes($identifier, '"')],
-                            $source,
-                            function ($runner, $params, $searchId) use ($driver) {
+                            [], $source,
+                            function ($runner, $params, $searchId) use ($driver, $field, $identifier) {
                                 $params->setLimit(1);
                                 $params->setPage(1);
                                 $params->resetFacetConfig();
                                 $params->addFilter(
                                     'datasource_str_mv:' . $driver->getDatasource()
+                                );
+                                $params->addFilter(
+                                    "{$field}:" . addcslashes($identifier, '"')
                                 );
                                 $options = $params->getOptions();
                                 $options->disableHighlighting();
