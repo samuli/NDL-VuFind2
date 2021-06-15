@@ -122,7 +122,7 @@ class GetRecordDriverRelatedRecords extends \VuFind\AjaxHandler\AbstractBase
                         // Search by id in the specified Solr field
                         $results = $this->searchRunner->run(
                             [], $source,
-                            function ($runner, $params, $searchId) use
+                            function ($runner, $params, $searchId) use 
                                 ($driver, $field, $identifier) {
                                 $params->setLimit(1);
                                 $params->setPage(1);
