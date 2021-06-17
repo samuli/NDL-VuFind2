@@ -132,7 +132,8 @@ class GetRecordDriverRelatedRecords extends \VuFind\AjaxHandler\AbstractBase
                                     'datasource_str_mv:' . $driver->getDatasource()
                                 );
                                 $params->addFilter(
-                                    "{$field}:" . addcslashes($identifier, '"')
+                                    "{!cache=false}{$field}:"
+                                    . addcslashes($identifier, '"')
                                 );
                                 $options = $params->getOptions();
                                 $options->disableHighlighting();
