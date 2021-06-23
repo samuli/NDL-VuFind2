@@ -2,6 +2,96 @@
 /*exported collapseTopFacets, initFacetTree */
 var facetQuery = null;
 
+function showLoadingOverlay(e, data) {
+  e.preventDefault();
+  var overlay = '<div class="facet-loading-overlay">'
+      + '<span class="facet-loading-overlay-label">' + VuFind.translate('loading')
+      + "...</span></div>";
+  $(this).closest(".collapse").append(overlay);
+  // This callback operates both as a click handler and a JSTree callback;
+  // if the data element is undefined, we assume we are handling a click.
+  var href = typeof data === "undefined" || typeof data.node.data.url === "undefined"
+    ? $(this).attr('href') : data.node.data.url;
+  //window.location.assign(href);
+
+  onFacetClick(href);
+
+  return false;
+}
+
+function activateFacetBlocking(context) {
+  var finalContext = (typeof context === "undefined") ? $(document.body) : context;
+  finalContext.find('a.facet:not(.narrow-toggle),.facet a').click(showLoadingOverlay);
+}
+
+function activateSingleAjaxFacetContainer() {
+  var $container = $(this);
+  var facetList = [];
+  var $facets = $container.find('div.collapse.in[data-facet], .checkbox-filter[data-facet]');
+  $facets.each(function addFacet() {
+    //if (!$(this).data('loaded')) {
+    facetList.push($(this).data('facet'));
+    //}
+  });
+  if (facetList.length === 0) {
+    return;
+  }
+
+  var request = {
+    method: 'getSideFacets',
+    searchClassId: $container.data('searchClassId'),
+    location: $container.data('location'),
+    configIndex: $container.data('configIndex'),
+    query: $container.data('query'),
+    querySuppressed: $container.data('querySuppressed'),
+    extraFields: $container.data('extraFields'),
+    enabledFacets: facetList
+  };
+  $container.find('.facet-load-indicator').removeClass('hidden');
+  $.getJSON(VuFind.path + '/AJAX/JSON?' + request.query, request)
+   .done(function onGetSideFacetsDone(response) {
+     $.each(response.data.facets, function initFacet(facet, facetData) {
+       var containerSelector = typeof facetData.checkboxCount !== 'undefined'
+                             ? '.checkbox-filter' : ':not(.checkbox-filter)';
+       var $facetContainer = $container.find(containerSelector + '[data-facet="' + facet + '"]');
+       $facetContainer.data('loaded', 'true');
+       if (typeof facetData.checkboxCount !== 'undefined') {
+         if (facetData.checkboxCount !== null) {
+           $facetContainer.find('.avail-count').text(
+             facetData.checkboxCount.toString().replace(/\B(?=(\d{3})+\b)/g, VuFind.translate('number_thousands_separator'))
+           );
+         }
+       } else if (typeof facetData.html !== 'undefined') {
+         $facetContainer.html(facetData.html);
+         activateFacetBlocking($facetContainer);
+       } else {
+         var treeNode = $facetContainer.find('.jstree-facet');
+         VuFind.emit('VuFind.sidefacets.treenodeloaded', {node: treeNode});
+
+         buildFacetTree(treeNode, facetData.list, true);
+       }
+       $facetContainer.find('.facet-load-indicator').remove();
+     });
+     VuFind.lightbox.bind($('.sidebar'));
+     VuFind.emit('VuFind.sidefacets.loaded');
+   })
+   .fail(function onGetSideFacetsFail() {
+     $container.find('.facet-load-indicator').remove();
+     $container.find('.facet-load-failed').removeClass('hidden');
+   });
+}
+
+function onFacetClick(href)
+{
+  window.facetQuery = href;
+
+  var $container = $(".side-facets-container-ajax");
+  $container.data("query", href.substring(1));
+  var $facets = $container.find('div.collapse.in[data-facet], .checkbox-filter[data-facet]');
+  $facets.each(() => $(this).data('loaded', false));
+  $('.side-facets-container-ajax').each(activateSingleAjaxFacetContainer);
+}
+
 function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
 {
   var json = [];
@@ -84,8 +174,10 @@ function buildFacetNodes(data, currentPath, allowExclude, excludeTitle, counts)
 }
 
 function buildFacetTree(treeNode, facetData, inSidebar) {
+  treeNode.off().empty().jstree("destroy", { keep_html: false });
+
   // Enable keyboard navigation also when a screen reader is active
-  treeNode.bind('select_node.jstree', VuFind.sideFacets.showLoadingOverlay);
+  treeNode.bind('select_node.jstree', (e, data) => onFacetClick(data.node.data.url));
 
   var currentPath = treeNode.data('path');
   var allowExclude = treeNode.data('exclude');
@@ -99,11 +191,14 @@ function buildFacetTree(treeNode, facetData, inSidebar) {
       treeNode.find('a.exclude').click(VuFind.sideFacets.showLoadingOverlay);
     });
   }
+
   treeNode.jstree({
     'core': {
       'data': results
     }
   });
+
+  treeNode.toggleClass("jstree-facet", true);
 }
 
 function initFacetTree(treeNode, inSidebar)
@@ -153,90 +248,7 @@ function collapseTopFacets() {
 
 /* --- Side Facets --- */
 VuFind.register('sideFacets', function SideFacets() {
-  function showLoadingOverlay(e, data) {
-    e.preventDefault();
-    var overlay = '<div class="facet-loading-overlay">'
-      + '<span class="facet-loading-overlay-label">' + VuFind.translate('loading')
-      + "...</span></div>";
-    $(this).closest(".collapse").append(overlay);
-    // This callback operates both as a click handler and a JSTree callback;
-    // if the data element is undefined, we assume we are handling a click.
-    var href = typeof data === "undefined" || typeof data.node.data.url === "undefined"
-      ? $(this).attr('href') : data.node.data.url;
-    //window.location.assign(href);
 
-
-    window.facetQuery = href;
-    var $container = $(".side-facets-container-ajax");
-    $container.data("query", href.substring(1));
-    var $facets = $container.find('div.collapse.in[data-facet], .checkbox-filter[data-facet]');
-    $facets.each(() => $(this).data('loaded', false));
-
-    $('.side-facets-container-ajax').each(activateSingleAjaxFacetContainer);
-
-    return false;
-  }
-
-  function activateFacetBlocking(context) {
-    var finalContext = (typeof context === "undefined") ? $(document.body) : context;
-    finalContext.find('a.facet:not(.narrow-toggle),.facet a').click(showLoadingOverlay);
-  }
-
-  function activateSingleAjaxFacetContainer() {
-    var $container = $(this);
-    var facetList = [];
-    var $facets = $container.find('div.collapse.in[data-facet], .checkbox-filter[data-facet]');
-    $facets.each(function addFacet() {
-      //if (!$(this).data('loaded')) {
-        facetList.push($(this).data('facet'));
-      //}
-    });
-    if (facetList.length === 0) {
-      return;
-    }
-    var request = {
-      method: 'getSideFacets',
-      searchClassId: $container.data('searchClassId'),
-      location: $container.data('location'),
-      configIndex: $container.data('configIndex'),
-      query: $container.data('query'),
-      querySuppressed: $container.data('querySuppressed'),
-      extraFields: $container.data('extraFields'),
-      enabledFacets: facetList
-    };
-    $container.find('.facet-load-indicator').removeClass('hidden');
-    $.getJSON(VuFind.path + '/AJAX/JSON?' + request.query, request)
-      .done(function onGetSideFacetsDone(response) {
-        $.each(response.data.facets, function initFacet(facet, facetData) {
-          var containerSelector = typeof facetData.checkboxCount !== 'undefined'
-            ? '.checkbox-filter' : ':not(.checkbox-filter)';
-          var $facetContainer = $container.find(containerSelector + '[data-facet="' + facet + '"]');
-          $facetContainer.data('loaded', 'true');
-          if (typeof facetData.checkboxCount !== 'undefined') {
-            if (facetData.checkboxCount !== null) {
-              $facetContainer.find('.avail-count').text(
-                facetData.checkboxCount.toString().replace(/\B(?=(\d{3})+\b)/g, VuFind.translate('number_thousands_separator'))
-              );
-            }
-          } else if (typeof facetData.html !== 'undefined') {
-            $facetContainer.html(facetData.html);
-            activateFacetBlocking($facetContainer);
-          } else {
-            var treeNode = $facetContainer.find('.jstree-facet');
-            VuFind.emit('VuFind.sidefacets.treenodeloaded', {node: treeNode});
-
-            buildFacetTree(treeNode, facetData.list, true);
-          }
-          $facetContainer.find('.facet-load-indicator').remove();
-        });
-        VuFind.lightbox.bind($('.sidebar'));
-        VuFind.emit('VuFind.sidefacets.loaded');
-      })
-      .fail(function onGetSideFacetsFail() {
-        $container.find('.facet-load-indicator').remove();
-        $container.find('.facet-load-failed').removeClass('hidden');
-      });
-  }
 
   function loadAjaxSideFacets() {
     $('.side-facets-container-ajax').each(activateSingleAjaxFacetContainer);
