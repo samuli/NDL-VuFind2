@@ -143,6 +143,10 @@ finna.layout = (function finnaLayout() {
       }
       $('.mobile-navigation .sidebar-navigation i').toggleClass('fa-arrow-down');
       $('body').toggleClass('prevent-scroll');
+      if (window.facetQuery !== null) {
+        window.location.assign(window.facetQuery);
+        window.facetQuery = null;
+      }
     });
     $('.mobile-navigation .sidebar-navigation .active-filters').off('click').on('click', function onClickMobileActiveFilters() {
       $('.sidebar').scrollTop(0);
