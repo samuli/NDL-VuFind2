@@ -210,7 +210,7 @@ class Record extends \VuFind\View\Helper\Root\Record
      */
     public function repositoryLibraryRequestEnabled() : bool
     {
-        return (bool)($this->config->Record->repository_library_request || false)
+        return (bool)($this->config->Record->repository_library_request ?? false)
             && in_array(
                 $this->driver->getDataSource(),
                 self::REPOSITORY_LIBRARY_REQUEST_SOURCES
