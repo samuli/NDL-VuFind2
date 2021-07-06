@@ -53,12 +53,27 @@ class Form extends \VuFind\Form\Form
     const HANDLER_DATABASE = 'database';
 
     /**
-     * List of forms that are allowed to send user's library card barcode
+     * Site feedback form id.
+     *
+     * @var string
+     */
+    const FEEDBACK_FORM = 'FeedbackSite';
+
+    /**
+     * Record feedback form id.
+     *
+     * @var string
+     */
+    const RECORD_FEEDBACK_FORM = 'FeedbackRecord';
+
+    /**
+     * Repository library request form id.
+     * This form is allowed to send user's library card barcode
      * along with the form data.
      *
-     * @var array
+     * @var string
      */
-    const RECORD_REQUEST_FORMS = ['RepositoryLibraryRequest'];
+    const REPOSITORY_LIBRARY_REQUEST_FORM = 'RepositoryLibraryRequest';
 
     /**
      * Form id
@@ -142,8 +157,10 @@ class Form extends \VuFind\Form\Form
         $this->formSettings = $config;
         parent::setFormId($formId, $params);
         $this->setName($formId);
+
+        // Validate repository library request form settings
         if ($this->formSettings['includeBarcode'] ?? false) {
-            if (!in_array($this->formId, self::RECORD_REQUEST_FORMS)) {
+            if ($this->formId !== self::REPOSITORY_LIBRARY_REQUEST_FORM) {
                 throw new \VuFind\Exception\RecordMissing(
                     'Library card barcode can not be used with this form.'
                 );
@@ -160,10 +177,8 @@ class Form extends \VuFind\Form\Form
                     . ' \'includeBarcode\' is enabled'
                 );
             }
-
             if ($this->user && ($catUsername = $this->user->cat_username)) {
                 [$source, $barcode] = explode('.', $catUsername);
-                $this->userCatUsername = $barcode;
             }
         }
     }
@@ -357,7 +372,7 @@ class Form extends \VuFind\Form\Form
             : null;
 
         // 'feedback_instructions_html' translation
-        if ($this->formId === 'FeedbackSite') {
+        if ($this->formId === self::FEEDBACK_FORM) {
             $key = 'feedback_instructions_html';
             $instructions = $this->translate($key);
             // Remove zero width space
@@ -369,7 +384,7 @@ class Form extends \VuFind\Form\Form
             }
         }
 
-        if ($this->formId === 'FeedbackRecord' && null !== $this->record) {
+        if ($this->formId === self::RECORD_FEEDBACK_FORM && null !== $this->record) {
             // Append receiver info after general record feedback instructions
             // (translation key for this is defined in FeedbackForms.yaml)
             if (!$translationEmpty->__invoke('feedback_recipient_info_record')) {
@@ -444,7 +459,11 @@ class Form extends \VuFind\Form\Form
      */
     public function formatEmailMessage(array $requestParams = [])
     {
-        if ($this->formId === 'FeedbackRecord') {
+        if (in_array(
+            $this->formId,
+            [self::RECORD_FEEDBACK_FORM, self::REPOSITORY_LIBRARY_REQUEST_FORM]
+        )
+        ) {
             foreach (['record', 'record_id'] as $key) {
                 unset($requestParams[$key]);
             }
@@ -479,29 +498,38 @@ class Form extends \VuFind\Form\Form
         );
         reset($params);
 
-        // Append user logged status and permissions
-        $loginMethod = $this->user ?
-            $this->translate(
-                'login_method_' . $this->user->auth_method,
-                null,
-                $this->user->auth_method
-            ) : $this->translate('feedback_user_anonymous');
+        if ($this->userCatUsername) {
+            // Append library card barcode after email
+            $label = $this->translate('Library Catalog Username');
+            $field = [
+                'type' => 'text', 'label' => $label,
+                'value' => $this->userCatUsername
+            ];
+            if ($idx = array_search('email', array_column($params, 'type'))) {
+                array_splice($params, $idx+1, 0, [$field]);
+            } else {
+                $params[] = $field;
+            }
+        }
 
-        $label = $this->translate('feedback_user_login_method');
-        $params[$label]
-            = ['type' => 'text', 'label' => $label, 'value' => $loginMethod];
+        if ($this->formId !== self::REPOSITORY_LIBRARY_REQUEST_FORM) {
+            // Append user logged status and permissions
+            $loginMethod = $this->user ?
+                $this->translate(
+                    'login_method_' . $this->user->auth_method,
+                    null,
+                    $this->user->auth_method
+                ) : $this->translate('feedback_user_anonymous');
 
-        if ($this->user) {
-            $label = $this->translate('feedback_user_roles');
+            $label = $this->translate('feedback_user_login_method');
             $params[$label]
-                = ['type' => 'text', 'label' => $label,
-                   'value' => implode(', ', $this->userRoles)];
-            // Append library card barcode
-            if ($this->userCatUsername) {
-                $label = $this->translate('Library Catalog Username');
+                = ['type' => 'text', 'label' => $label, 'value' => $loginMethod];
+
+            if ($this->user) {
+                $label = $this->translate('feedback_user_roles');
                 $params[$label]
                     = ['type' => 'text', 'label' => $label,
-                       'value' => $this->userCatUsername];
+                       'value' => implode(', ', $this->userRoles)];
             }
         }
 
@@ -515,6 +543,10 @@ class Form extends \VuFind\Form\Form
      */
     public function useEmailHandler()
     {
+        // Never send librarycard barcode via email
+        if ($this->formConfig['includeBarcode'] ?? false) {
+            return false;
+        }
         // Send via email if not configured otherwise locally.
         return !isset($this->formConfig['sendMethod'])
                 || $this->formConfig['sendMethod'] !== Form::HANDLER_DATABASE;
@@ -568,7 +600,7 @@ class Form extends \VuFind\Form\Form
 
         $includeRecordData = in_array(
             $this->formId,
-            array_merge(['FeedbackRecord'], self::RECORD_REQUEST_FORMS)
+            [self::RECORD_FEEDBACK_FORM, self::REPOSITORY_LIBRARY_REQUEST_FORM]
         );
 
         if ($includeRecordData) {

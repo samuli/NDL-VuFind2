@@ -234,9 +234,9 @@ forms:
     response: repository_library_request_response
     senderInfoRequired: true
     hideSenderInfo: true
-    hideRecipientInfo: true
+    hideRecipientInfo: false
     help:
-      pre: repository_library_request_info
+      pre: repository_library_request_info_html
     fields:
       - name: pickup
         type: select

@@ -106,14 +106,11 @@ class Record extends \VuFind\View\Helper\Root\Record
     protected $tabManager;
 
     /**
-     * Datasources for record request forms.
+     * Enabled datasources for repository library request forms.
      *
      * @var array
      */
-    const REQUEST_FORM_SOURCES = [
-        // Show Repository library request for vaari records.
-        'RepositoryLibraryRequest' => ['vaari']
-    ];
+    const REPOSITORY_LIBRARY_REQUEST_FORM_SOURCES = ['vaari'];
 
     /**
      * Constructor
@@ -207,16 +204,17 @@ class Record extends \VuFind\View\Helper\Root\Record
     }
 
     /**
-     * Is record request form enabled.
-     *
-     * @param string $formId Form ID
+     * Is repository library request form enabled for this record.
      *
      * @return boolean
      */
-    public function requestFormEnabled(string $formId) : bool
+    public function repositoryLibraryRequestEnabled() : bool
     {
-        $sources = self::REQUEST_FORM_SOURCES[$formId] ?? [];
-        return in_array($this->driver->getDataSource(), $sources);
+        return (bool)($this->config->Record->repository_library_request || false)
+            && in_array(
+                $this->driver->getDataSource(),
+                self::REPOSITORY_LIBRARY_REQUEST_FORM_SOURCES
+            );
     }
 
     /**
