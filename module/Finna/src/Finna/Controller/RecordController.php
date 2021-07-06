@@ -27,6 +27,7 @@
  */
 namespace Finna\Controller;
 
+use \Finna\Form\Form;
 use VuFindSearch\ParamBag;
 
 /**
@@ -50,24 +51,18 @@ class RecordController extends \VuFind\Controller\RecordController
      */
     public function feedbackAction()
     {
-        return $this->getRecordForm('FeedbackRecord');
+        return $this->getRecordForm(Form::RECORD_FEEDBACK_FORM);
     }
 
     /**
-     * Create record request form.
+     * Create repository library request form.
      *
      * @return \Laminas\View\Model\ViewModel
      * @throws \Exception
      */
-    public function requestFormAction()
+    public function repositoryLibraryRequestAction()
     {
-        if (!($formId = $this->params()->fromRoute(
-            'formId', $this->params()->fromQuery('formId')
-        ))
-        ) {
-            throw new \Exception('Missing formId');
-        }
-        return $this->getRecordForm($formId);
+        return $this->getRecordForm(Form::REPOSITORY_LIBRARY_REQUEST_FORM);
     }
 
     /**

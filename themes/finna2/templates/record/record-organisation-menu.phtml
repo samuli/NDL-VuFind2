@@ -34,7 +34,7 @@
           <?php if ($this->record($this->driver)->repositoryLibraryRequestEnabled()): ?>
             <?php $user = $this->auth()->isLoggedIn(); if ($user && $user->getLibraryCards()->count()): ?>
               <li class="repository-library-request"><?=$this->transEsc('repository_library_request')?></li>
-              <li><a href="<?=$this->recordLink()->getActionUrlWithParams($this->driver, 'RequestForm', ['formId' => \Finna\Form\Form::REPOSITORY_LIBRARY_REQUEST_FORM])?>" data-lightbox class="btn btn-primary repository-library-request-order"><?=$this->transEsc('repository_library_request_order')?></a></li>
+              <li><a href="<?=$this->recordLink()->getActionUrl($this->driver, 'RepositoryLibraryRequest')?>" data-lightbox class="btn btn-primary repository-library-request-order"><?=$this->transEsc('repository_library_request_order')?></a></li>
             <?php endif; ?>
           <?php endif; ?>
         </ul>
