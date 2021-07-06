@@ -507,7 +507,7 @@ class Form extends \VuFind\Form\Form
                 'value' => $this->userCatUsername
             ];
             if ($idx = array_search('email', array_column($params, 'type'))) {
-                array_splice($params, $idx+1, 0, [$field]);
+                array_splice($params, $idx + 1, 0, [$field]);
             } else {
                 $params[] = $field;
             }
