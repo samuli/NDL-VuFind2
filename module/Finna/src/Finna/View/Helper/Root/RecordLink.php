@@ -177,24 +177,4 @@ class RecordLink extends \VuFind\View\Helper\Root\RecordLink
         }
         return '';
     }
-
-    /**
-     * Given a record driver, get a URL for that record.
-     *
-     * @param \VuFind\RecordDriver\AbstractBase|string $driver Record driver
-     * representing record to link to, or source|id pipe-delimited string
-     * @param string                                   $action Record
-     * action to access
-     * @param array                                    $params Router parameters
-     *
-     * @return string
-     */
-    public function getActionUrlWithParams($driver, $action, $params = [])
-    {
-        $urlHelper = $this->getView()->plugin('url');
-        $details = $this->router->getRouteDetails(
-            $driver, '-' . strtolower($action), $params
-        );
-        return $urlHelper($details['route'], $details['params'] ?: []);
-    }
 }
