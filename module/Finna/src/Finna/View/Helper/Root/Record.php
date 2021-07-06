@@ -110,7 +110,7 @@ class Record extends \VuFind\View\Helper\Root\Record
      *
      * @var array
      */
-    const REPOSITORY_LIBRARY_REQUEST_FORM_SOURCES = ['vaari'];
+    const REPOSITORY_LIBRARY_REQUEST_SOURCES = ['vaari'];
 
     /**
      * Constructor
@@ -213,7 +213,7 @@ class Record extends \VuFind\View\Helper\Root\Record
         return (bool)($this->config->Record->repository_library_request || false)
             && in_array(
                 $this->driver->getDataSource(),
-                self::REPOSITORY_LIBRARY_REQUEST_FORM_SOURCES
+                self::REPOSITORY_LIBRARY_REQUEST_SOURCES
             );
     }
 
