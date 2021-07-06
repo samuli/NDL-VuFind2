@@ -27,7 +27,7 @@
  */
 namespace Finna\Controller;
 
-use \Finna\Form\Form;
+use Finna\Form\Form;
 use VuFindSearch\ParamBag;
 
 /**
