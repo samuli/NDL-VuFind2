@@ -501,9 +501,9 @@ class Form extends \VuFind\Form\Form
 
         if ($this->userCatUsername) {
             // Append library card barcode after email
-            $label = $this->translate('Library Catalog Username');
             $field = [
-                'type' => 'text', 'label' => $label,
+                'type' => 'text',
+                'label' => $this->translate('Library Catalog Username'),
                 'value' => $this->userCatUsername
             ];
             if ($idx = array_search('email', array_column($params, 'type'))) {
