@@ -230,6 +230,7 @@ forms:
     sendMethod: "database"
     includeBarcode: true
     onlyForLoggedUsers: true
+    #reminderEmail: feedback@myuniversity.edu
     emailSubject: "Varastokirjastotilaus: %%record%%"
     response: repository_library_request_response
     senderInfoRequired: true
