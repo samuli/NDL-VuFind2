@@ -179,6 +179,7 @@ class Form extends \VuFind\Form\Form
             }
             if ($this->user && ($catUsername = $this->user->cat_username)) {
                 [$source, $barcode] = explode('.', $catUsername);
+                $this->userCatUsername = $barcode;
             }
         }
     }
