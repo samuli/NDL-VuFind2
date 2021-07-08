@@ -53,7 +53,7 @@
 #
 #   hideRecipientInfo (boolean) Hide recipient info (default = false)
 #   includeBarcode    (boolean) Whether to submit the user's library card barcode along with other form data.
-#                               This setting can be enabled only for 'RepositoryLibraryRequest' form.
+#                               This setting can be enabled only for selected forms.
 #                               In addition, the following settings are required:
 #                               - sendMethod = database (barcode can not be sent via email)
 #                               - onlyForLoggedUsers = true (barcode is available only for logged users)
