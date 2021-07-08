@@ -67,15 +67,6 @@ class Form extends \VuFind\Form\Form
     const RECORD_FEEDBACK_FORM = 'FeedbackRecord';
 
     /**
-     * Repository library request form id.
-     * This form is allowed to send user's library card barcode
-     * along with the form data.
-     *
-     * @var string
-     */
-    const REPOSITORY_LIBRARY_REQUEST_FORM = 'RepositoryLibraryRequest';
-
-    /**
      * Form id
      *
      * @var string
@@ -116,6 +107,14 @@ class Form extends \VuFind\Form\Form
      * @var string|null
      */
     protected $userCatUsername = null;
+
+    /**
+     * Record request forms that are allowed to send user's library card barcode
+     * along with the form data.
+     *
+     * @var array Form ids
+     */
+    protected $recordRequestFormsWithBarcode = [];
 
     /**
      * View helper manager
@@ -160,7 +159,7 @@ class Form extends \VuFind\Form\Form
 
         // Validate repository library request form settings
         if ($this->formSettings['includeBarcode'] ?? false) {
-            if ($this->formId !== self::REPOSITORY_LIBRARY_REQUEST_FORM) {
+            if (!$this->isRecordRequestFormWithBarcode()) {
                 throw new \VuFind\Exception\RecordMissing(
                     'Library card barcode can not be used with this form.'
                 );
@@ -244,6 +243,19 @@ class Form extends \VuFind\Form\Form
     public function setRecord($record)
     {
         $this->record = $record;
+    }
+
+    /**
+     * Set form ids that are allowed to send user's library card barcode
+     * along with the form data.
+     *
+     * @param array $formIds Form ids
+     *
+     * @return void
+     */
+    public function setRecordRequestFormsWithBarcode(array $formIds) : void
+    {
+        $this->recordRequestFormsWithBarcode = $formIds;
     }
 
     /**
@@ -460,10 +472,8 @@ class Form extends \VuFind\Form\Form
      */
     public function formatEmailMessage(array $requestParams = [])
     {
-        if (in_array(
-            $this->formId,
-            [self::RECORD_FEEDBACK_FORM, self::REPOSITORY_LIBRARY_REQUEST_FORM]
-        )
+        if ($this->formId === self::RECORD_FEEDBACK_FORM
+            || $this->isRecordRequestFormWithBarcode()
         ) {
             foreach (['record', 'record_id'] as $key) {
                 unset($requestParams[$key]);
@@ -513,7 +523,7 @@ class Form extends \VuFind\Form\Form
             }
         }
 
-        if ($this->formId !== self::REPOSITORY_LIBRARY_REQUEST_FORM) {
+        if (!$this->isRecordRequestFormWithBarcode()) {
             // Append user logged status and permissions
             $loginMethod = $this->user ?
                 $this->translate(
@@ -599,10 +609,8 @@ class Form extends \VuFind\Form\Form
     {
         $elements = parent::getFormElements($config);
 
-        $includeRecordData = in_array(
-            $this->formId,
-            [self::RECORD_FEEDBACK_FORM, self::REPOSITORY_LIBRARY_REQUEST_FORM]
-        );
+        $includeRecordData = $this->formId === self::RECORD_FEEDBACK_FORM
+          || $this->isRecordRequestFormWithBarcode();
 
         if ($includeRecordData) {
             // Add hidden fields for record data
@@ -778,5 +786,16 @@ class Form extends \VuFind\Form\Form
         $data['fields'] = $viewConfig['fields'] ?? $config['fields'];
 
         return $data;
+    }
+
+    /**
+     * Is this form allowed to send user's library card barcode
+     * along with the form data?
+     *
+     * @return boolean
+     */
+    protected function isRecordRequestFormWithBarcode() : bool
+    {
+        return in_array($this->formId, $this->recordRequestFormsWithBarcode);
     }
 }

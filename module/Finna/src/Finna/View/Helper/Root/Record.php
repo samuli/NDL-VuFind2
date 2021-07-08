@@ -106,13 +106,6 @@ class Record extends \VuFind\View\Helper\Root\Record
     protected $tabManager;
 
     /**
-     * Enabled datasources for repository library request forms.
-     *
-     * @var array
-     */
-    const REPOSITORY_LIBRARY_REQUEST_SOURCES = ['vaari'];
-
-    /**
      * Constructor
      *
      * @param \Laminas\Config\Config              $config           VuFind config
@@ -210,11 +203,23 @@ class Record extends \VuFind\View\Helper\Root\Record
      */
     public function repositoryLibraryRequestEnabled() : bool
     {
-        return (bool)($this->config->Record->repository_library_request ?? false)
-            && in_array(
-                $this->driver->getDataSource(),
-                self::REPOSITORY_LIBRARY_REQUEST_SOURCES
-            );
+        if (!isset($this->config->Record->repository_library_request_sources)) {
+            return false;
+        }
+        return in_array(
+            $this->driver->getDataSource(),
+            $this->config->Record->repository_library_request_sources->toArray()
+        );
+    }
+
+    /**
+     * Get repository library request form id.
+     *
+     * @return string|null
+     */
+    public function getRepositoryLibraryRequestFormId()
+    {
+        return $this->config->Record->repository_library_request_form ?? null;
     }
 
     /**

@@ -63,11 +63,14 @@ class RecordController extends \VuFind\Controller\RecordController
     public function repositoryLibraryRequestAction()
     {
         $driver = $this->loadRecord();
-        $recordPlugin = $this->getViewRenderer()->plugin('record');
-        if (!$recordPlugin($driver)->repositoryLibraryRequestEnabled()) {
+        $recordPlugin = $this->getViewRenderer()->plugin('record')($driver);
+        if (!$recordPlugin->repositoryLibraryRequestEnabled()) {
             throw new \Exception('Repository library request is not enabled');
         }
-        return $this->getRecordForm(Form::REPOSITORY_LIBRARY_REQUEST_FORM);
+        if (!$formId = $recordPlugin->getRepositoryLibraryRequestFormId()) {
+            throw new \Exception('Repository library request form not configured');
+        }
+        return $this->getRecordForm($formId);
     }
 
     /**
