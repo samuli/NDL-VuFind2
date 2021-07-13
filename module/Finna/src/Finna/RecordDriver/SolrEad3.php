@@ -1697,9 +1697,8 @@ class SolrEad3 extends SolrEad
     protected function getSummaryWithData($withLinks = false) : array
     {
         $xml = $this->getXmlRecord();
-
+        $result = $localeResult = [];
         if (!empty($xml->scopecontent)) {
-            $result = $localeResult = [];
             $preferredLangCodes = $this->mapLanguageCode($this->preferredLanguage);
             foreach ($xml->scopecontent as $el) {
                 if (isset($el->attributes()->encodinganalog)) {
