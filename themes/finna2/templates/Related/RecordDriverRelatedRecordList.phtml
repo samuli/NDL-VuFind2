@@ -13,6 +13,9 @@
               <?=$this->escapeHtml($record->getTitle())?>
             </a>
             <?=$this->record($record)->getFormatList();?>
+            <?php $topTitles = $record->getHierarchyTopTitle(); if ($topTitles): ?>
+              <br/><?=$topTitles[0]?>
+            <?php endif?>
           </li>
         <?php endforeach; ?>
         </ul>
