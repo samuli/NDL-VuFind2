@@ -1734,13 +1734,25 @@ class SolrEad3 extends SolrEad
             return $res;
         }
         $summary = parent::getSummary();
-        if ($withLinks) {
-            return array_map(
-                function ($text) {
-                    return compact('text');
-                },
-                $summary
-            );
+
+        // Return parent summary text only if it differs from item history
+        // (otherwise it gets displayed multiple times on record page).
+        $itemHistory = trim($this->getItemHistory());
+        $summary = array_filter(
+            $summary,
+            function ($item) use ($itemHistory) {
+                return trim($item) !== $itemHistory;
+            }
+        );
+        if ($summary) {
+            if ($withLinks) {
+                return array_map(
+                    function ($text) {
+                        return compact('text');
+                    },
+                    $summary
+                );
+            }
         }
         return $summary;
     }
