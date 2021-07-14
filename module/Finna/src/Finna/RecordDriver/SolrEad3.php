@@ -848,8 +848,43 @@ class SolrEad3 extends SolrEad
         if (!isset($xml->bibliography->p)) {
             return null;
         }
-        $label = $this->getDisplayLabel($xml->bibliography, 'p', true);
-        return $label ? $label[0] : null;
+        if ($label = $this->getDisplayLabel($xml->bibliography, 'p', true)) {
+            return $label[0];
+        } elseif ($label = $this->getDisplayLabel($xml->bibliography, 'p')) {
+            return $label[0];
+        }
+        return null;
+    }
+
+    /**
+     * Get the statement of responsibility that goes with the title.
+     * Returns an array of statements that contain the fields
+     * 'text' and 'url' (when available).
+     *
+     * @return array
+     */
+    public function getTitleStatementsExtended() : array
+    {
+        $xml = $this->getXmlRecord();
+        if (!isset($xml->bibliography->p)) {
+            return [];
+        }
+        $localeResults = $results = [];
+        foreach ($xml->bibliography->p ?? [] as $p) {
+            $text = (string)$p;
+            $url = isset($p->ref)
+                 ? (string)$p->ref->attributes()->href : null;
+            if ($this->urlBlocked($url, $text)) {
+                $url = null;
+            }
+            $data = compact('text', 'url');
+            $results[] = $data;
+            $lang = $this->detectNodeLanguage($p);
+            if ($lang['preferred']) {
+                $localeResults[] = $data;
+            }
+        }
+        return $localeResults ?: $results ?: [];
     }
 
     /**
