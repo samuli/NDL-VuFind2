@@ -999,4 +999,27 @@ class Record extends \VuFind\View\Helper\Root\Record
             );
         }
     }
+
+    /**
+     * Returns a translated copyright text.
+     *
+     * @param string $copyright Copyright
+     *
+     * @return string
+     */
+    public function translateCopyright(string $copyright) : string
+    {
+        $transEsc = $this->getView()->plugin('transEsc');
+
+        $label = $transEsc($copyright);
+        if ($copyright === 'Luvanvarainen käyttö / ei tiedossa') {
+            $label = $transEsc('usage_F');
+        } else {
+            $translationEmpty = $this->getView()->plugin('translationEmpty');
+            if (!$translationEmpty("rightsstatement_$copyright")) {
+                $label = $transEsc("rightsstatement_$copyright");
+            }
+        }
+        return $label;
+    }
 }
